@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      active_users: {
+        Row: {
+          event_id: string
+          id: string
+          is_visible: boolean | null
+          last_seen: string | null
+          latitude: number | null
+          longitude: number | null
+          user_id: string
+        }
+        Insert: {
+          event_id: string
+          id?: string
+          is_visible?: boolean | null
+          last_seen?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          user_id: string
+        }
+        Update: {
+          event_id?: string
+          id?: string
+          is_visible?: boolean | null
+          last_seen?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "active_users_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_checkins: {
         Row: {
           checked_in_at: string | null
@@ -135,6 +173,41 @@ export type Database = {
         }
         Relationships: []
       }
+      matches: {
+        Row: {
+          event_id: string
+          id: string
+          matched_at: string | null
+          status: string | null
+          user1_id: string
+          user2_id: string
+        }
+        Insert: {
+          event_id: string
+          id?: string
+          matched_at?: string | null
+          status?: string | null
+          user1_id: string
+          user2_id: string
+        }
+        Update: {
+          event_id?: string
+          id?: string
+          matched_at?: string | null
+          status?: string | null
+          user1_id?: string
+          user2_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age: number | null
@@ -189,12 +262,148 @@ export type Database = {
         }
         Relationships: []
       }
+      swipes: {
+        Row: {
+          action: string
+          created_at: string | null
+          event_id: string
+          id: string
+          swiped_id: string
+          swiper_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          event_id: string
+          id?: string
+          swiped_id: string
+          swiper_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          swiped_id?: string
+          swiper_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "swipes_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          id: string
+          unlocked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          unlocked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          unlocked_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      waves: {
+        Row: {
+          created_at: string | null
+          id: string
+          match_id: string
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          match_id: string
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          match_id?: string
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waves_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xp_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "user"
