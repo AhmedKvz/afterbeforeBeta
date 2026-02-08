@@ -87,6 +87,44 @@ export type Database = {
           },
         ]
       }
+      event_reviews: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          rating: number
+          review_text: string | null
+          user_id: string
+          xp_earned: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          rating: number
+          review_text?: string | null
+          user_id: string
+          xp_earned?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          rating?: number
+          review_text?: string | null
+          user_id?: string
+          xp_earned?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_reviews_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_wishlists: {
         Row: {
           created_at: string | null
@@ -172,6 +210,44 @@ export type Database = {
           venue_name?: string | null
         }
         Relationships: []
+      }
+      lucky_100_claims: {
+        Row: {
+          claimed_at: string | null
+          entry_id: string
+          event_choice: string
+          guestlist_name: string
+          id: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          entry_id: string
+          event_choice: string
+          guestlist_name: string
+          id?: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          entry_id?: string
+          event_choice?: string
+          guestlist_name?: string
+          id?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lucky_100_claims_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "lucky_100_entries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lucky_100_entries: {
         Row: {
@@ -412,6 +488,36 @@ export type Database = {
           },
         ]
       }
+      weekly_leaderboard: {
+        Row: {
+          id: string
+          rank: number | null
+          total_xp: number | null
+          updated_at: string | null
+          user_id: string
+          week_number: number
+          year: number
+        }
+        Insert: {
+          id?: string
+          rank?: number | null
+          total_xp?: number | null
+          updated_at?: string | null
+          user_id: string
+          week_number: number
+          year: number
+        }
+        Update: {
+          id?: string
+          rank?: number | null
+          total_xp?: number | null
+          updated_at?: string | null
+          user_id?: string
+          week_number?: number
+          year?: number
+        }
+        Relationships: []
+      }
       xp_transactions: {
         Row: {
           amount: number
@@ -446,6 +552,24 @@ export type Database = {
         Returns: {
           winner_id: string
           winner_name: string
+        }[]
+      }
+      get_event_stats: {
+        Args: { event_uuid: string }
+        Returns: {
+          avg_rating: number
+          latest_review: string
+          review_count: number
+        }[]
+      }
+      get_weekly_leaderboard: {
+        Args: { limit_count?: number; week_num: number; year_num: number }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          rank: number
+          total_xp: number
+          user_id: string
         }[]
       }
       has_role: {
