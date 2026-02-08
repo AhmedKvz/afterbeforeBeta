@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Clover, ChevronRight, Check, Sparkles } from 'lucide-react';
+import { Clover, ChevronRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useLucky100, getNextDrawTime } from '@/hooks/useLucky100';
+import { useLucky100Counter } from '@/hooks/useLucky100Counter';
+import { useLucky100Winners } from '@/hooks/useLucky100Winners';
 import { AvatarStack } from './AvatarStack';
+import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 
 interface Lucky100BannerProps {
@@ -32,80 +33,22 @@ const AnimatedSparkle = ({ delay, x, y }: { delay: number; x: string; y: string 
   </motion.div>
 );
 
-// Countdown hook
-const useCountdown = (targetDate: Date) => {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
-  useEffect(() => {
-    const calculateTimeLeft = () => {
-      const now = new Date().getTime();
-      const target = targetDate.getTime();
-      const difference = target - now;
-
-      if (difference > 0) {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((difference % (1000 * 60)) / 1000),
-        });
-      } else {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      }
-    };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-
-    return () => clearInterval(timer);
-  }, [targetDate]);
-
-  return timeLeft;
-};
-
 export const Lucky100Banner = ({ onClick }: Lucky100BannerProps) => {
   const navigate = useNavigate();
-  const { 
-    isEntered, 
-    hasWonThisWeek,
-    weeklyEntryCount, 
-    recentEntries,
-    nextDrawTime,
-    enter,
-    isEntering,
-    isLoading 
-  } = useLucky100();
+  const { stats, recentWinners, luckyInterval } = useLucky100Counter();
+  const { hasUnclaimedPrize } = useLucky100Winners();
 
-  const countdown = useCountdown(nextDrawTime);
-
-  const handleEnterClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!isEntered && !isEntering) {
-      enter();
-    }
-  };
-
-  const handleBrowseEvents = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigate('/');
-  };
-
-  // Get avatars from recent entries
-  const recentAvatars = recentEntries
-    .filter(entry => entry.avatar_url)
-    .map(entry => entry.avatar_url!)
+  // Get avatars from recent winners
+  const recentAvatars = recentWinners
+    .filter(winner => winner.avatar_url)
+    .map(winner => winner.avatar_url!)
     .slice(0, 3);
 
-  // Format countdown
-  const formatCountdown = () => {
-    if (countdown.days > 0) {
-      return `${countdown.days}d ${countdown.hours}h ${countdown.minutes}m`;
-    }
-    if (countdown.hours > 0) {
-      return `${countdown.hours}h ${countdown.minutes}m ${countdown.seconds}s`;
-    }
-    return `${countdown.minutes}m ${countdown.seconds}s`;
-  };
+  // Calculate progress to next winner
+  const progressToNext = ((luckyInterval - stats.checkInsToNext) / luckyInterval) * 100;
+
+  // Last winner info
+  const lastWinner = recentWinners[0];
 
   return (
     <motion.div
@@ -128,15 +71,13 @@ export const Lucky100Banner = ({ onClick }: Lucky100BannerProps) => {
       <AnimatedSparkle delay={1.5} x="70%" y="65%" />
       <AnimatedSparkle delay={2} x="50%" y="10%" />
       <AnimatedSparkle delay={0.3} x="90%" y="75%" />
-      <AnimatedSparkle delay={0.8} x="5%" y="50%" />
-      <AnimatedSparkle delay={1.2} x="40%" y="85%" />
 
       {/* Glow effect */}
       <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent" />
 
       {/* Content */}
       <div className="relative p-4 z-10">
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <motion.div
               animate={{ 
@@ -149,113 +90,55 @@ export const Lucky100Banner = ({ onClick }: Lucky100BannerProps) => {
             </motion.div>
             <div>
               <h3 className="font-bold text-lg text-white drop-shadow-md">LUCKY 100</h3>
-              <p className="text-white/90 text-xs font-medium">THIS WEEK'S DRAW</p>
+              <p className="text-white/90 text-xs font-medium">INSTANT WIN RAFFLE</p>
             </div>
           </div>
           
           <ChevronRight className="w-5 h-5 text-white/70 group-hover:text-white transition-colors" />
         </div>
 
-        {/* Social Proof Section */}
-        <div className="mt-3 flex items-center gap-3">
-          {recentAvatars.length > 0 && (
-            <AvatarStack 
-              avatars={recentAvatars} 
-              max={3} 
-              total={weeklyEntryCount}
-              size="sm"
-            />
-          )}
-          <div className="flex-1">
-            <p className="text-white font-semibold text-sm drop-shadow">
-              {weeklyEntryCount} people entered
-            </p>
-            <p className="text-white/80 text-xs flex items-center gap-1">
-              <span>Draw in:</span>
-              <motion.span 
-                key={countdown.seconds}
-                initial={{ opacity: 0.7 }}
-                animate={{ opacity: 1 }}
-                className="font-mono font-bold text-yellow-200"
-              >
-                {formatCountdown()}
-              </motion.span>
-            </p>
+        {/* Progress Bar Section */}
+        <div className="mb-3">
+          <div className="flex justify-between text-xs text-white/80 mb-1">
+            <span>Next winner: #{stats.nextLuckyNumber}</span>
+            <span className="font-bold text-green-300">{stats.checkInsToNext} check-ins away!</span>
           </div>
+          <Progress value={progressToNext} className="h-2 bg-white/20" />
         </div>
 
-        {/* Action Section */}
-        <div className="mt-4 flex items-center justify-between">
-          {hasWonThisWeek ? (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-400/30 border border-yellow-300/50"
-            >
-              <Sparkles className="w-4 h-4 text-yellow-200" />
-              <span className="text-yellow-100 font-bold text-sm drop-shadow">WINNER! 🎉</span>
-            </motion.div>
-          ) : isEntered ? (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/20 border border-white/40 backdrop-blur-sm"
-            >
-              <Check className="w-4 h-4 text-green-300" />
-              <span className="text-white font-bold text-sm">YOU'RE IN! ✓</span>
-            </motion.div>
-          ) : (
-            <div className="flex flex-col gap-2 w-full">
-              {/* Empty state message */}
-              <p className="text-white/90 text-xs">
-                You're not in the draw yet! Check-in or plan an event to enter.
+        {/* Social Proof Section */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {recentAvatars.length > 0 && (
+              <AvatarStack 
+                avatars={recentAvatars} 
+                max={3} 
+                total={stats.globalCount}
+                size="sm"
+              />
+            )}
+            <div>
+              <p className="text-white font-semibold text-sm drop-shadow">
+                {stats.globalCount} check-ins
               </p>
-              <div className="flex gap-2">
-                <motion.button
-                  onClick={handleEnterClick}
-                  disabled={isEntering || isLoading}
-                  className={cn(
-                    "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-full",
-                    "bg-white text-purple-600 font-bold text-sm",
-                    "hover:bg-white/90 transition-all",
-                    "disabled:opacity-50 shadow-lg"
-                  )}
-                  animate={{ 
-                    boxShadow: [
-                      '0 0 0 0 rgba(255,255,255,0.6)',
-                      '0 0 20px 4px rgba(255,255,255,0.3)',
-                      '0 0 0 0 rgba(255,255,255,0.6)',
-                    ]
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity,
-                  }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  {isEntering ? (
-                    <motion.span
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    >
-                      🍀
-                    </motion.span>
-                  ) : (
-                    <>
-                      ENTER NOW
-                      <ChevronRight className="w-4 h-4" />
-                    </>
-                  )}
-                </motion.button>
-                <button
-                  onClick={handleBrowseEvents}
-                  className="px-4 py-2.5 rounded-full bg-white/10 text-white text-sm font-medium border border-white/20 hover:bg-white/20 transition-colors"
-                >
-                  Browse Events →
-                </button>
-              </div>
+              {lastWinner && (
+                <p className="text-white/80 text-xs">
+                  Last winner: {lastWinner.display_name}
+                </p>
+              )}
             </div>
+          </div>
+
+          {/* Winner badge */}
+          {hasUnclaimedPrize && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-400/30 border border-yellow-300/50"
+            >
+              <Sparkles className="w-3 h-3 text-yellow-200" />
+              <span className="text-yellow-100 font-bold text-xs">YOU WON!</span>
+            </motion.div>
           )}
         </div>
       </div>

@@ -13,6 +13,8 @@ import Matches from "./pages/Matches";
 import Profile from "./pages/Profile";
 import MyEvents from "./pages/MyEvents";
 import Leaderboard from "./pages/Leaderboard";
+import Gamification from "./pages/Gamification";
+import Lucky100Page from "./pages/Lucky100Page";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +36,8 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/my-events" element={<MyEvents />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/gamification" element={<Gamification />} />
+            <Route path="/lucky100" element={<Lucky100Page />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
