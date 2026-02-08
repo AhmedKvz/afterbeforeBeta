@@ -1,13 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Trophy, Crown, Ticket, Star, Gift } from 'lucide-react';
+import { ArrowLeft, Trophy, Crown, Ticket, Star, Gift, Zap, Target, HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useLeaderboard, getCurrentWeekInfo } from '@/hooks/useLeaderboard';
+import { useWeeklyWinners } from '@/hooks/useWeeklyWinners';
 import { useAuth } from '@/contexts/AuthContext';
 import { BottomNav } from '@/components/BottomNav';
+import { WeeklyWinnersButton } from '@/components/WeeklyWinnersButton';
+import { CountdownTimer, getNextSunday } from '@/components/CountdownTimer';
 import { cn } from '@/lib/utils';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
@@ -24,6 +28,14 @@ const MONTHLY_PRIZES = [
   { rank: 3, prize: 'DJ Meet & Greet', description: 'Exclusive access' },
 ];
 
+const XP_GUIDE = [
+  { action: 'Check-in at event', xp: 50, icon: '📍' },
+  { action: 'Match with someone', xp: 100, icon: '💜' },
+  { action: 'Review (stars only)', xp: 100, icon: '⭐' },
+  { action: 'Review (with text)', xp: 200, icon: '✍️' },
+  { action: 'Weekly streak bonus', xp: 200, icon: '🔥' },
+];
+
 const Leaderboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -32,6 +44,11 @@ const Leaderboard = () => {
   const { week, year } = getCurrentWeekInfo();
 
   const isUserInLeaderboard = leaderboard.some(entry => entry.user_id === user?.id);
+  
+  // Calculate XP needed for top 3
+  const top3MinXP = leaderboard.length >= 3 ? leaderboard[2].total_xp : 0;
+  const xpToTop3 = userRank ? Math.max(0, top3MinXP - userRank.total_xp + 1) : top3MinXP;
+  const isInTop3 = userRank ? userRank.rank <= 3 : false;
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -53,12 +70,40 @@ const Leaderboard = () => {
             <Trophy className="w-12 h-12 text-yellow-200 mx-auto mb-2" />
             <h1 className="text-2xl font-bold text-white">Leaderboard</h1>
             <p className="text-white/80 text-sm">Week {week} of {year}</p>
+            
+            {/* Countdown */}
+            <div className="mt-3 flex items-center justify-center gap-2 text-white/90 text-sm">
+              <span>Resets in:</span>
+              <CountdownTimer targetDate={getNextSunday()} compact className="text-yellow-200" />
+            </div>
           </div>
         </div>
       </div>
 
+      {/* XP to Top 3 Motivation */}
+      {userRank && !isInTop3 && xpToTop3 > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-4 -mt-3 mb-4 p-3 rounded-xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+              <Target className="w-5 h-5 text-purple-400" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-sm">You're #{userRank.rank}</p>
+              <p className="text-xs text-muted-foreground">
+                <span className="font-bold text-purple-400">{xpToTop3} XP</span> to reach Top 3!
+              </p>
+            </div>
+            <Zap className="w-5 h-5 text-yellow-400" />
+          </div>
+        </motion.div>
+      )}
+
       {/* Tabs */}
-      <div className="px-4 -mt-2">
+      <div className="px-4">
         <Tabs value={period} onValueChange={(v) => setPeriod(v as any)}>
           <TabsList className="w-full grid grid-cols-3">
             <TabsTrigger value="weekly">Weekly</TabsTrigger>
@@ -68,9 +113,9 @@ const Leaderboard = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="weekly" className="mt-4">
+          <TabsContent value="weekly" className="mt-4 space-y-4">
             {/* Weekly Prizes */}
-            <div className="glass-card p-4 mb-4">
+            <div className="glass-card p-4">
               <h3 className="font-bold mb-3 flex items-center gap-2">
                 <Crown className="w-5 h-5 text-yellow-500" />
                 This Week's Prizes
@@ -86,6 +131,34 @@ const Leaderboard = () => {
               </div>
             </div>
 
+            {/* How to Earn XP */}
+            <Accordion type="single" collapsible>
+              <AccordionItem value="xp-guide" className="border rounded-xl bg-muted/30 px-4">
+                <AccordionTrigger className="text-sm font-medium py-3">
+                  <div className="flex items-center gap-2">
+                    <HelpCircle className="w-4 h-4 text-primary" />
+                    How to Earn XP
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pb-3">
+                  <div className="space-y-2">
+                    {XP_GUIDE.map((item, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between text-sm"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span>{item.icon}</span>
+                          <span className="text-muted-foreground">{item.action}</span>
+                        </div>
+                        <span className="font-bold text-primary">+{item.xp}</span>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
             {/* Leaderboard List */}
             <LeaderboardList
               entries={leaderboard}
@@ -96,9 +169,9 @@ const Leaderboard = () => {
             />
           </TabsContent>
 
-          <TabsContent value="monthly" className="mt-4">
+          <TabsContent value="monthly" className="mt-4 space-y-4">
             {/* Monthly Prizes */}
-            <div className="glass-card p-4 mb-4 border border-purple-500/30">
+            <div className="glass-card p-4 border border-purple-500/30">
               <h3 className="font-bold mb-3 flex items-center gap-2">
                 <Star className="w-5 h-5 text-purple-500" />
                 Monthly Grand Prizes
@@ -136,6 +209,7 @@ const Leaderboard = () => {
       </div>
 
       <BottomNav />
+      <WeeklyWinnersButton />
     </div>
   );
 };

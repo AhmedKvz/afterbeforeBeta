@@ -3,7 +3,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 Deno.serve(async (req) => {
@@ -18,46 +18,39 @@ Deno.serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get current ISO week number and year
-    const now = new Date();
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-    const days = Math.floor((now.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
-    const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
-    const year = now.getFullYear();
+    // Get counter stats
+    const { data: counter, error: counterError } = await supabase
+      .from('lucky100_counter')
+      .select('*')
+      .limit(1)
+      .single();
 
-    // Get total count for this week
-    const { count, error: countError } = await supabase
-      .from('lucky_100_entries')
-      .select('*', { count: 'exact', head: true })
-      .eq('week_number', weekNumber)
-      .eq('year', year);
-
-    if (countError) {
-      console.error('Count error:', countError);
-      throw countError;
+    if (counterError) {
+      console.error('Counter error:', counterError);
+      throw counterError;
     }
 
-    // Get last 5 entries with profile info for social proof
-    const { data: recentEntries, error: entriesError } = await supabase
-      .from('lucky_100_entries')
-      .select(`
-        id,
-        user_id,
-        entry_date
-      `)
-      .eq('week_number', weekNumber)
-      .eq('year', year)
-      .order('entry_date', { ascending: false })
-      .limit(5);
+    const globalCount = counter?.global_count ?? 0;
+    const lastWinnerCount = counter?.last_winner_count ?? 0;
+    const luckyInterval = 5;
+    const nextLuckyNumber = Math.ceil((globalCount + 1) / luckyInterval) * luckyInterval;
+    const checkInsToNext = nextLuckyNumber - globalCount;
 
-    if (entriesError) {
-      console.error('Entries error:', entriesError);
-      throw entriesError;
+    // Get last 10 winners with profile info
+    const { data: winners, error: winnersError } = await supabase
+      .from('lucky100_winners')
+      .select('id, user_id, check_in_number, won_at, prize_claimed')
+      .order('won_at', { ascending: false })
+      .limit(10);
+
+    if (winnersError) {
+      console.error('Winners error:', winnersError);
+      throw winnersError;
     }
 
-    // Get profile info for recent entries
-    const userIds = recentEntries?.map(e => e.user_id) || [];
-    let recentProfiles: { user_id: string; display_name: string; avatar_url: string | null }[] = [];
+    // Get profile info for winners
+    const userIds = winners?.map(w => w.user_id) || [];
+    let winnersWithProfiles: any[] = [];
     
     if (userIds.length > 0) {
       const { data: profiles, error: profilesError } = await supabase
@@ -66,30 +59,26 @@ Deno.serve(async (req) => {
         .in('user_id', userIds);
 
       if (!profilesError && profiles) {
-        recentProfiles = profiles;
+        winnersWithProfiles = winners?.map(winner => {
+          const profile = profiles.find(p => p.user_id === winner.user_id);
+          return {
+            ...winner,
+            display_name: profile?.display_name || 'Anonymous',
+            avatar_url: profile?.avatar_url,
+          };
+        }) || [];
       }
     }
 
-    // Combine entry data with profiles
-    const recentEntriesWithProfiles = recentEntries?.map(entry => {
-      const profile = recentProfiles.find(p => p.user_id === entry.user_id);
-      return {
-        id: entry.id,
-        user_id: entry.user_id,
-        display_name: profile?.display_name || 'Anonymous',
-        avatar_url: profile?.avatar_url,
-        entry_date: entry.entry_date,
-      };
-    }) || [];
-
-    console.log(`Lucky 100 stats: ${count} entries this week, ${recentEntriesWithProfiles.length} recent`);
+    console.log(`Lucky 100 stats: ${globalCount} check-ins, next winner at #${nextLuckyNumber}, ${winnersWithProfiles.length} recent winners`);
 
     return new Response(
       JSON.stringify({
-        count: count || 0,
-        weekNumber,
-        year,
-        recentEntries: recentEntriesWithProfiles,
+        globalCount,
+        lastWinnerCount,
+        nextLuckyNumber,
+        checkInsToNext,
+        recentWinners: winnersWithProfiles,
       }),
       { 
         headers: { 

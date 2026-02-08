@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trophy, ChevronRight } from 'lucide-react';
+import { Trophy, ChevronRight, Zap } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { useAuth } from '@/contexts/AuthContext';
+import { CountdownTimer, getNextSunday } from '@/components/CountdownTimer';
 import { cn } from '@/lib/utils';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
@@ -22,6 +23,8 @@ export const LeaderboardPreview = () => {
   }
 
   const isUserInTop3 = leaderboard.some(entry => entry.user_id === user?.id);
+  const top3MinXP = leaderboard.length >= 3 ? leaderboard[2].total_xp : 0;
+  const xpToTop3 = userRank ? Math.max(0, top3MinXP - userRank.total_xp + 1) : top3MinXP;
 
   return (
     <motion.div
@@ -38,7 +41,7 @@ export const LeaderboardPreview = () => {
       {/* Content */}
       <div className="relative p-4">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Trophy className="w-5 h-5 text-yellow-200" />
             <h3 className="font-bold text-white">WEEKLY LEADERBOARD</h3>
@@ -46,10 +49,16 @@ export const LeaderboardPreview = () => {
           <ChevronRight className="w-5 h-5 text-white/70 group-hover:text-white transition-colors" />
         </div>
 
-        {/* Subtitle */}
-        <p className="text-white/80 text-sm mb-4">
-          🎟️ Top 3 win free tickets this week!
-        </p>
+        {/* Countdown & Subtitle */}
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-white/80 text-sm">
+            🎟️ Top 3 win free tickets!
+          </p>
+          <div className="flex items-center gap-1 text-xs text-white/70">
+            <span>Resets:</span>
+            <CountdownTimer targetDate={getNextSunday()} compact className="text-yellow-200" />
+          </div>
+        </div>
 
         {/* Top 3 */}
         <div className="space-y-2">
@@ -89,10 +98,16 @@ export const LeaderboardPreview = () => {
         {/* Current user rank if not in top 3 */}
         {!isUserInTop3 && userRank && (
           <div className="mt-3 pt-3 border-t border-white/20">
-            <div className="flex items-center justify-between text-white/80 text-sm">
+            <div className="flex items-center justify-between text-white/80 text-sm mb-2">
               <span>Your rank: #{userRank.rank}</span>
               <span>{userRank.total_xp.toLocaleString()} XP</span>
             </div>
+            {xpToTop3 > 0 && (
+              <div className="flex items-center gap-2 text-yellow-200 text-xs">
+                <Zap className="w-3 h-3" />
+                <span>Need {xpToTop3} XP to reach Top 3!</span>
+              </div>
+            )}
           </div>
         )}
 
