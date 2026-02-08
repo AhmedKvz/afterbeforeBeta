@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, User, MapPin } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Bell, User, Map, List, Trophy } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { EventCard } from '@/components/EventCard';
+import { SceneCard } from '@/components/SceneCard';
+import { MapView } from '@/components/MapView';
 import { BottomNav } from '@/components/BottomNav';
+import { GlassCard } from '@/components/GlassCard';
 import { cn } from '@/lib/utils';
 
 interface Event {
@@ -19,9 +21,15 @@ interface Event {
   music_genres: string[];
   price: number;
   capacity: number;
+  latitude: number;
+  longitude: number;
 }
 
-const FILTER_OPTIONS = ['All', 'Techno', 'House', 'Hip Hop', 'Tonight', 'This Weekend'];
+interface WishlistStatus {
+  [eventId: string]: boolean;
+}
+
+const FILTER_OPTIONS = ['All', 'Techno', 'House', 'Hip Hop', 'Tonight', 'Hot 🔥'];
 
 const Home = () => {
   const navigate = useNavigate();
@@ -29,6 +37,9 @@ const Home = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('All');
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [wishlistStatus, setWishlistStatus] = useState<WishlistStatus>({});
+  const [heatScores, setHeatScores] = useState<{ [id: string]: number }>({});
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -42,6 +53,9 @@ const Home = () => {
     }
     
     fetchEvents();
+    if (user) {
+      fetchWishlistStatus();
+    }
   }, [user, profile, authLoading, navigate]);
 
   const fetchEvents = async () => {
@@ -53,11 +67,45 @@ const Home = () => {
       
       if (error) throw error;
       setEvents(data || []);
+      
+      // Calculate heat scores
+      if (data) {
+        const scores: { [id: string]: number } = {};
+        for (const event of data) {
+          const { count: wishlistCount } = await supabase
+            .from('event_wishlists')
+            .select('*', { count: 'exact', head: true })
+            .eq('event_id', event.id);
+          
+          const { count: checkinCount } = await supabase
+            .from('event_checkins')
+            .select('*', { count: 'exact', head: true })
+            .eq('event_id', event.id);
+          
+          // Calculate heat score (0-100)
+          const baseScore = ((wishlistCount || 0) * 5 + (checkinCount || 0) * 15);
+          scores[event.id] = Math.min(100, baseScore + Math.floor(Math.random() * 30));
+        }
+        setHeatScores(scores);
+      }
     } catch (error) {
       console.error('Error fetching events:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchWishlistStatus = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from('event_wishlists')
+      .select('event_id')
+      .eq('user_id', user.id);
+    
+    const status: WishlistStatus = {};
+    data?.forEach(w => { status[w.event_id] = true; });
+    setWishlistStatus(status);
   };
 
   const filteredEvents = events.filter((event) => {
@@ -66,23 +114,11 @@ const Home = () => {
       const today = new Date().toISOString().split('T')[0];
       return event.date === today;
     }
-    if (activeFilter === 'This Weekend') {
-      const today = new Date();
-      const dayOfWeek = today.getDay();
-      const daysUntilFriday = (5 - dayOfWeek + 7) % 7;
-      const friday = new Date(today);
-      friday.setDate(today.getDate() + daysUntilFriday);
-      const sunday = new Date(friday);
-      sunday.setDate(friday.getDate() + 2);
-      
-      const eventDate = new Date(event.date);
-      return eventDate >= friday && eventDate <= sunday;
+    if (activeFilter === 'Hot 🔥') {
+      return (heatScores[event.id] || 0) >= 60;
     }
     return event.music_genres?.includes(activeFilter);
   });
-
-  const featuredEvent = filteredEvents[0];
-  const otherEvents = filteredEvents.slice(1);
 
   if (authLoading || loading) {
     return (
@@ -101,7 +137,13 @@ const Home = () => {
             <span className="text-2xl">🌙</span>
             <span className="font-bold text-xl gradient-text">AfterBefore</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => navigate('/leaderboards')}
+              className="relative p-2"
+            >
+              <Trophy className="w-5 h-5 text-accent" />
+            </button>
             <button className="relative">
               <Bell className="w-6 h-6 text-muted-foreground hover:text-foreground transition-colors" />
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-secondary rounded-full text-xs flex items-center justify-center">
@@ -115,39 +157,59 @@ const Home = () => {
         </div>
       </header>
 
-      {/* Location */}
-      <div className="px-4 py-3 flex items-center gap-2 text-muted-foreground">
-        <MapPin className="w-4 h-4" />
-        <span className="text-sm">{profile?.city || 'Belgrade'}</span>
-      </div>
+      {/* Scene Panel Header */}
+      <div className="px-4 py-4">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-2xl font-bold">The Scene</h2>
+            <p className="text-sm text-muted-foreground">{profile?.city || 'Belgrade'} tonight</p>
+          </div>
+          
+          {/* Map/List Toggle */}
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('list')}
+              className={cn(
+                'p-2 rounded-md transition-colors',
+                viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+              )}
+            >
+              <List className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('map')}
+              className={cn(
+                'p-2 rounded-md transition-colors',
+                viewMode === 'map' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+              )}
+            >
+              <Map className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
-      {/* Featured Event */}
-      {featuredEvent && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="px-4 mb-6"
+        {/* Leaderboard Teaser */}
+        <GlassCard 
+          className="p-4 mb-4 cursor-pointer bg-accent/5 border-accent/30"
+          onClick={() => navigate('/leaderboards')}
         >
-          <EventCard
-            {...{
-              id: featuredEvent.id,
-              title: featuredEvent.title,
-              date: featuredEvent.date,
-              startTime: featuredEvent.start_time,
-              venueName: featuredEvent.venue_name || '',
-              imageUrl: featuredEvent.image_url || '',
-              musicGenres: featuredEvent.music_genres || [],
-              price: featuredEvent.price || 0,
-              capacity: featuredEvent.capacity || 100,
-              attendeeCount: Math.floor(Math.random() * 100) + 20, // Mock data
-              featured: true,
-            }}
-          />
-        </motion.div>
-      )}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Trophy className="w-6 h-6 text-accent" />
+              <div>
+                <h3 className="font-bold text-sm">Weekly Leaderboards</h3>
+                <p className="text-xs text-muted-foreground">See top events & ravers →</p>
+              </div>
+            </div>
+            <div className="flex -space-x-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="w-8 h-8 rounded-full bg-muted border-2 border-background" />
+              ))}
+            </div>
+          </div>
+        </GlassCard>
 
-      {/* Filters */}
-      <div className="px-4 mb-6">
+        {/* Filters */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar">
           {FILTER_OPTIONS.map((filter) => (
             <button
@@ -166,40 +228,69 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Events Grid */}
+      {/* Content */}
       <div className="px-4">
-        <h2 className="font-bold text-lg mb-4">Upcoming Events</h2>
-        <div className="grid grid-cols-1 gap-4">
-          {otherEvents.map((event, index) => (
+        <AnimatePresence mode="wait">
+          {viewMode === 'map' ? (
             <motion.div
-              key={event.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              key="map"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             >
-              <EventCard
-                id={event.id}
-                title={event.title}
-                date={event.date}
-                startTime={event.start_time}
-                venueName={event.venue_name || ''}
-                imageUrl={event.image_url || ''}
-                musicGenres={event.music_genres || []}
-                price={event.price || 0}
-                capacity={event.capacity || 100}
-                attendeeCount={Math.floor(Math.random() * 80) + 10}
+              <MapView
+                locations={filteredEvents.map(event => ({
+                  id: event.id,
+                  title: event.title,
+                  venueName: event.venue_name,
+                  latitude: event.latitude || 44.8176,
+                  longitude: event.longitude || 20.4633,
+                  heatScore: heatScores[event.id] || 30,
+                  onClick: () => navigate(`/event/${event.id}`),
+                }))}
               />
             </motion.div>
-          ))}
-        </div>
-      </div>
+          ) : (
+            <motion.div
+              key="list"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="grid grid-cols-1 gap-4"
+            >
+              {filteredEvents.map((event, index) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <SceneCard
+                    id={event.id}
+                    title={event.title}
+                    venueName={event.venue_name || ''}
+                    date={event.date}
+                    startTime={event.start_time}
+                    imageUrl={event.image_url || ''}
+                    musicGenres={event.music_genres || []}
+                    price={event.price || 0}
+                    heatScore={heatScores[event.id] || 30}
+                    isSaved={wishlistStatus[event.id] || false}
+                    onWishlistChange={fetchWishlistStatus}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* Empty State */}
-      {filteredEvents.length === 0 && (
-        <div className="px-4 py-12 text-center">
-          <p className="text-muted-foreground">No events found</p>
-        </div>
-      )}
+        {/* Empty State */}
+        {filteredEvents.length === 0 && (
+          <div className="py-12 text-center">
+            <p className="text-muted-foreground">No events found</p>
+          </div>
+        )}
+      </div>
 
       <BottomNav />
     </div>
