@@ -8,6 +8,11 @@ import { EventCard } from '@/components/EventCard';
 import { BottomNav } from '@/components/BottomNav';
 import { Lucky100Banner } from '@/components/Lucky100Banner';
 import { Lucky100Modal } from '@/components/Lucky100Modal';
+import { BestPartyCard } from '@/components/BestPartyCard';
+import { LeaderboardPreview } from '@/components/LeaderboardPreview';
+import { ReviewModal } from '@/components/ReviewModal';
+import { useBestPartyThisWeek } from '@/hooks/useEventStats';
+import { useReviewPrompt } from '@/hooks/useReviewPrompt';
 import { cn } from '@/lib/utils';
 
 interface Event {
@@ -32,6 +37,9 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('All');
   const [isLucky100ModalOpen, setIsLucky100ModalOpen] = useState(false);
+
+  const { data: bestParty } = useBestPartyThisWeek();
+  const { shouldShowModal: shouldShowReviewModal, eventToReview, dismissPrompt } = useReviewPrompt();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -84,8 +92,10 @@ const Home = () => {
     return event.music_genres?.includes(activeFilter);
   });
 
-  const featuredEvent = filteredEvents[0];
-  const otherEvents = filteredEvents.slice(1);
+  // Exclude best party from regular list if it exists
+  const regularEvents = bestParty 
+    ? filteredEvents.filter(e => e.id !== bestParty.id)
+    : filteredEvents;
 
   if (authLoading || loading) {
     return (
@@ -129,30 +139,26 @@ const Home = () => {
         <Lucky100Banner onClick={() => setIsLucky100ModalOpen(true)} />
       </div>
 
-      {/* Featured Event */}
-      {featuredEvent && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="px-4 mb-6"
-        >
-          <EventCard
-            {...{
-              id: featuredEvent.id,
-              title: featuredEvent.title,
-              date: featuredEvent.date,
-              startTime: featuredEvent.start_time,
-              venueName: featuredEvent.venue_name || '',
-              imageUrl: featuredEvent.image_url || '',
-              musicGenres: featuredEvent.music_genres || [],
-              price: featuredEvent.price || 0,
-              capacity: featuredEvent.capacity || 100,
-              attendeeCount: Math.floor(Math.random() * 100) + 20, // Mock data
-              featured: true,
-            }}
+      {/* Best Party This Week */}
+      {bestParty && (
+        <div className="px-4 mb-4">
+          <BestPartyCard
+            id={bestParty.id}
+            title={bestParty.title}
+            date={bestParty.date}
+            startTime={bestParty.start_time}
+            venueName={bestParty.venue_name || ''}
+            imageUrl={bestParty.image_url || ''}
+            avgRating={bestParty.avgRating}
+            reviewCount={bestParty.reviewCount}
           />
-        </motion.div>
+        </div>
       )}
+
+      {/* Leaderboard Preview */}
+      <div className="px-4 mb-6">
+        <LeaderboardPreview />
+      </div>
 
       {/* Filters */}
       <div className="px-4 mb-6">
@@ -178,7 +184,7 @@ const Home = () => {
       <div className="px-4">
         <h2 className="font-bold text-lg mb-4">Upcoming Events</h2>
         <div className="grid grid-cols-1 gap-4">
-          {otherEvents.map((event, index) => (
+          {regularEvents.map((event, index) => (
             <motion.div
               key={event.id}
               initial={{ opacity: 0, y: 20 }}
@@ -203,7 +209,7 @@ const Home = () => {
       </div>
 
       {/* Empty State */}
-      {filteredEvents.length === 0 && (
+      {regularEvents.length === 0 && !bestParty && (
         <div className="px-4 py-12 text-center">
           <p className="text-muted-foreground">No events found</p>
         </div>
@@ -216,6 +222,15 @@ const Home = () => {
         isOpen={isLucky100ModalOpen} 
         onClose={() => setIsLucky100ModalOpen(false)} 
       />
+
+      {/* Review Modal */}
+      {eventToReview && (
+        <ReviewModal
+          isOpen={shouldShowReviewModal}
+          onClose={dismissPrompt}
+          event={eventToReview}
+        />
+      )}
     </div>
   );
 };
