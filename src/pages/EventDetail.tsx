@@ -3,11 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { 
-  ArrowLeft, Heart, Calendar, MapPin, ExternalLink, 
-  Loader2, MapPinCheck, Clock, Flame
+  ArrowLeft, Heart, Calendar, MapPin, Users, 
+  DollarSign, Music, Loader2, MapPinCheck, Sparkles 
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { HeatBadge, getHeatLevel } from '@/components/HeatBadge';
+import { AvatarStack } from '@/components/AvatarStack';
 import { GlassCard } from '@/components/GlassCard';
 import { getCurrentPosition, isWithinRadius } from '@/services/geolocation';
 import { awardXP, XP_AWARDS } from '@/services/gamification';
@@ -26,6 +28,7 @@ interface Event {
   longitude: number;
   image_url: string;
   music_genres: string[];
+  capacity: number;
   price: number;
 }
 
@@ -39,14 +42,14 @@ const EventDetail = () => {
   const [checkingIn, setCheckingIn] = useState(false);
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [heatScore, setHeatScore] = useState(0);
+  const [attendeeCount, setAttendeeCount] = useState(0);
 
   useEffect(() => {
     if (id) {
       fetchEvent();
       checkCheckinStatus();
       checkWishlistStatus();
-      fetchHeatScore();
+      fetchAttendeeCount();
     }
   }, [id, user]);
 
@@ -67,23 +70,6 @@ const EventDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchHeatScore = async () => {
-    if (!id) return;
-    
-    const { count: wishlistCount } = await supabase
-      .from('event_wishlists')
-      .select('*', { count: 'exact', head: true })
-      .eq('event_id', id);
-    
-    const { count: checkinCount } = await supabase
-      .from('event_checkins')
-      .select('*', { count: 'exact', head: true })
-      .eq('event_id', id);
-    
-    const score = Math.min(100, ((wishlistCount || 0) * 5 + (checkinCount || 0) * 15) + 20);
-    setHeatScore(score);
   };
 
   const checkCheckinStatus = async () => {
@@ -112,12 +98,25 @@ const EventDetail = () => {
     setIsSaved(!!data);
   };
 
+  const fetchAttendeeCount = async () => {
+    if (!id) return;
+    
+    const { count } = await supabase
+      .from('event_checkins')
+      .select('*', { count: 'exact', head: true })
+      .eq('event_id', id);
+    
+    // Mock some additional attendees for demo
+    setAttendeeCount((count || 0) + Math.floor(Math.random() * 50) + 20);
+  };
+
   const handleCheckIn = async () => {
     if (!user || !event) return;
     
     setCheckingIn(true);
     
     try {
+      // Get user's position
       const position = await getCurrentPosition();
       const userCoords = {
         latitude: position.coords.latitude,
@@ -129,14 +128,16 @@ const EventDetail = () => {
         longitude: Number(event.longitude),
       };
       
+      // Verify proximity (100m radius)
       const isNear = isWithinRadius(userCoords, eventCoords, 100);
       
       if (!isNear) {
-        toast.error('You must be at the venue to check in!');
+        toast.error('You must be at the event location to check in!');
         setCheckingIn(false);
         return;
       }
       
+      // Save check-in
       const { error: checkinError } = await supabase
         .from('event_checkins')
         .insert({
@@ -148,6 +149,7 @@ const EventDetail = () => {
       
       if (checkinError) throw checkinError;
       
+      // Update active users
       await supabase
         .from('active_users')
         .upsert({
@@ -158,16 +160,17 @@ const EventDetail = () => {
           last_seen: new Date().toISOString(),
         });
       
-      await awardXP(user.id, XP_AWARDS.checkIn, 'GPS Check-in');
+      // Award XP
+      await awardXP(user.id, XP_AWARDS.checkIn, 'Checked in to event');
       
       setIsCheckedIn(true);
       toast.success('Checked in! +50 XP 🎉');
     } catch (error: any) {
       if (error.code === 1) {
-        toast.error('Please enable location access');
+        toast.error('Please enable location access to check in');
       } else {
         console.error('Check-in error:', error);
-        toast.error('Failed to check in');
+        toast.error('Failed to check in. Please try again.');
       }
     } finally {
       setCheckingIn(false);
@@ -189,20 +192,9 @@ const EventDetail = () => {
       await supabase
         .from('event_wishlists')
         .insert({ event_id: id, user_id: user.id });
-      
-      await awardXP(user.id, XP_AWARDS.superLike, 'Saved event');
-      
       setIsSaved(true);
-      toast.success('Saved! +25 XP ✨');
+      toast.success('Saved to wishlist');
     }
-    fetchHeatScore();
-  };
-
-  const getHeatLabel = () => {
-    if (heatScore >= 80) return '🔥 On Fire';
-    if (heatScore >= 60) return '🔥 Hot';
-    if (heatScore >= 40) return 'Warming Up';
-    return 'Chill';
   };
 
   if (loading) {
@@ -215,13 +207,14 @@ const EventDetail = () => {
 
   if (!event) return null;
 
+  const heatLevel = getHeatLevel(attendeeCount, event.capacity || 100);
   const formattedDate = format(new Date(event.date), 'EEEE, MMM d');
   const formattedTime = event.start_time?.slice(0, 5);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background">
       {/* Hero Image */}
-      <div className="relative h-64">
+      <div className="relative h-72">
         <img
           src={event.image_url || '/placeholder.svg'}
           alt={event.title}
@@ -237,116 +230,135 @@ const EventDetail = () => {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <motion.button
+          <button
             onClick={handleToggleSave}
             className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center"
-            whileTap={{ scale: 0.85 }}
           >
             <Heart className={`w-5 h-5 ${isSaved ? 'fill-secondary text-secondary' : ''}`} />
-          </motion.button>
+          </button>
         </div>
         
-        {/* Title */}
+        {/* Title Card */}
         <div className="absolute bottom-4 left-4 right-4">
-          <h1 className="text-2xl font-bold">{event.title}</h1>
-          <p className="text-muted-foreground">{event.venue_name}</p>
+          <GlassCard className="p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-2xl font-bold">{event.title}</h1>
+                <p className="text-muted-foreground text-sm">{event.venue_name}</p>
+              </div>
+              <HeatBadge level={heatLevel} />
+            </div>
+          </GlassCard>
         </div>
       </div>
 
       {/* Content */}
-      <div className="px-4 py-6 space-y-4">
-        {/* Quick Info */}
-        <GlassCard className="p-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex items-center gap-3">
-              <Calendar className="w-5 h-5 text-primary" />
-              <div>
-                <p className="font-medium">{formattedDate}</p>
-                <p className="text-sm text-muted-foreground">{formattedTime}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Flame className="w-5 h-5 text-orange-500" />
-              <div>
-                <p className="font-medium">{getHeatLabel()}</p>
-                <p className="text-sm text-muted-foreground">Heat level</p>
-              </div>
-            </div>
+      <div className="px-4 py-6 space-y-6">
+        {/* Info Pills */}
+        <div className="flex flex-wrap gap-3">
+          <div className="flex items-center gap-2 text-sm">
+            <Calendar className="w-4 h-4 text-primary" />
+            <span>{formattedDate} • {formattedTime}</span>
           </div>
-        </GlassCard>
-
-        {/* Map Pin */}
-        <GlassCard className="p-4">
-          <div className="flex items-start gap-3">
-            <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="font-medium">{event.venue_name}</p>
-              <p className="text-sm text-muted-foreground">{event.address}</p>
-            </div>
-            <button 
-              onClick={() => window.open(`https://maps.google.com/?q=${event.latitude},${event.longitude}`, '_blank')}
-              className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-            </button>
+          <div className="flex items-center gap-2 text-sm">
+            <MapPin className="w-4 h-4 text-primary" />
+            <span>{event.venue_name}</span>
           </div>
-        </GlassCard>
+          <div className="flex items-center gap-2 text-sm">
+            <Users className="w-4 h-4 text-primary" />
+            <span>{attendeeCount} / {event.capacity} going</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <DollarSign className="w-4 h-4 text-accent" />
+            <span className="text-accent font-bold">€{event.price}</span>
+          </div>
+        </div>
 
         {/* Description */}
-        {event.description && (
-          <div>
-            <h3 className="font-bold mb-2">About</h3>
-            <p className="text-muted-foreground text-sm">{event.description}</p>
-          </div>
-        )}
+        <div>
+          <h2 className="font-bold mb-2">About</h2>
+          <p className="text-muted-foreground">{event.description}</p>
+        </div>
 
-        {/* Music Tags */}
-        {event.music_genres?.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {event.music_genres.map((genre) => (
-              <span key={genre} className="genre-chip selected text-xs">
-                {genre}
-              </span>
-            ))}
-          </div>
-        )}
+        {/* Music Genres */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <Music className="w-4 h-4 text-primary" />
+          {event.music_genres?.map((genre) => (
+            <span key={genre} className="genre-chip selected">
+              {genre}
+            </span>
+          ))}
+        </div>
 
-        {/* External Link */}
-        <button
-          onClick={() => toast.info('Ticket links coming soon!')}
-          className="w-full py-3 rounded-xl border border-border flex items-center justify-center gap-2 hover:bg-muted/50 transition-colors"
-        >
-          <ExternalLink className="w-4 h-4" />
-          Get Tickets
-        </button>
+        {/* Who's Going */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-bold">Who's Going ({attendeeCount})</h2>
+            <button className="text-sm text-primary">See all →</button>
+          </div>
+          <AvatarStack
+            avatars={['/placeholder.svg', '/placeholder.svg', '/placeholder.svg', '/placeholder.svg', '/placeholder.svg']}
+            total={attendeeCount}
+            size="lg"
+          />
+        </div>
+
+        {/* Check-in Notice */}
+        {!isCheckedIn && (
+          <GlassCard className="bg-primary/10 border-primary/30">
+            <div className="flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium">Check in when you arrive to unlock Circle Swipe!</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  You must be at the event location to check in
+                </p>
+              </div>
+            </div>
+          </GlassCard>
+        )}
       </div>
 
-      {/* CTA */}
+      {/* CTA Buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent">
-        <motion.button
-          onClick={handleCheckIn}
-          disabled={checkingIn || isCheckedIn}
-          className={`w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 ${
-            isCheckedIn 
-              ? 'bg-green-500/20 text-green-400 border border-green-500/50'
-              : 'btn-gradient'
-          }`}
-          whileTap={{ scale: 0.98 }}
-        >
-          {checkingIn ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : isCheckedIn ? (
-            <>
-              <MapPinCheck className="w-5 h-5" />
-              Checked In
-            </>
-          ) : (
-            <>
-              <MapPin className="w-5 h-5" />
-              Check In at Venue
-            </>
-          )}
-        </motion.button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleCheckIn}
+            disabled={checkingIn || isCheckedIn}
+            className={`flex-1 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 ${
+              isCheckedIn 
+                ? 'bg-success/20 text-success border border-success/50'
+                : 'btn-gradient'
+            }`}
+          >
+            {checkingIn ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : isCheckedIn ? (
+              <>
+                <MapPinCheck className="w-5 h-5" />
+                Checked In
+              </>
+            ) : (
+              <>
+                <MapPin className="w-5 h-5" />
+                Check In
+              </>
+            )}
+          </button>
+          
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => isCheckedIn && navigate(`/circle-swipe/${id}`)}
+            disabled={!isCheckedIn}
+            className={`flex-1 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 ${
+              isCheckedIn 
+                ? 'bg-secondary text-secondary-foreground'
+                : 'bg-muted text-muted-foreground cursor-not-allowed'
+            }`}
+          >
+            💜 Circle Swipe
+          </motion.button>
+        </div>
       </div>
     </div>
   );

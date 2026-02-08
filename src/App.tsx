@@ -12,7 +12,6 @@ import CircleSwipe from "./pages/CircleSwipe";
 import Matches from "./pages/Matches";
 import Profile from "./pages/Profile";
 import MyEvents from "./pages/MyEvents";
-import Leaderboards from "./pages/Leaderboards";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,7 +32,6 @@ const App = () => (
             <Route path="/matches" element={<Matches />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/my-events" element={<MyEvents />} />
-            <Route path="/leaderboards" element={<Leaderboards />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

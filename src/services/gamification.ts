@@ -1,68 +1,16 @@
 import { supabase } from '@/integrations/supabase/client';
 
-// XP Awards - Core gamification signals
+// XP Awards
 export const XP_AWARDS = {
-  // Discovery signals
-  wishlist: 25,
-  removeWishlist: -10,
-  
-  // Attendance signals  
   checkIn: 50,
-  firstCheckIn: 100,
-  
-  // Social signals
   firstMatch: 100,
   match: 50,
   superLike: 25,
-  
-  // Engagement signals
+  attendEvent: 100,
   dailyStreak: 200,
-  weeklyActive: 150,
   referFriend: 500,
-  
-  // Onboarding
   completeOnboarding: 100,
-  completeProfile: 50,
 } as const;
-
-// Quest definitions for gamification
-export const QUESTS = [
-  {
-    id: 'first_save',
-    name: 'Curator',
-    description: 'Save your first event',
-    xpReward: 50,
-    condition: 'wishlist_count >= 1',
-  },
-  {
-    id: 'party_starter',
-    name: 'Party Starter',
-    description: 'Save 5 events',
-    xpReward: 100,
-    condition: 'wishlist_count >= 5',
-  },
-  {
-    id: 'scene_scout',
-    name: 'Scene Scout',
-    description: 'Check in to 3 different venues',
-    xpReward: 150,
-    condition: 'checkin_count >= 3',
-  },
-  {
-    id: 'night_crawler',
-    name: 'Night Crawler',
-    description: 'Check in to 10 events',
-    xpReward: 300,
-    condition: 'checkin_count >= 10',
-  },
-  {
-    id: 'weekly_warrior',
-    name: 'Weekly Warrior',
-    description: 'Be active 3 days in a week',
-    xpReward: 200,
-    condition: 'weekly_active_days >= 3',
-  },
-] as const;
 
 // Level thresholds
 export const LEVELS = [
