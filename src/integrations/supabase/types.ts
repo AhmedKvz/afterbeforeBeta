@@ -293,6 +293,71 @@ export type Database = {
           },
         ]
       }
+      lucky100_counter: {
+        Row: {
+          global_count: number | null
+          id: string
+          last_winner_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          global_count?: number | null
+          id?: string
+          last_winner_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          global_count?: number | null
+          id?: string
+          last_winner_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      lucky100_winners: {
+        Row: {
+          check_in_number: number
+          claimed_at: string | null
+          event_id: string | null
+          guestlist_name: string | null
+          id: string
+          prize_claimed: boolean | null
+          prize_event_choice: string | null
+          user_id: string
+          won_at: string | null
+        }
+        Insert: {
+          check_in_number: number
+          claimed_at?: string | null
+          event_id?: string | null
+          guestlist_name?: string | null
+          id?: string
+          prize_claimed?: boolean | null
+          prize_event_choice?: string | null
+          user_id: string
+          won_at?: string | null
+        }
+        Update: {
+          check_in_number?: number
+          claimed_at?: string | null
+          event_id?: string | null
+          guestlist_name?: string | null
+          id?: string
+          prize_claimed?: boolean | null
+          prize_event_choice?: string | null
+          user_id?: string
+          won_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lucky100_winners_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       matches: {
         Row: {
           event_id: string
@@ -518,6 +583,45 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_winners: {
+        Row: {
+          claimed_at: string | null
+          guestlist_name: string | null
+          id: string
+          prize_claimed: boolean | null
+          prize_event_choice: string | null
+          rank: number
+          total_xp: number
+          user_id: string
+          week_start: string
+          won_at: string | null
+        }
+        Insert: {
+          claimed_at?: string | null
+          guestlist_name?: string | null
+          id?: string
+          prize_claimed?: boolean | null
+          prize_event_choice?: string | null
+          rank: number
+          total_xp: number
+          user_id: string
+          week_start: string
+          won_at?: string | null
+        }
+        Update: {
+          claimed_at?: string | null
+          guestlist_name?: string | null
+          id?: string
+          prize_claimed?: boolean | null
+          prize_event_choice?: string | null
+          rank?: number
+          total_xp?: number
+          user_id?: string
+          week_start?: string
+          won_at?: string | null
+        }
+        Relationships: []
+      }
       xp_transactions: {
         Row: {
           amount: number
@@ -547,6 +651,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      announce_weekly_winners: {
+        Args: never
+        Returns: {
+          winner_id: string
+          winner_name: string
+          winner_rank: number
+          winner_xp: number
+        }[]
+      }
       draw_lucky_100_winners: {
         Args: { num_winners?: number }
         Returns: {
@@ -560,6 +673,15 @@ export type Database = {
           avg_rating: number
           latest_review: string
           review_count: number
+        }[]
+      }
+      get_lucky100_stats: {
+        Args: never
+        Returns: {
+          check_ins_to_next: number
+          global_count: number
+          last_winner_count: number
+          next_lucky_number: number
         }[]
       }
       get_weekly_leaderboard: {
