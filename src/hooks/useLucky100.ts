@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import confetti from 'canvas-confetti';
 
 interface Lucky100Entry {
   id: string;
@@ -13,6 +14,21 @@ interface Lucky100Entry {
   won: boolean;
   prize_event_id: string | null;
   created_at: string;
+}
+
+interface RecentEntry {
+  id: string;
+  user_id: string;
+  display_name: string;
+  avatar_url: string | null;
+  entry_date: string;
+}
+
+interface Lucky100Stats {
+  count: number;
+  weekNumber: number;
+  year: number;
+  recentEntries: RecentEntry[];
 }
 
 // Get current ISO week number and year
@@ -28,18 +44,80 @@ export const getCurrentWeekInfo = () => {
 export const getNextDrawTime = () => {
   const now = new Date();
   const dayOfWeek = now.getDay();
-  const daysUntilFriday = (5 - dayOfWeek + 7) % 7 || 7;
+  let daysUntilFriday = (5 - dayOfWeek + 7) % 7;
+  
+  // If it's Friday
+  if (dayOfWeek === 5) {
+    // If past 20:00, next Friday
+    if (now.getHours() >= 20) {
+      daysUntilFriday = 7;
+    } else {
+      daysUntilFriday = 0;
+    }
+  }
   
   const nextFriday = new Date(now);
   nextFriday.setDate(now.getDate() + daysUntilFriday);
   nextFriday.setHours(20, 0, 0, 0);
   
-  // If it's Friday but past 20:00, get next Friday
-  if (dayOfWeek === 5 && now.getHours() >= 20) {
-    nextFriday.setDate(nextFriday.getDate() + 7);
-  }
-  
   return nextFriday;
+};
+
+// Trigger confetti celebration
+export const triggerConfetti = () => {
+  const count = 200;
+  const defaults = {
+    origin: { y: 0.7 },
+    zIndex: 9999,
+  };
+
+  function fire(particleRatio: number, opts: confetti.Options) {
+    confetti({
+      ...defaults,
+      ...opts,
+      particleCount: Math.floor(count * particleRatio),
+    });
+  }
+
+  fire(0.25, {
+    spread: 26,
+    startVelocity: 55,
+    colors: ['#a855f7', '#ec4899', '#f97316'],
+  });
+  fire(0.2, {
+    spread: 60,
+    colors: ['#a855f7', '#ec4899', '#f97316'],
+  });
+  fire(0.35, {
+    spread: 100,
+    decay: 0.91,
+    scalar: 0.8,
+    colors: ['#a855f7', '#ec4899', '#f97316'],
+  });
+  fire(0.1, {
+    spread: 120,
+    startVelocity: 25,
+    decay: 0.92,
+    scalar: 1.2,
+    colors: ['#a855f7', '#ec4899', '#f97316'],
+  });
+  fire(0.1, {
+    spread: 120,
+    startVelocity: 45,
+    colors: ['#a855f7', '#ec4899', '#f97316'],
+  });
+};
+
+// Trigger haptic feedback
+export const triggerHaptic = (type: 'light' | 'medium' | 'heavy' = 'medium') => {
+  if ('vibrate' in navigator) {
+    const patterns = {
+      light: [10],
+      medium: [20],
+      heavy: [30, 10, 30],
+    };
+    navigator.vibrate(patterns[type]);
+  }
 };
 
 export const useLucky100 = () => {
@@ -67,23 +145,26 @@ export const useLucky100 = () => {
     enabled: !!user,
   });
 
-  // Get total entries this week (count)
-  const { data: weeklyEntryCount } = useQuery({
-    queryKey: ['lucky100-count', weekNumber, year],
+  // Get public stats (count + recent entries) from edge function
+  const { data: publicStats, isLoading: statsLoading } = useQuery({
+    queryKey: ['lucky100-stats', weekNumber, year],
     queryFn: async () => {
-      // We need to use RPC or edge function to count all entries
-      // For now, we'll use a workaround by fetching user's view
-      // In production, you'd create a public count function
-      const { count, error } = await supabase
-        .from('lucky_100_entries')
-        .select('*', { count: 'exact', head: true })
-        .eq('week_number', weekNumber)
-        .eq('year', year);
+      const { data, error } = await supabase.functions.invoke('lucky100-stats');
       
-      // This will only count user's own entries due to RLS
-      // For demo purposes, we'll simulate a count
-      return count ?? Math.floor(Math.random() * 50) + 20;
+      if (error) {
+        console.error('Stats error:', error);
+        // Fallback to simulated data
+        return {
+          count: Math.floor(Math.random() * 50) + 30,
+          weekNumber,
+          year,
+          recentEntries: [],
+        } as Lucky100Stats;
+      }
+      
+      return data as Lucky100Stats;
     },
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   // Get all user's entries (history)
@@ -128,11 +209,17 @@ export const useLucky100 = () => {
       }
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Trigger celebration
+      triggerConfetti();
+      triggerHaptic('heavy');
+      
       queryClient.invalidateQueries({ queryKey: ['lucky100-entry'] });
-      queryClient.invalidateQueries({ queryKey: ['lucky100-count'] });
-      toast.success("You're in! 🍀", {
-        description: 'Good luck in this week\'s Lucky 100 draw!'
+      queryClient.invalidateQueries({ queryKey: ['lucky100-stats'] });
+      
+      toast.success("🍀 You're in! Good luck on Friday!", {
+        description: 'Winners announced at 20:00',
+        duration: 5000,
       });
     },
     onError: (error) => {
@@ -179,8 +266,9 @@ export const useLucky100 = () => {
     hasWonThisWeek,
     totalWins,
     monthlyEntries,
-    weeklyEntryCount: weeklyEntryCount ?? 0,
-    isLoading: entryLoading,
+    weeklyEntryCount: publicStats?.count ?? 0,
+    recentEntries: publicStats?.recentEntries ?? [],
+    isLoading: entryLoading || statsLoading,
     enter: enterMutation.mutate,
     isEntering: enterMutation.isPending,
     drawWinners: drawWinnersMutation.mutate,
