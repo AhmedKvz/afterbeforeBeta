@@ -173,6 +173,50 @@ export type Database = {
         }
         Relationships: []
       }
+      lucky_100_entries: {
+        Row: {
+          created_at: string | null
+          eligible: boolean | null
+          entry_date: string | null
+          id: string
+          prize_event_id: string | null
+          user_id: string
+          week_number: number
+          won: boolean | null
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          eligible?: boolean | null
+          entry_date?: string | null
+          id?: string
+          prize_event_id?: string | null
+          user_id: string
+          week_number: number
+          won?: boolean | null
+          year: number
+        }
+        Update: {
+          created_at?: string | null
+          eligible?: boolean | null
+          entry_date?: string | null
+          id?: string
+          prize_event_id?: string | null
+          user_id?: string
+          week_number?: number
+          won?: boolean | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lucky_100_entries_prize_event_id_fkey"
+            columns: ["prize_event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       matches: {
         Row: {
           event_id: string
@@ -397,6 +441,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      draw_lucky_100_winners: {
+        Args: { num_winners?: number }
+        Returns: {
+          winner_id: string
+          winner_name: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -9,6 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/GlassCard';
 import { BottomNav } from '@/components/BottomNav';
+import { Lucky100ProfileSection } from '@/components/Lucky100ProfileSection';
+import { Lucky100Modal } from '@/components/Lucky100Modal';
 import { getXPProgress, ACHIEVEMENTS, getUserAchievements } from '@/services/gamification';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -18,6 +20,7 @@ const Profile = () => {
   const { user, profile, signOut, refreshProfile } = useAuth();
   const [userAchievements, setUserAchievements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLucky100ModalOpen, setIsLucky100ModalOpen] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -146,6 +149,9 @@ const Profile = () => {
           </div>
         </GlassCard>
 
+        {/* Lucky 100 Section */}
+        <Lucky100ProfileSection onOpenModal={() => setIsLucky100ModalOpen(true)} />
+
         {/* Music Preferences */}
         <section>
           <div className="flex items-center gap-2 mb-3">
@@ -216,6 +222,12 @@ const Profile = () => {
       </div>
 
       <BottomNav />
+
+      {/* Lucky 100 Modal */}
+      <Lucky100Modal 
+        isOpen={isLucky100ModalOpen} 
+        onClose={() => setIsLucky100ModalOpen(false)} 
+      />
     </div>
   );
 };

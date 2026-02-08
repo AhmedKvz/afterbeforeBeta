@@ -6,6 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { EventCard } from '@/components/EventCard';
 import { BottomNav } from '@/components/BottomNav';
+import { Lucky100Banner } from '@/components/Lucky100Banner';
+import { Lucky100Modal } from '@/components/Lucky100Modal';
 import { cn } from '@/lib/utils';
 
 interface Event {
@@ -29,6 +31,7 @@ const Home = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('All');
+  const [isLucky100ModalOpen, setIsLucky100ModalOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -121,6 +124,11 @@ const Home = () => {
         <span className="text-sm">{profile?.city || 'Belgrade'}</span>
       </div>
 
+      {/* Lucky 100 Banner */}
+      <div className="px-4 mb-4">
+        <Lucky100Banner onClick={() => setIsLucky100ModalOpen(true)} />
+      </div>
+
       {/* Featured Event */}
       {featuredEvent && (
         <motion.div
@@ -202,6 +210,12 @@ const Home = () => {
       )}
 
       <BottomNav />
+
+      {/* Lucky 100 Modal */}
+      <Lucky100Modal 
+        isOpen={isLucky100ModalOpen} 
+        onClose={() => setIsLucky100ModalOpen(false)} 
+      />
     </div>
   );
 };
