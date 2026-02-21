@@ -1,94 +1,102 @@
 
-
-# Dual Auth Flow: Party Goer + Club/Venue
+# Seed Belgrade Clubs + "I'm Going" Signal + Venue Heat Leaderboard
 
 ## Overview
 
-Add a role selection step to the Auth page so users choose between "Party Goer" and "Club / Venue" before signing up. Each type gets a tailored onboarding flow and landing experience.
+Three features in one implementation:
+1. Seed the database with 3 real Belgrade clubs and 6 events
+2. Add an "I'm Going" signal feature (user intent, separate from GPS check-in)
+3. Add a Venue Heat leaderboard (Clubs mode toggle on Leaderboard page + Home widget)
 
 ---
 
 ## Part 1: Database Migration
 
-A single migration that:
+A single migration that creates the `event_signals` table, seeds events, and adds the `get_venue_heat` function.
 
-1. Adds venue columns to `profiles`:
-   - `account_type TEXT DEFAULT 'party_goer'` with CHECK constraint
-   - `venue_name`, `venue_address`, `venue_description`, `venue_logo_url` (TEXT)
-   - `venue_capacity` (INTEGER)
-   - `venue_music_genres` (TEXT[])
-   - `venue_instagram`, `venue_contact_phone` (TEXT)
+### 1A. `event_signals` table
+- Columns: `id`, `event_id` (FK to events), `user_id` (FK to auth.users), `signal_type` (going/interested/maybe), `created_at`
+- Unique constraint on `(event_id, user_id)`
+- RLS: anyone can SELECT, users can INSERT/DELETE own rows
+- Trigger `signal_xp_trigger`: awards 25 XP on insert when `signal_type = 'going'`
 
-2. Updates `handle_new_user()` trigger to read `account_type` from `raw_user_meta_data`:
-   ```sql
-   COALESCE(NEW.raw_user_meta_data->>'account_type', 'party_goer')
-   ```
+### 1B. Seed data
+- Delete existing sample events
+- Insert 6 real events across 3 Belgrade venues:
+  - **Drugstore** (2 events): MAGLA 2 Year Anniversary, Friday Session
+  - **Karmakoma** (2 events): Idem Tour Life, Club Night
+  - **Para Klub** (2 events): MAGLA Sunday Day Rave, para.normal 16 Hour Session
+- Re-initialize `lucky100_counter` if empty
 
----
-
-## Part 2: AuthContext Changes
-
-- Add all new venue fields to the `Profile` interface
-- Update `signUp` to accept an optional `accountType` parameter and pass it as `data: { account_type: accountType }` in `supabase.auth.signUp` options
-
----
-
-## Part 3: Auth Page (Two-Step Flow)
-
-### Step 0 - Role Selection (new)
-- Logo and tagline stay at top
-- Two glassmorphism cards below:
-  - "Party Goer" (icon: music note) - "Find events, match with people, earn rewards"
-  - "Club / Venue" (icon: building) - "Post events, grow your audience, track engagement"
-- Selected card gets glowing purple/pink border + checkmark
-- "Continue" button appears when a type is selected
-- Cards stack vertically on mobile, side-by-side on wider screens
-
-### Step 1 - Email/Password (existing)
-- After role selection, slides in via AnimatePresence
-- On sign up, passes `accountType` to `signUp(email, password, accountType)`
-- Sign in flow skips Step 0 (goes straight to email/password)
+### 1C. `get_venue_heat()` function
+- Takes `days_back` parameter (default 7)
+- Returns venue rankings by total heat (signals + check-ins combined)
+- Includes top event title and ID per venue for navigation
 
 ---
 
-## Part 4: Onboarding Branching
+## Part 2: "I'm Going" Signal on EventDetail
 
-The existing `Onboarding.tsx` will branch based on `profile.account_type`:
+Modify `src/pages/EventDetail.tsx`:
 
-### Party Goer path (unchanged)
-Steps 1-3: Name/Age/City, Music Genres, Photo
-
-### Club/Venue path (new)
-- **Step 1 - Venue Info**: Venue name (required), address (required), city dropdown (existing CITIES), capacity (number)
-- **Step 2 - Venue Vibe**: Music genres (1-5, existing chip selector), description/bio (textarea, 200 char max)
-- **Step 3 - Venue Branding**: Logo upload (existing Camera pattern), Instagram handle (@ prefix), contact phone (optional)
-
-On finish, updates profile with all venue fields + `onboarding_completed: true`, awards 100 XP.
+- Add state: `isGoing`, `signalCount`
+- Add `checkSignalStatus()` and `fetchSignalCount()` in useEffect
+- Add `toggleSignal()` function (insert/delete pattern, same as wishlist)
+- Add a third button in the bottom CTA bar: "I'm Going" (warm orange gradient when active, outline when inactive)
+- Show signal count in the info pills section: "X going" with fire emoji
+- Toast on signal: "+25 XP - You're going!"
+- Replace the random mock attendee count with real signal count
 
 ---
 
-## Part 5: Venue Dashboard Page
+## Part 3: EventCard Signal Count
 
-New `src/pages/VenueDashboard.tsx`:
+Modify `src/components/EventCard.tsx`:
 
-- Header: venue logo + venue name + "Dashboard"
-- **"Your Events"** section: Lists events where `host_id` matches current user, plus a "Create Event" button (shows "Coming soon" toast)
-- **"Quick Stats"** section: Cards for total events, total check-ins, total reviews (placeholder 0 values)
-- Uses a venue-specific BottomNav variant: Dashboard, My Events, Analytics (Coming Soon), Profile
+- Add optional `signalCount` prop
+- Display "X going" badge using the signal count instead of attendee count
+- Show fire emoji when count > 0
 
----
+Modify `src/pages/Home.tsx`:
 
-## Part 6: Home Page Routing
-
-Update `Home.tsx` to check `profile.account_type`:
-- `party_goer` -> render existing Home page (no changes)
-- `club_venue` -> redirect to `/venue-dashboard`
+- After fetching events, fetch signal counts from `event_signals` grouped by `event_id`
+- Pass real `signalCount` to each EventCard
+- Remove the `Math.floor(Math.random() * 80) + 10` mock data
 
 ---
 
-## Part 7: App.tsx Route Addition
+## Part 4: Venue Heat Leaderboard
 
-Add: `<Route path="/venue-dashboard" element={<VenueDashboard />} />`
+### New component: `src/components/VenueHeatBoard.tsx`
+- Uses `supabase.rpc('get_venue_heat', { days_back: 7 })` via react-query
+- Renders ranked venue cards with:
+  - Medal emoji for top 3
+  - Venue name (bold)
+  - Heat bar (Progress component proportional to max heat)
+  - "X going / Y checked in" subtitle
+  - Fire emoji + total heat count
+  - Top event name, clickable to navigate to EventDetail
+- Prize descriptions: #1 "Featured Club of the Week", #2 "Trending", #3 "Rising"
+- 30-second refetch interval
+- Glassmorphism cards, #1 card gets amber/orange gradient background
+
+### Modify `src/pages/Leaderboard.tsx`:
+- Add top-level toggle: "Ravers" | "Clubs" (above the existing period tabs)
+- Default to "Ravers" which shows everything as-is (no changes to existing content)
+- When "Clubs" is selected, replace content below with `VenueHeatBoard`
+- Header adapts: fire icon + "Club Heat" title when in Clubs mode
+- Countdown timer stays visible in both modes
+
+### Modify Home page (`src/pages/Home.tsx`):
+- Add a compact `VenueHeatBoard` widget in the Home page (between LeaderboardPreview and filters)
+- Shows top 3 venues as a horizontal mini-preview, clickable to navigate to Leaderboard in Clubs mode
+
+---
+
+## Part 5: XP Guide Update
+
+Add the new signal XP action to the `XP_GUIDE` array in `Leaderboard.tsx`:
+- "Signal 'I'm Going'", 25 XP, fire emoji
 
 ---
 
@@ -96,20 +104,18 @@ Add: `<Route path="/venue-dashboard" element={<VenueDashboard />} />`
 
 | File | Purpose |
 |------|---------|
-| `src/pages/VenueDashboard.tsx` | Venue owner dashboard with events list and stats |
+| `src/components/VenueHeatBoard.tsx` | Venue heat ranking component used in Leaderboard and Home |
+| Migration SQL file | event_signals table, seed data, get_venue_heat function |
 
 ## Files to Modify
 
 | File | Changes |
 |------|---------|
-| Database migration | Add venue columns + update trigger |
-| `src/contexts/AuthContext.tsx` | Add venue fields to Profile interface, update signUp signature |
-| `src/pages/Auth.tsx` | Add Step 0 role selection with AnimatePresence |
-| `src/pages/Onboarding.tsx` | Add club_venue branch with 3 venue-specific steps |
-| `src/pages/Home.tsx` | Redirect club_venue users to /venue-dashboard |
-| `src/App.tsx` | Add /venue-dashboard route |
+| `src/pages/EventDetail.tsx` | Add "I'm Going" signal button, signal count, remove mock attendees |
+| `src/components/EventCard.tsx` | Add `signalCount` prop, display real going count |
+| `src/pages/Home.tsx` | Fetch signal counts, pass to EventCard, add VenueHeat widget |
+| `src/pages/Leaderboard.tsx` | Add Ravers/Clubs toggle, integrate VenueHeatBoard |
 
 ## Files NOT Changed
 
-CircleSwipe, Matches, Gamification, Leaderboard, Lucky100, Profile, existing BottomNav for party_goer users, existing RLS policies.
-
+CircleSwipe, Matches, Gamification, Lucky100, Profile, Onboarding, Auth, VenueDashboard, BottomNav, existing RLS policies.
