@@ -125,6 +125,38 @@ export type Database = {
           },
         ]
       }
+      event_signals: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          signal_type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          signal_type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          signal_type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_signals_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_wishlists: {
         Row: {
           created_at: string | null
@@ -709,6 +741,17 @@ export type Database = {
           global_count: number
           last_winner_count: number
           next_lucky_number: number
+        }[]
+      }
+      get_venue_heat: {
+        Args: { days_back?: number }
+        Returns: {
+          checkin_count: number
+          signal_count: number
+          top_event_id: string
+          top_event_title: string
+          total_heat: number
+          venue_name: string
         }[]
       }
       get_weekly_leaderboard: {

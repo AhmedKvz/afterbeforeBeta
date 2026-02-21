@@ -17,6 +17,7 @@ interface EventCardProps {
   attendeeCount: number;
   attendeeAvatars?: string[];
   featured?: boolean;
+  signalCount?: number;
 }
 
 export const EventCard = ({
@@ -32,6 +33,7 @@ export const EventCard = ({
   attendeeCount,
   attendeeAvatars = [],
   featured = false,
+  signalCount = 0,
 }: EventCardProps) => {
   const navigate = useNavigate();
   const heatLevel = getHeatLevel(attendeeCount, capacity);
@@ -85,7 +87,7 @@ export const EventCard = ({
             size="sm"
           />
           <span className="text-sm text-muted-foreground">
-            {attendeeCount} going
+            {signalCount > 0 ? `🔥 ${signalCount}` : `${attendeeCount}`} going
           </span>
         </div>
         
