@@ -1,289 +1,115 @@
 
 
-# Dual Gamification System Implementation Plan
+# Dual Auth Flow: Party Goer + Club/Venue
 
 ## Overview
 
-This plan transforms the existing weekly-draw Lucky 100 system into a **counter-based instant-win system** and enhances the leaderboard with a **weekly winners archive**. The implementation follows the existing AfterBefore design patterns (dark mode, glassmorphism, purple-pink gradients).
+Add a role selection step to the Auth page so users choose between "Party Goer" and "Club / Venue" before signing up. Each type gets a tailored onboarding flow and landing experience.
 
 ---
 
-## Part 1: Database Schema Changes
+## Part 1: Database Migration
 
-### New Tables
+A single migration that:
 
-| Table | Purpose |
-|-------|---------|
-| `lucky100_counter` | Global singleton tracking total check-ins |
-| `lucky100_winners` | Records of instant-win recipients |
-| `weekly_winners` | Archive of weekly leaderboard prize winners |
+1. Adds venue columns to `profiles`:
+   - `account_type TEXT DEFAULT 'party_goer'` with CHECK constraint
+   - `venue_name`, `venue_address`, `venue_description`, `venue_logo_url` (TEXT)
+   - `venue_capacity` (INTEGER)
+   - `venue_music_genres` (TEXT[])
+   - `venue_instagram`, `venue_contact_phone` (TEXT)
 
-### Schema Details
-
-**`lucky100_counter`**
-- Single row table tracking `global_count` and `last_winner_count`
-- Anyone can view (public stats), system-only updates
-
-**`lucky100_winners`**
-- Links to user, stores `check_in_number`, prize claim status
-- Anyone can view winners (social proof), users claim own prizes
-
-**`weekly_winners`**
-- Archives top 3 from each week with prize details
-- Anyone can view history, admins manage prizes
-
-### Trigger Functions
-
-1. **`check_lucky100_winner()`**: Fires on `event_checkins` INSERT
-   - Increments global counter
-   - If `count % 5 = 0`, creates winner record
-   - Returns NEW to complete check-in
-
-2. **`update_weekly_leaderboard()`**: Already exists, no changes needed
-
-3. **`award_review_xp()`**: Already exists, may add profile XP update
-
-### RLS Policies
-- Public SELECT on counter, winners, leaderboard
-- User-only INSERT/UPDATE on claims
-- Admin UPDATE on winner status
+2. Updates `handle_new_user()` trigger to read `account_type` from `raw_user_meta_data`:
+   ```sql
+   COALESCE(NEW.raw_user_meta_data->>'account_type', 'party_goer')
+   ```
 
 ---
 
-## Part 2: UI Component Updates
+## Part 2: AuthContext Changes
 
-### Updated Components
-
-| Component | Changes |
-|-----------|---------|
-| `Lucky100Banner.tsx` | Show progress to next lucky number (e.g., "3 check-ins to next winner!"), last winner avatar/name, real-time counter via Supabase Realtime |
-| `Lucky100Modal.tsx` | Update rules: "Every 5th check-in wins instantly!", show last 10 winners list, "No entry needed - just check-in!" |
-| `LeaderboardPreview.tsx` | Add countdown timer to Sunday reset, "X XP to Top 3!" motivational text |
-
-### New Components
-
-| Component | Purpose |
-|-----------|---------|
-| `Lucky100WinModal.tsx` | Celebration modal with confetti when user wins, event choice dropdown (Drugstore/Karmakoma/Para), guestlist name input |
-| `TrendingEventCard.tsx` | Featured event card with "TRENDING THIS WEEK" badge, vibe badge, rating display |
-| `WeeklyWinnersButton.tsx` | Admin-only FAB to finalize weekly winners |
-| `CountdownTimer.tsx` | Reusable countdown component (used for leaderboard reset) |
+- Add all new venue fields to the `Profile` interface
+- Update `signUp` to accept an optional `accountType` parameter and pass it as `data: { account_type: accountType }` in `supabase.auth.signUp` options
 
 ---
 
-## Part 3: New Pages
+## Part 3: Auth Page (Two-Step Flow)
 
-### `/gamification` - Gamification Hub
+### Step 0 - Role Selection (new)
+- Logo and tagline stay at top
+- Two glassmorphism cards below:
+  - "Party Goer" (icon: music note) - "Find events, match with people, earn rewards"
+  - "Club / Venue" (icon: building) - "Post events, grow your audience, track engagement"
+- Selected card gets glowing purple/pink border + checkmark
+- "Continue" button appears when a type is selected
+- Cards stack vertically on mobile, side-by-side on wider screens
 
-```text
-+------------------------------------------+
-|  YOUR XP JOURNEY                         |
-|  Level 5 | 2,450 XP | +550 to Level 6   |
-|  [===================----] 82%           |
-+------------------------------------------+
-|  RECENT ACTIVITY                         |
-|  - Event review: +200 XP (2h ago)       |
-|  - Check-in: +50 XP (1d ago)            |
-|  - Match: +100 XP (2d ago)              |
-+------------------------------------------+
-|  QUICK ACTIONS                           |
-|  [View Leaderboard] [Lucky 100] [Reviews]|
-+------------------------------------------+
-```
-
-- XP progress card with level info
-- Recent XP activity feed (last 10 transactions)
-- Quick action buttons
-- Educational tooltips explaining XP economy
-
-### `/lucky100` - Lucky 100 Dedicated Page
-
-```text
-+------------------------------------------+
-|  LUCKY 100                               |
-|  Global Check-ins: 847                   |
-|  Next Winner: #850 (3 away!)            |
-|  [==========================----] 94%    |
-+------------------------------------------+
-|  RECENT WINNERS                          |
-|  - @partyking (Check-in #845) 2h ago    |
-|  - @nightowl (Check-in #840) 5h ago     |
-|  - @dancefloor (Check-in #835) 8h ago   |
-+------------------------------------------+
-|  HOW IT WORKS                            |
-|  Every 5th check-in wins automatically!  |
-|  No entry needed - just show up!         |
-+------------------------------------------+
-```
-
-- Large counter display with progress bar
-- Next lucky number indicator
-- Last 10 winners with avatars
-- "How it works" explanation card
-- FAQ section
+### Step 1 - Email/Password (existing)
+- After role selection, slides in via AnimatePresence
+- On sign up, passes `accountType` to `signUp(email, password, accountType)`
+- Sign in flow skips Step 0 (goes straight to email/password)
 
 ---
 
-## Part 4: Hooks & Data Layer
+## Part 4: Onboarding Branching
 
-### New Hooks
+The existing `Onboarding.tsx` will branch based on `profile.account_type`:
 
-| Hook | Purpose |
+### Party Goer path (unchanged)
+Steps 1-3: Name/Age/City, Music Genres, Photo
+
+### Club/Venue path (new)
+- **Step 1 - Venue Info**: Venue name (required), address (required), city dropdown (existing CITIES), capacity (number)
+- **Step 2 - Venue Vibe**: Music genres (1-5, existing chip selector), description/bio (textarea, 200 char max)
+- **Step 3 - Venue Branding**: Logo upload (existing Camera pattern), Instagram handle (@ prefix), contact phone (optional)
+
+On finish, updates profile with all venue fields + `onboarding_completed: true`, awards 100 XP.
+
+---
+
+## Part 5: Venue Dashboard Page
+
+New `src/pages/VenueDashboard.tsx`:
+
+- Header: venue logo + venue name + "Dashboard"
+- **"Your Events"** section: Lists events where `host_id` matches current user, plus a "Create Event" button (shows "Coming soon" toast)
+- **"Quick Stats"** section: Cards for total events, total check-ins, total reviews (placeholder 0 values)
+- Uses a venue-specific BottomNav variant: Dashboard, My Events, Analytics (Coming Soon), Profile
+
+---
+
+## Part 6: Home Page Routing
+
+Update `Home.tsx` to check `profile.account_type`:
+- `party_goer` -> render existing Home page (no changes)
+- `club_venue` -> redirect to `/venue-dashboard`
+
+---
+
+## Part 7: App.tsx Route Addition
+
+Add: `<Route path="/venue-dashboard" element={<VenueDashboard />} />`
+
+---
+
+## Files to Create
+
+| File | Purpose |
 |------|---------|
-| `useLucky100Counter.ts` | Subscribe to global counter via Realtime, track progress to next winner |
-| `useLucky100Winners.ts` | Fetch recent winners list, check if current user has unclaimed prize |
-| `useXPActivity.ts` | Fetch user's recent XP transactions for activity feed |
-| `useWeeklyWinners.ts` | Fetch/manage weekly leaderboard winners archive |
+| `src/pages/VenueDashboard.tsx` | Venue owner dashboard with events list and stats |
 
-### Updated Hooks
+## Files to Modify
 
-| Hook | Changes |
+| File | Changes |
 |------|---------|
-| `useLucky100.ts` | Refactor to use counter-based system instead of weekly draw |
-| `useLeaderboard.ts` | Add countdown calculation, XP-to-top-3 calculation |
+| Database migration | Add venue columns + update trigger |
+| `src/contexts/AuthContext.tsx` | Add venue fields to Profile interface, update signUp signature |
+| `src/pages/Auth.tsx` | Add Step 0 role selection with AnimatePresence |
+| `src/pages/Onboarding.tsx` | Add club_venue branch with 3 venue-specific steps |
+| `src/pages/Home.tsx` | Redirect club_venue users to /venue-dashboard |
+| `src/App.tsx` | Add /venue-dashboard route |
 
----
+## Files NOT Changed
 
-## Part 5: Backend Functions
-
-### New Edge Function: `lucky100-counter`
-- Returns current global count, next lucky number, last winner info
-- Called by Lucky100Banner for real-time display
-
-### Database Trigger Updates
-- Modify `check_lucky100_winner()` to handle instant-win logic
-- Add notification record when winner detected (for future push notifications)
-
----
-
-## Part 6: Navigation Updates
-
-### BottomNav Changes
-- Replace "Ranks" (Trophy) with "Rewards" or keep as-is
-- Optionally add Gamification icon (Sparkles)
-
-### App.tsx Routes
-```typescript
-<Route path="/gamification" element={<Gamification />} />
-<Route path="/lucky100" element={<Lucky100Page />} />
-```
-
----
-
-## Part 7: Real-time Features
-
-### Supabase Realtime Subscriptions
-
-1. **Lucky 100 Counter**: Subscribe to `lucky100_counter` changes
-   - Update banner when count increments
-   - Show celebration when user wins
-
-2. **Leaderboard**: Subscribe to `weekly_leaderboard` changes
-   - Real-time rank updates
-   - Position change notifications
-
----
-
-## Part 8: Win Detection Flow
-
-```text
-User Checks In
-      |
-      v
-Trigger: check_lucky100_winner()
-      |
-      v
-Increment global_count
-      |
-      v
-Check: count % 5 === 0?
-      |
-  YES v                NO
-      |                 |
-Insert winner      Return NEW
-      |                 |
-Update last_winner     Done
-      |
-      v
-Return NEW
-      |
-      v
-Frontend detects win (query or realtime)
-      |
-      v
-Show Lucky100WinModal
-```
-
----
-
-## Part 9: Admin Features
-
-### Weekly Winners Management
-- Admin-only button on Leaderboard page
-- Copies top 3 from `weekly_leaderboard` to `weekly_winners`
-- Marks prize status for each winner
-- Optionally sends notification (future)
-
----
-
-## Part 10: Implementation Order
-
-| Phase | Tasks |
-|-------|-------|
-| 1 | Database migration: Create new tables, triggers, RLS policies |
-| 2 | Backend: Update edge function for counter stats |
-| 3 | Hooks: Create useLucky100Counter, useLucky100Winners, useXPActivity |
-| 4 | Components: Lucky100WinModal, TrendingEventCard, CountdownTimer |
-| 5 | Pages: Create Gamification, Lucky100Page |
-| 6 | Integration: Update Home page, add routes, update BottomNav |
-| 7 | Polish: Realtime subscriptions, animations, edge cases |
-
----
-
-## Technical Details
-
-### Migration SQL Structure
-
-The migration will:
-1. Create `lucky100_counter` table with initial row
-2. Create `lucky100_winners` table
-3. Create `weekly_winners` archive table
-4. Add `check_lucky100_winner()` trigger function
-5. Attach trigger to `event_checkins`
-6. Set up RLS policies for all new tables
-7. Enable Realtime for `lucky100_counter`
-
-### XP Economy Summary
-
-| Action | XP Reward |
-|--------|-----------|
-| Check-in | +50 XP |
-| Match | +100 XP |
-| Review (stars only) | +100 XP |
-| Review (with text) | +200 XP |
-| Weekly streak bonus | +200 XP |
-
-### Files to Create
-
-- `src/pages/Gamification.tsx`
-- `src/pages/Lucky100Page.tsx`
-- `src/components/Lucky100WinModal.tsx`
-- `src/components/TrendingEventCard.tsx`
-- `src/components/CountdownTimer.tsx`
-- `src/components/WeeklyWinnersButton.tsx`
-- `src/hooks/useLucky100Counter.ts`
-- `src/hooks/useLucky100Winners.ts`
-- `src/hooks/useXPActivity.ts`
-- `supabase/functions/lucky100-counter/index.ts`
-
-### Files to Update
-
-- `src/pages/Home.tsx` - Add TrendingEventCard section
-- `src/components/Lucky100Banner.tsx` - Counter-based display
-- `src/components/Lucky100Modal.tsx` - Updated rules/winners list
-- `src/components/LeaderboardPreview.tsx` - Countdown timer
-- `src/hooks/useLucky100.ts` - Counter-based logic
-- `src/hooks/useLeaderboard.ts` - XP gap calculation
-- `src/components/BottomNav.tsx` - Optional nav update
-- `src/App.tsx` - New routes
+CircleSwipe, Matches, Gamification, Leaderboard, Lucky100, Profile, existing BottomNav for party_goer users, existing RLS policies.
 
