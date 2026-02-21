@@ -395,6 +395,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_type: string | null
           age: number | null
           avatar_url: string | null
           bio: string | null
@@ -409,9 +410,18 @@ export type Database = {
           total_matches: number | null
           updated_at: string | null
           user_id: string
+          venue_address: string | null
+          venue_capacity: number | null
+          venue_contact_phone: string | null
+          venue_description: string | null
+          venue_instagram: string | null
+          venue_logo_url: string | null
+          venue_music_genres: string[] | null
+          venue_name: string | null
           xp: number | null
         }
         Insert: {
+          account_type?: string | null
           age?: number | null
           avatar_url?: string | null
           bio?: string | null
@@ -426,9 +436,18 @@ export type Database = {
           total_matches?: number | null
           updated_at?: string | null
           user_id: string
+          venue_address?: string | null
+          venue_capacity?: number | null
+          venue_contact_phone?: string | null
+          venue_description?: string | null
+          venue_instagram?: string | null
+          venue_logo_url?: string | null
+          venue_music_genres?: string[] | null
+          venue_name?: string | null
           xp?: number | null
         }
         Update: {
+          account_type?: string | null
           age?: number | null
           avatar_url?: string | null
           bio?: string | null
@@ -443,6 +462,14 @@ export type Database = {
           total_matches?: number | null
           updated_at?: string | null
           user_id?: string
+          venue_address?: string | null
+          venue_capacity?: number | null
+          venue_contact_phone?: string | null
+          venue_description?: string | null
+          venue_instagram?: string | null
+          venue_logo_url?: string | null
+          venue_music_genres?: string[] | null
+          venue_name?: string | null
           xp?: number | null
         }
         Relationships: []

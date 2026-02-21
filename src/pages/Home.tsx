@@ -51,6 +51,12 @@ const Home = () => {
       navigate('/onboarding');
       return;
     }
+
+    // Redirect venue accounts to their dashboard
+    if (!authLoading && profile && profile.account_type === 'club_venue') {
+      navigate('/venue-dashboard', { replace: true });
+      return;
+    }
     
     fetchEvents();
   }, [user, profile, authLoading, navigate]);
