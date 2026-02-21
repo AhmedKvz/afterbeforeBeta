@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { 
   ArrowLeft, Heart, Calendar, MapPin, Users, 
-  DollarSign, Music, Loader2, MapPinCheck, Sparkles 
+  DollarSign, Music, Loader2, MapPinCheck, Sparkles, Flame
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -42,14 +42,16 @@ const EventDetail = () => {
   const [checkingIn, setCheckingIn] = useState(false);
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [attendeeCount, setAttendeeCount] = useState(0);
+  const [isGoing, setIsGoing] = useState(false);
+  const [signalCount, setSignalCount] = useState(0);
 
   useEffect(() => {
     if (id) {
       fetchEvent();
       checkCheckinStatus();
       checkWishlistStatus();
-      fetchAttendeeCount();
+      checkSignalStatus();
+      fetchSignalCount();
     }
   }, [id, user]);
 
@@ -74,70 +76,83 @@ const EventDetail = () => {
 
   const checkCheckinStatus = async () => {
     if (!user || !id) return;
-    
     const { data } = await supabase
       .from('event_checkins')
       .select('id')
       .eq('event_id', id)
       .eq('user_id', user.id)
       .maybeSingle();
-    
     setIsCheckedIn(!!data);
   };
 
   const checkWishlistStatus = async () => {
     if (!user || !id) return;
-    
     const { data } = await supabase
       .from('event_wishlists')
       .select('id')
       .eq('event_id', id)
       .eq('user_id', user.id)
       .maybeSingle();
-    
     setIsSaved(!!data);
   };
 
-  const fetchAttendeeCount = async () => {
+  const checkSignalStatus = async () => {
+    if (!user || !id) return;
+    const { data } = await supabase
+      .from('event_signals')
+      .select('id')
+      .eq('event_id', id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+    setIsGoing(!!data);
+  };
+
+  const fetchSignalCount = async () => {
     if (!id) return;
-    
     const { count } = await supabase
-      .from('event_checkins')
+      .from('event_signals')
       .select('*', { count: 'exact', head: true })
       .eq('event_id', id);
-    
-    // Mock some additional attendees for demo
-    setAttendeeCount((count || 0) + Math.floor(Math.random() * 50) + 20);
+    setSignalCount(count || 0);
+  };
+
+  const toggleSignal = async () => {
+    if (!user || !id) return;
+    if (isGoing) {
+      await supabase.from('event_signals').delete()
+        .eq('event_id', id).eq('user_id', user.id);
+      setSignalCount(prev => Math.max(0, prev - 1));
+      setIsGoing(false);
+      toast.success('Signal removed');
+    } else {
+      await supabase.from('event_signals').insert({
+        event_id: id, user_id: user.id, signal_type: 'going'
+      });
+      setSignalCount(prev => prev + 1);
+      setIsGoing(true);
+      toast.success('+25 XP 🔥 You\'re going!');
+    }
   };
 
   const handleCheckIn = async () => {
     if (!user || !event) return;
-    
     setCheckingIn(true);
-    
     try {
-      // Get user's position
       const position = await getCurrentPosition();
       const userCoords = {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
       };
-      
       const eventCoords = {
         latitude: Number(event.latitude),
         longitude: Number(event.longitude),
       };
-      
-      // Verify proximity (100m radius)
       const isNear = isWithinRadius(userCoords, eventCoords, 100);
-      
       if (!isNear) {
         toast.error('You must be at the event location to check in!');
         setCheckingIn(false);
         return;
       }
-      
-      // Save check-in
       const { error: checkinError } = await supabase
         .from('event_checkins')
         .insert({
@@ -146,10 +161,7 @@ const EventDetail = () => {
           latitude: userCoords.latitude,
           longitude: userCoords.longitude,
         });
-      
       if (checkinError) throw checkinError;
-      
-      // Update active users
       await supabase
         .from('active_users')
         .upsert({
@@ -159,10 +171,7 @@ const EventDetail = () => {
           longitude: userCoords.longitude,
           last_seen: new Date().toISOString(),
         });
-      
-      // Award XP
       await awardXP(user.id, XP_AWARDS.checkIn, 'Checked in to event');
-      
       setIsCheckedIn(true);
       toast.success('Checked in! +50 XP 🎉');
     } catch (error: any) {
@@ -179,18 +188,13 @@ const EventDetail = () => {
 
   const handleToggleSave = async () => {
     if (!user || !id) return;
-    
     if (isSaved) {
-      await supabase
-        .from('event_wishlists')
-        .delete()
-        .eq('event_id', id)
-        .eq('user_id', user.id);
+      await supabase.from('event_wishlists').delete()
+        .eq('event_id', id).eq('user_id', user.id);
       setIsSaved(false);
       toast.success('Removed from saved');
     } else {
-      await supabase
-        .from('event_wishlists')
+      await supabase.from('event_wishlists')
         .insert({ event_id: id, user_id: user.id });
       setIsSaved(true);
       toast.success('Saved to wishlist');
@@ -207,7 +211,7 @@ const EventDetail = () => {
 
   if (!event) return null;
 
-  const heatLevel = getHeatLevel(attendeeCount, event.capacity || 100);
+  const heatLevel = getHeatLevel(signalCount, event.capacity || 100);
   const formattedDate = format(new Date(event.date), 'EEEE, MMM d');
   const formattedTime = event.start_time?.slice(0, 5);
 
@@ -222,7 +226,6 @@ const EventDetail = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
         
-        {/* Header */}
         <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
@@ -238,7 +241,6 @@ const EventDetail = () => {
           </button>
         </div>
         
-        {/* Title Card */}
         <div className="absolute bottom-4 left-4 right-4">
           <GlassCard className="p-4">
             <div className="flex items-start justify-between">
@@ -264,10 +266,15 @@ const EventDetail = () => {
             <MapPin className="w-4 h-4 text-primary" />
             <span>{event.venue_name}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Users className="w-4 h-4 text-primary" />
-            <span>{attendeeCount} / {event.capacity} going</span>
-          </div>
+          <motion.div
+            key={signalCount}
+            initial={{ scale: 1.2 }}
+            animate={{ scale: 1 }}
+            className="flex items-center gap-2 text-sm"
+          >
+            <Flame className="w-4 h-4 text-orange-400" />
+            <span className="text-orange-400 font-medium">{signalCount} going</span>
+          </motion.div>
           <div className="flex items-center gap-2 text-sm">
             <DollarSign className="w-4 h-4 text-accent" />
             <span className="text-accent font-bold">€{event.price}</span>
@@ -293,12 +300,12 @@ const EventDetail = () => {
         {/* Who's Going */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-bold">Who's Going ({attendeeCount})</h2>
+            <h2 className="font-bold">Who's Going ({signalCount})</h2>
             <button className="text-sm text-primary">See all →</button>
           </div>
           <AvatarStack
             avatars={['/placeholder.svg', '/placeholder.svg', '/placeholder.svg', '/placeholder.svg', '/placeholder.svg']}
-            total={attendeeCount}
+            total={signalCount}
             size="lg"
           />
         </div>
@@ -322,6 +329,20 @@ const EventDetail = () => {
       {/* CTA Buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent">
         <div className="flex gap-3">
+          {/* I'm Going Button */}
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={toggleSignal}
+            className={`flex-1 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
+              isGoing
+                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+                : 'border border-orange-500/50 text-orange-400'
+            }`}
+          >
+            <Flame className="w-5 h-5" />
+            {isGoing ? 'Going ✓' : "I'm Going"}
+          </motion.button>
+
           <button
             onClick={handleCheckIn}
             disabled={checkingIn || isCheckedIn}

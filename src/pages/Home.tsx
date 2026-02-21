@@ -10,6 +10,7 @@ import { Lucky100Banner } from '@/components/Lucky100Banner';
 import { Lucky100Modal } from '@/components/Lucky100Modal';
 import { BestPartyCard } from '@/components/BestPartyCard';
 import { LeaderboardPreview } from '@/components/LeaderboardPreview';
+import { VenueHeatBoard } from '@/components/VenueHeatBoard';
 import { ReviewModal } from '@/components/ReviewModal';
 import { useBestPartyThisWeek } from '@/hooks/useEventStats';
 import { useReviewPrompt } from '@/hooks/useReviewPrompt';
@@ -37,6 +38,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('All');
   const [isLucky100ModalOpen, setIsLucky100ModalOpen] = useState(false);
+  const [signalCounts, setSignalCounts] = useState<Record<string, number>>({});
 
   const { data: bestParty } = useBestPartyThisWeek();
   const { shouldShowModal: shouldShowReviewModal, eventToReview, dismissPrompt } = useReviewPrompt();
@@ -52,7 +54,6 @@ const Home = () => {
       return;
     }
 
-    // Redirect venue accounts to their dashboard
     if (!authLoading && profile && profile.account_type === 'club_venue') {
       navigate('/venue-dashboard', { replace: true });
       return;
@@ -69,7 +70,24 @@ const Home = () => {
         .order('date', { ascending: true });
       
       if (error) throw error;
-      setEvents(data || []);
+      const eventList = data || [];
+      setEvents(eventList);
+
+      // Fetch signal counts
+      if (eventList.length > 0) {
+        const { data: signals } = await supabase
+          .from('event_signals')
+          .select('event_id')
+          .in('event_id', eventList.map(e => e.id));
+        
+        if (signals) {
+          const counts: Record<string, number> = {};
+          signals.forEach(s => {
+            counts[s.event_id] = (counts[s.event_id] || 0) + 1;
+          });
+          setSignalCounts(counts);
+        }
+      }
     } catch (error) {
       console.error('Error fetching events:', error);
     } finally {
@@ -98,7 +116,6 @@ const Home = () => {
     return event.music_genres?.includes(activeFilter);
   });
 
-  // Exclude best party from regular list if it exists
   const regularEvents = bestParty 
     ? filteredEvents.filter(e => e.id !== bestParty.id)
     : filteredEvents;
@@ -162,8 +179,13 @@ const Home = () => {
       )}
 
       {/* Leaderboard Preview */}
-      <div className="px-4 mb-6">
+      <div className="px-4 mb-4">
         <LeaderboardPreview />
+      </div>
+
+      {/* Venue Heat Widget */}
+      <div className="px-4 mb-6">
+        <VenueHeatBoard compact />
       </div>
 
       {/* Filters */}
@@ -207,7 +229,8 @@ const Home = () => {
                 musicGenres={event.music_genres || []}
                 price={event.price || 0}
                 capacity={event.capacity || 100}
-                attendeeCount={Math.floor(Math.random() * 80) + 10}
+                attendeeCount={signalCounts[event.id] || 0}
+                signalCount={signalCounts[event.id] || 0}
               />
             </motion.div>
           ))}
@@ -223,13 +246,11 @@ const Home = () => {
 
       <BottomNav />
 
-      {/* Lucky 100 Modal */}
       <Lucky100Modal 
         isOpen={isLucky100ModalOpen} 
         onClose={() => setIsLucky100ModalOpen(false)} 
       />
 
-      {/* Review Modal */}
       {eventToReview && (
         <ReviewModal
           isOpen={shouldShowReviewModal}
