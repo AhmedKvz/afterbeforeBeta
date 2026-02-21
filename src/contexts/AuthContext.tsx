@@ -16,6 +16,15 @@ interface Profile {
   events_attended: number;
   total_matches: number;
   onboarding_completed: boolean;
+  account_type: 'party_goer' | 'club_venue';
+  venue_name: string | null;
+  venue_address: string | null;
+  venue_description: string | null;
+  venue_logo_url: string | null;
+  venue_capacity: number | null;
+  venue_music_genres: string[] | null;
+  venue_instagram: string | null;
+  venue_contact_phone: string | null;
 }
 
 interface AuthContextType {
@@ -23,7 +32,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, accountType?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -84,7 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, accountType?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
@@ -92,6 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       password,
       options: {
         emailRedirectTo: redirectUrl,
+        data: { account_type: accountType || 'party_goer' },
       },
     });
     
