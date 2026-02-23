@@ -13,6 +13,7 @@ import { AvatarStack } from '@/components/AvatarStack';
 import { GlassCard } from '@/components/GlassCard';
 import { getCurrentPosition, isWithinRadius } from '@/services/geolocation';
 import { awardXP, XP_AWARDS } from '@/services/gamification';
+import { incrementQuestProgress } from '@/services/questProgress';
 import { toast } from 'sonner';
 
 interface Event {
@@ -131,6 +132,7 @@ const EventDetail = () => {
       setSignalCount(prev => prev + 1);
       setIsGoing(true);
       toast.success('+25 XP 🔥 You\'re going!');
+      if (user) await incrementQuestProgress(user.id, 'signal');
     }
   };
 
@@ -172,6 +174,8 @@ const EventDetail = () => {
           last_seen: new Date().toISOString(),
         });
       await awardXP(user.id, XP_AWARDS.checkIn, 'Checked in to event');
+      await incrementQuestProgress(user.id, 'check_in');
+      await incrementQuestProgress(user.id, 'explore');
       setIsCheckedIn(true);
       toast.success('Checked in! +50 XP 🎉');
     } catch (error: any) {

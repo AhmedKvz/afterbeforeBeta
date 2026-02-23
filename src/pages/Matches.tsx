@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/GlassCard';
 import { BottomNav } from '@/components/BottomNav';
+import { incrementQuestProgress } from '@/services/questProgress';
 import { toast } from 'sonner';
 
 interface Match {
@@ -117,6 +118,7 @@ const Matches = () => {
         m.id === match.id ? { ...m, has_waved: true } : m
       ));
       
+      await incrementQuestProgress(user.id, 'social');
       toast.success(`Wave sent to ${match.other_user.display_name}! 👋`);
     } catch (error) {
       console.error('Error sending wave:', error);

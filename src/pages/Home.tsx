@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, User, MapPin } from 'lucide-react';
+import { Bell, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,9 +12,13 @@ import { BestPartyCard } from '@/components/BestPartyCard';
 import { LeaderboardPreview } from '@/components/LeaderboardPreview';
 import { VenueHeatBoard } from '@/components/VenueHeatBoard';
 import { ReviewModal } from '@/components/ReviewModal';
+import { NotificationBell } from '@/components/NotificationBell';
+import { SceneBanner } from '@/components/SceneBanner';
 import { useBestPartyThisWeek } from '@/hooks/useEventStats';
 import { useReviewPrompt } from '@/hooks/useReviewPrompt';
+import { useQuests } from '@/hooks/useQuests';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface Event {
   id: string;
@@ -42,6 +46,31 @@ const Home = () => {
 
   const { data: bestParty } = useBestPartyThisWeek();
   const { shouldShowModal: shouldShowReviewModal, eventToReview, dismissPrompt } = useReviewPrompt();
+  const { completedCount, totalCount } = useQuests();
+
+  // Realtime notifications toast
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel('notifications-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload: any) => {
+          toast(payload.new.title, { description: payload.new.body });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -73,7 +102,6 @@ const Home = () => {
       const eventList = data || [];
       setEvents(eventList);
 
-      // Fetch signal counts
       if (eventList.length > 0) {
         const { data: signals } = await supabase
           .from('event_signals')
@@ -128,6 +156,8 @@ const Home = () => {
     );
   }
 
+  const showFAB = profile?.onboarding_completed && profile?.account_type !== 'club_venue';
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
@@ -138,14 +168,13 @@ const Home = () => {
             <span className="font-bold text-xl gradient-text">AfterBefore</span>
           </div>
           <div className="flex items-center gap-4">
-            <button className="relative">
-              <Bell className="w-6 h-6 text-muted-foreground hover:text-foreground transition-colors" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-secondary rounded-full text-xs flex items-center justify-center">
-                3
-              </span>
-            </button>
+            <NotificationBell />
             <button onClick={() => navigate('/profile')}>
-              <User className="w-6 h-6 text-muted-foreground hover:text-foreground transition-colors" />
+              <img 
+                src={profile?.avatar_url || '/placeholder.svg'} 
+                alt="Profile" 
+                className="w-8 h-8 rounded-full object-cover border border-border"
+              />
             </button>
           </div>
         </div>
@@ -162,6 +191,23 @@ const Home = () => {
         <Lucky100Banner onClick={() => setIsLucky100ModalOpen(true)} />
       </div>
 
+      {/* Quest Progress Compact */}
+      {totalCount > 0 && (
+        <div className="px-4 mb-4">
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate('/quests')}
+            className="w-full p-3 rounded-2xl bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🎯</span>
+              <span className="text-sm font-medium">{completedCount}/{totalCount} quests completed</span>
+            </div>
+            <span className="text-xs text-primary font-bold">View →</span>
+          </motion.button>
+        </div>
+      )}
+
       {/* Best Party This Week */}
       {bestParty && (
         <div className="px-4 mb-4">
@@ -177,6 +223,11 @@ const Home = () => {
           />
         </div>
       )}
+
+      {/* Scene Banner */}
+      <div className="px-4 mb-4">
+        <SceneBanner />
+      </div>
 
       {/* Leaderboard Preview */}
       <div className="px-4 mb-4">
@@ -242,6 +293,18 @@ const Home = () => {
         <div className="px-4 py-12 text-center">
           <p className="text-muted-foreground">No events found</p>
         </div>
+      )}
+
+      {/* Swipe Nearby FAB */}
+      {showFAB && (
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={() => navigate('/circle-swipe')}
+          className="fixed bottom-24 right-4 z-40 w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
+          style={{ background: 'var(--gradient-primary)' }}
+        >
+          <MapPin className="w-6 h-6 text-white" />
+        </motion.button>
       )}
 
       <BottomNav />

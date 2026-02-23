@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import EventDetail from "./pages/EventDetail";
 import CircleSwipe from "./pages/CircleSwipe";
+import LocationSwipe from "./pages/LocationSwipe";
 import Matches from "./pages/Matches";
 import Profile from "./pages/Profile";
 import MyEvents from "./pages/MyEvents";
@@ -16,6 +17,9 @@ import Leaderboard from "./pages/Leaderboard";
 import Gamification from "./pages/Gamification";
 import Lucky100Page from "./pages/Lucky100Page";
 import VenueDashboard from "./pages/VenueDashboard";
+import Notifications from "./pages/Notifications";
+import ScenePanel from "./pages/ScenePanel";
+import Quests from "./pages/Quests";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +37,7 @@ const App = () => (
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/event/:id" element={<EventDetail />} />
             <Route path="/circle-swipe/:eventId" element={<CircleSwipe />} />
+            <Route path="/circle-swipe" element={<LocationSwipe />} />
             <Route path="/matches" element={<Matches />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/my-events" element={<MyEvents />} />
@@ -40,6 +45,9 @@ const App = () => (
             <Route path="/gamification" element={<Gamification />} />
             <Route path="/lucky100" element={<Lucky100Page />} />
             <Route path="/venue-dashboard" element={<VenueDashboard />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/scene" element={<ScenePanel />} />
+            <Route path="/quests" element={<Quests />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

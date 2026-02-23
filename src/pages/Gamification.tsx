@@ -1,18 +1,21 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Zap, Trophy, Clover, Star, ChevronRight, TrendingUp, Target } from 'lucide-react';
+import { Zap, Trophy, Clover, Star, ChevronRight, TrendingUp, Target, Compass } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useXPActivity } from '@/hooks/useXPActivity';
 import { calculateLevel, getXPProgress, LEVELS } from '@/services/gamification';
 import { Progress } from '@/components/ui/progress';
 import { BottomNav } from '@/components/BottomNav';
 import { GlassCard } from '@/components/GlassCard';
+import { useQuests } from '@/hooks/useQuests';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 
 const XP_GUIDE = [
   { action: 'Check-in at event', xp: 50, icon: '📍' },
+  { action: "Signal 'I'm Going'", xp: 25, icon: '🔥' },
   { action: 'Match with someone', xp: 100, icon: '💜' },
+  { action: 'Vibe signal', xp: 15, icon: '🎵' },
   { action: 'Review (stars only)', xp: 100, icon: '⭐' },
   { action: 'Review (with text)', xp: 200, icon: '✍️' },
   { action: 'Weekly streak bonus', xp: 200, icon: '🔥' },
@@ -22,6 +25,7 @@ const Gamification = () => {
   const navigate = useNavigate();
   const { profile, loading: authLoading } = useAuth();
   const { transactions, weeklyXP, isLoading } = useXPActivity(10);
+  const { completedCount, totalCount } = useQuests();
 
   if (authLoading || isLoading) {
     return (
@@ -84,6 +88,26 @@ const Gamification = () => {
             </div>
           )}
         </GlassCard>
+
+        {/* Weekly Quests */}
+        {totalCount > 0 && (
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate('/quests')}
+            className="w-full p-4 rounded-2xl bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 text-left"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Target className="w-6 h-6 text-primary" />
+                <div>
+                  <p className="font-bold text-sm">Weekly Quests</p>
+                  <p className="text-xs text-muted-foreground">{completedCount}/{totalCount} completed</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </div>
+          </motion.button>
+        )}
 
         {/* Quick Actions */}
         <div className="grid grid-cols-3 gap-3">
