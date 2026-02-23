@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { incrementQuestProgress } from '@/services/questProgress';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 
@@ -44,7 +45,8 @@ export const ReviewModal = ({ isOpen, onClose, event }: ReviewModalProps) => {
 
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      if (user?.id) await incrementQuestProgress(user.id, 'review');
       confetti({
         particleCount: 100,
         spread: 70,

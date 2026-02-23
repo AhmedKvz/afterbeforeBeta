@@ -16,7 +16,7 @@ export type Database = {
     Tables: {
       active_users: {
         Row: {
-          event_id: string
+          event_id: string | null
           id: string
           is_visible: boolean | null
           last_seen: string | null
@@ -25,7 +25,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          event_id: string
+          event_id?: string | null
           id?: string
           is_visible?: boolean | null
           last_seen?: string | null
@@ -34,7 +34,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          event_id?: string
+          event_id?: string | null
           id?: string
           is_visible?: boolean | null
           last_seen?: string | null
@@ -243,6 +243,39 @@ export type Database = {
         }
         Relationships: []
       }
+      location_presence: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_visible: boolean | null
+          last_seen: string | null
+          latitude: number
+          location_name: string | null
+          longitude: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_visible?: boolean | null
+          last_seen?: string | null
+          latitude: number
+          location_name?: string | null
+          longitude: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_visible?: boolean | null
+          last_seen?: string | null
+          latitude?: number
+          location_name?: string | null
+          longitude?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       lucky_100_claims: {
         Row: {
           claimed_at: string | null
@@ -392,7 +425,7 @@ export type Database = {
       }
       matches: {
         Row: {
-          event_id: string
+          event_id: string | null
           id: string
           matched_at: string | null
           status: string | null
@@ -400,7 +433,7 @@ export type Database = {
           user2_id: string
         }
         Insert: {
-          event_id: string
+          event_id?: string | null
           id?: string
           matched_at?: string | null
           status?: string | null
@@ -408,7 +441,7 @@ export type Database = {
           user2_id: string
         }
         Update: {
-          event_id?: string
+          event_id?: string | null
           id?: string
           matched_at?: string | null
           status?: string | null
@@ -424,6 +457,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string | null
+          data: Json | null
+          id: string
+          is_read: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -506,11 +572,47 @@ export type Database = {
         }
         Relationships: []
       }
+      quests: {
+        Row: {
+          created_at: string | null
+          description: string
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          quest_type: string
+          target_count: number
+          title: string
+          xp_reward: number
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          quest_type: string
+          target_count?: number
+          title: string
+          xp_reward?: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          quest_type?: string
+          target_count?: number
+          title?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       swipes: {
         Row: {
           action: string
           created_at: string | null
-          event_id: string
+          event_id: string | null
           id: string
           swiped_id: string
           swiper_id: string
@@ -518,7 +620,7 @@ export type Database = {
         Insert: {
           action: string
           created_at?: string | null
-          event_id: string
+          event_id?: string | null
           id?: string
           swiped_id: string
           swiper_id: string
@@ -526,7 +628,7 @@ export type Database = {
         Update: {
           action?: string
           created_at?: string | null
-          event_id?: string
+          event_id?: string | null
           id?: string
           swiped_id?: string
           swiper_id?: string
@@ -562,6 +664,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_quests: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          is_completed: boolean | null
+          progress: number | null
+          quest_id: string
+          user_id: string
+          week_start: string
+          xp_claimed: boolean | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          progress?: number | null
+          quest_id: string
+          user_id: string
+          week_start: string
+          xp_claimed?: boolean | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          progress?: number | null
+          quest_id?: string
+          user_id?: string
+          week_start?: string
+          xp_claimed?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_quests_quest_id_fkey"
+            columns: ["quest_id"]
+            isOneToOne: false
+            referencedRelation: "quests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -579,6 +725,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      vibe_signals: {
+        Row: {
+          created_at: string | null
+          event_id: string | null
+          id: string
+          signal_type: string
+          user_id: string
+          venue_name: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          signal_type: string
+          user_id: string
+          venue_name?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          signal_type?: string
+          user_id?: string
+          venue_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vibe_signals_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       waves: {
         Row: {

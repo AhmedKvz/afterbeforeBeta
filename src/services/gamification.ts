@@ -10,6 +10,8 @@ export const XP_AWARDS = {
   dailyStreak: 200,
   referFriend: 500,
   completeOnboarding: 100,
+  vibeSignal: 15,
+  questComplete: 0, // variable, set by quest definition
 } as const;
 
 // Level thresholds
