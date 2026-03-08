@@ -53,7 +53,99 @@ const MODE_PLACEHOLDERS: Record<ExploreMode, string> = {
   map: 'Map pulse coming...',
 };
 
-const Explore = () => {
+// ── Pulse Map sub-view ──
+const PulseMapView = ({
+  userPosition,
+  userId,
+  selectedVenue,
+  setSelectedVenue,
+  onEnterVenue,
+}: {
+  userPosition: Coordinates | null;
+  userId: string | undefined;
+  selectedVenue: any;
+  setSelectedVenue: (v: any) => void;
+  onEnterVenue: (name: string) => void;
+}) => {
+  const { data: pulseVenues = [], isLoading } = useQuery({
+    queryKey: ['pulse-venues', userPosition?.latitude, userPosition?.longitude],
+    queryFn: async () => {
+      const [eventsRes, signalsRes, checkinsRes] = await Promise.all([
+        supabase.from('events').select('venue_name, latitude, longitude'),
+        supabase.from('event_signals').select('event_id, events!inner(venue_name)'),
+        supabase.from('event_checkins').select('event_id, events!inner(venue_name)'),
+      ]);
+
+      const events = eventsRes.data || [];
+      const venueMap = new Map<string, { lat: number; lng: number; count: number }>();
+
+      events.forEach((e) => {
+        if (!e.venue_name || !e.latitude || !e.longitude) return;
+        if (!venueMap.has(e.venue_name)) {
+          venueMap.set(e.venue_name, { lat: Number(e.latitude), lng: Number(e.longitude), count: 0 });
+        }
+      });
+
+      // Count signals per venue
+      (signalsRes.data || []).forEach((s: any) => {
+        const vn = s.events?.venue_name;
+        if (vn && venueMap.has(vn)) venueMap.get(vn)!.count++;
+      });
+      // Count checkins per venue
+      (checkinsRes.data || []).forEach((c: any) => {
+        const vn = c.events?.venue_name;
+        if (vn && venueMap.has(vn)) venueMap.get(vn)!.count++;
+      });
+
+      return Array.from(venueMap.entries()).map(([name, data]) => ({
+        venue_name: name,
+        latitude: data.lat,
+        longitude: data.lng,
+        peopleCount: data.count,
+      }));
+    },
+    enabled: !!userPosition,
+    refetchInterval: 30000,
+  });
+
+  if (!userPosition) {
+    return (
+      <div className="px-4 py-12 text-center">
+        <p className="text-muted-foreground text-sm animate-pulse">Waiting for location...</p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="px-4 py-12 text-center">
+        <p className="text-muted-foreground text-sm animate-pulse">Loading pulse map...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-4" style={{ height: 'calc(100vh - 220px)' }}>
+      <CityPulse
+        userPosition={userPosition}
+        venues={pulseVenues}
+        onSelectVenue={(v) => setSelectedVenue(v)}
+      />
+      {selectedVenue && userId && (
+        <VenueGate
+          venue={selectedVenue}
+          userPosition={userPosition}
+          userId={userId}
+          onEnterFree={() => onEnterVenue(selectedVenue.venue_name)}
+          onEnterPaid={() => onEnterVenue(selectedVenue.venue_name)}
+          onClose={() => setSelectedVenue(null)}
+        />
+      )}
+    </div>
+  );
+};
+
+
   const navigate = useNavigate();
   const { user, profile: authProfile } = useAuth();
   const [mode, setMode] = useState<ExploreMode>('events');
