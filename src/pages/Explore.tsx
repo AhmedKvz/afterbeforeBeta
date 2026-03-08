@@ -368,7 +368,7 @@ const Explore = () => {
   const handleUpgradeInterest = async () => {
     if (!user) return;
     await supabase.from('premium_interest').insert({ user_id: user.id, feature: 'unlimited_active_swipes' });
-    toast.success('🔔 We'll notify you when Premium launches!');
+    toast.success("🔔 We'll notify you when Premium launches!");
   };
 
   // ── Back handler ──
