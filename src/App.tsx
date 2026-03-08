@@ -20,6 +20,7 @@ import VenueDashboard from "./pages/VenueDashboard";
 import Notifications from "./pages/Notifications";
 import ScenePanel from "./pages/ScenePanel";
 import Quests from "./pages/Quests";
+import Explore from "./pages/Explore";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
