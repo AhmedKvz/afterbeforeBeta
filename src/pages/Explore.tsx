@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,13 +8,27 @@ import { BottomNav } from '@/components/BottomNav';
 import { Switch } from '@/components/ui/switch';
 import { EventSwipeCard } from '@/components/EventSwipeCard';
 import { ClubSwipeCard } from '@/components/ClubSwipeCard';
+import { SwipeCard } from '@/components/SwipeCard';
 import { SwipeActions } from '@/components/SwipeActions';
+import { MatchModal } from '@/components/MatchModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { awardXP } from '@/services/gamification';
+import { awardXP, XP_AWARDS } from '@/services/gamification';
+import { incrementQuestProgress } from '@/services/questProgress';
 import { toast } from 'sonner';
 
 type ExploreMode = 'people' | 'events' | 'clubs' | 'map';
+
+interface SwipeProfile {
+  id: string;
+  displayName: string;
+  age: number;
+  avatarUrl: string;
+  bio: string;
+  musicPreferences: string[];
+  distance: number;
+  trustScore: number;
+}
 
 const MODE_CONFIG = [
   { key: 'people' as const, icon: '👤', label: 'People', badge: 'GPS' },
@@ -39,13 +53,21 @@ const MODE_PLACEHOLDERS: Record<ExploreMode, string> = {
 
 const Explore = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile: authProfile } = useAuth();
   const [mode, setMode] = useState<ExploreMode>('events');
   const [ghostMode, setGhostMode] = useState(false);
   const [userPosition, setUserPosition] = useState<Coordinates | null>(null);
   const [eventIndex, setEventIndex] = useState(0);
   const [clubIndex, setClubIndex] = useState(0);
   const [swipedClubs, setSwipedClubs] = useState<Set<string>>(new Set());
+
+  // People mode state
+  const [peopleProfiles, setPeopleProfiles] = useState<SwipeProfile[]>([]);
+  const [peopleIndex, setPeopleIndex] = useState(0);
+  const [peopleLoading, setPeopleLoading] = useState(false);
+  const [nearbyCount, setNearbyCount] = useState(0);
+  const [showMatchModal, setShowMatchModal] = useState(false);
+  const [matchedProfile, setMatchedProfile] = useState<SwipeProfile | null>(null);
 
   useEffect(() => {
     getCurrentPosition()
@@ -64,7 +86,217 @@ const Explore = () => {
   useEffect(() => {
     setEventIndex(0);
     setClubIndex(0);
+    setPeopleIndex(0);
   }, [mode]);
+
+  // ── People init ──
+  useEffect(() => {
+    if (mode === 'people' && user && userPosition) {
+      initPeople();
+    }
+  }, [mode, user, userPosition]);
+
+  const initPeople = async () => {
+    if (!user || !userPosition) return;
+    setPeopleLoading(true);
+    try {
+      // Upsert own presence
+      await supabase.from('location_presence').upsert(
+        {
+          user_id: user.id,
+          latitude: userPosition.latitude,
+          longitude: userPosition.longitude,
+          is_visible: !ghostMode,
+          last_seen: new Date().toISOString(),
+        },
+        { onConflict: 'user_id' }
+      );
+
+      // Fetch nearby
+      const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+      const { data: nearby } = await supabase
+        .from('location_presence')
+        .select('user_id, latitude, longitude')
+        .eq('is_visible', true)
+        .neq('user_id', user.id)
+        .gte('last_seen', twoHoursAgo);
+
+      if (!nearby || nearby.length === 0) {
+        setPeopleProfiles([]);
+        setNearbyCount(0);
+        setPeopleLoading(false);
+        return;
+      }
+
+      // Filter within 200m
+      const withinRange = nearby.filter((u) => {
+        const dist = calculateDistance(userPosition.latitude, userPosition.longitude, u.latitude, u.longitude);
+        return dist <= 200;
+      });
+
+      // Get already swiped
+      const { data: swiped } = await supabase
+        .from('swipes')
+        .select('swiped_id')
+        .eq('swiper_id', user.id)
+        .is('event_id', null);
+
+      const swipedIds = swiped?.map((s) => s.swiped_id) || [];
+      const unswipedIds = withinRange
+        .filter((u) => !swipedIds.includes(u.user_id))
+        .map((u) => u.user_id);
+
+      if (unswipedIds.length === 0) {
+        setPeopleProfiles([]);
+        setNearbyCount(withinRange.length);
+        setPeopleLoading(false);
+        return;
+      }
+
+      // Fetch profiles
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, age, avatar_url, bio, music_preferences')
+        .in('user_id', unswipedIds);
+
+      const mapped: SwipeProfile[] = (profileData || []).map((p) => {
+        const loc = withinRange.find((u) => u.user_id === p.user_id)!;
+        return {
+          id: p.user_id,
+          displayName: p.display_name || 'Anonymous',
+          age: p.age || 25,
+          avatarUrl: p.avatar_url || '/placeholder.svg',
+          bio: p.bio || '',
+          musicPreferences: p.music_preferences || [],
+          distance: calculateDistance(userPosition.latitude, userPosition.longitude, loc.latitude, loc.longitude),
+          trustScore: Math.floor(Math.random() * 2) + 3,
+        };
+      }).sort((a, b) => a.distance - b.distance);
+
+      setPeopleProfiles(mapped);
+      setNearbyCount(withinRange.length);
+      setPeopleIndex(0);
+    } catch (error) {
+      console.error('Error loading nearby people:', error);
+      toast.error('Failed to load nearby people');
+    } finally {
+      setPeopleLoading(false);
+    }
+  };
+
+  // ── Ghost mode toggle ──
+  const toggleGhostMode = async () => {
+    const newMode = !ghostMode;
+    setGhostMode(newMode);
+    if (user) {
+      await supabase
+        .from('location_presence')
+        .update({ is_visible: !newMode })
+        .eq('user_id', user.id);
+    }
+    toast.success(newMode ? 'Ghost mode enabled 👻' : 'Ghost mode disabled');
+  };
+
+  // ── People swipe handler ──
+  const handlePeopleSwipe = useCallback(async (direction: 'left' | 'right' | 'up') => {
+    if (!user || peopleIndex >= peopleProfiles.length) return;
+    const current = peopleProfiles[peopleIndex];
+    const action = direction === 'left' ? 'pass' : direction === 'up' ? 'superlike' : 'like';
+
+    try {
+      // Insert into swipes + swipe_actions in parallel
+      await Promise.all([
+        supabase.from('swipes').insert({
+          swiper_id: user.id,
+          swiped_id: current.id,
+          event_id: null,
+          action,
+        }),
+        supabase.from('swipe_actions').insert({
+          user_id: user.id,
+          target_type: 'person',
+          target_id: current.id,
+          action,
+          context: 'location',
+          latitude: userPosition?.latitude ?? null,
+          longitude: userPosition?.longitude ?? null,
+        }),
+      ]);
+
+      if (action === 'superlike') {
+        await awardXP(user.id, XP_AWARDS.superLike, 'Sent a SuperLike');
+        toast.success('+25 XP ⭐');
+      }
+
+      if (action === 'like' || action === 'superlike') {
+        const { data: theirSwipe } = await supabase
+          .from('swipes')
+          .select('*')
+          .eq('swiper_id', current.id)
+          .eq('swiped_id', user.id)
+          .is('event_id', null)
+          .in('action', ['like', 'superlike'])
+          .maybeSingle();
+
+        if (theirSwipe) {
+          await supabase.from('matches').insert({
+            user1_id: user.id,
+            user2_id: current.id,
+            event_id: null,
+          });
+          await awardXP(user.id, XP_AWARDS.match, 'Got a match!');
+          await incrementQuestProgress(user.id, 'match');
+
+          await supabase.from('notifications').insert([
+            {
+              user_id: user.id,
+              type: 'match',
+              title: 'New Match! 💜',
+              body: `You matched with ${current.displayName}`,
+              data: { matchedUserId: current.id },
+            },
+            {
+              user_id: current.id,
+              type: 'match',
+              title: 'New Match! 💜',
+              body: `You matched with ${authProfile?.display_name || 'someone'}`,
+              data: { matchedUserId: user.id },
+            },
+          ]);
+
+          setMatchedProfile(current);
+          setShowMatchModal(true);
+        }
+      }
+
+      setPeopleIndex((prev) => prev + 1);
+    } catch (error) {
+      console.error('Swipe error:', error);
+    }
+  }, [user, peopleProfiles, peopleIndex, authProfile, userPosition]);
+
+  // ── Wave handler ──
+  const handleSendWave = async () => {
+    if (!matchedProfile || !user) return;
+    const { data: matchData } = await supabase
+      .from('matches')
+      .select('id')
+      .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
+      .or(`user1_id.eq.${matchedProfile.id},user2_id.eq.${matchedProfile.id}`)
+      .is('event_id', null)
+      .maybeSingle();
+
+    if (matchData) {
+      await supabase.from('waves').insert({
+        sender_id: user.id,
+        receiver_id: matchedProfile.id,
+        match_id: matchData.id,
+      });
+      toast.success('Wave sent! 👋');
+    }
+    setShowMatchModal(false);
+    setMatchedProfile(null);
+  };
 
   // ── Events query ──
   const { data: swipeEvents = [], isLoading: eventsLoading } = useQuery({
@@ -128,13 +360,11 @@ const Explore = () => {
       const events = eventsRes.data || [];
       const favNames = new Set((favsRes.data || []).map((f) => f.venue_name));
 
-      // Heat lookup
       const heatMap: Record<string, { heat: number; topEventId: string | null; topEventTitle: string | null }> = {};
       ((heatRes.data || []) as Array<{ venue_name: string; total_heat: number; top_event_id: string | null; top_event_title: string | null }>).forEach((h) => {
         heatMap[h.venue_name] = { heat: Number(h.total_heat) || 0, topEventId: h.top_event_id, topEventTitle: h.top_event_title };
       });
 
-      // Group events by venue
       const venueMap = new Map<string, typeof events>();
       events.forEach((e) => {
         if (!e.venue_name) return;
@@ -151,41 +381,22 @@ const Explore = () => {
 
       venueMap.forEach((venueEvents, venueName) => {
         if (favNames.has(venueName)) return;
-
-        // Collect unique genres
         const genreSet = new Set<string>();
         venueEvents.forEach((e) => e.music_genres?.forEach((g) => genreSet.add(g)));
-
-        // Max capacity from events
         const capacity = Math.max(...venueEvents.map((e) => e.capacity || 0), 0);
-
-        // First image found
         const image_url = venueEvents.find((e) => e.image_url)?.image_url || '';
-
-        // Distance from first event with coords
         let distance: number | null = null;
         const withCoords = venueEvents.find((e) => e.latitude && e.longitude);
         if (userPosition && withCoords) {
           distance = calculateDistance(userPosition.latitude, userPosition.longitude, Number(withCoords.latitude), Number(withCoords.longitude));
         }
-
-        // Next upcoming event
-        const upcoming = venueEvents
-          .filter((e) => e.date >= today)
-          .sort((a, b) => a.date.localeCompare(b.date));
+        const upcoming = venueEvents.filter((e) => e.date >= today).sort((a, b) => a.date.localeCompare(b.date));
         const nextEvent = upcoming[0] ? { title: upcoming[0].title, id: upcoming[0].id } : null;
-
         const heatData = heatMap[venueName];
 
         clubs.push({
-          venue_name: venueName,
-          genres: Array.from(genreSet),
-          capacity,
-          distance,
-          image_url,
-          heat: heatData?.heat || 0,
-          nextEvent,
-          eventCount: venueEvents.length,
+          venue_name: venueName, genres: Array.from(genreSet), capacity, distance, image_url,
+          heat: heatData?.heat || 0, nextEvent, eventCount: venueEvents.length,
         });
       });
 
@@ -195,16 +406,14 @@ const Explore = () => {
         if (b.distance === null) return -1;
         return a.distance - b.distance;
       });
-
       return clubs;
     },
     enabled: mode === 'clubs' && !!user,
   });
 
-  // Filter out session-swiped clubs
   const visibleClubs = swipeClubs.filter((c) => !swipedClubs.has(c.venue_name));
 
-  // ── Handlers ──
+  // ── Event handler ──
   const handleEventSwipe = async (direction: 'left' | 'right' | 'up') => {
     if (!user || eventIndex >= swipeEvents.length) return;
     const event = swipeEvents[eventIndex];
@@ -226,6 +435,7 @@ const Explore = () => {
     }
   };
 
+  // ── Club handler ──
   const handleClubSwipe = async (direction: 'left' | 'right' | 'up') => {
     if (!user || clubIndex >= visibleClubs.length) return;
     const club = visibleClubs[clubIndex];
@@ -239,17 +449,25 @@ const Explore = () => {
         user_id: user.id, venue_name: club.venue_name,
       });
       toast.success('❤️ Added to favorites!');
-
       if (action === 'superlike' && club.nextEvent) {
         setTimeout(() => navigate(`/event/${club.nextEvent!.id}`), 1000);
       }
     }
   };
 
+  // Derived state
   const currentEvents = swipeEvents.slice(eventIndex, eventIndex + 3);
   const currentClubs = visibleClubs.slice(clubIndex, clubIndex + 3);
+  const currentPeople = peopleProfiles.slice(peopleIndex, peopleIndex + 3);
   const allEventsSwiped = mode === 'events' && !eventsLoading && eventIndex >= swipeEvents.length;
   const allClubsSwiped = mode === 'clubs' && !clubsLoading && clubIndex >= visibleClubs.length;
+  const hasPeopleCards = peopleIndex < peopleProfiles.length;
+  const allPeopleSwiped = mode === 'people' && !peopleLoading && !hasPeopleCards;
+
+  // Dynamic subtitle for people mode
+  const currentSubtitle = mode === 'people' && nearbyCount > 0
+    ? `${nearbyCount} people within 200m`
+    : MODE_SUBTITLES[mode];
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -268,10 +486,18 @@ const Explore = () => {
             ) : (
               <Eye className="w-4 h-4 text-primary" />
             )}
-            <Switch checked={!ghostMode} onCheckedChange={(v) => setGhostMode(!v)} />
+            <Switch
+              checked={!ghostMode}
+              onCheckedChange={() => toggleGhostMode()}
+            />
           </div>
         </div>
-        <p className="text-sm text-muted-foreground mt-1 ml-8">{MODE_SUBTITLES[mode]}</p>
+        <div className="flex items-center gap-2 mt-1 ml-8">
+          <p className="text-sm text-muted-foreground">{currentSubtitle}</p>
+          {mode === 'people' && nearbyCount > 0 && (
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+          )}
+        </div>
       </header>
 
       {/* Mode Selector */}
@@ -299,7 +525,52 @@ const Explore = () => {
       </div>
 
       {/* Content */}
-      {mode === 'events' ? (
+      {mode === 'people' ? (
+        <div className="px-4">
+          {peopleLoading ? (
+            <div className="py-12 text-center">
+              <p className="text-muted-foreground text-sm animate-pulse">Scanning nearby...</p>
+            </div>
+          ) : allPeopleSwiped ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="py-12 text-center space-y-4"
+            >
+              <p className="text-5xl">📍</p>
+              <p className="text-lg font-semibold">No one nearby right now</p>
+              <p className="text-muted-foreground text-sm">Head to an event or try again later</p>
+              <button
+                onClick={() => setMode('events')}
+                className="px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium"
+              >
+                Browse Events →
+              </button>
+            </motion.div>
+          ) : (
+            <>
+              <div className="relative w-full aspect-[3/4] mb-6">
+                {/* Radar pulse */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-64 h-64 rounded-full border border-primary/10 animate-ping opacity-20" />
+                  <div className="absolute w-48 h-48 rounded-full border border-primary/20 animate-ping opacity-30" style={{ animationDelay: '0.5s' }} />
+                </div>
+                <AnimatePresence>
+                  {currentPeople.map((p, i) => (
+                    <SwipeCard key={p.id} profile={p} onSwipe={handlePeopleSwipe} isTop={i === 0} />
+                  ))}
+                </AnimatePresence>
+              </div>
+              <SwipeActions
+                onPass={() => handlePeopleSwipe('left')}
+                onSuperLike={() => handlePeopleSwipe('up')}
+                onLike={() => handlePeopleSwipe('right')}
+                disabled={!hasPeopleCards}
+              />
+            </>
+          )}
+        </div>
+      ) : mode === 'events' ? (
         <div className="px-4">
           {eventsLoading ? (
             <div className="py-12 text-center">
@@ -358,6 +629,18 @@ const Explore = () => {
           <p className="text-muted-foreground text-sm">{MODE_PLACEHOLDERS[mode]}</p>
         </div>
       )}
+
+      {/* Match Modal */}
+      <MatchModal
+        isOpen={showMatchModal}
+        onClose={() => { setShowMatchModal(false); setMatchedProfile(null); }}
+        onSendWave={handleSendWave}
+        matchedProfile={matchedProfile ? {
+          displayName: matchedProfile.displayName,
+          avatarUrl: matchedProfile.avatarUrl,
+        } : null}
+        currentUserAvatar={authProfile?.avatar_url || undefined}
+      />
 
       <BottomNav />
     </div>
