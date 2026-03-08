@@ -156,7 +156,7 @@ const Home = () => {
     );
   }
 
-  const showFAB = profile?.onboarding_completed && profile?.account_type !== 'club_venue';
+  
 
   return (
     <div className="min-h-screen bg-background pb-24">
