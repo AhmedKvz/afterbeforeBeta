@@ -629,9 +629,16 @@ const Explore = () => {
           )}
         </div>
       ) : (
-        <div className="px-4 py-12 text-center">
-          <p className="text-muted-foreground text-sm">{MODE_PLACEHOLDERS[mode]}</p>
-        </div>
+        <PulseMapView
+          userPosition={userPosition}
+          userId={user?.id}
+          selectedVenue={selectedVenue}
+          setSelectedVenue={setSelectedVenue}
+          onEnterVenue={(venueName) => {
+            setSelectedVenue(null);
+            toast.success(`Entered ${venueName} circle!`);
+          }}
+        />
       )}
 
       {/* Match Modal */}
