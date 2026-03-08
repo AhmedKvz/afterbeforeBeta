@@ -295,18 +295,6 @@ const Home = () => {
         </div>
       )}
 
-      {/* Swipe Nearby FAB */}
-      {showFAB && (
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => navigate('/circle-swipe')}
-          className="fixed bottom-24 right-4 z-40 w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
-          style={{ background: 'var(--gradient-primary)' }}
-        >
-          <MapPin className="w-6 h-6 text-white" />
-        </motion.button>
-      )}
-
       <BottomNav />
 
       <Lucky100Modal 

@@ -48,6 +48,7 @@ const App = () => (
             <Route path="/venue-dashboard" element={<VenueDashboard />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/scene" element={<ScenePanel />} />
+            <Route path="/explore" element={<Explore />} />
             <Route path="/quests" element={<Quests />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
