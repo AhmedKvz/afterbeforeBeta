@@ -3,11 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { getCurrentPosition, Coordinates, calculateDistance, formatDistance } from '@/services/geolocation';
+import { getCurrentPosition, Coordinates, calculateDistance } from '@/services/geolocation';
 import { BottomNav } from '@/components/BottomNav';
 import { Switch } from '@/components/ui/switch';
-import { EventSwipeCard } from '@/components/EventSwipeCard';
-import { ClubSwipeCard } from '@/components/ClubSwipeCard';
 import { SwipeCard } from '@/components/SwipeCard';
 import { SwipeActions } from '@/components/SwipeActions';
 import { MatchModal } from '@/components/MatchModal';
@@ -18,8 +16,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { awardXP, XP_AWARDS } from '@/services/gamification';
 import { incrementQuestProgress } from '@/services/questProgress';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
-type ExploreMode = 'people' | 'events' | 'clubs' | 'map';
+type ExploreMode = 'pulse' | 'active';
 
 interface SwipeProfile {
   id: string;
@@ -33,181 +32,96 @@ interface SwipeProfile {
 }
 
 const MODE_CONFIG = [
-  { key: 'people' as const, icon: '👤', label: 'People', badge: 'GPS' },
-  { key: 'events' as const, icon: '📅', label: 'Events', badge: null },
-  { key: 'clubs' as const, icon: '🏢', label: 'Clubs', badge: null },
-  { key: 'map' as const, icon: '🗺️', label: 'Pulse', badge: null },
+  { key: 'pulse' as const, icon: '🗺️', label: 'Pulse', desc: 'See the city live' },
+  { key: 'active' as const, icon: '⚡', label: 'Active', desc: '5 free / day' },
 ];
 
-const MODE_SUBTITLES: Record<ExploreMode, string> = {
-  people: 'Swipe people nearby',
-  events: 'Discover upcoming events',
-  clubs: 'Find your favorite venues',
-  map: 'Live pulse of the scene',
-};
-
-const MODE_PLACEHOLDERS: Record<ExploreMode, string> = {
-  people: 'People swipe coming...',
-  events: 'Event stack coming...',
-  clubs: 'Club stack coming...',
-  map: 'Map pulse coming...',
-};
-
-// ── Pulse Map sub-view ──
-const PulseMapView = ({
-  userPosition,
-  userId,
-  selectedVenue,
-  setSelectedVenue,
-  onEnterVenue,
-}: {
-  userPosition: Coordinates | null;
-  userId: string | undefined;
-  selectedVenue: any;
-  setSelectedVenue: (v: any) => void;
-  onEnterVenue: (name: string) => void;
-}) => {
-  const { data: pulseVenues = [], isLoading } = useQuery({
-    queryKey: ['pulse-venues', userPosition?.latitude, userPosition?.longitude],
-    queryFn: async () => {
-      const [eventsRes, signalsRes, checkinsRes] = await Promise.all([
-        supabase.from('events').select('venue_name, latitude, longitude'),
-        supabase.from('event_signals').select('event_id, events!inner(venue_name)'),
-        supabase.from('event_checkins').select('event_id, events!inner(venue_name)'),
-      ]);
-
-      const events = eventsRes.data || [];
-      const venueMap = new Map<string, { lat: number; lng: number; count: number }>();
-
-      events.forEach((e) => {
-        if (!e.venue_name || !e.latitude || !e.longitude) return;
-        if (!venueMap.has(e.venue_name)) {
-          venueMap.set(e.venue_name, { lat: Number(e.latitude), lng: Number(e.longitude), count: 0 });
-        }
-      });
-
-      // Count signals per venue
-      (signalsRes.data || []).forEach((s: any) => {
-        const vn = s.events?.venue_name;
-        if (vn && venueMap.has(vn)) venueMap.get(vn)!.count++;
-      });
-      // Count checkins per venue
-      (checkinsRes.data || []).forEach((c: any) => {
-        const vn = c.events?.venue_name;
-        if (vn && venueMap.has(vn)) venueMap.get(vn)!.count++;
-      });
-
-      return Array.from(venueMap.entries()).map(([name, data]) => ({
-        venue_name: name,
-        latitude: data.lat,
-        longitude: data.lng,
-        peopleCount: data.count,
-      }));
-    },
-    enabled: !!userPosition,
-    refetchInterval: 30000,
-  });
-
-  if (!userPosition) {
-    return (
-      <div className="px-4 py-12 text-center">
-        <p className="text-muted-foreground text-sm animate-pulse">Waiting for location...</p>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="px-4 py-12 text-center">
-        <p className="text-muted-foreground text-sm animate-pulse">Loading pulse map...</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="px-4" style={{ height: 'calc(100vh - 220px)' }}>
-      <CityPulse
-        userPosition={userPosition}
-        venues={pulseVenues}
-        onSelectVenue={(v) => setSelectedVenue(v)}
-      />
-      {selectedVenue && userId && (
-        <VenueGate
-          venue={selectedVenue}
-          userPosition={userPosition}
-          userId={userId}
-          onEnterFree={() => onEnterVenue(selectedVenue.venue_name)}
-          onEnterPaid={() => onEnterVenue(selectedVenue.venue_name)}
-          onClose={() => setSelectedVenue(null)}
-        />
-      )}
-    </div>
-  );
-};
 const Explore = () => {
   const navigate = useNavigate();
   const { user, profile: authProfile } = useAuth();
-  const [mode, setMode] = useState<ExploreMode>('events');
+  const [mode, setMode] = useState<ExploreMode>('pulse');
   const [ghostMode, setGhostMode] = useState(false);
   const [userPosition, setUserPosition] = useState<Coordinates | null>(null);
-  const [eventIndex, setEventIndex] = useState(0);
-  const [clubIndex, setClubIndex] = useState(0);
-  const [swipedClubs, setSwipedClubs] = useState<Set<string>>(new Set());
 
-  // People mode state
-  const [peopleProfiles, setPeopleProfiles] = useState<SwipeProfile[]>([]);
-  // Map/Pulse mode state
+  // Pulse state
   const [selectedVenue, setSelectedVenue] = useState<any>(null);
-  const [peopleIndex, setPeopleIndex] = useState(0);
-  const [peopleLoading, setPeopleLoading] = useState(false);
-  const [nearbyCount, setNearbyCount] = useState(0);
+  const [gateCleared, setGateCleared] = useState(false);
+  const [venueProfiles, setVenueProfiles] = useState<SwipeProfile[]>([]);
+  const [venueSwipeIndex, setVenueSwipeIndex] = useState(0);
+  const [venueLoading, setVenueLoading] = useState(false);
+
+  // Active state
+  const [activeProfiles, setActiveProfiles] = useState<SwipeProfile[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeLoading, setActiveLoading] = useState(false);
+  const [swipesUsed, setSwipesUsed] = useState(0);
+
+  // Match state
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [matchedProfile, setMatchedProfile] = useState<SwipeProfile | null>(null);
 
+  // Get position
   useEffect(() => {
     getCurrentPosition()
-      .then((pos) => {
-        setUserPosition({
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude,
-        });
-      })
-      .catch(() => {
-        toast.error('Location access needed for Explore');
-      });
+      .then((pos) => setUserPosition({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }))
+      .catch(() => toast.error('Location access needed for Explore'));
   }, []);
 
-  // Reset indices when switching modes
-  useEffect(() => {
-    setEventIndex(0);
-    setClubIndex(0);
-    setPeopleIndex(0);
-  }, [mode]);
-
-  // ── People init ──
-  useEffect(() => {
-    if (mode === 'people' && user && userPosition) {
-      initPeople();
+  // Ghost toggle
+  const toggleGhostMode = async () => {
+    const newMode = !ghostMode;
+    setGhostMode(newMode);
+    if (user) {
+      await supabase.from('location_presence').update({ is_visible: !newMode }).eq('user_id', user.id);
     }
-  }, [mode, user, userPosition]);
+    toast.success(newMode ? 'Ghost mode enabled 👻' : 'Ghost mode disabled');
+  };
 
-  const initPeople = async () => {
-    if (!user || !userPosition) return;
-    setPeopleLoading(true);
+  // ── Pulse: CityPulse data ──
+  const { data: pulseVenues = [] } = useQuery({
+    queryKey: ['pulse-venues', userPosition?.latitude, userPosition?.longitude],
+    queryFn: async () => {
+      if (!userPosition) return [];
+      const { data: events } = await supabase
+        .from('events')
+        .select('venue_name, latitude, longitude')
+        .not('latitude', 'is', null);
+
+      const venueMap = new Map<string, { venue_name: string; latitude: number; longitude: number; peopleCount: number }>();
+      (events || []).forEach((e) => {
+        if (!e.venue_name || venueMap.has(e.venue_name)) return;
+        venueMap.set(e.venue_name, {
+          venue_name: e.venue_name,
+          latitude: Number(e.latitude),
+          longitude: Number(e.longitude),
+          peopleCount: 0,
+        });
+      });
+
+      const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+      const { data: presences } = await supabase
+        .from('location_presence')
+        .select('latitude, longitude')
+        .eq('is_visible', true)
+        .gte('last_seen', twoHoursAgo);
+
+      venueMap.forEach((v) => {
+        v.peopleCount = (presences || []).filter(
+          (p) => calculateDistance(v.latitude, v.longitude, p.latitude, p.longitude) <= 150
+        ).length;
+      });
+
+      return Array.from(venueMap.values());
+    },
+    enabled: mode === 'pulse' && !!userPosition,
+    refetchInterval: 30000,
+  });
+
+  // ── Pulse: Load venue profiles ──
+  const loadVenueProfiles = useCallback(async (venue: any) => {
+    if (!user) return;
+    setVenueLoading(true);
     try {
-      // Upsert own presence
-      await supabase.from('location_presence').upsert(
-        {
-          user_id: user.id,
-          latitude: userPosition.latitude,
-          longitude: userPosition.longitude,
-          is_visible: !ghostMode,
-          last_seen: new Date().toISOString(),
-        },
-        { onConflict: 'user_id' }
-      );
-
-      // Fetch nearby
       const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
       const { data: nearby } = await supabase
         .from('location_presence')
@@ -216,159 +130,211 @@ const Explore = () => {
         .neq('user_id', user.id)
         .gte('last_seen', twoHoursAgo);
 
-      if (!nearby || nearby.length === 0) {
-        setPeopleProfiles([]);
-        setNearbyCount(0);
-        setPeopleLoading(false);
-        return;
-      }
+      const atVenue = (nearby || []).filter(
+        (u) => calculateDistance(venue.latitude, venue.longitude, u.latitude, u.longitude) <= 150
+      );
 
-      // Filter within 200m
-      const withinRange = nearby.filter((u) => {
-        const dist = calculateDistance(userPosition.latitude, userPosition.longitude, u.latitude, u.longitude);
-        return dist <= 200;
-      });
-
-      // Get already swiped
       const { data: swiped } = await supabase
         .from('swipes')
         .select('swiped_id')
         .eq('swiper_id', user.id)
         .is('event_id', null);
 
-      const swipedIds = swiped?.map((s) => s.swiped_id) || [];
-      const unswipedIds = withinRange
-        .filter((u) => !swipedIds.includes(u.user_id))
-        .map((u) => u.user_id);
+      const swipedIds = new Set(swiped?.map((s) => s.swiped_id) || []);
+      const unswiped = atVenue.filter((u) => !swipedIds.has(u.user_id));
 
-      if (unswipedIds.length === 0) {
-        setPeopleProfiles([]);
-        setNearbyCount(withinRange.length);
-        setPeopleLoading(false);
+      if (!unswiped.length) {
+        setVenueProfiles([]);
+        setVenueLoading(false);
         return;
       }
 
-      // Fetch profiles
-      const { data: profileData } = await supabase
+      const { data: profiles } = await supabase
         .from('profiles')
         .select('user_id, display_name, age, avatar_url, bio, music_preferences')
-        .in('user_id', unswipedIds);
+        .in('user_id', unswiped.map((u) => u.user_id));
 
-      const mapped: SwipeProfile[] = (profileData || []).map((p) => {
-        const loc = withinRange.find((u) => u.user_id === p.user_id)!;
-        return {
+      setVenueProfiles(
+        (profiles || []).map((p) => ({
           id: p.user_id,
           displayName: p.display_name || 'Anonymous',
           age: p.age || 25,
           avatarUrl: p.avatar_url || '/placeholder.svg',
           bio: p.bio || '',
           musicPreferences: p.music_preferences || [],
-          distance: calculateDistance(userPosition.latitude, userPosition.longitude, loc.latitude, loc.longitude),
-          trustScore: Math.floor(Math.random() * 2) + 3,
-        };
-      }).sort((a, b) => a.distance - b.distance);
-
-      setPeopleProfiles(mapped);
-      setNearbyCount(withinRange.length);
-      setPeopleIndex(0);
-    } catch (error) {
-      console.error('Error loading nearby people:', error);
-      toast.error('Failed to load nearby people');
+          distance: 0,
+          trustScore: 4,
+        }))
+      );
+      setVenueSwipeIndex(0);
+    } catch (err) {
+      console.error('Error loading venue profiles:', err);
     } finally {
-      setPeopleLoading(false);
+      setVenueLoading(false);
     }
-  };
+  }, [user]);
 
-  // ── Ghost mode toggle ──
-  const toggleGhostMode = async () => {
-    const newMode = !ghostMode;
-    setGhostMode(newMode);
-    if (user) {
-      await supabase
-        .from('location_presence')
-        .update({ is_visible: !newMode })
-        .eq('user_id', user.id);
-    }
-    toast.success(newMode ? 'Ghost mode enabled 👻' : 'Ghost mode disabled');
-  };
+  // ── Active: Load data ──
+  useEffect(() => {
+    if (mode === 'active' && user) loadActiveData();
+  }, [mode, user]);
 
-  // ── People swipe handler ──
-  const handlePeopleSwipe = useCallback(async (direction: 'left' | 'right' | 'up') => {
-    if (!user || peopleIndex >= peopleProfiles.length) return;
-    const current = peopleProfiles[peopleIndex];
-    const action = direction === 'left' ? 'pass' : direction === 'up' ? 'superlike' : 'like';
-
+  const loadActiveData = async () => {
+    if (!user) return;
+    setActiveLoading(true);
     try {
-      // Insert into swipes + swipe_actions in parallel
-      await Promise.all([
-        supabase.from('swipes').insert({
-          swiper_id: user.id,
-          swiped_id: current.id,
-          event_id: null,
-          action,
-        }),
-        supabase.from('swipe_actions').insert({
-          user_id: user.id,
-          target_type: 'person',
-          target_id: current.id,
-          action,
-          context: 'location',
-          latitude: userPosition?.latitude ?? null,
-          longitude: userPosition?.longitude ?? null,
-        }),
-      ]);
+      // Check daily limit
+      const today = new Date().toISOString().split('T')[0];
+      const { data: limitData } = await supabase
+        .from('daily_swipe_limits')
+        .select('swipe_count')
+        .eq('user_id', user.id)
+        .eq('swipe_date', today)
+        .maybeSingle();
+      setSwipesUsed(limitData?.swipe_count || 0);
 
-      if (action === 'superlike') {
-        await awardXP(user.id, XP_AWARDS.superLike, 'Sent a SuperLike');
-        toast.success('+25 XP ⭐');
+      // Fetch active users (last 4 hours)
+      const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
+      const { data: active } = await supabase
+        .from('location_presence')
+        .select('user_id')
+        .eq('is_visible', true)
+        .neq('user_id', user.id)
+        .gte('last_seen', fourHoursAgo);
+
+      if (!active?.length) {
+        setActiveProfiles([]);
+        setActiveLoading(false);
+        return;
       }
 
-      if (action === 'like' || action === 'superlike') {
-        const { data: theirSwipe } = await supabase
-          .from('swipes')
-          .select('*')
-          .eq('swiper_id', current.id)
-          .eq('swiped_id', user.id)
-          .is('event_id', null)
-          .in('action', ['like', 'superlike'])
-          .maybeSingle();
+      // Exclude swiped
+      const { data: swiped } = await supabase
+        .from('swipes')
+        .select('swiped_id')
+        .eq('swiper_id', user.id)
+        .is('event_id', null);
 
-        if (theirSwipe) {
-          await supabase.from('matches').insert({
-            user1_id: user.id,
-            user2_id: current.id,
-            event_id: null,
-          });
-          await awardXP(user.id, XP_AWARDS.match, 'Got a match!');
-          await incrementQuestProgress(user.id, 'match');
+      const swipedIds = new Set(swiped?.map((s) => s.swiped_id) || []);
+      const unswipedIds = active.filter((u) => !swipedIds.has(u.user_id)).map((u) => u.user_id);
 
-          await supabase.from('notifications').insert([
-            {
-              user_id: user.id,
-              type: 'match',
-              title: 'New Match! 💜',
-              body: `You matched with ${current.displayName}`,
-              data: { matchedUserId: current.id },
-            },
-            {
-              user_id: current.id,
-              type: 'match',
-              title: 'New Match! 💜',
-              body: `You matched with ${authProfile?.display_name || 'someone'}`,
-              data: { matchedUserId: user.id },
-            },
-          ]);
-
-          setMatchedProfile(current);
-          setShowMatchModal(true);
-        }
+      if (!unswipedIds.length) {
+        setActiveProfiles([]);
+        setActiveLoading(false);
+        return;
       }
 
-      setPeopleIndex((prev) => prev + 1);
-    } catch (error) {
-      console.error('Swipe error:', error);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, age, avatar_url, bio, music_preferences')
+        .in('user_id', unswipedIds);
+
+      setActiveProfiles(
+        (profiles || []).map((p) => ({
+          id: p.user_id,
+          displayName: p.display_name || 'Anonymous',
+          age: p.age || 25,
+          avatarUrl: p.avatar_url || '/placeholder.svg',
+          bio: p.bio || '',
+          musicPreferences: p.music_preferences || [],
+          distance: 0, // hidden in Active mode
+          trustScore: 4,
+        }))
+      );
+      setActiveIndex(0);
+    } catch (err) {
+      console.error('Error loading active data:', err);
+    } finally {
+      setActiveLoading(false);
     }
-  }, [user, peopleProfiles, peopleIndex, authProfile, userPosition]);
+  };
+
+  // ── Shared match logic ──
+  const handleSwipe = useCallback(
+    async (
+      direction: 'left' | 'right' | 'up',
+      profiles: SwipeProfile[],
+      index: number,
+      setIndex: React.Dispatch<React.SetStateAction<number>>,
+      context: string,
+      onAfter?: () => void
+    ) => {
+      if (!user || index >= profiles.length) return;
+      const current = profiles[index];
+      const action = direction === 'left' ? 'pass' : direction === 'up' ? 'superlike' : 'like';
+
+      try {
+        await Promise.all([
+          supabase.from('swipes').insert({ swiper_id: user.id, swiped_id: current.id, event_id: null, action }),
+          supabase.from('swipe_actions').insert({
+            user_id: user.id, target_type: 'person', target_id: current.id,
+            action, context,
+            latitude: userPosition?.latitude ?? null,
+            longitude: userPosition?.longitude ?? null,
+          }),
+        ]);
+
+        if (action === 'superlike') {
+          await awardXP(user.id, XP_AWARDS.superLike, 'Sent a SuperLike');
+          toast.success('+25 XP ⭐');
+        }
+
+        if (action === 'like' || action === 'superlike') {
+          const { data: theirSwipe } = await supabase
+            .from('swipes')
+            .select('*')
+            .eq('swiper_id', current.id)
+            .eq('swiped_id', user.id)
+            .is('event_id', null)
+            .in('action', ['like', 'superlike'])
+            .maybeSingle();
+
+          if (theirSwipe) {
+            await supabase.from('matches').insert({ user1_id: user.id, user2_id: current.id, event_id: null });
+            await awardXP(user.id, XP_AWARDS.match, 'Got a match!');
+            await incrementQuestProgress(user.id, 'match');
+            await supabase.from('notifications').insert([
+              { user_id: user.id, type: 'match', title: 'New Match! 💜', body: `You matched with ${current.displayName}`, data: { matchedUserId: current.id } },
+              { user_id: current.id, type: 'match', title: 'New Match! 💜', body: `You matched with ${authProfile?.display_name || 'someone'}`, data: { matchedUserId: user.id } },
+            ]);
+            setMatchedProfile(current);
+            setShowMatchModal(true);
+          }
+        }
+
+        setIndex((prev) => prev + 1);
+        onAfter?.();
+      } catch (err) {
+        console.error('Swipe error:', err);
+      }
+    },
+    [user, authProfile, userPosition]
+  );
+
+  // ── Venue swipe ──
+  const handleVenueSwipe = useCallback(
+    (direction: 'left' | 'right' | 'up') => {
+      handleSwipe(direction, venueProfiles, venueSwipeIndex, setVenueSwipeIndex, 'venue_pulse');
+    },
+    [handleSwipe, venueProfiles, venueSwipeIndex]
+  );
+
+  // ── Active swipe ──
+  const handleActiveSwipe = useCallback(
+    (direction: 'left' | 'right' | 'up') => {
+      if (swipesUsed >= 5) return;
+      handleSwipe(direction, activeProfiles, activeIndex, setActiveIndex, 'active_mode', async () => {
+        if (!user) return;
+        const today = new Date().toISOString().split('T')[0];
+        await supabase.from('daily_swipe_limits').upsert(
+          { user_id: user.id, swipe_date: today, swipe_count: swipesUsed + 1 },
+          { onConflict: 'user_id,swipe_date' }
+        );
+        setSwipesUsed((prev) => prev + 1);
+      });
+    },
+    [handleSwipe, activeProfiles, activeIndex, swipesUsed, user]
+  );
 
   // ── Wave handler ──
   const handleSendWave = async () => {
@@ -380,189 +346,62 @@ const Explore = () => {
       .or(`user1_id.eq.${matchedProfile.id},user2_id.eq.${matchedProfile.id}`)
       .is('event_id', null)
       .maybeSingle();
-
     if (matchData) {
-      await supabase.from('waves').insert({
-        sender_id: user.id,
-        receiver_id: matchedProfile.id,
-        match_id: matchData.id,
-      });
+      await supabase.from('waves').insert({ sender_id: user.id, receiver_id: matchedProfile.id, match_id: matchData.id });
       toast.success('Wave sent! 👋');
     }
     setShowMatchModal(false);
     setMatchedProfile(null);
   };
 
-  // ── Events query ──
-  const { data: swipeEvents = [], isLoading: eventsLoading } = useQuery({
-    queryKey: ['explore-events', userPosition?.latitude, userPosition?.longitude, user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const today = new Date().toISOString().split('T')[0];
+  // ── Midnight countdown ──
+  const getTimeToMidnight = () => {
+    const now = new Date();
+    const midnight = new Date(now);
+    midnight.setHours(24, 0, 0, 0);
+    const diff = midnight.getTime() - now.getTime();
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    return `${h}h ${m}m`;
+  };
 
-      const [eventsRes, swipedRes, signalsRes] = await Promise.all([
-        supabase.from('events').select('*').gte('date', today).order('date', { ascending: true }),
-        supabase.from('swipe_actions').select('target_id').eq('user_id', user.id).eq('target_type', 'event'),
-        supabase.from('event_signals').select('event_id'),
-      ]);
+  const handleUpgradeInterest = async () => {
+    if (!user) return;
+    await supabase.from('premium_interest').insert({ user_id: user.id, feature: 'unlimited_active_swipes' });
+    toast.success("🔔 We'll notify you when Premium launches!");
+  };
 
-      const events = eventsRes.data || [];
-      const swipedIds = new Set((swipedRes.data || []).map((s) => s.target_id));
-      const signalCounts: Record<string, number> = {};
-      (signalsRes.data || []).forEach((s) => {
-        signalCounts[s.event_id] = (signalCounts[s.event_id] || 0) + 1;
-      });
-
-      const enriched = events
-        .filter((e) => !swipedIds.has(e.id))
-        .map((e) => {
-          let distance: number | null = null;
-          if (userPosition && e.latitude && e.longitude) {
-            distance = calculateDistance(userPosition.latitude, userPosition.longitude, Number(e.latitude), Number(e.longitude));
-          }
-          return {
-            id: e.id, title: e.title, venue_name: e.venue_name || 'TBA',
-            date: e.date, start_time: e.start_time, image_url: e.image_url || '/placeholder.svg',
-            music_genres: e.music_genres || [], price: Number(e.price) || 0,
-            description: e.description || '', distance, signalCount: signalCounts[e.id] || 0,
-          };
-        });
-
-      enriched.sort((a, b) => {
-        if (a.distance === null && b.distance === null) return 0;
-        if (a.distance === null) return 1;
-        if (b.distance === null) return -1;
-        return a.distance - b.distance;
-      });
-      return enriched;
-    },
-    enabled: mode === 'events' && !!user,
-  });
-
-  // ── Clubs query ──
-  const { data: swipeClubs = [], isLoading: clubsLoading } = useQuery({
-    queryKey: ['explore-clubs', userPosition?.latitude, userPosition?.longitude, user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const today = new Date().toISOString().split('T')[0];
-
-      const [eventsRes, favsRes, heatRes] = await Promise.all([
-        supabase.from('events').select('*'),
-        supabase.from('club_favorites').select('venue_name').eq('user_id', user.id),
-        supabase.rpc('get_venue_heat', { days_back: 14 }),
-      ]);
-
-      const events = eventsRes.data || [];
-      const favNames = new Set((favsRes.data || []).map((f) => f.venue_name));
-
-      const heatMap: Record<string, { heat: number; topEventId: string | null; topEventTitle: string | null }> = {};
-      ((heatRes.data || []) as Array<{ venue_name: string; total_heat: number; top_event_id: string | null; top_event_title: string | null }>).forEach((h) => {
-        heatMap[h.venue_name] = { heat: Number(h.total_heat) || 0, topEventId: h.top_event_id, topEventTitle: h.top_event_title };
-      });
-
-      const venueMap = new Map<string, typeof events>();
-      events.forEach((e) => {
-        if (!e.venue_name) return;
-        const list = venueMap.get(e.venue_name) || [];
-        list.push(e);
-        venueMap.set(e.venue_name, list);
-      });
-
-      const clubs: Array<{
-        venue_name: string; genres: string[]; capacity: number;
-        distance: number | null; image_url: string; heat: number;
-        nextEvent: { title: string; id: string } | null; eventCount: number;
-      }> = [];
-
-      venueMap.forEach((venueEvents, venueName) => {
-        if (favNames.has(venueName)) return;
-        const genreSet = new Set<string>();
-        venueEvents.forEach((e) => e.music_genres?.forEach((g) => genreSet.add(g)));
-        const capacity = Math.max(...venueEvents.map((e) => e.capacity || 0), 0);
-        const image_url = venueEvents.find((e) => e.image_url)?.image_url || '';
-        let distance: number | null = null;
-        const withCoords = venueEvents.find((e) => e.latitude && e.longitude);
-        if (userPosition && withCoords) {
-          distance = calculateDistance(userPosition.latitude, userPosition.longitude, Number(withCoords.latitude), Number(withCoords.longitude));
-        }
-        const upcoming = venueEvents.filter((e) => e.date >= today).sort((a, b) => a.date.localeCompare(b.date));
-        const nextEvent = upcoming[0] ? { title: upcoming[0].title, id: upcoming[0].id } : null;
-        const heatData = heatMap[venueName];
-
-        clubs.push({
-          venue_name: venueName, genres: Array.from(genreSet), capacity, distance, image_url,
-          heat: heatData?.heat || 0, nextEvent, eventCount: venueEvents.length,
-        });
-      });
-
-      clubs.sort((a, b) => {
-        if (a.distance === null && b.distance === null) return 0;
-        if (a.distance === null) return 1;
-        if (b.distance === null) return -1;
-        return a.distance - b.distance;
-      });
-      return clubs;
-    },
-    enabled: mode === 'clubs' && !!user,
-  });
-
-  const visibleClubs = swipeClubs.filter((c) => !swipedClubs.has(c.venue_name));
-
-  // ── Event handler ──
-  const handleEventSwipe = async (direction: 'left' | 'right' | 'up') => {
-    if (!user || eventIndex >= swipeEvents.length) return;
-    const event = swipeEvents[eventIndex];
-    const action = direction === 'left' ? 'pass' : direction === 'up' ? 'superlike' : 'like';
-    setEventIndex((prev) => prev + 1);
-
-    await supabase.from('swipe_actions').insert({
-      user_id: user.id, target_type: 'event', target_id: event.id,
-      action, context: 'event_stack',
-      latitude: userPosition?.latitude ?? null, longitude: userPosition?.longitude ?? null,
-    });
-
-    if (action === 'like' || action === 'superlike') {
-      await supabase.from('event_signals').insert({
-        event_id: event.id, user_id: user.id, signal_type: 'going',
-      });
-      await awardXP(user.id, 25, 'Swiped going on event');
-      toast.success("+25 XP 🔥 You're going!");
+  // ── Back handler ──
+  const handleBack = () => {
+    if (mode === 'pulse' && gateCleared) {
+      setSelectedVenue(null);
+      setGateCleared(false);
+      setVenueProfiles([]);
+    } else if (mode === 'pulse' && selectedVenue) {
+      setSelectedVenue(null);
+    } else {
+      navigate(-1);
     }
   };
 
-  // ── Club handler ──
-  const handleClubSwipe = async (direction: 'left' | 'right' | 'up') => {
-    if (!user || clubIndex >= visibleClubs.length) return;
-    const club = visibleClubs[clubIndex];
-    const action = direction === 'left' ? 'pass' : direction === 'up' ? 'superlike' : 'like';
+  // ── Derived ──
+  const venueCards = venueProfiles.slice(venueSwipeIndex, venueSwipeIndex + 3);
+  const activeCards = activeProfiles.slice(activeIndex, activeIndex + 3);
+  const hasVenueCards = venueSwipeIndex < venueProfiles.length;
+  const hasActiveCards = activeIndex < activeProfiles.length;
+  const limitReached = swipesUsed >= 5;
 
-    setSwipedClubs((prev) => new Set([...prev, club.venue_name]));
-    setClubIndex((prev) => prev + 1);
-
-    if (action === 'like' || action === 'superlike') {
-      await supabase.from('club_favorites').insert({
-        user_id: user.id, venue_name: club.venue_name,
-      });
-      toast.success('❤️ Added to favorites!');
-      if (action === 'superlike' && club.nextEvent) {
-        setTimeout(() => navigate(`/event/${club.nextEvent!.id}`), 1000);
+  // ── Subtitle ──
+  const getSubtitle = () => {
+    if (mode === 'pulse') {
+      if (selectedVenue && gateCleared) {
+        const count = venueProfiles.length;
+        return `📍 ${selectedVenue.venue_name} · ${count} people`;
       }
+      return `🗺️ ${pulseVenues.length} venues in Belgrade`;
     }
+    return `⚡ ${activeProfiles.length} people online now`;
   };
-
-  // Derived state
-  const currentEvents = swipeEvents.slice(eventIndex, eventIndex + 3);
-  const currentClubs = visibleClubs.slice(clubIndex, clubIndex + 3);
-  const currentPeople = peopleProfiles.slice(peopleIndex, peopleIndex + 3);
-  const allEventsSwiped = mode === 'events' && !eventsLoading && eventIndex >= swipeEvents.length;
-  const allClubsSwiped = mode === 'clubs' && !clubsLoading && clubIndex >= visibleClubs.length;
-  const hasPeopleCards = peopleIndex < peopleProfiles.length;
-  const allPeopleSwiped = mode === 'people' && !peopleLoading && !hasPeopleCards;
-
-  // Dynamic subtitle for people mode
-  const currentSubtitle = mode === 'people' && nearbyCount > 0
-    ? `${nearbyCount} people within 200m`
-    : MODE_SUBTITLES[mode];
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -570,166 +409,181 @@ const Explore = () => {
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="text-muted-foreground">
+            <button onClick={handleBack} className="text-muted-foreground">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <span className="font-bold text-xl gradient-text">Explore</span>
           </div>
           <div className="flex items-center gap-2">
-            {ghostMode ? (
-              <EyeOff className="w-4 h-4 text-muted-foreground" />
-            ) : (
-              <Eye className="w-4 h-4 text-primary" />
-            )}
-            <Switch
-              checked={!ghostMode}
-              onCheckedChange={() => toggleGhostMode()}
-            />
+            {ghostMode ? <EyeOff className="w-4 h-4 text-muted-foreground" /> : <Eye className="w-4 h-4 text-primary" />}
+            <Switch checked={!ghostMode} onCheckedChange={toggleGhostMode} />
           </div>
         </div>
-        <div className="flex items-center gap-2 mt-1 ml-8">
-          <p className="text-sm text-muted-foreground">{currentSubtitle}</p>
-          {mode === 'people' && nearbyCount > 0 && (
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          )}
-        </div>
+        <p className="text-sm text-muted-foreground mt-1 ml-8">{getSubtitle()}</p>
       </header>
 
       {/* Mode Selector */}
       <div className="px-4 py-4">
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 gap-3">
           {MODE_CONFIG.map((m) => (
             <motion.button
               key={m.key}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setMode(m.key)}
-              className={`relative flex flex-col items-center gap-1 py-3 rounded-xl border transition-all ${
+              onClick={() => {
+                setMode(m.key);
+                if (m.key === 'pulse') {
+                  setSelectedVenue(null);
+                  setGateCleared(false);
+                }
+              }}
+              className={cn(
+                'flex flex-col items-center gap-1 py-3 rounded-xl border transition-all',
                 mode === m.key ? 'bg-primary/15 border-primary/40' : 'bg-muted/30 border-border'
-              }`}
+              )}
             >
               <span className="text-xl">{m.icon}</span>
               <span className="text-xs font-medium">{m.label}</span>
-              {m.badge && (
-                <span className="absolute -top-1 -right-1 text-[9px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full font-bold">
-                  {m.badge}
-                </span>
-              )}
+              <span className="text-[10px] text-muted-foreground">{m.desc}</span>
             </motion.button>
           ))}
         </div>
       </div>
 
       {/* Content */}
-      {mode === 'people' ? (
-        <div className="px-4">
-          {peopleLoading ? (
-            <div className="py-12 text-center">
-              <p className="text-muted-foreground text-sm animate-pulse">Scanning nearby...</p>
+      {mode === 'pulse' ? (
+        <>
+          {/* Map view */}
+          {!selectedVenue && userPosition && (
+            <div className="px-4" style={{ height: 'calc(100vh - 280px)' }}>
+              <CityPulse
+                userPosition={userPosition}
+                venues={pulseVenues}
+                onSelectVenue={setSelectedVenue}
+              />
             </div>
-          ) : allPeopleSwiped ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="py-12 text-center space-y-4"
-            >
-              <p className="text-5xl">📍</p>
-              <p className="text-lg font-semibold">No one nearby right now</p>
-              <p className="text-muted-foreground text-sm">Head to an event or try again later</p>
+          )}
+
+          {!selectedVenue && !userPosition && (
+            <div className="px-4 py-12 text-center">
+              <p className="text-muted-foreground text-sm animate-pulse">Waiting for location...</p>
+            </div>
+          )}
+
+          {/* Gate overlay */}
+          {selectedVenue && !gateCleared && userPosition && user && (
+            <VenueGate
+              venue={selectedVenue}
+              userPosition={userPosition}
+              userId={user.id}
+              onEnterFree={() => {
+                setGateCleared(true);
+                loadVenueProfiles(selectedVenue);
+              }}
+              onEnterPaid={() => {
+                setGateCleared(true);
+                loadVenueProfiles(selectedVenue);
+              }}
+              onClose={() => setSelectedVenue(null)}
+            />
+          )}
+
+          {/* Venue swipe */}
+          {selectedVenue && gateCleared && (
+            <div className="px-4">
+              {venueLoading ? (
+                <div className="py-12 text-center">
+                  <p className="text-muted-foreground text-sm animate-pulse">Loading people...</p>
+                </div>
+              ) : !hasVenueCards ? (
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="py-12 text-center space-y-4">
+                  <p className="text-5xl">🌙</p>
+                  <p className="text-lg font-semibold">No one at {selectedVenue.venue_name} right now</p>
+                  <button
+                    onClick={() => { setSelectedVenue(null); setGateCleared(false); }}
+                    className="px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium"
+                  >
+                    ← Back to Map
+                  </button>
+                </motion.div>
+              ) : (
+                <>
+                  <div className="relative w-full aspect-[3/4] mb-6">
+                    <AnimatePresence>
+                      {venueCards.map((p, i) => (
+                        <SwipeCard key={p.id} profile={p} onSwipe={handleVenueSwipe} isTop={i === 0} />
+                      ))}
+                    </AnimatePresence>
+                  </div>
+                  <SwipeActions
+                    onPass={() => handleVenueSwipe('left')}
+                    onSuperLike={() => handleVenueSwipe('up')}
+                    onLike={() => handleVenueSwipe('right')}
+                    disabled={!hasVenueCards}
+                  />
+                </>
+              )}
+            </div>
+          )}
+        </>
+      ) : (
+        /* Active Mode */
+        <div className="px-4">
+          {activeLoading ? (
+            <div className="py-12 text-center">
+              <p className="text-muted-foreground text-sm animate-pulse">Finding active people...</p>
+            </div>
+          ) : limitReached ? (
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="py-12 text-center space-y-4">
+              <p className="text-5xl">⚡</p>
+              <p className="text-lg font-semibold">You've used all 5 free swipes</p>
+              <p className="text-sm text-muted-foreground">Resets in {getTimeToMidnight()}</p>
               <button
-                onClick={() => setMode('events')}
+                onClick={handleUpgradeInterest}
+                className="px-6 py-2 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground text-sm font-medium"
+              >
+                Upgrade for Unlimited →
+              </button>
+            </motion.div>
+          ) : !hasActiveCards ? (
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="py-12 text-center space-y-4">
+              <p className="text-5xl">🌙</p>
+              <p className="text-lg font-semibold">No one is active right now</p>
+              <p className="text-sm text-muted-foreground">The scene wakes up after dark</p>
+              <button
+                onClick={() => setMode('pulse')}
                 className="px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium"
               >
-                Browse Events →
+                Switch to Pulse →
               </button>
             </motion.div>
           ) : (
             <>
-              <div className="relative w-full aspect-[3/4] mb-6">
-                {/* Radar pulse */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-64 h-64 rounded-full border border-primary/10 animate-ping opacity-20" />
-                  <div className="absolute w-48 h-48 rounded-full border border-primary/20 animate-ping opacity-30" style={{ animationDelay: '0.5s' }} />
+              {/* Swipe counter */}
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <span className="text-sm text-muted-foreground">⚡ {5 - swipesUsed}/5 free today</span>
+                <div className="flex gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className={cn('w-2 h-2 rounded-full', i < swipesUsed ? 'bg-primary' : 'bg-muted')} />
+                  ))}
                 </div>
+              </div>
+
+              <div className="relative w-full aspect-[3/4] mb-6">
                 <AnimatePresence>
-                  {currentPeople.map((p, i) => (
-                    <SwipeCard key={p.id} profile={p} onSwipe={handlePeopleSwipe} isTop={i === 0} />
+                  {activeCards.map((p, i) => (
+                    <SwipeCard key={p.id} profile={p} onSwipe={handleActiveSwipe} isTop={i === 0} />
                   ))}
                 </AnimatePresence>
               </div>
               <SwipeActions
-                onPass={() => handlePeopleSwipe('left')}
-                onSuperLike={() => handlePeopleSwipe('up')}
-                onLike={() => handlePeopleSwipe('right')}
-                disabled={!hasPeopleCards}
+                onPass={() => handleActiveSwipe('left')}
+                onSuperLike={() => handleActiveSwipe('up')}
+                onLike={() => handleActiveSwipe('right')}
+                disabled={!hasActiveCards || limitReached}
               />
             </>
           )}
         </div>
-      ) : mode === 'events' ? (
-        <div className="px-4">
-          {eventsLoading ? (
-            <div className="py-12 text-center">
-              <p className="text-muted-foreground text-sm animate-pulse">Loading events...</p>
-            </div>
-          ) : allEventsSwiped ? (
-            <div className="py-12 text-center space-y-4">
-              <p className="text-3xl">🎵</p>
-              <p className="text-muted-foreground text-sm">You've seen all upcoming events</p>
-              <button onClick={() => setMode('clubs')} className="px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
-                Explore Clubs →
-              </button>
-            </div>
-          ) : (
-            <>
-              <div className="relative w-full aspect-[3/4] mb-6">
-                <AnimatePresence>
-                  {currentEvents.map((e, i) => (
-                    <EventSwipeCard key={e.id} event={e} onSwipe={handleEventSwipe} isTop={i === 0} />
-                  ))}
-                </AnimatePresence>
-              </div>
-              <SwipeActions onPass={() => handleEventSwipe('left')} onSuperLike={() => handleEventSwipe('up')} onLike={() => handleEventSwipe('right')} disabled={eventIndex >= swipeEvents.length} />
-            </>
-          )}
-        </div>
-      ) : mode === 'clubs' ? (
-        <div className="px-4">
-          {clubsLoading ? (
-            <div className="py-12 text-center">
-              <p className="text-muted-foreground text-sm animate-pulse">Loading clubs...</p>
-            </div>
-          ) : allClubsSwiped ? (
-            <div className="py-12 text-center space-y-4">
-              <p className="text-3xl">🏢</p>
-              <p className="text-muted-foreground text-sm">You've seen all nearby clubs</p>
-              <button onClick={() => setMode('map')} className="px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
-                View Pulse Map →
-              </button>
-            </div>
-          ) : (
-            <>
-              <div className="relative w-full aspect-[3/4] mb-6">
-                <AnimatePresence>
-                  {currentClubs.map((c, i) => (
-                    <ClubSwipeCard key={c.venue_name} club={c} onSwipe={handleClubSwipe} isTop={i === 0} />
-                  ))}
-                </AnimatePresence>
-              </div>
-              <SwipeActions onPass={() => handleClubSwipe('left')} onSuperLike={() => handleClubSwipe('up')} onLike={() => handleClubSwipe('right')} disabled={clubIndex >= visibleClubs.length} />
-            </>
-          )}
-        </div>
-      ) : (
-        <PulseMapView
-          userPosition={userPosition}
-          userId={user?.id}
-          selectedVenue={selectedVenue}
-          setSelectedVenue={setSelectedVenue}
-          onEnterVenue={(venueName) => {
-            setSelectedVenue(null);
-            toast.success(`Entered ${venueName} circle!`);
-          }}
-        />
       )}
 
       {/* Match Modal */}
@@ -737,10 +591,7 @@ const Explore = () => {
         isOpen={showMatchModal}
         onClose={() => { setShowMatchModal(false); setMatchedProfile(null); }}
         onSendWave={handleSendWave}
-        matchedProfile={matchedProfile ? {
-          displayName: matchedProfile.displayName,
-          avatarUrl: matchedProfile.avatarUrl,
-        } : null}
+        matchedProfile={matchedProfile ? { displayName: matchedProfile.displayName, avatarUrl: matchedProfile.avatarUrl } : null}
         currentUserAvatar={authProfile?.avatar_url || undefined}
       />
 
