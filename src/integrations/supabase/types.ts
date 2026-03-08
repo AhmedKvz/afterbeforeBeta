@@ -73,6 +73,27 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_swipe_limits: {
+        Row: {
+          id: string
+          swipe_count: number
+          swipe_date: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          swipe_count?: number
+          swipe_date?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          swipe_count?: number
+          swipe_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       event_checkins: {
         Row: {
           checked_in_at: string | null
@@ -515,6 +536,27 @@ export type Database = {
         }
         Relationships: []
       }
+      premium_interest: {
+        Row: {
+          created_at: string | null
+          feature: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          feature: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          feature?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_type: string | null
@@ -629,6 +671,33 @@ export type Database = {
           target_count?: number
           title?: string
           xp_reward?: number
+        }
+        Relationships: []
+      }
+      remote_unlocks: {
+        Row: {
+          amount_rsd: number
+          expires_at: string | null
+          id: string
+          unlocked_at: string | null
+          user_id: string
+          venue_name: string
+        }
+        Insert: {
+          amount_rsd?: number
+          expires_at?: string | null
+          id?: string
+          unlocked_at?: string | null
+          user_id: string
+          venue_name: string
+        }
+        Update: {
+          amount_rsd?: number
+          expires_at?: string | null
+          id?: string
+          unlocked_at?: string | null
+          user_id?: string
+          venue_name?: string
         }
         Relationships: []
       }
