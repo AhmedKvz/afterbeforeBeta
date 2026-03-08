@@ -65,6 +65,8 @@ const Explore = () => {
 
   // People mode state
   const [peopleProfiles, setPeopleProfiles] = useState<SwipeProfile[]>([]);
+  // Map/Pulse mode state
+  const [selectedVenue, setSelectedVenue] = useState<any>(null);
   const [peopleIndex, setPeopleIndex] = useState(0);
   const [peopleLoading, setPeopleLoading] = useState(false);
   const [nearbyCount, setNearbyCount] = useState(0);
