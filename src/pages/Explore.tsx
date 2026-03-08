@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { getCurrentPosition, Coordinates, calculateDistance } from '@/services/geolocation';
+import { getCurrentPosition, Coordinates, calculateDistance, formatDistance } from '@/services/geolocation';
 import { BottomNav } from '@/components/BottomNav';
 import { Switch } from '@/components/ui/switch';
 import { EventSwipeCard } from '@/components/EventSwipeCard';
@@ -11,6 +11,8 @@ import { ClubSwipeCard } from '@/components/ClubSwipeCard';
 import { SwipeCard } from '@/components/SwipeCard';
 import { SwipeActions } from '@/components/SwipeActions';
 import { MatchModal } from '@/components/MatchModal';
+import CityPulse from '@/components/CityPulse';
+import VenueGate from '@/components/VenueGate';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { awardXP, XP_AWARDS } from '@/services/gamification';
@@ -51,6 +53,97 @@ const MODE_PLACEHOLDERS: Record<ExploreMode, string> = {
   map: 'Map pulse coming...',
 };
 
+// ── Pulse Map sub-view ──
+const PulseMapView = ({
+  userPosition,
+  userId,
+  selectedVenue,
+  setSelectedVenue,
+  onEnterVenue,
+}: {
+  userPosition: Coordinates | null;
+  userId: string | undefined;
+  selectedVenue: any;
+  setSelectedVenue: (v: any) => void;
+  onEnterVenue: (name: string) => void;
+}) => {
+  const { data: pulseVenues = [], isLoading } = useQuery({
+    queryKey: ['pulse-venues', userPosition?.latitude, userPosition?.longitude],
+    queryFn: async () => {
+      const [eventsRes, signalsRes, checkinsRes] = await Promise.all([
+        supabase.from('events').select('venue_name, latitude, longitude'),
+        supabase.from('event_signals').select('event_id, events!inner(venue_name)'),
+        supabase.from('event_checkins').select('event_id, events!inner(venue_name)'),
+      ]);
+
+      const events = eventsRes.data || [];
+      const venueMap = new Map<string, { lat: number; lng: number; count: number }>();
+
+      events.forEach((e) => {
+        if (!e.venue_name || !e.latitude || !e.longitude) return;
+        if (!venueMap.has(e.venue_name)) {
+          venueMap.set(e.venue_name, { lat: Number(e.latitude), lng: Number(e.longitude), count: 0 });
+        }
+      });
+
+      // Count signals per venue
+      (signalsRes.data || []).forEach((s: any) => {
+        const vn = s.events?.venue_name;
+        if (vn && venueMap.has(vn)) venueMap.get(vn)!.count++;
+      });
+      // Count checkins per venue
+      (checkinsRes.data || []).forEach((c: any) => {
+        const vn = c.events?.venue_name;
+        if (vn && venueMap.has(vn)) venueMap.get(vn)!.count++;
+      });
+
+      return Array.from(venueMap.entries()).map(([name, data]) => ({
+        venue_name: name,
+        latitude: data.lat,
+        longitude: data.lng,
+        peopleCount: data.count,
+      }));
+    },
+    enabled: !!userPosition,
+    refetchInterval: 30000,
+  });
+
+  if (!userPosition) {
+    return (
+      <div className="px-4 py-12 text-center">
+        <p className="text-muted-foreground text-sm animate-pulse">Waiting for location...</p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="px-4 py-12 text-center">
+        <p className="text-muted-foreground text-sm animate-pulse">Loading pulse map...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-4" style={{ height: 'calc(100vh - 220px)' }}>
+      <CityPulse
+        userPosition={userPosition}
+        venues={pulseVenues}
+        onSelectVenue={(v) => setSelectedVenue(v)}
+      />
+      {selectedVenue && userId && (
+        <VenueGate
+          venue={selectedVenue}
+          userPosition={userPosition}
+          userId={userId}
+          onEnterFree={() => onEnterVenue(selectedVenue.venue_name)}
+          onEnterPaid={() => onEnterVenue(selectedVenue.venue_name)}
+          onClose={() => setSelectedVenue(null)}
+        />
+      )}
+    </div>
+  );
+};
 const Explore = () => {
   const navigate = useNavigate();
   const { user, profile: authProfile } = useAuth();
@@ -63,6 +156,8 @@ const Explore = () => {
 
   // People mode state
   const [peopleProfiles, setPeopleProfiles] = useState<SwipeProfile[]>([]);
+  // Map/Pulse mode state
+  const [selectedVenue, setSelectedVenue] = useState<any>(null);
   const [peopleIndex, setPeopleIndex] = useState(0);
   const [peopleLoading, setPeopleLoading] = useState(false);
   const [nearbyCount, setNearbyCount] = useState(0);
@@ -625,9 +720,16 @@ const Explore = () => {
           )}
         </div>
       ) : (
-        <div className="px-4 py-12 text-center">
-          <p className="text-muted-foreground text-sm">{MODE_PLACEHOLDERS[mode]}</p>
-        </div>
+        <PulseMapView
+          userPosition={userPosition}
+          userId={user?.id}
+          selectedVenue={selectedVenue}
+          setSelectedVenue={setSelectedVenue}
+          onEnterVenue={(venueName) => {
+            setSelectedVenue(null);
+            toast.success(`Entered ${venueName} circle!`);
+          }}
+        />
       )}
 
       {/* Match Modal */}
