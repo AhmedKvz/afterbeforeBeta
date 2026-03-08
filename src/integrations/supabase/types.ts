@@ -52,6 +52,27 @@ export type Database = {
           },
         ]
       }
+      club_favorites: {
+        Row: {
+          created_at: string | null
+          id: string
+          user_id: string
+          venue_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          user_id: string
+          venue_name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          user_id?: string
+          venue_name?: string
+        }
+        Relationships: []
+      }
       event_checkins: {
         Row: {
           checked_in_at: string | null
@@ -194,6 +215,7 @@ export type Database = {
           date: string
           description: string | null
           end_time: string | null
+          geofence_radius: number | null
           host_id: string | null
           id: string
           image_url: string | null
@@ -212,6 +234,7 @@ export type Database = {
           date: string
           description?: string | null
           end_time?: string | null
+          geofence_radius?: number | null
           host_id?: string | null
           id?: string
           image_url?: string | null
@@ -230,6 +253,7 @@ export type Database = {
           date?: string
           description?: string | null
           end_time?: string | null
+          geofence_radius?: number | null
           host_id?: string | null
           id?: string
           image_url?: string | null
@@ -605,6 +629,42 @@ export type Database = {
           target_count?: number
           title?: string
           xp_reward?: number
+        }
+        Relationships: []
+      }
+      swipe_actions: {
+        Row: {
+          action: string
+          context: string
+          created_at: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          target_id: string
+          target_type: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          context: string
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          target_id: string
+          target_type: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          context?: string
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          target_id?: string
+          target_type?: string
+          user_id?: string
         }
         Relationships: []
       }

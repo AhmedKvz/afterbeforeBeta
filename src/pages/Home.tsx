@@ -156,7 +156,7 @@ const Home = () => {
     );
   }
 
-  const showFAB = profile?.onboarding_completed && profile?.account_type !== 'club_venue';
+  
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -293,18 +293,6 @@ const Home = () => {
         <div className="px-4 py-12 text-center">
           <p className="text-muted-foreground">No events found</p>
         </div>
-      )}
-
-      {/* Swipe Nearby FAB */}
-      {showFAB && (
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => navigate('/circle-swipe')}
-          className="fixed bottom-24 right-4 z-40 w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
-          style={{ background: 'var(--gradient-primary)' }}
-        >
-          <MapPin className="w-6 h-6 text-white" />
-        </motion.button>
       )}
 
       <BottomNav />

@@ -20,6 +20,7 @@ import VenueDashboard from "./pages/VenueDashboard";
 import Notifications from "./pages/Notifications";
 import ScenePanel from "./pages/ScenePanel";
 import Quests from "./pages/Quests";
+import Explore from "./pages/Explore";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/venue-dashboard" element={<VenueDashboard />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/scene" element={<ScenePanel />} />
+            <Route path="/explore" element={<Explore />} />
             <Route path="/quests" element={<Quests />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
