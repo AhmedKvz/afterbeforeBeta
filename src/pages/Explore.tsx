@@ -144,8 +144,7 @@ const PulseMapView = ({
     </div>
   );
 };
-
-
+const Explore = () => {
   const navigate = useNavigate();
   const { user, profile: authProfile } = useAuth();
   const [mode, setMode] = useState<ExploreMode>('events');
