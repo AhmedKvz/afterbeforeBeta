@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { ClubVotingCards } from '@/components/ClubVotingCards';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const PRIZE_LABELS = ['Featured Club of the Week', 'Trending', 'Rising'];
@@ -115,6 +116,9 @@ export const VenueHeatBoard = ({ compact = false }: VenueHeatBoardProps) => {
           ))}
         </div>
       </div>
+
+      {/* Voting */}
+      <ClubVotingCards />
 
       {/* Rankings */}
       {displayVenues.map((venue, index) => {
