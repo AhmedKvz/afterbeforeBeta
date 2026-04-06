@@ -155,6 +155,8 @@ const Home = () => {
     if (activeFilter === 'Afterplaces') return event.venue_type === 'afterplace';
     if (activeFilter === 'Galleries') return event.venue_type === 'gallery';
     if (activeFilter === 'After Mode') return event.venue_type === 'afterplace';
+    if (activeFilter === 'Secret 🔒') return event.event_type === 'secret';
+    if (activeFilter === 'Pop-Up ⚡') return event.event_type === 'popup';
     return event.music_genres?.includes(activeFilter);
   });
 
@@ -318,6 +320,11 @@ const Home = () => {
                 attendeeCount={signalCounts[event.id] || 0}
                 signalCount={signalCounts[event.id] || 0}
                 venueType={event.venue_type}
+                eventType={event.event_type}
+                isSecret={event.is_secret}
+                accessPriceRsd={event.access_price_rsd}
+                requiresVerifiedProfile={event.requires_verified_profile}
+                secretLocationRevealAt={event.secret_location_reveal_at}
               />
             </motion.div>
           ))}
