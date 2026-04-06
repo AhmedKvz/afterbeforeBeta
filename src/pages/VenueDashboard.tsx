@@ -312,7 +312,7 @@ const VenueDashboard = () => {
               )}
             </section>
           </motion.div>
-        ) : (
+        ) : activeTab === 'requests' ? (
           <motion.div key="requests" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 py-6 space-y-4">
             {/* Stats bar */}
             <div className="flex gap-3">
@@ -347,54 +347,7 @@ const VenueDashboard = () => {
               <GlassCard hoverable={false} className="text-center py-8">
                 <p className="text-muted-foreground">No requests yet</p>
               </GlassCard>
-        ) : activeTab === 'reviews' ? (
-          <motion.div key="reviews" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 py-6 space-y-3">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-bold">🤖 AI Moderation</span>
-            </div>
-            {reviews.length === 0 ? (
-              <GlassCard hoverable={false} className="text-center py-8">
-                <p className="text-muted-foreground">No reviews yet</p>
-              </GlassCard>
             ) : (
-              reviews.map((review: any) => {
-                const statusColors: Record<string, string> = {
-                  approved: 'bg-green-500/20 text-green-400',
-                  pending: 'bg-yellow-500/20 text-yellow-400',
-                  flagged: 'bg-red-500/20 text-red-400',
-                  removed: 'bg-muted text-muted-foreground',
-                };
-                const statusIcons: Record<string, string> = {
-                  approved: '✅', pending: '⏳', flagged: '🚩', removed: '🗑️',
-                };
-                const status = review.moderation_status || 'pending';
-                return (
-                  <GlassCard key={review.id} className="p-4" hoverable={false}>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map(s => (
-                          <Star key={s} className={cn('w-3.5 h-3.5', s <= review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground')} />
-                        ))}
-                      </div>
-                      <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full', statusColors[status])}>
-                        {statusIcons[status]} {status}
-                      </span>
-                    </div>
-                    {review.review_text && (
-                      <p className="text-sm text-foreground/80 mb-2">"{review.review_text}"</p>
-                    )}
-                    {review.moderation_flags?.length > 0 && (
-                      <div className="flex gap-1 flex-wrap">
-                        {review.moderation_flags.map((flag: string) => (
-                          <span key={flag} className="text-[10px] px-1.5 py-0.5 rounded bg-destructive/10 text-destructive">{flag}</span>
-                        ))}
-                      </div>
-                    )}
-                  </GlassCard>
-                );
-              })
-            )}
-          </motion.div>
               <div className="space-y-3">
                 {requests.map((req, i) => (
                   <motion.div key={req.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
@@ -457,6 +410,54 @@ const VenueDashboard = () => {
                   </motion.div>
                 ))}
               </div>
+            )}
+          </motion.div>
+        ) : (
+          <motion.div key="reviews" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 py-6 space-y-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm font-bold">🤖 AI Moderation</span>
+            </div>
+            {reviews.length === 0 ? (
+              <GlassCard hoverable={false} className="text-center py-8">
+                <p className="text-muted-foreground">No reviews yet</p>
+              </GlassCard>
+            ) : (
+              reviews.map((review: any) => {
+                const statusColors: Record<string, string> = {
+                  approved: 'bg-green-500/20 text-green-400',
+                  pending: 'bg-yellow-500/20 text-yellow-400',
+                  flagged: 'bg-red-500/20 text-red-400',
+                  removed: 'bg-muted text-muted-foreground',
+                };
+                const statusIcons: Record<string, string> = {
+                  approved: '✅', pending: '⏳', flagged: '🚩', removed: '🗑️',
+                };
+                const status = review.moderation_status || 'pending';
+                return (
+                  <GlassCard key={review.id} className="p-4" hoverable={false}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map(s => (
+                          <Star key={s} className={cn('w-3.5 h-3.5', s <= review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground')} />
+                        ))}
+                      </div>
+                      <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full', statusColors[status])}>
+                        {statusIcons[status]} {status}
+                      </span>
+                    </div>
+                    {review.review_text && (
+                      <p className="text-sm text-foreground/80 mb-2">"{review.review_text}"</p>
+                    )}
+                    {review.moderation_flags?.length > 0 && (
+                      <div className="flex gap-1 flex-wrap">
+                        {review.moderation_flags.map((flag: string) => (
+                          <span key={flag} className="text-[10px] px-1.5 py-0.5 rounded bg-destructive/10 text-destructive">{flag}</span>
+                        ))}
+                      </div>
+                    )}
+                  </GlassCard>
+                );
+              })
             )}
           </motion.div>
         )}
