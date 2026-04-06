@@ -212,6 +212,30 @@ export type Database = {
         }
         Relationships: []
       }
+      championship_votes: {
+        Row: {
+          created_at: string | null
+          destination: string
+          id: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          destination: string
+          id?: string
+          user_id: string
+          year?: number
+        }
+        Update: {
+          created_at?: string | null
+          destination?: string
+          id?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       club_favorites: {
         Row: {
           created_at: string | null
