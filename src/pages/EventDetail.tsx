@@ -257,6 +257,7 @@ const EventDetail = () => {
 
   if (!event) return null;
 
+  const isSecretEvent = event.event_type === 'secret' || event.is_secret;
   const heatLevel = getHeatLevel(signalCount, event.capacity || 100);
   const formattedDate = format(new Date(event.date), 'EEEE, MMM d');
   const formattedTime = event.start_time?.slice(0, 5);
