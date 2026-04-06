@@ -10,6 +10,7 @@ import { MatchModal } from '@/components/MatchModal';
 import { getCurrentPosition, calculateDistance } from '@/services/geolocation';
 import { awardXP, XP_AWARDS } from '@/services/gamification';
 import { incrementQuestProgress } from '@/services/questProgress';
+import { logTrainingEvent } from '@/services/aiTracker';
 import { toast } from 'sonner';
 
 interface ActiveUser {
@@ -34,6 +35,7 @@ interface SwipeProfile {
   musicPreferences: string[];
   distance: number;
   trustScore: number;
+  matchScore?: number;
 }
 
 const CircleSwipe = () => {
@@ -153,11 +155,29 @@ const CircleSwipe = () => {
           Number(u.latitude),
           Number(u.longitude)
         ),
-        trustScore: Math.floor(Math.random() * 2) + 3, // Mock 3-5 stars
-      }))
-      .sort((a, b) => a.distance - b.distance);
+        trustScore: Math.floor(Math.random() * 2) + 3,
+      }));
+
+    // Compute AI match scores for each profile
+    const scoredProfiles = await Promise.all(
+      availableProfiles.map(async (p) => {
+        try {
+          const { data: scoreData } = await supabase.rpc('compute_match_score', {
+            p_user_id: user!.id,
+            p_target_id: p.id,
+            p_event_id: eventId,
+          });
+          return { ...p, matchScore: scoreData?.match_score ?? undefined };
+        } catch {
+          return p;
+        }
+      })
+    );
+
+    // Sort by match score (best first), fallback to distance
+    scoredProfiles.sort((a, b) => (b.matchScore ?? 0) - (a.matchScore ?? 0));
     
-    setProfiles(availableProfiles);
+    setProfiles(scoredProfiles);
     setActiveUserCount(data.length);
   };
 
@@ -168,13 +188,22 @@ const CircleSwipe = () => {
     const action = direction === 'left' ? 'pass' : direction === 'up' ? 'superlike' : 'like';
     
     try {
-      // Save swipe
+      // Save swipe with predicted score
       await supabase.from('swipes').insert({
         swiper_id: user.id,
         swiped_id: currentProfile.id,
         event_id: eventId,
         action,
+        predicted_score: currentProfile.matchScore ?? null,
       });
+
+      // Log training event
+      logTrainingEvent('swipe', user.id, currentProfile.id, {
+        matchScore: currentProfile.matchScore,
+        distance: currentProfile.distance,
+        musicOverlap: currentProfile.musicPreferences,
+        eventId,
+      }, action);
       
       // Award XP for superlike
       if (action === 'superlike') {
