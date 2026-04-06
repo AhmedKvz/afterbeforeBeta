@@ -167,7 +167,7 @@ const CircleSwipe = () => {
             p_target_id: p.id,
             p_event_id: eventId,
           });
-          return { ...p, matchScore: scoreData?.match_score ?? undefined };
+          return { ...p, matchScore: (scoreData as any)?.match_score ?? undefined };
         } catch {
           return p;
         }
