@@ -178,11 +178,12 @@ const EventDetail = () => {
           longitude: userCoords.longitude,
           last_seen: new Date().toISOString(),
         });
-      await awardXP(user.id, XP_AWARDS.checkIn, 'Checked in to event');
+      const xpAmount = isSecretEvent ? 200 : XP_AWARDS.checkIn;
+      await awardXP(user.id, xpAmount, isSecretEvent ? 'Secret party check-in' : 'Checked in to event');
       await incrementQuestProgress(user.id, 'check_in');
       await incrementQuestProgress(user.id, 'explore');
       setIsCheckedIn(true);
-      toast.success('Checked in! +50 XP 🎉');
+      toast.success(`Checked in! +${xpAmount} XP 🎉`);
     } catch (error: any) {
       if (error.code === 1) {
         toast.error('Please enable location access to check in');
@@ -192,6 +193,42 @@ const EventDetail = () => {
       }
     } finally {
       setCheckingIn(false);
+    }
+  };
+
+  const handleValidateInviteCode = async () => {
+    if (!user || !id || !inviteCode.trim()) return;
+    setCheckingCode(true);
+    try {
+      const { data, error } = await supabase
+        .from('secret_party_invites')
+        .select('*')
+        .eq('invite_code', inviteCode.trim().toUpperCase())
+        .eq('event_id', id)
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .maybeSingle();
+      
+      if (!data || error) {
+        setInviteValid(false);
+        toast.error('Invalid or expired code');
+        return;
+      }
+
+      // Mark invite as used
+      await supabase.from('secret_party_invites').update({
+        status: 'used',
+        used_at: new Date().toISOString(),
+      }).eq('id', data.id);
+
+      setInviteValid(true);
+      toast.success('Code verified! ✓ You can now check in.');
+    } catch (err) {
+      console.error(err);
+      setInviteValid(false);
+      toast.error('Failed to validate code');
+    } finally {
+      setCheckingCode(false);
     }
   };
 
