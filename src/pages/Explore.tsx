@@ -60,11 +60,14 @@ const Explore = () => {
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [matchedProfile, setMatchedProfile] = useState<SwipeProfile | null>(null);
 
-  // Get position
+  // Get position — fallback to Belgrade center if GPS unavailable
   useEffect(() => {
     getCurrentPosition()
       .then((pos) => setUserPosition({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }))
-      .catch(() => toast.error('Location access needed for Explore'));
+      .catch(() => {
+        setUserPosition({ latitude: 44.8125, longitude: 20.4612 });
+        toast.info('Using Belgrade center as default location');
+      });
   }, []);
 
   // Ghost toggle
