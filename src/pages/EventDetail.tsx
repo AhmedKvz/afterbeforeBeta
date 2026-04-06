@@ -31,6 +31,8 @@ interface Event {
   music_genres: string[];
   capacity: number;
   price: number;
+  event_type: string;
+  is_secret: boolean;
 }
 
 const EventDetail = () => {
