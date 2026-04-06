@@ -239,11 +239,27 @@ const Leaderboard = () => {
               </TabsContent>
 
               <TabsContent value="yearly" className="mt-4">
-                <div className="text-center py-12 text-muted-foreground">
-                  <Trophy className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Yearly leaderboard coming soon!</p>
-                  <p className="text-sm">Available after pilot period</p>
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="glass-card p-5 border border-accent/30 bg-gradient-to-br from-accent/5 to-primary/5 cursor-pointer"
+                  onClick={() => navigate('/yearly-championship')}
+                >
+                  <div className="text-center">
+                    <Crown className="w-10 h-10 text-accent mx-auto mb-3" />
+                    <h3 className="text-lg font-bold text-foreground">Yearly Championship</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      The highest honor in the AfterBefore ecosystem
+                    </p>
+                    <p className="text-xs text-muted-foreground/60 mt-2 italic">
+                      Trip for 2 · Accommodation · Event tickets · Pocket money
+                    </p>
+                    <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-medium">
+                      <Globe className="w-3 h-3" />
+                      Vote Destinations & View Rules →
+                    </div>
+                  </div>
+                </motion.div>
               </TabsContent>
             </Tabs>
           </div>

@@ -23,6 +23,7 @@ import Quests from "./pages/Quests";
 import Explore from "./pages/Explore";
 import SecretPartyRequest from "./pages/SecretPartyRequest";
 import InstagramCallback from "./pages/InstagramCallback";
+import YearlyChampionship from "./pages/YearlyChampionship";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/explore" element={<Explore />} />
             <Route path="/quests" element={<Quests />} />
             <Route path="/secret-request/:eventId" element={<SecretPartyRequest />} />
+            <Route path="/yearly-championship" element={<YearlyChampionship />} />
             <Route path="/auth/instagram/callback" element={<InstagramCallback />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
