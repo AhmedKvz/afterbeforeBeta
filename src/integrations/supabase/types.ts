@@ -230,67 +230,127 @@ export type Database = {
       }
       events: {
         Row: {
+          access_price_rsd: number | null
           address: string | null
           capacity: number | null
           created_at: string | null
           date: string
           description: string | null
           end_time: string | null
+          event_type: string | null
           geofence_radius: number | null
           host_id: string | null
           id: string
           image_url: string | null
+          is_secret: boolean | null
           latitude: number | null
           longitude: number | null
+          max_guests: number | null
           music_genres: string[] | null
           neighborhood: string | null
           price: number | null
+          requires_verified_profile: boolean | null
+          secret_location_reveal_at: string | null
           start_time: string
           title: string
           venue_name: string | null
           venue_type: string | null
         }
         Insert: {
+          access_price_rsd?: number | null
           address?: string | null
           capacity?: number | null
           created_at?: string | null
           date: string
           description?: string | null
           end_time?: string | null
+          event_type?: string | null
           geofence_radius?: number | null
           host_id?: string | null
           id?: string
           image_url?: string | null
+          is_secret?: boolean | null
           latitude?: number | null
           longitude?: number | null
+          max_guests?: number | null
           music_genres?: string[] | null
           neighborhood?: string | null
           price?: number | null
+          requires_verified_profile?: boolean | null
+          secret_location_reveal_at?: string | null
           start_time: string
           title: string
           venue_name?: string | null
           venue_type?: string | null
         }
         Update: {
+          access_price_rsd?: number | null
           address?: string | null
           capacity?: number | null
           created_at?: string | null
           date?: string
           description?: string | null
           end_time?: string | null
+          event_type?: string | null
           geofence_radius?: number | null
           host_id?: string | null
           id?: string
           image_url?: string | null
+          is_secret?: boolean | null
           latitude?: number | null
           longitude?: number | null
+          max_guests?: number | null
           music_genres?: string[] | null
           neighborhood?: string | null
           price?: number | null
+          requires_verified_profile?: boolean | null
+          secret_location_reveal_at?: string | null
           start_time?: string
           title?: string
           venue_name?: string | null
           venue_type?: string | null
+        }
+        Relationships: []
+      }
+      instagram_connections: {
+        Row: {
+          access_token: string | null
+          connected_at: string | null
+          followers_count: number | null
+          id: string
+          instagram_handle: string
+          instagram_id: string | null
+          is_verified: boolean | null
+          last_synced_at: string | null
+          profile_picture_url: string | null
+          token_expires_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          connected_at?: string | null
+          followers_count?: number | null
+          id?: string
+          instagram_handle: string
+          instagram_id?: string | null
+          is_verified?: boolean | null
+          last_synced_at?: string | null
+          profile_picture_url?: string | null
+          token_expires_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          connected_at?: string | null
+          followers_count?: number | null
+          id?: string
+          instagram_handle?: string
+          instagram_id?: string | null
+          is_verified?: boolean | null
+          last_synced_at?: string | null
+          profile_picture_url?: string | null
+          token_expires_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -574,6 +634,11 @@ export type Database = {
           display_name: string
           events_attended: number | null
           id: string
+          instagram_avatar_url: string | null
+          instagram_followers: number | null
+          instagram_handle: string | null
+          instagram_verified: boolean | null
+          is_verified: boolean | null
           level: number | null
           music_preferences: string[] | null
           neighborhood: string | null
@@ -590,6 +655,7 @@ export type Database = {
           venue_music_genres: string[] | null
           venue_name: string | null
           venue_type: string | null
+          verification_date: string | null
           xp: number | null
         }
         Insert: {
@@ -602,6 +668,11 @@ export type Database = {
           display_name: string
           events_attended?: number | null
           id?: string
+          instagram_avatar_url?: string | null
+          instagram_followers?: number | null
+          instagram_handle?: string | null
+          instagram_verified?: boolean | null
+          is_verified?: boolean | null
           level?: number | null
           music_preferences?: string[] | null
           neighborhood?: string | null
@@ -618,6 +689,7 @@ export type Database = {
           venue_music_genres?: string[] | null
           venue_name?: string | null
           venue_type?: string | null
+          verification_date?: string | null
           xp?: number | null
         }
         Update: {
@@ -630,6 +702,11 @@ export type Database = {
           display_name?: string
           events_attended?: number | null
           id?: string
+          instagram_avatar_url?: string | null
+          instagram_followers?: number | null
+          instagram_handle?: string | null
+          instagram_verified?: boolean | null
+          is_verified?: boolean | null
           level?: number | null
           music_preferences?: string[] | null
           neighborhood?: string | null
@@ -646,6 +723,7 @@ export type Database = {
           venue_music_genres?: string[] | null
           venue_name?: string | null
           venue_type?: string | null
+          verification_date?: string | null
           xp?: number | null
         }
         Relationships: []
@@ -712,6 +790,97 @@ export type Database = {
           venue_name?: string
         }
         Relationships: []
+      }
+      secret_party_invites: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          expires_at: string | null
+          id: string
+          invite_code: string
+          status: string | null
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          expires_at?: string | null
+          id?: string
+          invite_code: string
+          status?: string | null
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          expires_at?: string | null
+          id?: string
+          invite_code?: string
+          status?: string | null
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "secret_party_invites_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      secret_party_requests: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          paid_at: string | null
+          payment_amount_rsd: number | null
+          rejection_reason: string | null
+          request_message: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          paid_at?: string | null
+          payment_amount_rsd?: number | null
+          rejection_reason?: string | null
+          request_message?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          paid_at?: string | null
+          payment_amount_rsd?: number | null
+          rejection_reason?: string | null
+          request_message?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "secret_party_requests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       swipe_actions: {
         Row: {
@@ -1041,6 +1210,10 @@ export type Database = {
           winner_xp: number
         }[]
       }
+      approve_secret_party_request: {
+        Args: { request_id: string }
+        Returns: Json
+      }
       draw_lucky_100_winners: {
         Args: { num_winners?: number }
         Returns: {
@@ -1048,6 +1221,7 @@ export type Database = {
           winner_name: string
         }[]
       }
+      generate_invite_code: { Args: never; Returns: string }
       get_event_stats: {
         Args: { event_uuid: string }
         Returns: {
