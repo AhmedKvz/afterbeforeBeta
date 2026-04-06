@@ -25,6 +25,13 @@ interface Profile {
   venue_music_genres: string[] | null;
   venue_instagram: string | null;
   venue_contact_phone: string | null;
+  is_verified: boolean;
+  instagram_handle: string | null;
+  instagram_verified: boolean;
+  instagram_followers: number | null;
+  instagram_avatar_url: string | null;
+  venue_type: string | null;
+  neighborhood: string | null;
 }
 
 interface AuthContextType {
