@@ -47,6 +47,9 @@ const EventDetail = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [isGoing, setIsGoing] = useState(false);
   const [signalCount, setSignalCount] = useState(0);
+  const [inviteCode, setInviteCode] = useState('');
+  const [inviteValid, setInviteValid] = useState<boolean | null>(null);
+  const [checkingCode, setCheckingCode] = useState(false);
 
   useEffect(() => {
     if (id) {
