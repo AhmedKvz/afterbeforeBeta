@@ -155,10 +155,7 @@ const Leaderboard = () => {
               <TabsList className="w-full grid grid-cols-3">
                 <TabsTrigger value="weekly">Weekly</TabsTrigger>
                 <TabsTrigger value="monthly">Monthly</TabsTrigger>
-                <TabsTrigger value="yearly">
-                  Yearly 🏆
-                </TabsTrigger>
-                </TabsTrigger>
+                <TabsTrigger value="yearly">Yearly 🏆</TabsTrigger>
               </TabsList>
 
               <TabsContent value="weekly" className="mt-4 space-y-4">
