@@ -117,6 +117,9 @@ export const VenueHeatBoard = ({ compact = false }: VenueHeatBoardProps) => {
         </div>
       </div>
 
+      {/* Voting */}
+      <ClubVotingCards />
+
       {/* Rankings */}
       {displayVenues.map((venue, index) => {
         const isTop3 = index < 3;
