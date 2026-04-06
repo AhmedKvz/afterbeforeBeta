@@ -1,5 +1,14 @@
 import { useRef, useEffect, useState } from 'react';
 
+const VENUE_TYPE_COLORS: Record<string, string> = {
+  club: 'rgb(168,85,247)',      // purple
+  splav: 'rgb(59,130,246)',     // blue
+  cafe_bar: 'rgb(245,158,11)', // amber
+  afterplace: 'rgb(148,163,184)', // slate
+  gallery: 'rgb(236,72,153)',  // pink
+  popup: 'rgb(234,179,8)',     // yellow
+};
+
 interface CityPulseProps {
   userPosition: { latitude: number; longitude: number };
   venues: Array<{
@@ -7,6 +16,7 @@ interface CityPulseProps {
     latitude: number;
     longitude: number;
     peopleCount: number;
+    venue_type?: string;
   }>;
   onSelectVenue: (venue: any) => void;
 }
@@ -93,6 +103,7 @@ const CityPulse = ({ userPosition, venues, onSelectVenue }: CityPulseProps) => {
         const pos = toPixel(venue.latitude, venue.longitude);
         const active = venue.peopleCount > 0;
         const size = active ? 14 + Math.min(venue.peopleCount * 2, 14) : 10;
+        const color = VENUE_TYPE_COLORS[venue.venue_type || 'club'] || VENUE_TYPE_COLORS.club;
 
         return (
           <div
@@ -110,7 +121,8 @@ const CityPulse = ({ userPosition, venues, onSelectVenue }: CityPulseProps) => {
                   height: size + 16,
                   left: '50%',
                   top: '50%',
-                  border: '2px solid rgba(168,85,247,0.4)',
+                  border: `2px solid ${color}`,
+                  opacity: 0.4,
                   animation: 'venue-pulse 2s ease-in-out infinite',
                 }}
               />
@@ -124,9 +136,9 @@ const CityPulse = ({ userPosition, venues, onSelectVenue }: CityPulseProps) => {
                 left: '50%',
                 top: '50%',
                 transform: 'translate(-50%, -50%)',
-                background: active ? 'hsl(var(--primary))' : 'rgba(255,255,255,0.2)',
+                background: active ? color : 'rgba(255,255,255,0.2)',
                 opacity: active ? 1 : 0.4,
-                boxShadow: active ? '0 0 16px rgba(168,85,247,0.5)' : 'none',
+                boxShadow: active ? `0 0 16px ${color}80` : 'none',
               }}
             />
             {/* Count badge */}
