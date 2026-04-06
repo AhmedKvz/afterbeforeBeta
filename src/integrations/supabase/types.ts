@@ -257,6 +257,47 @@ export type Database = {
         }
         Relationships: []
       }
+      club_weekly_votes: {
+        Row: {
+          created_at: string | null
+          event_id: string | null
+          id: string
+          user_id: string
+          vote_type: string
+          vote_value: string
+          week_number: number
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          user_id: string
+          vote_type: string
+          vote_value: string
+          week_number?: number
+          year?: number
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          user_id?: string
+          vote_type?: string
+          vote_value?: string
+          week_number?: number
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_weekly_votes_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_swipe_limits: {
         Row: {
           id: string
