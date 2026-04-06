@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, MapPin } from 'lucide-react';
+import { Bell, MapPin, Bot } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useQuery } from '@tanstack/react-query';
 import { EventCard } from '@/components/EventCard';
 import { BottomNav } from '@/components/BottomNav';
 import { Lucky100Banner } from '@/components/Lucky100Banner';
@@ -14,6 +15,7 @@ import { VenueHeatBoard } from '@/components/VenueHeatBoard';
 import { ReviewModal } from '@/components/ReviewModal';
 import { NotificationBell } from '@/components/NotificationBell';
 import { SceneBanner } from '@/components/SceneBanner';
+import { TrendingEventCard } from '@/components/TrendingEventCard';
 import { useBestPartyThisWeek } from '@/hooks/useEventStats';
 import { useReviewPrompt } from '@/hooks/useReviewPrompt';
 import { useQuests } from '@/hooks/useQuests';
@@ -271,6 +273,9 @@ const Home = () => {
         <LeaderboardPreview />
       </div>
 
+      {/* AI "Tonight For You" Section */}
+      <TonightForYou userId={user?.id} events={events} navigate={navigate} />
+
       {/* Venue Heat Widget */}
       <div className="px-4 mb-6">
         <VenueHeatBoard compact />
@@ -352,6 +357,73 @@ const Home = () => {
           event={eventToReview}
         />
       )}
+    </div>
+  );
+};
+
+// AI "Tonight For You" component
+const TonightForYou = ({ userId, events, navigate }: { userId?: string; events: Event[]; navigate: any }) => {
+  const { data: personalizedEvents } = useQuery({
+    queryKey: ['personalized-events', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data, error } = await supabase.rpc('get_personalized_events', {
+        p_user_id: userId,
+        p_limit: 5,
+      });
+      if (error) throw error;
+      return (data || []).filter((d: any) => d.relevance_score > 0);
+    },
+    enabled: !!userId,
+  });
+
+  if (!personalizedEvents?.length) return null;
+
+  const matchedEvents = personalizedEvents
+    .map((pe: any) => {
+      const event = events.find(e => e.id === pe.event_id);
+      return event ? { ...event, relevanceScore: pe.relevance_score, reasons: pe.relevance_reasons } : null;
+    })
+    .filter(Boolean);
+
+  if (!matchedEvents.length) return null;
+
+  return (
+    <div className="px-4 mb-6">
+      <div className="flex items-center gap-2 mb-3">
+        <Bot className="w-4 h-4 text-primary" />
+        <h2 className="font-bold text-lg">🤖 Tonight For You</h2>
+      </div>
+      <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+        {matchedEvents.map((event: any) => (
+          <motion.div
+            key={event.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="min-w-[200px] max-w-[200px] flex-shrink-0"
+          >
+            <button
+              onClick={() => navigate(`/event/${event.id}`)}
+              className="w-full rounded-2xl bg-muted/30 backdrop-blur-xl border border-primary/20 overflow-hidden text-left"
+            >
+              <div className="relative h-24">
+                <img src={event.image_url || '/placeholder.svg'} alt={event.title} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
+                <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-primary/80 text-[10px] font-bold text-primary-foreground">
+                  🤖 AI Pick
+                </div>
+              </div>
+              <div className="p-3">
+                <p className="font-semibold text-sm truncate">{event.title}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{event.venue_name}</p>
+                {event.reasons?.[0] && (
+                  <p className="text-[10px] text-primary mt-1 truncate">{event.reasons[0]}</p>
+                )}
+              </div>
+            </button>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 };

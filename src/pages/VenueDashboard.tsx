@@ -48,7 +48,8 @@ const VenueDashboard = () => {
   const { user, profile, loading: authLoading } = useAuth();
   const [events, setEvents] = useState<VenueEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'requests'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'requests' | 'reviews'>('dashboard');
+  const [reviews, setReviews] = useState<any[]>([]);
   const [requests, setRequests] = useState<SecretRequest[]>([]);
   const [requestsLoading, setRequestsLoading] = useState(false);
 
@@ -60,7 +61,24 @@ const VenueDashboard = () => {
 
   useEffect(() => {
     if (activeTab === 'requests' && user) fetchRequests();
+    if (activeTab === 'reviews' && user) fetchReviews();
   }, [activeTab, user]);
+
+  const fetchReviews = async () => {
+    if (!user) return;
+    try {
+      const eventIds = events.map(e => e.id);
+      if (!eventIds.length) return;
+      const { data } = await supabase
+        .from('event_reviews')
+        .select('*')
+        .in('event_id', eventIds)
+        .order('created_at', { ascending: false });
+      setReviews(data || []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchEvents = async () => {
     try {
@@ -222,6 +240,14 @@ const VenueDashboard = () => {
               </span>
             )}
           </button>
+          <button
+            onClick={() => setActiveTab('reviews')}
+            className={cn('flex-1 py-2 rounded-xl text-sm font-medium transition-all',
+              activeTab === 'reviews' ? 'bg-primary/15 border border-primary/40 text-foreground' : 'bg-muted/30 border border-border text-muted-foreground'
+            )}
+          >
+            ⭐ Reviews
+          </button>
         </div>
       </div>
 
@@ -286,7 +312,7 @@ const VenueDashboard = () => {
               )}
             </section>
           </motion.div>
-        ) : (
+        ) : activeTab === 'requests' ? (
           <motion.div key="requests" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 py-6 space-y-4">
             {/* Stats bar */}
             <div className="flex gap-3">
@@ -384,6 +410,54 @@ const VenueDashboard = () => {
                   </motion.div>
                 ))}
               </div>
+            )}
+          </motion.div>
+        ) : (
+          <motion.div key="reviews" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 py-6 space-y-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm font-bold">🤖 AI Moderation</span>
+            </div>
+            {reviews.length === 0 ? (
+              <GlassCard hoverable={false} className="text-center py-8">
+                <p className="text-muted-foreground">No reviews yet</p>
+              </GlassCard>
+            ) : (
+              reviews.map((review: any) => {
+                const statusColors: Record<string, string> = {
+                  approved: 'bg-green-500/20 text-green-400',
+                  pending: 'bg-yellow-500/20 text-yellow-400',
+                  flagged: 'bg-red-500/20 text-red-400',
+                  removed: 'bg-muted text-muted-foreground',
+                };
+                const statusIcons: Record<string, string> = {
+                  approved: '✅', pending: '⏳', flagged: '🚩', removed: '🗑️',
+                };
+                const status = review.moderation_status || 'pending';
+                return (
+                  <GlassCard key={review.id} className="p-4" hoverable={false}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map(s => (
+                          <Star key={s} className={cn('w-3.5 h-3.5', s <= review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground')} />
+                        ))}
+                      </div>
+                      <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full', statusColors[status])}>
+                        {statusIcons[status]} {status}
+                      </span>
+                    </div>
+                    {review.review_text && (
+                      <p className="text-sm text-foreground/80 mb-2">"{review.review_text}"</p>
+                    )}
+                    {review.moderation_flags?.length > 0 && (
+                      <div className="flex gap-1 flex-wrap">
+                        {review.moderation_flags.map((flag: string) => (
+                          <span key={flag} className="text-[10px] px-1.5 py-0.5 rounded bg-destructive/10 text-destructive">{flag}</span>
+                        ))}
+                      </div>
+                    )}
+                  </GlassCard>
+                );
+              })
             )}
           </motion.div>
         )}

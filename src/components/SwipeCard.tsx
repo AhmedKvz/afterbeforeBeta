@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { MapPin, Music, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -13,6 +14,7 @@ interface SwipeCardProps {
     musicPreferences: string[];
     distance: number;
     trustScore?: number;
+    matchScore?: number;
   };
   onSwipe: (direction: 'left' | 'right' | 'up') => void;
   isTop?: boolean;
@@ -66,6 +68,11 @@ export const SwipeCard = ({ profile, onSwipe, isTop = false }: SwipeCardProps) =
         className="absolute inset-0 w-full h-full object-cover"
         draggable={false}
       />
+
+      {/* AI Match Score Badge */}
+      {profile.matchScore != null && profile.matchScore >= 40 && (
+        <MatchScoreBadge score={profile.matchScore} />
+      )}
       
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
@@ -141,6 +148,57 @@ export const SwipeCard = ({ profile, onSwipe, isTop = false }: SwipeCardProps) =
             ))}
           </div>
         )}
+      </div>
+    </motion.div>
+  );
+};
+
+// AI Match Score circular badge
+const MatchScoreBadge = ({ score }: { score: number }) => {
+  const [displayScore, setDisplayScore] = useState(0);
+  
+  useEffect(() => {
+    let frame: number;
+    const start = performance.now();
+    const duration = 800;
+    const animate = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      setDisplayScore(Math.round(progress * score));
+      if (progress < 1) frame = requestAnimationFrame(animate);
+    };
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, [score]);
+
+  const color = score >= 80 ? 'hsl(var(--success))' : score >= 60 ? 'hsl(45, 93%, 47%)' : 'hsl(var(--muted-foreground))';
+  const emoji = score >= 80 ? '🔥' : score >= 60 ? '⚡' : '💫';
+  const radius = 18;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (displayScore / 100) * circumference;
+
+  return (
+    <motion.div
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ delay: 0.3, type: 'spring' }}
+      className="absolute top-4 right-4 z-20 flex flex-col items-center"
+    >
+      <div className="relative w-12 h-12 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center">
+        <svg className="absolute inset-0 -rotate-90" viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r={radius} fill="none" stroke="currentColor" strokeWidth="2.5" className="text-white/10" />
+          <circle
+            cx="22" cy="22" r={radius} fill="none"
+            stroke={color} strokeWidth="2.5" strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            style={{ transition: 'stroke-dashoffset 0.3s ease' }}
+          />
+        </svg>
+        <span className="text-[10px] font-bold text-white">{displayScore}%</span>
+      </div>
+      <div className="flex items-center gap-0.5 mt-1 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-sm">
+        <span className="text-[9px]">{emoji}</span>
+        <span className="text-[9px] font-semibold text-white">🤖</span>
       </div>
     </motion.div>
   );

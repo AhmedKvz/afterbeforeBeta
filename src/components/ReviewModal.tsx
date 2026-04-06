@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { incrementQuestProgress } from '@/services/questProgress';
+import { logTrainingEvent } from '@/services/aiTracker';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 
@@ -45,8 +46,37 @@ export const ReviewModal = ({ isOpen, onClose, event }: ReviewModalProps) => {
 
       if (error) throw error;
     },
-    onSuccess: async () => {
-      if (user?.id) await incrementQuestProgress(user.id, 'review');
+    onSuccess: async (_, __, context) => {
+      if (user?.id) {
+        await incrementQuestProgress(user.id, 'review');
+        
+        // Log training event
+        logTrainingEvent('review', user.id, event.id, {
+          rating,
+          textLength: reviewText.length,
+          hasText: reviewText.length > 10,
+        }, `rating_${rating}`);
+
+        // Call moderation edge function
+        try {
+          const { data: reviewData } = await supabase
+            .from('event_reviews')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('event_id', event.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (reviewData) {
+            await supabase.functions.invoke('moderate-review', {
+              body: { review_id: reviewData.id, text: reviewText, rating },
+            });
+          }
+        } catch (e) {
+          console.error('Moderation error:', e);
+        }
+      }
       confetti({
         particleCount: 100,
         spread: 70,
