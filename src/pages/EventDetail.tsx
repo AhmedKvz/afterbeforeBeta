@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { 
   ArrowLeft, Heart, Calendar, MapPin, Users, 
-  DollarSign, Music, Loader2, MapPinCheck, Sparkles, Flame
+  DollarSign, Music, Loader2, MapPinCheck, Sparkles, Flame, Bot
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,7 +14,9 @@ import { GlassCard } from '@/components/GlassCard';
 import { getCurrentPosition, isWithinRadius } from '@/services/geolocation';
 import { awardXP, XP_AWARDS } from '@/services/gamification';
 import { incrementQuestProgress } from '@/services/questProgress';
+import { logTrainingEvent } from '@/services/aiTracker';
 import { toast } from 'sonner';
+import { AreaChart, Area, XAxis, ResponsiveContainer } from 'recharts';
 
 interface Event {
   id: string;
@@ -50,6 +52,7 @@ const EventDetail = () => {
   const [inviteCode, setInviteCode] = useState('');
   const [inviteValid, setInviteValid] = useState<boolean | null>(null);
   const [checkingCode, setCheckingCode] = useState(false);
+  const [crowdPrediction, setCrowdPrediction] = useState<any>(null);
 
   useEffect(() => {
     if (id) {
@@ -58,8 +61,19 @@ const EventDetail = () => {
       checkWishlistStatus();
       checkSignalStatus();
       fetchSignalCount();
+      fetchCrowdPrediction();
     }
   }, [id, user]);
+
+  const fetchCrowdPrediction = async () => {
+    if (!id) return;
+    try {
+      const { data } = await supabase.rpc('predict_crowd', { p_event_id: id });
+      if (data && !(data as any).error) setCrowdPrediction(data);
+    } catch (e) {
+      console.error('Crowd prediction error:', e);
+    }
+  };
 
   const fetchEvent = async () => {
     try {
@@ -182,6 +196,14 @@ const EventDetail = () => {
       await awardXP(user.id, xpAmount, isSecretEvent ? 'Secret party check-in' : 'Checked in to event');
       await incrementQuestProgress(user.id, 'check_in');
       await incrementQuestProgress(user.id, 'explore');
+      
+      // Log training event
+      logTrainingEvent('checkin', user.id, event.id, {
+        dayOfWeek: new Date().getDay(),
+        genre: event.music_genres,
+        venue: event.venue_name,
+        hour: new Date().getHours(),
+      }, 'checked_in');
       setIsCheckedIn(true);
       toast.success(`Checked in! +${xpAmount} XP 🎉`);
     } catch (error: any) {
@@ -334,6 +356,9 @@ const EventDetail = () => {
           <p className="text-muted-foreground">{event.description}</p>
         </div>
 
+        {/* AI Crowd Prediction */}
+        {crowdPrediction && <CrowdPredictionCard prediction={crowdPrediction} event={event} />}
+
         {/* Music Genres */}
         <div className="flex items-center gap-2 flex-wrap">
           <Music className="w-4 h-4 text-primary" />
@@ -453,6 +478,74 @@ const EventDetail = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// AI Crowd Prediction Card
+const CrowdPredictionCard = ({ prediction, event }: { prediction: any; event: any }) => {
+  const peakHour = prediction.predicted_peak_hour || '01:00';
+  const peakNum = parseInt(peakHour.split(':')[0]);
+  const confidencePercent = Math.round((prediction.confidence || 0.5) * 100);
+  
+  const vibeEmoji: Record<string, string> = {
+    packed: '🔥', energetic: '⚡', chill: '😎', intimate: '🌙'
+  };
+  
+  // Generate crowd curve data
+  const startHour = parseInt(event.start_time?.split(':')[0] || '22');
+  const curveData = [];
+  for (let i = 0; i < 8; i++) {
+    const hour = (startHour + i) % 24;
+    const label = `${hour.toString().padStart(2, '0')}:00`;
+    const distFromPeak = Math.abs(hour - peakNum);
+    const value = Math.max(10, prediction.predicted_attendance * Math.exp(-0.3 * distFromPeak * distFromPeak));
+    curveData.push({ time: label, crowd: Math.round(value) });
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl bg-muted/30 backdrop-blur-xl border border-primary/20 p-4"
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Bot className="w-4 h-4 text-primary" />
+          <span className="text-sm font-bold">🤖 AI Prediction</span>
+        </div>
+        <span className="text-xs text-muted-foreground">{confidencePercent}% conf</span>
+      </div>
+      
+      <div className="grid grid-cols-3 gap-3 mb-3">
+        <div className="text-center">
+          <p className="text-lg font-bold">~{prediction.predicted_attendance}</p>
+          <p className="text-[10px] text-muted-foreground">👥 Expected</p>
+        </div>
+        <div className="text-center">
+          <p className="text-lg font-bold">{peakHour}</p>
+          <p className="text-[10px] text-muted-foreground">⏰ Peak</p>
+        </div>
+        <div className="text-center">
+          <p className="text-lg font-bold capitalize">{vibeEmoji[prediction.predicted_vibe] || '🎵'} {prediction.predicted_vibe}</p>
+          <p className="text-[10px] text-muted-foreground">Vibe</p>
+        </div>
+      </div>
+      
+      <div className="h-16">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={curveData}>
+            <defs>
+              <linearGradient id="crowdGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
+                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <XAxis dataKey="time" tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+            <Area type="monotone" dataKey="crowd" stroke="hsl(var(--primary))" fill="url(#crowdGrad)" strokeWidth={2} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </motion.div>
   );
 };
 
