@@ -80,6 +80,10 @@ const Explore = () => {
     toast.success(newMode ? 'Ghost mode enabled 👻' : 'Ghost mode disabled');
   };
 
+  // Neighborhood filter
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState('All');
+  const NEIGHBORHOODS = ['All', 'Savamala', 'Dorcol', 'Vracar', 'Stari Grad', 'Novi Beograd', 'Savski Venac'];
+
   // ── Pulse: CityPulse data ──
   const { data: pulseVenues = [] } = useQuery({
     queryKey: ['pulse-venues', userPosition?.latitude, userPosition?.longitude],
@@ -87,10 +91,10 @@ const Explore = () => {
       if (!userPosition) return [];
       const { data: events } = await supabase
         .from('events')
-        .select('venue_name, latitude, longitude')
+        .select('venue_name, latitude, longitude, venue_type, neighborhood')
         .not('latitude', 'is', null);
 
-      const venueMap = new Map<string, { venue_name: string; latitude: number; longitude: number; peopleCount: number }>();
+      const venueMap = new Map<string, { venue_name: string; latitude: number; longitude: number; peopleCount: number; venue_type?: string; neighborhood?: string }>();
       (events || []).forEach((e) => {
         if (!e.venue_name || venueMap.has(e.venue_name)) return;
         venueMap.set(e.venue_name, {
@@ -98,6 +102,8 @@ const Explore = () => {
           latitude: Number(e.latitude),
           longitude: Number(e.longitude),
           peopleCount: 0,
+          venue_type: e.venue_type || 'club',
+          neighborhood: e.neighborhood || undefined,
         });
       });
 
@@ -119,6 +125,10 @@ const Explore = () => {
     enabled: mode === 'pulse' && !!userPosition,
     refetchInterval: 30000,
   });
+
+  const filteredPulseVenues = selectedNeighborhood === 'All'
+    ? pulseVenues
+    : pulseVenues.filter(v => v.neighborhood === selectedNeighborhood);
 
   // ── Pulse: Load venue profiles ──
   const loadVenueProfiles = useCallback(async (venue: any) => {
@@ -455,12 +465,34 @@ const Explore = () => {
       {/* Content */}
       {mode === 'pulse' ? (
         <>
+          {/* Neighborhood filter */}
+          {!selectedVenue && (
+            <div className="px-4 mb-3">
+              <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                {NEIGHBORHOODS.map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setSelectedNeighborhood(n)}
+                    className={cn(
+                      'px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all',
+                      selectedNeighborhood === n
+                        ? 'bg-accent/20 text-accent border border-accent/40 shadow-[0_0_8px_rgba(var(--accent),0.2)]'
+                        : 'bg-muted/30 text-muted-foreground border border-border'
+                    )}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Map view */}
           {!selectedVenue && userPosition && (
-            <div className="px-4" style={{ height: 'calc(100vh - 280px)' }}>
+            <div className="px-4" style={{ height: 'calc(100vh - 330px)' }}>
               <CityPulse
                 userPosition={userPosition}
-                venues={pulseVenues}
+                venues={filteredPulseVenues}
                 onSelectVenue={setSelectedVenue}
               />
             </div>

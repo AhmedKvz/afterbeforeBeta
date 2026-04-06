@@ -243,10 +243,12 @@ export type Database = {
           latitude: number | null
           longitude: number | null
           music_genres: string[] | null
+          neighborhood: string | null
           price: number | null
           start_time: string
           title: string
           venue_name: string | null
+          venue_type: string | null
         }
         Insert: {
           address?: string | null
@@ -262,10 +264,12 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           music_genres?: string[] | null
+          neighborhood?: string | null
           price?: number | null
           start_time: string
           title: string
           venue_name?: string | null
+          venue_type?: string | null
         }
         Update: {
           address?: string | null
@@ -281,10 +285,12 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           music_genres?: string[] | null
+          neighborhood?: string | null
           price?: number | null
           start_time?: string
           title?: string
           venue_name?: string | null
+          venue_type?: string | null
         }
         Relationships: []
       }
@@ -570,6 +576,7 @@ export type Database = {
           id: string
           level: number | null
           music_preferences: string[] | null
+          neighborhood: string | null
           onboarding_completed: boolean | null
           total_matches: number | null
           updated_at: string | null
@@ -582,6 +589,7 @@ export type Database = {
           venue_logo_url: string | null
           venue_music_genres: string[] | null
           venue_name: string | null
+          venue_type: string | null
           xp: number | null
         }
         Insert: {
@@ -596,6 +604,7 @@ export type Database = {
           id?: string
           level?: number | null
           music_preferences?: string[] | null
+          neighborhood?: string | null
           onboarding_completed?: boolean | null
           total_matches?: number | null
           updated_at?: string | null
@@ -608,6 +617,7 @@ export type Database = {
           venue_logo_url?: string | null
           venue_music_genres?: string[] | null
           venue_name?: string | null
+          venue_type?: string | null
           xp?: number | null
         }
         Update: {
@@ -622,6 +632,7 @@ export type Database = {
           id?: string
           level?: number | null
           music_preferences?: string[] | null
+          neighborhood?: string | null
           onboarding_completed?: boolean | null
           total_matches?: number | null
           updated_at?: string | null
@@ -634,6 +645,7 @@ export type Database = {
           venue_logo_url?: string | null
           venue_music_genres?: string[] | null
           venue_name?: string | null
+          venue_type?: string | null
           xp?: number | null
         }
         Relationships: []

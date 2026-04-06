@@ -31,9 +31,11 @@ interface Event {
   music_genres: string[];
   price: number;
   capacity: number;
+  venue_type: string;
+  neighborhood: string;
 }
 
-const FILTER_OPTIONS = ['All', 'Techno', 'House', 'Hip Hop', 'Tonight', 'This Weekend'];
+const FILTER_OPTIONS = ['All', 'Clubs', 'Splavi', 'Cafes', 'Afterplaces', 'Galleries', 'Tonight', 'This Weekend', 'After Mode'];
 
 const Home = () => {
   const navigate = useNavigate();
@@ -141,6 +143,12 @@ const Home = () => {
       const eventDate = new Date(event.date);
       return eventDate >= friday && eventDate <= sunday;
     }
+    if (activeFilter === 'Clubs') return event.venue_type === 'club';
+    if (activeFilter === 'Splavi') return event.venue_type === 'splav';
+    if (activeFilter === 'Cafes') return event.venue_type === 'cafe_bar';
+    if (activeFilter === 'Afterplaces') return event.venue_type === 'afterplace';
+    if (activeFilter === 'Galleries') return event.venue_type === 'gallery';
+    if (activeFilter === 'After Mode') return event.venue_type === 'afterplace';
     return event.music_genres?.includes(activeFilter);
   });
 
@@ -179,6 +187,27 @@ const Home = () => {
           </div>
         </div>
       </header>
+
+      {/* After Mode Banner (3AM-7AM) */}
+      {(() => {
+        const hour = new Date().getHours();
+        const isAfterHours = hour >= 3 && hour < 7;
+        if (!isAfterHours) return null;
+        return (
+          <motion.button
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={() => setActiveFilter('After Mode')}
+            className="mx-4 mt-3 w-[calc(100%-2rem)] p-3 rounded-xl bg-muted/40 backdrop-blur-xl border border-border flex items-center gap-3"
+          >
+            <span className="text-lg animate-pulse">🌙</span>
+            <div className="text-left">
+              <span className="text-sm font-semibold text-foreground">After Mode</span>
+              <span className="text-xs text-muted-foreground ml-2">Late-night spots open now</span>
+            </div>
+          </motion.button>
+        );
+      })()}
 
       {/* Location */}
       <div className="px-4 py-3 flex items-center gap-2 text-muted-foreground">
@@ -282,6 +311,7 @@ const Home = () => {
                 capacity={event.capacity || 100}
                 attendeeCount={signalCounts[event.id] || 0}
                 signalCount={signalCounts[event.id] || 0}
+                venueType={event.venue_type}
               />
             </motion.div>
           ))}
