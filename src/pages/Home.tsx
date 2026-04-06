@@ -33,9 +33,15 @@ interface Event {
   capacity: number;
   venue_type: string;
   neighborhood: string;
+  event_type: string;
+  is_secret: boolean;
+  access_price_rsd: number;
+  requires_verified_profile: boolean;
+  secret_location_reveal_at: string | null;
+  max_guests: number | null;
 }
 
-const FILTER_OPTIONS = ['All', 'Clubs', 'Splavi', 'Cafes', 'Afterplaces', 'Galleries', 'Tonight', 'This Weekend', 'After Mode'];
+const FILTER_OPTIONS = ['All', 'Clubs', 'Splavi', 'Cafes', 'Afterplaces', 'Galleries', 'Secret 🔒', 'Pop-Up ⚡', 'Tonight', 'This Weekend', 'After Mode'];
 
 const Home = () => {
   const navigate = useNavigate();
