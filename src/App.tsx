@@ -21,6 +21,8 @@ import Notifications from "./pages/Notifications";
 import ScenePanel from "./pages/ScenePanel";
 import Quests from "./pages/Quests";
 import Explore from "./pages/Explore";
+import SecretPartyRequest from "./pages/SecretPartyRequest";
+import InstagramCallback from "./pages/InstagramCallback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +52,8 @@ const App = () => (
             <Route path="/scene" element={<ScenePanel />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/quests" element={<Quests />} />
+            <Route path="/secret-request/:eventId" element={<SecretPartyRequest />} />
+            <Route path="/auth/instagram/callback" element={<InstagramCallback />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

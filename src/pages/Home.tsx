@@ -33,9 +33,15 @@ interface Event {
   capacity: number;
   venue_type: string;
   neighborhood: string;
+  event_type: string;
+  is_secret: boolean;
+  access_price_rsd: number;
+  requires_verified_profile: boolean;
+  secret_location_reveal_at: string | null;
+  max_guests: number | null;
 }
 
-const FILTER_OPTIONS = ['All', 'Clubs', 'Splavi', 'Cafes', 'Afterplaces', 'Galleries', 'Tonight', 'This Weekend', 'After Mode'];
+const FILTER_OPTIONS = ['All', 'Clubs', 'Splavi', 'Cafes', 'Afterplaces', 'Galleries', 'Secret 🔒', 'Pop-Up ⚡', 'Tonight', 'This Weekend', 'After Mode'];
 
 const Home = () => {
   const navigate = useNavigate();
@@ -149,6 +155,8 @@ const Home = () => {
     if (activeFilter === 'Afterplaces') return event.venue_type === 'afterplace';
     if (activeFilter === 'Galleries') return event.venue_type === 'gallery';
     if (activeFilter === 'After Mode') return event.venue_type === 'afterplace';
+    if (activeFilter === 'Secret 🔒') return event.event_type === 'secret';
+    if (activeFilter === 'Pop-Up ⚡') return event.event_type === 'popup';
     return event.music_genres?.includes(activeFilter);
   });
 
@@ -312,6 +320,11 @@ const Home = () => {
                 attendeeCount={signalCounts[event.id] || 0}
                 signalCount={signalCounts[event.id] || 0}
                 venueType={event.venue_type}
+                eventType={event.event_type}
+                isSecret={event.is_secret}
+                accessPriceRsd={event.access_price_rsd}
+                requiresVerifiedProfile={event.requires_verified_profile}
+                secretLocationRevealAt={event.secret_location_reveal_at}
               />
             </motion.div>
           ))}

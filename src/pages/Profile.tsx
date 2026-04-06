@@ -104,10 +104,28 @@ const Profile = () => {
           </div>
           
           <h2 className="text-2xl font-bold mt-4">
-            {profile.display_name}
-            {profile.age && <span className="text-muted-foreground ml-2">{profile.age}</span>}
+            <span className="flex items-center justify-center gap-2">
+              {profile.display_name}
+              {profile.instagram_verified && (
+                <span className="text-sm text-primary" title="Instagram verified">📸✓</span>
+              )}
+              {profile.age && <span className="text-muted-foreground ml-1">{profile.age}</span>}
+            </span>
           </h2>
+          {profile.instagram_handle && (
+            <p className="text-sm text-muted-foreground">@{profile.instagram_handle}</p>
+          )}
           <p className="text-muted-foreground">{profile.city}</p>
+
+          {/* Instagram connect button */}
+          {!profile.instagram_verified && (
+            <button
+              onClick={() => toast.info('Instagram connection coming soon!')}
+              className="mt-3 px-4 py-2 rounded-xl text-sm font-medium bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-orange-500/20 border border-pink-500/30 text-foreground"
+            >
+              📸 Connect Instagram
+            </button>
+          )}
         </motion.div>
 
         {/* Stats */}
