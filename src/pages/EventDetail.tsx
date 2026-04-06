@@ -375,6 +375,28 @@ const EventDetail = () => {
 
       {/* CTA Buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent">
+        {/* Secret event: invite code input */}
+        {isSecretEvent && !isCheckedIn && !inviteValid && (
+          <div className="mb-3 flex gap-2">
+            <input
+              value={inviteCode}
+              onChange={(e) => { setInviteCode(e.target.value.toUpperCase()); setInviteValid(null); }}
+              placeholder="AB-XXXX-XXXX"
+              maxLength={12}
+              className={`flex-1 px-4 py-3 rounded-xl bg-muted/50 border text-center font-mono text-lg tracking-widest placeholder:text-muted-foreground/50 ${
+                inviteValid === false ? 'border-destructive animate-shake' : 'border-border/50'
+              }`}
+            />
+            <button
+              onClick={handleValidateInviteCode}
+              disabled={checkingCode || inviteCode.length < 5}
+              className="px-6 py-3 rounded-xl btn-gradient font-semibold text-sm"
+            >
+              {checkingCode ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify'}
+            </button>
+          </div>
+        )}
+
         <div className="flex gap-3">
           {/* I'm Going Button */}
           <motion.button
@@ -392,10 +414,12 @@ const EventDetail = () => {
 
           <button
             onClick={handleCheckIn}
-            disabled={checkingIn || isCheckedIn}
+            disabled={checkingIn || isCheckedIn || (isSecretEvent && !inviteValid)}
             className={`flex-1 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 ${
               isCheckedIn 
                 ? 'bg-success/20 text-success border border-success/50'
+                : isSecretEvent && !inviteValid
+                ? 'bg-muted text-muted-foreground cursor-not-allowed'
                 : 'btn-gradient'
             }`}
           >
