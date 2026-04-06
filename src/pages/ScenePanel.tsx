@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Compass, Shield, Activity } from 'lucide-react';
+import { ArrowLeft, Compass, Shield, Activity, Bot } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -255,6 +255,12 @@ const ScenePanel = () => {
 
           {/* SAFETY */}
           <TabsContent value="safety" className="mt-4 space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Bot className="w-4 h-4 text-primary" />
+              <span className="text-sm font-bold">🤖 AI Scene Health</span>
+            </div>
+            <AISceneHealthSection />
+
             <div className="grid grid-cols-1 gap-4">
               <GlassCard className="p-6 text-center border-green-500/20" hoverable={false}>
                 <div className="relative w-20 h-20 mx-auto mb-3">
@@ -269,12 +275,6 @@ const ScenePanel = () => {
                 <h4 className="font-bold">Trust Score</h4>
                 <p className="text-xs text-muted-foreground">Events with 0 incidents this week</p>
               </GlassCard>
-
-              <GlassCard className="p-6 text-center border-teal-500/20" hoverable={false}>
-                <Shield className="w-10 h-10 text-teal-400 mx-auto mb-3" />
-                <h4 className="font-bold">Community Health</h4>
-                <p className="text-sm text-green-400 font-medium">{safetyStats?.totalEvents || 0} events tracked this week</p>
-              </GlassCard>
             </div>
 
             <div>
@@ -285,11 +285,6 @@ const ScenePanel = () => {
                     <p className="text-sm text-muted-foreground">💚 {tip}</p>
                   </GlassCard>
                 ))}
-                <GlassCard className="p-4 border-green-500/20" hoverable={false}>
-                  <p className="text-sm text-green-400 font-medium">
-                    🛡️ AfterBefore community reports {safetyStats?.incidentFree || 0} incident-free events this week
-                  </p>
-                </GlassCard>
               </div>
             </div>
           </TabsContent>
@@ -297,6 +292,98 @@ const ScenePanel = () => {
       </div>
 
       <BottomNav />
+    </div>
+  );
+};
+
+// AI Scene Health component
+const AISceneHealthSection = () => {
+  const today = new Date().toISOString().split('T')[0];
+  
+  const { data: venues = [] } = useQuery({
+    queryKey: ['tonight-venues-health'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('events')
+        .select('venue_name')
+        .eq('date', today)
+        .not('venue_name', 'is', null);
+      const uniqueVenues = [...new Set((data || []).map((e: any) => e.venue_name))];
+      return uniqueVenues;
+    },
+  });
+
+  const { data: healthScores = [] } = useQuery({
+    queryKey: ['scene-health', venues],
+    queryFn: async () => {
+      const results = await Promise.all(
+        venues.map(async (venue: string) => {
+          const { data } = await supabase.rpc('compute_scene_health', {
+            p_venue_name: venue,
+            p_date: today,
+          });
+          return { venue, ...(data as any) };
+        })
+      );
+      return results.filter((r: any) => !r.error);
+    },
+    enabled: venues.length > 0,
+  });
+
+  if (!healthScores.length) {
+    return (
+      <GlassCard hoverable={false} className="p-6 text-center border-primary/10">
+        <p className="text-muted-foreground text-sm">No venues active tonight</p>
+      </GlassCard>
+    );
+  }
+
+  const getHealthColor = (score: number) => {
+    if (score >= 80) return 'text-green-400 border-green-500/30';
+    if (score >= 60) return 'text-yellow-400 border-yellow-500/30';
+    if (score >= 40) return 'text-orange-400 border-orange-500/30';
+    return 'text-red-400 border-red-500/30';
+  };
+
+  return (
+    <div className="space-y-3">
+      {healthScores.map((item: any) => (
+        <motion.div
+          key={item.venue}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <GlassCard hoverable={false} className={`p-4 ${getHealthColor(item.health_score)}`}>
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-bold text-sm">{item.venue}</h4>
+              <span className={`font-bold ${getHealthColor(item.health_score).split(' ')[0]}`}>
+                {item.health_score}/100
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
+              <span className="capitalize">Trust: {item.trust_level}</span>
+              <span>|</span>
+              <span className="capitalize">Crowd: {item.crowd_density}</span>
+            </div>
+            <div className="w-full bg-muted/30 rounded-full h-1.5">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${item.health_score}%` }}
+                transition={{ duration: 0.8 }}
+                className={`h-full rounded-full ${
+                  item.health_score >= 80 ? 'bg-green-500' :
+                  item.health_score >= 60 ? 'bg-yellow-500' :
+                  item.health_score >= 40 ? 'bg-orange-500' : 'bg-red-500'
+                }`}
+              />
+            </div>
+            <div className="flex items-center gap-4 mt-2 text-[10px] text-muted-foreground">
+              <span>+{item.positive_signals} positive</span>
+              <span>-{item.negative_signals} negative</span>
+            </div>
+          </GlassCard>
+        </motion.div>
+      ))}
     </div>
   );
 };
