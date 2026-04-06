@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Trophy, Crown, Ticket, Star, Gift, Zap, Target, HelpCircle, Flame } from 'lucide-react';
+import { ArrowLeft, Trophy, Crown, Ticket, Star, Gift, Zap, Target, HelpCircle, Flame, Globe } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -155,8 +155,9 @@ const Leaderboard = () => {
               <TabsList className="w-full grid grid-cols-3">
                 <TabsTrigger value="weekly">Weekly</TabsTrigger>
                 <TabsTrigger value="monthly">Monthly</TabsTrigger>
-                <TabsTrigger value="yearly" disabled>
-                  Yearly 🔒
+                <TabsTrigger value="yearly">
+                  Yearly 🏆
+                </TabsTrigger>
                 </TabsTrigger>
               </TabsList>
 
