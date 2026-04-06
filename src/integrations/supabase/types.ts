@@ -52,6 +52,166 @@ export type Database = {
           },
         ]
       }
+      ai_crowd_predictions: {
+        Row: {
+          actual_attendance: number | null
+          computed_at: string | null
+          confidence: number | null
+          event_id: string
+          factors: Json | null
+          id: string
+          predicted_attendance: number | null
+          predicted_peak_hour: string | null
+          predicted_vibe: string | null
+        }
+        Insert: {
+          actual_attendance?: number | null
+          computed_at?: string | null
+          confidence?: number | null
+          event_id: string
+          factors?: Json | null
+          id?: string
+          predicted_attendance?: number | null
+          predicted_peak_hour?: string | null
+          predicted_vibe?: string | null
+        }
+        Update: {
+          actual_attendance?: number | null
+          computed_at?: string | null
+          confidence?: number | null
+          event_id?: string
+          factors?: Json | null
+          id?: string
+          predicted_attendance?: number | null
+          predicted_peak_hour?: string | null
+          predicted_vibe?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_crowd_predictions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_match_scores: {
+        Row: {
+          behavior_score: number | null
+          computed_at: string | null
+          event_id: string | null
+          id: string
+          match_score: number | null
+          music_score: number | null
+          proximity_score: number | null
+          social_score: number | null
+          target_user_id: string
+          user_id: string
+        }
+        Insert: {
+          behavior_score?: number | null
+          computed_at?: string | null
+          event_id?: string | null
+          id?: string
+          match_score?: number | null
+          music_score?: number | null
+          proximity_score?: number | null
+          social_score?: number | null
+          target_user_id: string
+          user_id: string
+        }
+        Update: {
+          behavior_score?: number | null
+          computed_at?: string | null
+          event_id?: string | null
+          id?: string
+          match_score?: number | null
+          music_score?: number | null
+          proximity_score?: number | null
+          social_score?: number | null
+          target_user_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_match_scores_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_scene_health: {
+        Row: {
+          computed_at: string | null
+          crowd_density: string | null
+          date: string
+          health_score: number | null
+          id: string
+          negative_signals: number | null
+          positive_signals: number | null
+          review_sentiment: number | null
+          trust_level: string | null
+          venue_name: string
+        }
+        Insert: {
+          computed_at?: string | null
+          crowd_density?: string | null
+          date: string
+          health_score?: number | null
+          id?: string
+          negative_signals?: number | null
+          positive_signals?: number | null
+          review_sentiment?: number | null
+          trust_level?: string | null
+          venue_name: string
+        }
+        Update: {
+          computed_at?: string | null
+          crowd_density?: string | null
+          date?: string
+          health_score?: number | null
+          id?: string
+          negative_signals?: number | null
+          positive_signals?: number | null
+          review_sentiment?: number | null
+          trust_level?: string | null
+          venue_name?: string
+        }
+        Relationships: []
+      }
+      ai_training_events: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          features: Json
+          id: string
+          label: string | null
+          target_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          features: Json
+          id?: string
+          label?: string | null
+          target_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          features?: Json
+          id?: string
+          label?: string | null
+          target_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       club_favorites: {
         Row: {
           created_at: string | null
@@ -134,6 +294,9 @@ export type Database = {
           created_at: string | null
           event_id: string
           id: string
+          moderation_flags: string[] | null
+          moderation_score: number | null
+          moderation_status: string | null
           rating: number
           review_text: string | null
           user_id: string
@@ -143,6 +306,9 @@ export type Database = {
           created_at?: string | null
           event_id: string
           id?: string
+          moderation_flags?: string[] | null
+          moderation_score?: number | null
+          moderation_status?: string | null
           rating: number
           review_text?: string | null
           user_id: string
@@ -152,6 +318,9 @@ export type Database = {
           created_at?: string | null
           event_id?: string
           id?: string
+          moderation_flags?: string[] | null
+          moderation_score?: number | null
+          moderation_status?: string | null
           rating?: number
           review_text?: string | null
           user_id?: string
@@ -924,24 +1093,30 @@ export type Database = {
           created_at: string | null
           event_id: string | null
           id: string
+          predicted_score: number | null
           swiped_id: string
           swiper_id: string
+          was_correct: boolean | null
         }
         Insert: {
           action: string
           created_at?: string | null
           event_id?: string | null
           id?: string
+          predicted_score?: number | null
           swiped_id: string
           swiper_id: string
+          was_correct?: boolean | null
         }
         Update: {
           action?: string
           created_at?: string | null
           event_id?: string | null
           id?: string
+          predicted_score?: number | null
           swiped_id?: string
           swiper_id?: string
+          was_correct?: boolean | null
         }
         Relationships: [
           {
@@ -1214,6 +1389,14 @@ export type Database = {
         Args: { request_id: string }
         Returns: Json
       }
+      compute_match_score: {
+        Args: { p_event_id?: string; p_target_id: string; p_user_id: string }
+        Returns: Json
+      }
+      compute_scene_health: {
+        Args: { p_date?: string; p_venue_name: string }
+        Returns: Json
+      }
       draw_lucky_100_winners: {
         Args: { num_winners?: number }
         Returns: {
@@ -1237,6 +1420,14 @@ export type Database = {
           global_count: number
           last_winner_count: number
           next_lucky_number: number
+        }[]
+      }
+      get_personalized_events: {
+        Args: { p_limit?: number; p_user_id: string }
+        Returns: {
+          event_id: string
+          relevance_reasons: string[]
+          relevance_score: number
         }[]
       }
       get_venue_heat: {
@@ -1267,6 +1458,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      predict_crowd: { Args: { p_event_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user"
