@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft, Settings, Edit2, Camera, Star, Music, 
-  Calendar, Heart, Trophy, LogOut 
+  Calendar, Heart, Trophy, LogOut, Wallet, ChevronRight
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -228,6 +228,31 @@ const Profile = () => {
             <p className="text-muted-foreground">{profile.bio}</p>
           </section>
         )}
+
+        {/* Account links */}
+        <section className="space-y-2">
+          <h3 className="font-bold mb-2">Nalog</h3>
+          <button
+            onClick={() => navigate('/challenges?filter=my-entries')}
+            className="w-full flex items-center justify-between p-4 rounded-xl bg-muted/40 border border-border hover:bg-muted/60 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Trophy className="w-5 h-5 text-amber-400" />
+              <span className="font-medium text-sm">Moji izazovi</span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
+          <button
+            onClick={() => navigate('/wallet')}
+            className="w-full flex items-center justify-between p-4 rounded-xl bg-muted/40 border border-border hover:bg-muted/60 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Wallet className="w-5 h-5 text-primary" />
+              <span className="font-medium text-sm">Wallet (XP & SC)</span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
+        </section>
 
         {/* Sign Out */}
         <button
