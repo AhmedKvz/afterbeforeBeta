@@ -132,13 +132,24 @@ const ChallengeDetail = () => {
 
         {/* Entries */}
         <section>
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-2 flex items-center justify-between gap-2">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               {challenge.status === 'resolved' ? 'Konačni rezultati' : 'Prijave'}
             </h2>
-            {challenge.status === 'voting' && userVote && (
-              <span className="text-xs text-primary">Već si glasao</span>
-            )}
+            <div className="flex items-center gap-2">
+              {challenge.status === 'voting' && userVote && (
+                <span className="text-xs text-primary">Već si glasao</span>
+              )}
+              {challenge.status === 'live' && userHasEntry && (
+                <span className="text-xs text-emerald-400">Prijavljen ✓</span>
+              )}
+              {canSubmit && (
+                <Button size="sm" onClick={() => setSubmitOpen(true)} className="gap-1">
+                  <Plus className="h-3.5 w-3.5" />
+                  Prijavi se
+                </Button>
+              )}
+            </div>
           </div>
 
           {entriesLoading ? (
