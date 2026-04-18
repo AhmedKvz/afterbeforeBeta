@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Trophy, Clock, Users } from 'lucide-react';
+import { ArrowLeft, Trophy, Clock, Users, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -8,6 +9,7 @@ import { useChallengeEntries, useUserChallengeVote } from '@/hooks/useChallengeE
 import { useVoteChallenge } from '@/hooks/useVoteChallenge';
 import { useAuth } from '@/contexts/AuthContext';
 import { EntryCard } from '@/components/challenges/EntryCard';
+import { SubmitEntryDrawer } from '@/components/challenges/SubmitEntryDrawer';
 import { formatEUR } from '@/lib/format';
 import { formatDeadline, statusLabel } from '@/lib/challengeFormat';
 
@@ -25,6 +27,10 @@ const ChallengeDetail = () => {
   const { data: entries, isLoading: entriesLoading } = useChallengeEntries(id);
   const { data: userVote } = useUserChallengeVote(id);
   const voteMutation = useVoteChallenge(id || '');
+  const [submitOpen, setSubmitOpen] = useState(false);
+
+  const userHasEntry = !!entries?.some((e) => e.user_id === user?.id);
+  const canSubmit = challenge?.status === 'live' && !!user && !userHasEntry;
 
   if (isLoading) {
     return (
@@ -126,13 +132,24 @@ const ChallengeDetail = () => {
 
         {/* Entries */}
         <section>
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-2 flex items-center justify-between gap-2">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               {challenge.status === 'resolved' ? 'Konačni rezultati' : 'Prijave'}
             </h2>
-            {challenge.status === 'voting' && userVote && (
-              <span className="text-xs text-primary">Već si glasao</span>
-            )}
+            <div className="flex items-center gap-2">
+              {challenge.status === 'voting' && userVote && (
+                <span className="text-xs text-primary">Već si glasao</span>
+              )}
+              {challenge.status === 'live' && userHasEntry && (
+                <span className="text-xs text-emerald-400">Prijavljen ✓</span>
+              )}
+              {canSubmit && (
+                <Button size="sm" onClick={() => setSubmitOpen(true)} className="gap-1">
+                  <Plus className="h-3.5 w-3.5" />
+                  Prijavi se
+                </Button>
+              )}
+            </div>
           </div>
 
           {entriesLoading ? (
@@ -166,6 +183,13 @@ const ChallengeDetail = () => {
           )}
         </section>
       </main>
+
+      <SubmitEntryDrawer
+        open={submitOpen}
+        onOpenChange={setSubmitOpen}
+        challengeId={challenge.id}
+        challengeTitle={challenge.title}
+      />
     </div>
   );
 };
