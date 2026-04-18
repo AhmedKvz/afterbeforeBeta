@@ -27,6 +27,10 @@ const ChallengeDetail = () => {
   const { data: entries, isLoading: entriesLoading } = useChallengeEntries(id);
   const { data: userVote } = useUserChallengeVote(id);
   const voteMutation = useVoteChallenge(id || '');
+  const [submitOpen, setSubmitOpen] = useState(false);
+
+  const userHasEntry = !!entries?.some((e) => e.user_id === user?.id);
+  const canSubmit = challenge?.status === 'live' && !!user && !userHasEntry;
 
   if (isLoading) {
     return (
