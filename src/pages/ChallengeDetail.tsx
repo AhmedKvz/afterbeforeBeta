@@ -183,6 +183,13 @@ const ChallengeDetail = () => {
           )}
         </section>
       </main>
+
+      <SubmitEntryDrawer
+        open={submitOpen}
+        onOpenChange={setSubmitOpen}
+        challengeId={challenge.id}
+        challengeTitle={challenge.title}
+      />
     </div>
   );
 };
