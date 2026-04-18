@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Trophy, Clock, Users } from 'lucide-react';
+import { ArrowLeft, Trophy, Clock, Users, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -8,6 +9,7 @@ import { useChallengeEntries, useUserChallengeVote } from '@/hooks/useChallengeE
 import { useVoteChallenge } from '@/hooks/useVoteChallenge';
 import { useAuth } from '@/contexts/AuthContext';
 import { EntryCard } from '@/components/challenges/EntryCard';
+import { SubmitEntryDrawer } from '@/components/challenges/SubmitEntryDrawer';
 import { formatEUR } from '@/lib/format';
 import { formatDeadline, statusLabel } from '@/lib/challengeFormat';
 
