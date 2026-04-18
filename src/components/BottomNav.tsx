@@ -1,10 +1,12 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Heart, Compass, Wallet, User } from 'lucide-react';
+import { Home, Heart, Trophy, Wallet, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Note: "Explore" je izbačen iz BottomNav-a u korist "Izazovi" (/challenges).
+// Explore je i dalje dostupan na ruti /explore i može se linkovati iz Home-a.
 const navItems = [
   { path: '/', icon: Home, label: 'Home' },
-  { path: '/explore', icon: Compass, label: 'Explore' },
+  { path: '/challenges', icon: Trophy, label: 'Izazovi' },
   { path: '/matches', icon: Heart, label: 'Matches' },
   { path: '/wallet', icon: Wallet, label: 'Wallet' },
   { path: '/profile', icon: User, label: 'Profile' },
@@ -13,13 +15,16 @@ const navItems = [
 export const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   return (
     <nav className="bottom-nav">
       {navItems.map((item) => {
-        const isActive = location.pathname === item.path;
+        const isActive =
+          item.path === '/'
+            ? location.pathname === '/'
+            : location.pathname.startsWith(item.path);
         const Icon = item.icon;
-        
+
         return (
           <button
             key={item.path}
