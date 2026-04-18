@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Heart, Hand, Calendar, Target,
-  Clover, Shield, Zap, Trophy, CheckCheck,
+  Clover, Shield, Zap, Trophy, CheckCheck, Wallet, Gift,
 } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { GlassCard } from '@/components/GlassCard';
@@ -19,6 +19,41 @@ const ICON_MAP: Record<string, { icon: any; color: string }> = {
   safety_alert: { icon: Shield, color: 'text-destructive' },
   xp_milestone: { icon: Zap, color: 'text-yellow-400' },
   leaderboard_change: { icon: Trophy, color: 'text-accent' },
+  xp_gift: { icon: Gift, color: 'text-amber-400' },
+  xp_gift_claimed: { icon: Wallet, color: 'text-primary' },
+  challenge_win: { icon: Trophy, color: 'text-amber-400' },
+  challenge_voting: { icon: Trophy, color: 'text-amber-300' },
+  sc_received: { icon: Wallet, color: 'text-emerald-400' },
+};
+
+// Mapira tip notifikacije na rutu na klik. Vraća null ako nema deep linka.
+const getNotificationRoute = (n: any): string | null => {
+  switch (n.type) {
+    case 'xp_gift':
+    case 'xp_gift_claimed':
+    case 'sc_received':
+      return '/wallet';
+    case 'challenge_win':
+    case 'challenge_voting': {
+      const challengeId = n.data?.challenge_id;
+      return challengeId ? `/challenges/${challengeId}` : '/challenges';
+    }
+    case 'match':
+      return '/matches';
+    case 'event_reminder': {
+      const eventId = n.data?.event_id;
+      return eventId ? `/event/${eventId}` : null;
+    }
+    case 'quest_complete':
+      return '/quests';
+    case 'lucky100_win':
+      return '/lucky100';
+    case 'leaderboard_change':
+    case 'xp_milestone':
+      return '/leaderboard';
+    default:
+      return null;
+  }
 };
 
 const Notifications = () => {
@@ -88,6 +123,8 @@ const Notifications = () => {
                   hoverable
                   onClick={() => {
                     if (!n.is_read) markAsRead(n.id);
+                    const route = getNotificationRoute(n);
+                    if (route) navigate(route);
                   }}
                 >
                   <div className="flex items-start gap-3">

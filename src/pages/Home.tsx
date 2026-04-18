@@ -12,6 +12,8 @@ import { Lucky100Modal } from '@/components/Lucky100Modal';
 import { BestPartyCard } from '@/components/BestPartyCard';
 import { LeaderboardPreview } from '@/components/LeaderboardPreview';
 import { VenueHeatBoard } from '@/components/VenueHeatBoard';
+import { LiveChallengesCarousel } from '@/components/home/LiveChallengesCarousel';
+import { WalletPreviewCard } from '@/components/home/WalletPreviewCard';
 import { ReviewModal } from '@/components/ReviewModal';
 import { NotificationBell } from '@/components/NotificationBell';
 import { SceneBanner } from '@/components/SceneBanner';
@@ -229,6 +231,12 @@ const Home = () => {
       <div className="px-4 mb-4">
         <Lucky100Banner onClick={() => setIsLucky100ModalOpen(true)} />
       </div>
+
+      {/* Wallet preview */}
+      <WalletPreviewCard />
+
+      {/* Živi izazovi carousel */}
+      <LiveChallengesCarousel />
 
       {/* Quest Progress Compact */}
       {totalCount > 0 && (
