@@ -25,6 +25,8 @@ import SecretPartyRequest from "./pages/SecretPartyRequest";
 import InstagramCallback from "./pages/InstagramCallback";
 import YearlyChampionship from "./pages/YearlyChampionship";
 import Wallet from "./pages/Wallet";
+import Challenges from "./pages/Challenges";
+import ChallengeDetail from "./pages/ChallengeDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +59,8 @@ const App = () => (
             <Route path="/secret-request/:eventId" element={<SecretPartyRequest />} />
             <Route path="/yearly-championship" element={<YearlyChampionship />} />
             <Route path="/wallet" element={<Wallet />} />
+            <Route path="/challenges" element={<Challenges />} />
+            <Route path="/challenges/:id" element={<ChallengeDetail />} />
             <Route path="/auth/instagram/callback" element={<InstagramCallback />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
