@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { ChevronRight, Music, MapPin, User } from "lucide-react";
+import { ChevronRight, Music, MapPin, User, Sparkles } from "lucide-react";
 
 const GENRES = ["Techno", "House", "Deep House", "Trance", "Hip Hop", "Indie", "Rock", "Pop", "R&B", "Drum & Bass", "Hard Techno", "Afro"];
 const CITIES = ["Belgrade", "Novi Sad", "Niš", "Subotica", "Kragujevac"];
@@ -210,5 +210,4 @@ const Onboarding = () => {
   );
 };
 
-import { Sparkles } from "lucide-react";
 export default Onboarding;
