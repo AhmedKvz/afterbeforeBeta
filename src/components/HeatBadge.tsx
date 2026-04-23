@@ -1,39 +1,51 @@
-import { cn } from "@/lib/utils";
-import { Flame } from "lucide-react";
+import { cn } from '@/lib/utils';
+
+type HeatLevel = 'inferno' | 'hot' | 'warm' | 'cold';
 
 interface HeatBadgeProps {
-  attendees: number;
-  capacity?: number | null;
+  level: HeatLevel;
   className?: string;
 }
 
-export const HeatBadge = ({ attendees, capacity, className }: HeatBadgeProps) => {
-  const ratio = capacity ? attendees / capacity : attendees / 100;
-
-  let label = "Warm";
-  let bg = "bg-gradient-warm";
-  let pulse = "";
-
-  if (ratio >= 0.7 || attendees >= 100) {
-    label = "Inferno";
-    bg = "bg-gradient-inferno";
-    pulse = "animate-pulse";
-  } else if (ratio >= 0.4 || attendees >= 40) {
-    label = "Hot";
-    bg = "bg-gradient-hot";
+const getHeatConfig = (level: HeatLevel) => {
+  switch (level) {
+    case 'inferno':
+      return {
+        text: '🔥 Inferno',
+        className: 'heat-inferno',
+      };
+    case 'hot':
+      return {
+        text: '🔥 Hot',
+        className: 'heat-hot',
+      };
+    case 'warm':
+      return {
+        text: '🔥 Warm',
+        className: 'heat-warm',
+      };
+    default:
+      return {
+        text: '❄️ Chill',
+        className: 'bg-muted text-muted-foreground px-3 py-1 text-xs font-bold rounded-full',
+      };
   }
+};
 
+export const getHeatLevel = (attendeeCount: number, capacity: number = 100): HeatLevel => {
+  const ratio = attendeeCount / capacity;
+  if (ratio >= 0.8) return 'inferno';
+  if (ratio >= 0.5) return 'hot';
+  if (ratio >= 0.25) return 'warm';
+  return 'cold';
+};
+
+export const HeatBadge = ({ level, className }: HeatBadgeProps) => {
+  const config = getHeatConfig(level);
+  
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-lg",
-        bg,
-        pulse,
-        className
-      )}
-    >
-      <Flame className="h-3 w-3" />
-      {label}
+    <span className={cn(config.className, className)}>
+      {config.text}
     </span>
   );
 };

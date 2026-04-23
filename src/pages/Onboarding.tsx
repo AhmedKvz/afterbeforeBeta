@@ -1,210 +1,366 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
-import { ChevronRight, Music, MapPin, User, Sparkles } from "lucide-react";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronRight, Camera, Check } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { awardXP, XP_AWARDS } from '@/services/gamification';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
-const GENRES = ["Techno", "House", "Deep House", "Trance", "Hip Hop", "Indie", "Rock", "Pop", "R&B", "Drum & Bass", "Hard Techno", "Afro"];
-const CITIES = ["Belgrade", "Novi Sad", "Niš", "Subotica", "Kragujevac"];
+const MUSIC_GENRES = [
+  'Techno', 'House', 'Deep House', 'Trance', 'Hip Hop', 'R&B',
+  'Indie', 'Rock', 'Pop', 'Electronic', 'Minimal', 'Progressive',
+  'Drum & Bass', 'Dubstep', 'Jazz', 'Alternative'
+];
+
+const CITIES = [
+  'Belgrade', 'Novi Sad', 'Niš', 'Kragujevac', 'Subotica',
+  'Zrenjanin', 'Pančevo', 'Other'
+];
 
 const Onboarding = () => {
   const navigate = useNavigate();
+  const { user, profile, refreshProfile } = useAuth();
   const [step, setStep] = useState(1);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [displayName, setDisplayName] = useState("");
-  const [age, setAge] = useState("");
-  const [city, setCity] = useState("Belgrade");
-  const [bio, setBio] = useState("");
-  const [genres, setGenres] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        navigate("/auth");
-        return;
-      }
-      setUserId(user.id);
-      setDisplayName(user.user_metadata?.display_name || "");
-    });
-  }, [navigate]);
+  const isVenue = profile?.account_type === 'club_venue';
 
-  const toggleGenre = (g: string) => {
-    setGenres((prev) =>
-      prev.includes(g) ? prev.filter((x) => x !== g) : prev.length < 5 ? [...prev, g] : prev
-    );
+  // Party Goer state
+  const [name, setName] = useState('');
+  const [age, setAge] = useState('');
+  const [city, setCity] = useState('');
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+  // Venue state
+  const [venueName, setVenueName] = useState('');
+  const [venueAddress, setVenueAddress] = useState('');
+  const [venueCity, setVenueCity] = useState('');
+  const [venueCapacity, setVenueCapacity] = useState('');
+  const [venueGenres, setVenueGenres] = useState<string[]>([]);
+  const [venueDescription, setVenueDescription] = useState('');
+  const [venueLogoFile, setVenueLogoFile] = useState<File | null>(null);
+  const [venueLogoPreview, setVenueLogoPreview] = useState<string | null>(null);
+  const [venueInstagram, setVenueInstagram] = useState('');
+  const [venuePhone, setVenuePhone] = useState('');
+
+  const toggleGenre = (genre: string) => {
+    if (isVenue) {
+      if (venueGenres.includes(genre)) {
+        setVenueGenres(venueGenres.filter(g => g !== genre));
+      } else if (venueGenres.length < 5) {
+        setVenueGenres([...venueGenres, genre]);
+      }
+    } else {
+      if (selectedGenres.includes(genre)) {
+        setSelectedGenres(selectedGenres.filter(g => g !== genre));
+      } else if (selectedGenres.length < 5) {
+        setSelectedGenres([...selectedGenres, genre]);
+      }
+    }
   };
 
-  const finish = async () => {
-    if (!userId) return;
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (isVenue) {
+          setVenueLogoFile(file);
+          setVenueLogoPreview(reader.result as string);
+        } else {
+          setAvatarFile(file);
+          setAvatarPreview(reader.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleNext = () => {
+    if (isVenue) {
+      if (step === 1) {
+        if (!venueName.trim()) { toast.error('Please enter your venue name'); return; }
+        if (!venueAddress.trim()) { toast.error('Please enter your venue address'); return; }
+        if (!venueCity) { toast.error('Please select your city'); return; }
+      }
+      if (step === 2 && venueGenres.length < 1) {
+        toast.error('Please select at least 1 music genre');
+        return;
+      }
+    } else {
+      if (step === 1) {
+        if (!name.trim()) { toast.error('Please enter your name'); return; }
+        if (!age || parseInt(age) < 18 || parseInt(age) > 99) { toast.error('Please enter a valid age (18-99)'); return; }
+        if (!city) { toast.error('Please select your city'); return; }
+      }
+      if (step === 2 && selectedGenres.length < 3) {
+        toast.error('Please select at least 3 music genres');
+        return;
+      }
+    }
+    setStep(step + 1);
+  };
+
+  const handleFinish = async () => {
+    if (!user) return;
     setLoading(true);
+
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          display_name: displayName,
-          age: age ? parseInt(age) : null,
-          city,
-          bio,
-          music_preferences: genres,
-          onboarding_completed: true,
-        })
-        .eq("user_id", userId);
-      if (error) throw error;
-      toast.success("Welcome to AfterBefore! 🎉");
-      navigate("/");
-    } catch (err: any) {
-      toast.error(err.message);
+      if (isVenue) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            display_name: venueName,
+            city: venueCity,
+            venue_name: venueName,
+            venue_address: venueAddress,
+            venue_capacity: venueCapacity ? parseInt(venueCapacity) : null,
+            venue_music_genres: venueGenres,
+            venue_description: venueDescription,
+            venue_logo_url: venueLogoPreview,
+            venue_instagram: venueInstagram,
+            venue_contact_phone: venuePhone || null,
+            onboarding_completed: true,
+          })
+          .eq('user_id', user.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            display_name: name,
+            age: parseInt(age),
+            city,
+            music_preferences: selectedGenres,
+            avatar_url: avatarPreview,
+            onboarding_completed: true,
+          })
+          .eq('user_id', user.id);
+        if (error) throw error;
+      }
+
+      await awardXP(user.id, XP_AWARDS.completeOnboarding, 'Completed onboarding');
+      await refreshProfile();
+      toast.success('Welcome to AfterBefore! 🎉');
+      navigate('/');
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+      toast.error('Failed to save profile. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  // ── Venue Steps ──
+  const renderVenueStep = () => {
+    if (step === 1) {
+      return (
+        <motion.div key="v-step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Venue Info</h1>
+            <p className="text-muted-foreground">Tell us about your venue</p>
+          </div>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Venue Name *</label>
+              <input type="text" placeholder="e.g. Club Euphoria" value={venueName} onChange={(e) => setVenueName(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Address *</label>
+              <input type="text" placeholder="Street address" value={venueAddress} onChange={(e) => setVenueAddress(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">City *</label>
+              <select value={venueCity} onChange={(e) => setVenueCity(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none">
+                <option value="">Select city</option>
+                {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Capacity</label>
+              <input type="number" placeholder="Max capacity" value={venueCapacity} onChange={(e) => setVenueCapacity(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
+            </div>
+          </div>
+        </motion.div>
+      );
+    }
+    if (step === 2) {
+      return (
+        <motion.div key="v-step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Your Vibe</h1>
+            <p className="text-muted-foreground">Select 1-5 music genres</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {MUSIC_GENRES.map((genre) => {
+              const isSelected = venueGenres.includes(genre);
+              return (
+                <button key={genre} onClick={() => toggleGenre(genre)} className={cn('genre-chip', isSelected && 'selected')}>
+                  {isSelected && <Check className="w-4 h-4 inline mr-1" />}
+                  {genre}
+                </button>
+              );
+            })}
+          </div>
+          <div className="text-sm text-muted-foreground">Selected: {venueGenres.length}/5</div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Short Description</label>
+            <textarea placeholder="Describe your venue in a few words..." value={venueDescription} onChange={(e) => setVenueDescription(e.target.value.slice(0, 200))} maxLength={200} rows={3} className="w-full px-4 py-3 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none resize-none" />
+            <p className="text-xs text-muted-foreground text-right">{venueDescription.length}/200</p>
+          </div>
+        </motion.div>
+      );
+    }
+    // step 3
+    return (
+      <motion.div key="v-step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Branding</h1>
+          <p className="text-muted-foreground">Add your logo and socials</p>
+        </div>
+        <div className="flex flex-col items-center gap-6">
+          <div className="relative">
+            {venueLogoPreview ? (
+              <img src={venueLogoPreview} alt="Logo" className="w-40 h-40 rounded-full object-cover border-4 border-primary" />
+            ) : (
+              <div className="w-40 h-40 rounded-full bg-muted flex items-center justify-center border-4 border-dashed border-border">
+                <Camera className="w-12 h-12 text-muted-foreground" />
+              </div>
+            )}
+          </div>
+          <label className="cursor-pointer">
+            <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+            <span className="btn-gradient inline-flex items-center gap-2 px-6 py-3 rounded-xl">
+              <Camera className="w-5 h-5" />
+              {venueLogoPreview ? 'Change Logo' : 'Upload Logo'}
+            </span>
+          </label>
+        </div>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Instagram Handle</label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">@</span>
+              <input type="text" placeholder="yourclub" value={venueInstagram} onChange={(e) => setVenueInstagram(e.target.value)} className="w-full pl-10 pr-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Contact Phone (optional)</label>
+            <input type="tel" placeholder="+381 ..." value={venuePhone} onChange={(e) => setVenuePhone(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
+
+  // ── Party Goer Steps ──
+  const renderPartyGoerStep = () => {
+    if (step === 1) {
+      return (
+        <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Let's get started</h1>
+            <p className="text-muted-foreground">Tell us a bit about yourself</p>
+          </div>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">What's your name?</label>
+              <input type="text" placeholder="First Name" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">How old are you?</label>
+              <input type="number" placeholder="Age" value={age} onChange={(e) => setAge(e.target.value)} min={18} max={99} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Your city?</label>
+              <select value={city} onChange={(e) => setCity(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none">
+                <option value="">Select city</option>
+                {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+        </motion.div>
+      );
+    }
+    if (step === 2) {
+      return (
+        <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">What music do you love?</h1>
+            <p className="text-muted-foreground">Select 3-5 genres</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {MUSIC_GENRES.map((genre) => {
+              const isSelected = selectedGenres.includes(genre);
+              return (
+                <button key={genre} onClick={() => toggleGenre(genre)} className={cn('genre-chip', isSelected && 'selected')}>
+                  {isSelected && <Check className="w-4 h-4 inline mr-1" />}
+                  {genre}
+                </button>
+              );
+            })}
+          </div>
+          <div className="text-sm text-muted-foreground">Selected: {selectedGenres.length}/5</div>
+        </motion.div>
+      );
+    }
+    // step 3
+    return (
+      <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Add your best photo</h1>
+          <p className="text-muted-foreground">This will be your profile picture</p>
+        </div>
+        <div className="flex flex-col items-center gap-6">
+          <div className="relative">
+            {avatarPreview ? (
+              <img src={avatarPreview} alt="Preview" className="w-40 h-40 rounded-full object-cover border-4 border-primary" />
+            ) : (
+              <div className="w-40 h-40 rounded-full bg-muted flex items-center justify-center border-4 border-dashed border-border">
+                <Camera className="w-12 h-12 text-muted-foreground" />
+              </div>
+            )}
+          </div>
+          <label className="cursor-pointer">
+            <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+            <span className="btn-gradient inline-flex items-center gap-2 px-6 py-3 rounded-xl">
+              <Camera className="w-5 h-5" />
+              {avatarPreview ? 'Change Photo' : 'Upload Photo'}
+            </span>
+          </label>
+        </div>
+      </motion.div>
+    );
+  };
+
   return (
-    <div className="min-h-screen px-4 py-8 flex flex-col">
-      <div className="w-full max-w-md mx-auto flex-1 flex flex-col">
-        {/* Progress */}
-        <div className="flex gap-2 mb-8">
-          {[1, 2, 3].map((s) => (
-            <div
-              key={s}
-              className={`h-1.5 flex-1 rounded-full transition-all ${
-                s <= step ? "bg-gradient-primary" : "bg-muted"
-              }`}
-            />
-          ))}
-        </div>
+    <div className="min-h-screen bg-background p-6">
+      {/* Progress */}
+      <div className="flex items-center gap-2 mb-8">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className={cn('h-1 flex-1 rounded-full transition-colors', i <= step ? 'bg-primary' : 'bg-muted')} />
+        ))}
+      </div>
 
-        <div className="flex-1 animate-fade-in">
-          {step === 1 && (
-            <div className="space-y-6">
-              <div>
-                <div className="inline-flex p-3 rounded-2xl bg-gradient-primary mb-4">
-                  <User className="w-6 h-6 text-white" />
-                </div>
-                <h2 className="text-3xl font-black mb-2">Who are you?</h2>
-                <p className="text-muted-foreground">Tell us a bit about yourself</p>
-              </div>
+      <AnimatePresence mode="wait">
+        {isVenue ? renderVenueStep() : renderPartyGoerStep()}
+      </AnimatePresence>
 
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Display name</Label>
-                  <Input
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder="Marko"
-                    className="h-12 bg-input/50 border-white/10"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Age</Label>
-                  <Input
-                    type="number"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                    placeholder="26"
-                    min={18}
-                    max={99}
-                    className="h-12 bg-input/50 border-white/10"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>City</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {CITIES.map((c) => (
-                      <button
-                        key={c}
-                        onClick={() => setCity(c)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                          city === c ? "bg-gradient-primary text-white shadow-glow" : "glass text-muted-foreground"
-                        }`}
-                      >
-                        <MapPin className="w-3 h-3 inline mr-1" />
-                        {c}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="space-y-6">
-              <div>
-                <div className="inline-flex p-3 rounded-2xl bg-gradient-primary mb-4">
-                  <Music className="w-6 h-6 text-white" />
-                </div>
-                <h2 className="text-3xl font-black mb-2">Your sound</h2>
-                <p className="text-muted-foreground">Pick 3-5 genres you love ({genres.length}/5)</p>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {GENRES.map((g) => (
-                  <button
-                    key={g}
-                    onClick={() => toggleGenre(g)}
-                    className={`px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${
-                      genres.includes(g)
-                        ? "bg-gradient-primary text-white shadow-glow"
-                        : "glass glass-hover text-foreground"
-                    }`}
-                  >
-                    {g}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="space-y-6">
-              <div>
-                <div className="inline-flex p-3 rounded-2xl bg-gradient-primary mb-4">
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
-                <h2 className="text-3xl font-black mb-2">Your vibe</h2>
-                <p className="text-muted-foreground">A short bio for your profile</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Bio</Label>
-                <Textarea
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="Love deep basslines and late nights..."
-                  maxLength={120}
-                  rows={4}
-                  className="bg-input/50 border-white/10 resize-none"
-                />
-                <p className="text-xs text-muted-foreground text-right">{bio.length}/120</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Bottom action */}
-        <div className="pt-6">
-          <Button
-            onClick={() => {
-              if (step < 3) setStep(step + 1);
-              else finish();
-            }}
-            disabled={
-              loading ||
-              (step === 1 && (!displayName || !age)) ||
-              (step === 2 && genres.length < 3)
-            }
-            className="w-full h-14 bg-gradient-primary text-white font-bold text-base shadow-glow"
-          >
-            {step === 3 ? (loading ? "Setting up..." : "Enter the night") : "Continue"}
-            <ChevronRight className="w-5 h-5 ml-2" />
-          </Button>
-        </div>
+      {/* Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background to-transparent">
+        {step < 3 ? (
+          <button onClick={handleNext} className="w-full btn-gradient py-4 rounded-xl flex items-center justify-center gap-2">
+            Next <ChevronRight className="w-5 h-5" />
+          </button>
+        ) : (
+          <button onClick={handleFinish} disabled={loading} className="w-full btn-gradient py-4 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
+            {loading ? 'Saving...' : 'Finish Setup ✓'}
+          </button>
+        )}
       </div>
     </div>
   );

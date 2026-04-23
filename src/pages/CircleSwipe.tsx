@@ -1,319 +1,408 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { X, Heart, Star, ArrowLeft, Eye, EyeOff, Sparkles, MapPin, Music } from "lucide-react";
-import { calculateDistance, formatDistance } from "@/lib/geo";
-import { awardXP } from "@/lib/xp";
+import { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Ghost, Users, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { SwipeCard } from '@/components/SwipeCard';
+import { SwipeActions } from '@/components/SwipeActions';
+import { MatchModal } from '@/components/MatchModal';
+import { getCurrentPosition, calculateDistance } from '@/services/geolocation';
+import { awardXP, XP_AWARDS } from '@/services/gamification';
+import { incrementQuestProgress } from '@/services/questProgress';
+import { logTrainingEvent } from '@/services/aiTracker';
+import { toast } from 'sonner';
 
-interface Profile {
+interface ActiveUser {
   user_id: string;
-  display_name: string;
-  age: number | null;
-  bio: string | null;
-  avatar_url: string | null;
-  music_preferences: string[] | null;
+  latitude: number;
+  longitude: number;
+  profiles: {
+    display_name: string;
+    age: number;
+    avatar_url: string;
+    bio: string;
+    music_preferences: string[];
+  };
+}
+
+interface SwipeProfile {
+  id: string;
+  displayName: string;
+  age: number;
+  avatarUrl: string;
+  bio: string;
+  musicPreferences: string[];
   distance: number;
+  trustScore: number;
+  matchScore?: number;
 }
 
 const CircleSwipe = () => {
-  const { eventId } = useParams();
+  const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  
   const [event, setEvent] = useState<any>(null);
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [index, setIndex] = useState(0);
+  const [profiles, setProfiles] = useState<SwipeProfile[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [ghost, setGhost] = useState(false);
-  const [matchedWith, setMatchedWith] = useState<Profile | null>(null);
-
-  const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 200], [-20, 20]);
-  const likeOpacity = useTransform(x, [0, 100], [0, 1]);
-  const passOpacity = useTransform(x, [-100, 0], [1, 0]);
+  const [ghostMode, setGhostMode] = useState(false);
+  const [activeUserCount, setActiveUserCount] = useState(0);
+  const [userPosition, setUserPosition] = useState<{ latitude: number; longitude: number } | null>(null);
+  
+  // Match modal
+  const [showMatchModal, setShowMatchModal] = useState(false);
+  const [matchedProfile, setMatchedProfile] = useState<SwipeProfile | null>(null);
 
   useEffect(() => {
-    if (!eventId || !user) return;
-    const load = async () => {
-      const { data: ev } = await supabase.from("events").select("*").eq("id", eventId).single();
-      setEvent(ev);
-
-      // Mark active
-      await supabase.from("active_users").upsert({
-        user_id: user.id,
-        event_id: eventId,
-        latitude: ev?.latitude ?? null,
-        longitude: ev?.longitude ?? null,
-        last_seen: new Date().toISOString(),
-        is_visible: true,
-      }, { onConflict: "user_id,event_id" });
-
-      // Fetch active users at this event
-      const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-      const { data: active } = await supabase
-        .from("active_users")
-        .select("user_id, latitude, longitude")
-        .eq("event_id", eventId)
-        .neq("user_id", user.id)
-        .eq("is_visible", true)
-        .gte("last_seen", fiveMinAgo);
-
-      const userIds = active?.map((a) => a.user_id) || [];
-      if (userIds.length === 0) {
-        setProfiles([]);
-        setLoading(false);
-        return;
-      }
-
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("user_id, display_name, age, bio, avatar_url, music_preferences")
-        .in("user_id", userIds);
-
-      // Already swiped
-      const { data: swiped } = await supabase
-        .from("swipes")
-        .select("swiped_id")
-        .eq("swiper_id", user.id)
-        .eq("event_id", eventId);
-      const swipedIds = new Set(swiped?.map((s) => s.swiped_id) || []);
-
-      const merged: Profile[] = (profs || [])
-        .filter((p) => !swipedIds.has(p.user_id))
-        .map((p) => {
-          const a = active?.find((x) => x.user_id === p.user_id);
-          const dist = a?.latitude && a?.longitude && ev?.latitude && ev?.longitude
-            ? calculateDistance(a.latitude, a.longitude, ev.latitude, ev.longitude)
-            : 0;
-          return { ...p, distance: dist };
-        });
-
-      setProfiles(merged);
-      setLoading(false);
-    };
-    load();
+    if (eventId && user) {
+      init();
+    }
   }, [eventId, user]);
 
-  const toggleGhost = async () => {
-    if (!user || !eventId) return;
-    const newVal = !ghost;
-    setGhost(newVal);
-    await supabase
-      .from("active_users")
-      .update({ is_visible: !newVal })
-      .eq("user_id", user.id)
-      .eq("event_id", eventId);
-    toast(newVal ? "Ghost mode on 👻" : "Visible again ✨");
-  };
-
-  const swipe = async (action: "like" | "pass" | "superlike") => {
-    if (!user || !eventId || index >= profiles.length) return;
-    const target = profiles[index];
-
-    await supabase.from("swipes").insert({
-      swiper_id: user.id,
-      swiped_id: target.user_id,
-      event_id: eventId,
-      action,
-    });
-
-    if (action === "superlike") {
-      await awardXP(user.id, 25, "Super like sent");
-    }
-
-    if (action === "like" || action === "superlike") {
-      const { data: theirs } = await supabase
-        .from("swipes")
-        .select("id")
-        .eq("swiper_id", target.user_id)
-        .eq("swiped_id", user.id)
-        .eq("event_id", eventId)
-        .in("action", ["like", "superlike"])
-        .maybeSingle();
-
-      if (theirs) {
-        const [u1, u2] = [user.id, target.user_id].sort();
-        await supabase.from("matches").insert({
-          user1_id: u1,
-          user2_id: u2,
+  const init = async () => {
+    try {
+      // Get user position
+      const position = await getCurrentPosition();
+      setUserPosition({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      });
+      
+      // Fetch event
+      const { data: eventData } = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', eventId)
+        .single();
+      
+      setEvent(eventData);
+      
+      // Update user's active status
+      await supabase
+        .from('active_users')
+        .upsert({
           event_id: eventId,
-          status: "active",
+          user_id: user!.id,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          last_seen: new Date().toISOString(),
+          is_visible: !ghostMode,
         });
-        await awardXP(user.id, 100, "New match");
-        setMatchedWith(target);
-      }
+      
+      // Fetch active users
+      await fetchActiveUsers(position.coords);
+    } catch (error) {
+      console.error('Error initializing:', error);
+      toast.error('Failed to load. Please try again.');
+      navigate(-1);
+    } finally {
+      setLoading(false);
     }
-
-    setIndex((i) => i + 1);
-    x.set(0);
   };
 
-  const onDragEnd = (_: any, info: { offset: { x: number; y: number } }) => {
-    if (info.offset.x > 100) swipe("like");
-    else if (info.offset.x < -100) swipe("pass");
-    else if (info.offset.y < -100) swipe("superlike");
+  const fetchActiveUsers = async (userCoords: { latitude: number; longitude: number }) => {
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    
+    const { data } = await supabase
+      .from('active_users')
+      .select(`
+        user_id,
+        latitude,
+        longitude,
+        profiles (
+          display_name,
+          age,
+          avatar_url,
+          bio,
+          music_preferences
+        )
+      `)
+      .eq('event_id', eventId)
+      .eq('is_visible', true)
+      .neq('user_id', user!.id)
+      .gte('last_seen', fiveMinutesAgo) as { data: ActiveUser[] | null };
+    
+    if (!data) {
+      setProfiles([]);
+      setActiveUserCount(0);
+      return;
+    }
+    
+    // Get already swiped users
+    const { data: swipedData } = await supabase
+      .from('swipes')
+      .select('swiped_id')
+      .eq('swiper_id', user!.id)
+      .eq('event_id', eventId);
+    
+    const swipedIds = swipedData?.map(s => s.swiped_id) || [];
+    
+    // Filter out already swiped users and calculate distances
+    const availableProfiles: SwipeProfile[] = data
+      .filter(u => !swipedIds.includes(u.user_id) && u.profiles)
+      .map(u => ({
+        id: u.user_id,
+        displayName: u.profiles.display_name || 'Anonymous',
+        age: u.profiles.age || 25,
+        avatarUrl: u.profiles.avatar_url || '/placeholder.svg',
+        bio: u.profiles.bio || '',
+        musicPreferences: u.profiles.music_preferences || [],
+        distance: calculateDistance(
+          userCoords.latitude,
+          userCoords.longitude,
+          Number(u.latitude),
+          Number(u.longitude)
+        ),
+        trustScore: Math.floor(Math.random() * 2) + 3,
+      }));
+
+    // Compute AI match scores for each profile
+    const scoredProfiles = await Promise.all(
+      availableProfiles.map(async (p) => {
+        try {
+          const { data: scoreData } = await supabase.rpc('compute_match_score', {
+            p_user_id: user!.id,
+            p_target_id: p.id,
+            p_event_id: eventId,
+          });
+          return { ...p, matchScore: (scoreData as any)?.match_score ?? undefined };
+        } catch {
+          return p;
+        }
+      })
+    );
+
+    // Sort by match score (best first), fallback to distance
+    scoredProfiles.sort((a, b) => (b.matchScore ?? 0) - (a.matchScore ?? 0));
+    
+    setProfiles(scoredProfiles);
+    setActiveUserCount(data.length);
   };
 
-  const current = profiles[index];
-  const next = profiles[index + 1];
+  const handleSwipe = useCallback(async (direction: 'left' | 'right' | 'up') => {
+    if (!user || profiles.length === 0 || currentIndex >= profiles.length) return;
+    
+    const currentProfile = profiles[currentIndex];
+    const action = direction === 'left' ? 'pass' : direction === 'up' ? 'superlike' : 'like';
+    
+    try {
+      // Save swipe with predicted score
+      await supabase.from('swipes').insert({
+        swiper_id: user.id,
+        swiped_id: currentProfile.id,
+        event_id: eventId,
+        action,
+        predicted_score: currentProfile.matchScore ?? null,
+      });
+
+      // Log training event
+      logTrainingEvent('swipe', user.id, currentProfile.id, {
+        matchScore: currentProfile.matchScore,
+        distance: currentProfile.distance,
+        musicOverlap: currentProfile.musicPreferences,
+        eventId,
+      }, action);
+      
+      // Award XP for superlike
+      if (action === 'superlike') {
+        await awardXP(user.id, XP_AWARDS.superLike, 'Sent a SuperLike');
+        toast.success('+25 XP ⭐');
+      }
+      
+      // Check for match
+      if (action === 'like' || action === 'superlike') {
+        const { data: theirSwipe } = await supabase
+          .from('swipes')
+          .select('*')
+          .eq('swiper_id', currentProfile.id)
+          .eq('swiped_id', user.id)
+          .eq('event_id', eventId)
+          .in('action', ['like', 'superlike'])
+          .maybeSingle();
+        
+        if (theirSwipe) {
+          // It's a match!
+          await supabase.from('matches').insert({
+            user1_id: user.id,
+            user2_id: currentProfile.id,
+            event_id: eventId,
+          });
+          
+          // Award XP
+          await awardXP(user.id, XP_AWARDS.match, 'Got a match!');
+          await incrementQuestProgress(user.id, 'match');
+          
+          // Update total matches
+          await supabase
+            .from('profiles')
+            .update({ total_matches: (profile?.total_matches || 0) + 1 })
+            .eq('user_id', user.id);
+          
+          // Show match modal
+          setMatchedProfile(currentProfile);
+          setShowMatchModal(true);
+        }
+      }
+      
+      // Move to next profile
+      setCurrentIndex(prev => prev + 1);
+    } catch (error) {
+      console.error('Swipe error:', error);
+    }
+  }, [user, profiles, currentIndex, eventId, profile]);
+
+  const handleSendWave = async () => {
+    if (!matchedProfile || !user) return;
+    
+    // Get the match ID
+    const { data: matchData } = await supabase
+      .from('matches')
+      .select('id')
+      .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
+      .or(`user1_id.eq.${matchedProfile.id},user2_id.eq.${matchedProfile.id}`)
+      .eq('event_id', eventId)
+      .maybeSingle();
+    
+    if (matchData) {
+      await supabase.from('waves').insert({
+        sender_id: user.id,
+        receiver_id: matchedProfile.id,
+        match_id: matchData.id,
+      });
+      
+      toast.success('Wave sent! 👋');
+    }
+    
+    setShowMatchModal(false);
+    setMatchedProfile(null);
+  };
+
+  const toggleGhostMode = async () => {
+    const newMode = !ghostMode;
+    setGhostMode(newMode);
+    
+    if (user && eventId) {
+      await supabase
+        .from('active_users')
+        .update({ is_visible: !newMode })
+        .eq('user_id', user.id)
+        .eq('event_id', eventId);
+    }
+    
+    toast.success(newMode ? 'Ghost mode enabled 👻' : 'Ghost mode disabled');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Finding people nearby...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const currentProfile = profiles[currentIndex];
+  const hasMoreProfiles = currentIndex < profiles.length;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="glass border-b border-white/10 px-4 py-3 flex items-center justify-between sticky top-0 z-30">
-        <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-full glass flex items-center justify-center">
-          <ArrowLeft className="w-4 h-4" />
-        </button>
-        <div className="text-center">
-          <p className="text-xs font-bold truncate max-w-[180px]">{event?.title}</p>
-          <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-            {profiles.length - index} here now
-          </p>
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="w-10 h-10 rounded-full bg-muted flex items-center justify-center"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="font-bold truncate">🎵 {event?.title || 'Event'}</h1>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Users className="w-4 h-4" />
+                <span>{activeUserCount} people here now</span>
+                <div className="pulse-dot" />
+              </div>
+            </div>
+          </div>
+          
+          <button
+            onClick={toggleGhostMode}
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+              ghostMode ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+            }`}
+          >
+            <Ghost className="w-5 h-5" />
+          </button>
         </div>
-        <button onClick={toggleGhost} className="w-9 h-9 rounded-full glass flex items-center justify-center">
-          {ghost ? <EyeOff className="w-4 h-4 text-accent" /> : <Eye className="w-4 h-4" />}
-        </button>
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 relative">
-        {loading ? (
-          <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-        ) : !current ? (
-          <div className="text-center space-y-3 max-w-xs">
-            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-primary flex items-center justify-center">
-              <Sparkles className="w-10 h-10 text-white" />
-            </div>
-            <h2 className="text-xl font-black">No one new here yet</h2>
-            <p className="text-sm text-muted-foreground">Stick around — more people are checking in. Or come back in a few minutes.</p>
-            <Button onClick={() => navigate(-1)} variant="outline" className="mt-4">Back to event</Button>
+      {/* Swipe Area */}
+      <div className="flex-1 relative px-4 py-6">
+        {hasMoreProfiles ? (
+          <div className="relative h-[60vh] max-h-[500px]">
+            <AnimatePresence>
+              {profiles.slice(currentIndex, currentIndex + 3).map((p, index) => (
+                <SwipeCard
+                  key={p.id}
+                  profile={p}
+                  onSwipe={handleSwipe}
+                  isTop={index === 0}
+                />
+              ))}
+            </AnimatePresence>
           </div>
         ) : (
-          <div className="relative w-full max-w-sm aspect-[3/4]">
-            {/* Stack behind */}
-            {next && (
-              <div className="absolute inset-0 rounded-3xl glass scale-95 opacity-50" />
-            )}
-
-            {/* Active card */}
-            <motion.div
-              key={current.user_id}
-              drag="x"
-              style={{ x, rotate }}
-              dragConstraints={{ left: 0, right: 0 }}
-              onDragEnd={onDragEnd}
-              className="absolute inset-0 rounded-3xl overflow-hidden glass shadow-card cursor-grab active:cursor-grabbing"
-            >
-              {current.avatar_url ? (
-                <img src={current.avatar_url} alt={current.display_name} className="absolute inset-0 w-full h-full object-cover" />
-              ) : (
-                <div className="absolute inset-0 bg-gradient-primary flex items-center justify-center text-7xl font-black text-white/40">
-                  {current.display_name?.[0]}
-                </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-
-              {/* Like/Pass overlays */}
-              <motion.div style={{ opacity: likeOpacity }} className="absolute top-8 right-6 px-4 py-2 rounded-xl border-4 border-success text-success font-black text-2xl rotate-12">
-                LIKE
-              </motion.div>
-              <motion.div style={{ opacity: passOpacity }} className="absolute top-8 left-6 px-4 py-2 rounded-xl border-4 border-destructive text-destructive font-black text-2xl -rotate-12">
-                PASS
-              </motion.div>
-
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <div className="flex items-end justify-between mb-2">
-                  <h3 className="text-3xl font-black text-white">{current.display_name}{current.age ? `, ${current.age}` : ""}</h3>
-                </div>
-                {current.distance > 0 && (
-                  <p className="text-sm text-success flex items-center gap-1 mb-2">
-                    <MapPin className="w-3 h-3" />
-                    {formatDistance(current.distance)} away
-                  </p>
-                )}
-                {current.music_preferences && current.music_preferences.length > 0 && (
-                  <div className="flex items-center gap-1 flex-wrap mb-2">
-                    <Music className="w-3 h-3 text-accent" />
-                    {current.music_preferences.slice(0, 3).map((g) => (
-                      <span key={g} className="text-xs text-white/90">{g}</span>
-                    ))}
-                  </div>
-                )}
-                {current.bio && (
-                  <p className="text-sm text-white/80 italic line-clamp-2">"{current.bio}"</p>
-                )}
-              </div>
-            </motion.div>
-          </div>
-        )}
-
-        {/* Action buttons */}
-        {current && !loading && (
-          <div className="flex items-center justify-center gap-6 mt-8">
-            <button
-              onClick={() => swipe("pass")}
-              className="w-14 h-14 rounded-full glass flex items-center justify-center hover:border-destructive/50 hover:scale-110 transition-all"
-            >
-              <X className="w-7 h-7 text-destructive" />
-            </button>
-            <button
-              onClick={() => swipe("superlike")}
-              className="w-12 h-12 rounded-full bg-gradient-warm flex items-center justify-center hover:scale-110 transition-all shadow-lg"
-            >
-              <Star className="w-6 h-6 text-white fill-white" />
-            </button>
-            <button
-              onClick={() => swipe("like")}
-              className="w-14 h-14 rounded-full bg-gradient-to-r from-secondary to-primary flex items-center justify-center hover:scale-110 transition-all shadow-pink"
-            >
-              <Heart className="w-7 h-7 text-white fill-white" />
-            </button>
-          </div>
-        )}
-      </main>
-
-      {/* Match modal */}
-      <AnimatePresence>
-        {matchedWith && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/90 backdrop-blur-xl flex items-center justify-center p-4"
-            onClick={() => setMatchedWith(null)}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="h-[60vh] flex flex-col items-center justify-center text-center"
           >
-            <motion.div
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="text-center max-w-sm"
-              onClick={(e) => e.stopPropagation()}
+            <div className="text-6xl mb-4">🌙</div>
+            <h2 className="text-2xl font-bold mb-2">No more people nearby</h2>
+            <p className="text-muted-foreground mb-6">
+              Check back later or explore other events
+            </p>
+            <button
+              onClick={() => navigate('/')}
+              className="btn-gradient px-6 py-3 rounded-xl"
             >
-              <h1 className="text-5xl font-black gradient-text mb-2">It's a Match!</h1>
-              <p className="text-muted-foreground mb-8">You both liked each other ✨</p>
-              <div className="flex items-center justify-center gap-4 mb-8">
-                <div className="w-24 h-24 rounded-full bg-gradient-primary flex items-center justify-center text-3xl font-black text-white shadow-glow">
-                  {user?.email?.[0]?.toUpperCase()}
-                </div>
-                <Heart className="w-8 h-8 text-secondary fill-secondary animate-pulse" />
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl font-black text-white shadow-pink">
-                  {matchedWith.display_name?.[0]}
-                </div>
-              </div>
-              <div className="space-y-3">
-                <Button onClick={() => navigate("/matches")} className="w-full h-12 bg-gradient-primary text-white font-bold shadow-glow">
-                  Send a Wave 👋
-                </Button>
-                <Button onClick={() => setMatchedWith(null)} variant="outline" className="w-full h-12">
-                  Keep swiping
-                </Button>
-              </div>
-            </motion.div>
+              Browse Events
+            </button>
           </motion.div>
         )}
-      </AnimatePresence>
+      </div>
+
+      {/* Action Buttons */}
+      {hasMoreProfiles && (
+        <div className="pb-8">
+          <SwipeActions
+            onPass={() => handleSwipe('left')}
+            onSuperLike={() => handleSwipe('up')}
+            onLike={() => handleSwipe('right')}
+            disabled={!hasMoreProfiles}
+          />
+        </div>
+      )}
+
+      {/* Match Modal */}
+      <MatchModal
+        isOpen={showMatchModal}
+        onClose={() => {
+          setShowMatchModal(false);
+          setMatchedProfile(null);
+        }}
+        onSendWave={handleSendWave}
+        matchedProfile={matchedProfile ? {
+          displayName: matchedProfile.displayName,
+          avatarUrl: matchedProfile.avatarUrl,
+        } : null}
+        currentUserAvatar={profile?.avatar_url || undefined}
+      />
     </div>
   );
 };

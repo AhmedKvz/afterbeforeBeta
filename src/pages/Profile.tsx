@@ -1,189 +1,251 @@
-import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { BottomNav } from "@/components/BottomNav";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { Settings, LogOut, Trophy, Heart, Calendar, Music, Sparkles } from "lucide-react";
-import { xpProgress } from "@/lib/xp";
-
-const ACHIEVEMENTS = [
-  { id: "first_match", icon: "💜", name: "First Match", desc: "Made your first match", condition: (s: any) => s.matches >= 1 },
-  { id: "party_animal", icon: "🎉", name: "Party Animal", desc: "Attended 10+ events", condition: (s: any) => s.events >= 10 },
-  { id: "social_butterfly", icon: "🦋", name: "Social Butterfly", desc: "50+ matches", condition: (s: any) => s.matches >= 50 },
-  { id: "night_owl", icon: "🦉", name: "Night Owl", desc: "Active after 3AM", condition: () => false },
-];
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { 
+  ArrowLeft, Settings, Edit2, Camera, Star, Music, 
+  Calendar, Heart, Trophy, LogOut 
+} from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { GlassCard } from '@/components/GlassCard';
+import { BottomNav } from '@/components/BottomNav';
+import { Lucky100ProfileSection } from '@/components/Lucky100ProfileSection';
+import { Lucky100Modal } from '@/components/Lucky100Modal';
+import { getXPProgress, ACHIEVEMENTS, getUserAchievements } from '@/services/gamification';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
-  const [profile, setProfile] = useState<any>(null);
-  const [stats, setStats] = useState({ matches: 0, events: 0 });
+  const { user, profile, signOut, refreshProfile } = useAuth();
+  const [userAchievements, setUserAchievements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLucky100ModalOpen, setIsLucky100ModalOpen] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) navigate("/auth");
-  }, [user, authLoading, navigate]);
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    
+    if (user && profile) {
+      fetchAchievements();
+    }
+  }, [user, profile, navigate]);
 
-  useEffect(() => {
+  const fetchAchievements = async () => {
     if (!user) return;
-    const load = async () => {
-      const { data: p } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
-      setProfile(p);
-
-      const { count: matchCount } = await supabase
-        .from("matches")
-        .select("id", { count: "exact", head: true })
-        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
-
-      const { count: eventCount } = await supabase
-        .from("event_checkins")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id);
-
-      setStats({ matches: matchCount || 0, events: eventCount || 0 });
+    
+    try {
+      const achievements = await getUserAchievements(user.id);
+      setUserAchievements(achievements);
+    } catch (error) {
+      console.error('Error fetching achievements:', error);
+    } finally {
       setLoading(false);
-    };
-    load();
-  }, [user]);
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    toast.success("Signed out");
-    navigate("/auth");
+    }
   };
 
-  if (loading || !profile) {
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+    toast.success('Signed out successfully');
+  };
+
+  if (!profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse-glow w-16 h-16 rounded-full bg-primary/20" />
       </div>
     );
   }
 
-  const xp = profile.xp || 0;
-  const level = profile.level || 1;
-  const progress = xpProgress(xp);
-  const unlocked = ACHIEVEMENTS.filter((a) => a.condition({ matches: stats.matches, events: stats.events }));
+  const xpProgress = getXPProgress(profile.xp || 0);
 
   return (
-    <div className="min-h-screen pb-24">
-      <header className="sticky top-0 z-30 glass border-b border-white/10">
-        <div className="max-w-md mx-auto flex items-center justify-between px-4 py-3">
-          <h1 className="text-xl font-black">Profile</h1>
-          <div className="flex gap-2">
-            <button className="w-9 h-9 rounded-full glass flex items-center justify-center">
-              <Settings className="w-4 h-4" />
+    <div className="min-h-screen bg-background pb-24">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="w-10 h-10 rounded-full bg-muted flex items-center justify-center"
+            >
+              <ArrowLeft className="w-5 h-5" />
             </button>
-            <button onClick={signOut} className="w-9 h-9 rounded-full glass flex items-center justify-center">
-              <LogOut className="w-4 h-4" />
-            </button>
+            <h1 className="font-bold text-xl">Profile</h1>
           </div>
+          <button
+            onClick={() => navigate('/settings')}
+            className="w-10 h-10 rounded-full bg-muted flex items-center justify-center"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 pt-6 space-y-6">
-        {/* Avatar + Name */}
-        <section className="text-center">
-          <div className="w-28 h-28 mx-auto rounded-full bg-gradient-primary p-1 shadow-glow mb-4">
-            <div className="w-full h-full rounded-full bg-background flex items-center justify-center text-4xl font-black gradient-text">
-              {profile.display_name?.[0] || "?"}
-            </div>
+      <div className="px-4 py-6 space-y-6">
+        {/* Avatar & Name */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <div className="relative inline-block">
+            <img
+              src={profile.avatar_url || '/placeholder.svg'}
+              alt={profile.display_name}
+              className="w-28 h-28 rounded-full object-cover border-4 border-primary mx-auto"
+            />
+            <button className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+              <Camera className="w-5 h-5" />
+            </button>
           </div>
-          <h2 className="text-2xl font-black">{profile.display_name}{profile.age ? `, ${profile.age}` : ""}</h2>
-          {profile.city && <p className="text-sm text-muted-foreground">{profile.city}</p>}
-          {profile.bio && <p className="text-sm text-foreground/80 italic mt-2 max-w-xs mx-auto">"{profile.bio}"</p>}
-        </section>
+          
+          <h2 className="text-2xl font-bold mt-4">
+            <span className="flex items-center justify-center gap-2">
+              {profile.display_name}
+              {profile.instagram_verified && (
+                <span className="text-sm text-primary" title="Instagram verified">📸✓</span>
+              )}
+              {profile.age && <span className="text-muted-foreground ml-1">{profile.age}</span>}
+            </span>
+          </h2>
+          {profile.instagram_handle && (
+            <p className="text-sm text-muted-foreground">@{profile.instagram_handle}</p>
+          )}
+          <p className="text-muted-foreground">{profile.city}</p>
 
-        {/* XP Card */}
-        <section className="glass rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Level</p>
-                <p className="text-2xl font-black">{level}</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">XP</p>
-              <p className="text-2xl font-black gradient-text">{xp.toLocaleString()}</p>
-            </div>
-          </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-primary transition-all" style={{ width: `${progress.percent}%` }} />
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-2 text-right">
-            {progress.current} / {progress.next} to level {level + 1}
-          </p>
-        </section>
+          {/* Instagram connect button */}
+          {!profile.instagram_verified && (
+            <button
+              onClick={() => toast.info('Instagram connection coming soon!')}
+              className="mt-3 px-4 py-2 rounded-xl text-sm font-medium bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-orange-500/20 border border-pink-500/30 text-foreground"
+            >
+              📸 Connect Instagram
+            </button>
+          )}
+        </motion.div>
 
         {/* Stats */}
-        <section className="grid grid-cols-3 gap-3">
-          <div className="glass rounded-xl p-3 text-center">
-            <Calendar className="w-5 h-5 mx-auto mb-1 text-primary" />
-            <p className="text-xl font-black">{stats.events}</p>
-            <p className="text-[10px] text-muted-foreground uppercase">Events</p>
+        <GlassCard className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Star className="w-5 h-5 text-accent" />
+              <span className="font-bold">Level {profile.level || 1}</span>
+            </div>
+            <span className="text-sm text-muted-foreground">
+              {profile.xp || 0} XP
+            </span>
           </div>
-          <div className="glass rounded-xl p-3 text-center">
-            <Heart className="w-5 h-5 mx-auto mb-1 text-secondary" />
-            <p className="text-xl font-black">{stats.matches}</p>
-            <p className="text-[10px] text-muted-foreground uppercase">Matches</p>
+          
+          <div className="progress-bar mb-2">
+            <div 
+              className="progress-bar-fill" 
+              style={{ width: `${xpProgress.percentage}%` }}
+            />
           </div>
-          <div className="glass rounded-xl p-3 text-center">
-            <Trophy className="w-5 h-5 mx-auto mb-1 text-accent" />
-            <p className="text-xl font-black">{unlocked.length}</p>
-            <p className="text-[10px] text-muted-foreground uppercase">Badges</p>
+          
+          <p className="text-xs text-muted-foreground text-right">
+            {xpProgress.current} / {xpProgress.required} XP to Level {(profile.level || 1) + 1}
+          </p>
+          
+          <div className="grid grid-cols-3 gap-4 mt-6 text-center">
+            <div>
+              <div className="text-2xl font-bold">{profile.events_attended || 0}</div>
+              <div className="text-xs text-muted-foreground">Events</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-secondary">{profile.total_matches || 0}</div>
+              <div className="text-xs text-muted-foreground">Matches</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-accent">{userAchievements.length}</div>
+              <div className="text-xs text-muted-foreground">Badges</div>
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* Lucky 100 Section */}
+        <Lucky100ProfileSection onOpenModal={() => setIsLucky100ModalOpen(true)} />
+
+        {/* Music Preferences */}
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <Music className="w-5 h-5 text-primary" />
+            <h3 className="font-bold">Music Preferences</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {profile.music_preferences?.length ? (
+              profile.music_preferences.map((genre) => (
+                <span key={genre} className="genre-chip selected">
+                  {genre}
+                </span>
+              ))
+            ) : (
+              <p className="text-muted-foreground text-sm">No preferences set</p>
+            )}
           </div>
         </section>
-
-        {/* Music */}
-        {profile.music_preferences?.length > 0 && (
-          <section>
-            <h3 className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-2 flex items-center gap-1">
-              <Music className="w-3 h-3" /> Your sound
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {profile.music_preferences.map((g: string) => (
-                <span key={g} className="px-3 py-1.5 rounded-full glass text-xs font-semibold">{g}</span>
-              ))}
-            </div>
-          </section>
-        )}
 
         {/* Achievements */}
         <section>
-          <h3 className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-2">Achievements</h3>
+          <div className="flex items-center gap-2 mb-3">
+            <Trophy className="w-5 h-5 text-accent" />
+            <h3 className="font-bold">Achievements</h3>
+          </div>
+          
           <div className="grid grid-cols-2 gap-3">
-            {ACHIEVEMENTS.map((a) => {
-              const isUnlocked = a.condition({ matches: stats.matches, events: stats.events });
+            {ACHIEVEMENTS.map((achievement) => {
+              const isUnlocked = userAchievements.some(ua => ua?.id === achievement.id);
+              
               return (
-                <div key={a.id} className={`glass rounded-2xl p-4 text-center ${!isUnlocked && "opacity-40"}`}>
-                  <div className="text-3xl mb-1">{a.icon}</div>
-                  <p className="text-xs font-bold">{a.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{a.desc}</p>
-                </div>
+                <GlassCard
+                  key={achievement.id}
+                  className={cn(
+                    'p-4 text-center',
+                    !isUnlocked && 'opacity-50'
+                  )}
+                  hoverable={false}
+                >
+                  <div className="text-3xl mb-2">{achievement.icon}</div>
+                  <h4 className="font-bold text-sm">{achievement.name}</h4>
+                  <p className="text-xs text-muted-foreground">{achievement.description}</p>
+                  {isUnlocked && (
+                    <span className="text-xs text-success mt-2 block">✓ Unlocked</span>
+                  )}
+                </GlassCard>
               );
             })}
           </div>
         </section>
 
-        <Link to="/my-events">
-          <Button variant="outline" className="w-full h-12 mt-4">
-            <Calendar className="w-4 h-4 mr-2" />
-            My Events
-          </Button>
-        </Link>
-      </main>
+        {/* Bio */}
+        {profile.bio && (
+          <section>
+            <h3 className="font-bold mb-2">About</h3>
+            <p className="text-muted-foreground">{profile.bio}</p>
+          </section>
+        )}
+
+        {/* Sign Out */}
+        <button
+          onClick={handleSignOut}
+          className="w-full py-4 rounded-xl bg-destructive/10 text-destructive font-semibold flex items-center justify-center gap-2 hover:bg-destructive/20 transition-colors"
+        >
+          <LogOut className="w-5 h-5" />
+          Sign Out
+        </button>
+      </div>
 
       <BottomNav />
+
+      {/* Lucky 100 Modal */}
+      <Lucky100Modal 
+        isOpen={isLucky100ModalOpen} 
+        onClose={() => setIsLucky100ModalOpen(false)} 
+      />
     </div>
   );
 };

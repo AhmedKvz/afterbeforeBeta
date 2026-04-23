@@ -1,101 +1,159 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { BottomNav } from "@/components/BottomNav";
-import { ArrowLeft, Calendar, CheckCircle2, Heart } from "lucide-react";
-import { format } from "date-fns";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Ticket, Calendar } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { EventCard } from '@/components/EventCard';
+import { BottomNav } from '@/components/BottomNav';
+import { cn } from '@/lib/utils';
+
+type Tab = 'upcoming' | 'past';
 
 const MyEvents = () => {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
-  const [tab, setTab] = useState<"checkins" | "wishlist">("checkins");
-  const [items, setItems] = useState<any[]>([]);
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<Tab>('upcoming');
+  const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!authLoading && !user) navigate("/auth");
-  }, [user, authLoading, navigate]);
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    
+    fetchEvents();
+  }, [user, activeTab, navigate]);
 
-  useEffect(() => {
+  const fetchEvents = async () => {
     if (!user) return;
+    
     setLoading(true);
-    const load = async () => {
-      const table = tab === "checkins" ? "event_checkins" : "event_wishlists";
-      const dateField = tab === "checkins" ? "checked_in_at" : "created_at";
-      const { data } = await supabase
-        .from(table)
-        .select(`id, ${dateField}, events:event_id(id, title, venue_name, date, start_time, image_url)`)
-        .eq("user_id", user.id)
-        .order(dateField, { ascending: false });
-      setItems(data || []);
+    
+    try {
+      // Get events the user has checked into
+      const { data: checkins } = await supabase
+        .from('event_checkins')
+        .select('event_id')
+        .eq('user_id', user.id);
+      
+      const eventIds = checkins?.map(c => c.event_id) || [];
+      
+      if (eventIds.length === 0) {
+        setEvents([]);
+        setLoading(false);
+        return;
+      }
+      
+      const today = new Date().toISOString().split('T')[0];
+      
+      let query = supabase
+        .from('events')
+        .select('*')
+        .in('id', eventIds);
+      
+      if (activeTab === 'upcoming') {
+        query = query.gte('date', today);
+      } else {
+        query = query.lt('date', today);
+      }
+      
+      const { data, error } = await query.order('date', { ascending: activeTab === 'upcoming' });
+      
+      if (error) throw error;
+      setEvents(data || []);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    } finally {
       setLoading(false);
-    };
-    load();
-  }, [user, tab]);
+    }
+  };
 
   return (
-    <div className="min-h-screen pb-24">
-      <header className="sticky top-0 z-30 glass border-b border-white/10">
-        <div className="max-w-md mx-auto flex items-center gap-3 px-4 py-3">
-          <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-full glass flex items-center justify-center">
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-          <h1 className="text-xl font-black">My Events</h1>
-        </div>
-        <div className="max-w-md mx-auto px-4 pb-3">
-          <div className="flex gap-2 p-1 bg-muted rounded-xl">
-            <button
-              onClick={() => setTab("checkins")}
-              className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
-                tab === "checkins" ? "bg-gradient-primary text-white shadow-glow" : "text-muted-foreground"
-              }`}
-            >
-              <CheckCircle2 className="w-3 h-3 inline mr-1" /> Checked In
-            </button>
-            <button
-              onClick={() => setTab("wishlist")}
-              className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
-                tab === "wishlist" ? "bg-gradient-primary text-white shadow-glow" : "text-muted-foreground"
-              }`}
-            >
-              <Heart className="w-3 h-3 inline mr-1" /> Wishlist
-            </button>
-          </div>
+    <div className="min-h-screen bg-background pb-24">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-4">
+        <div className="flex items-center gap-3">
+          <Ticket className="w-6 h-6 text-primary" />
+          <h1 className="font-bold text-xl">My Events</h1>
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 pt-4">
+      {/* Tabs */}
+      <div className="px-4 py-4">
+        <div className="flex gap-2">
+          {(['upcoming', 'past'] as Tab[]).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                'flex-1 py-3 rounded-xl font-medium transition-all capitalize',
+                activeTab === tab
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground'
+              )}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Events List */}
+      <div className="px-4 space-y-4">
         {loading ? (
-          <div className="space-y-2">
-            {[1, 2, 3].map((i) => <div key={i} className="h-20 rounded-2xl bg-muted animate-pulse" />)}
-          </div>
-        ) : items.length === 0 ? (
-          <div className="text-center py-16">
-            <Calendar className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-            <p className="text-sm text-muted-foreground">{tab === "checkins" ? "No check-ins yet" : "Wishlist is empty"}</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {items.map((it: any) => it.events && (
-              <Link key={it.id} to={`/event/${it.events.id}`} className="block glass glass-hover rounded-2xl p-3 flex items-center gap-3">
-                <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted flex-shrink-0">
-                  {it.events.image_url ? (
-                    <img src={it.events.image_url} alt={it.events.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-primary" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm truncate">{it.events.title}</p>
-                  <p className="text-[11px] text-muted-foreground">{it.events.venue_name}</p>
-                  <p className="text-[10px] text-muted-foreground">{format(new Date(it.events.date), "MMM d")} · {it.events.start_time?.slice(0, 5)}</p>
-                </div>
-              </Link>
+          <div className="space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="glass-card h-48 animate-pulse" />
             ))}
           </div>
+        ) : events.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12"
+          >
+            <Calendar className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-xl font-bold mb-2">
+              {activeTab === 'upcoming' ? 'No upcoming events' : 'No past events'}
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              {activeTab === 'upcoming' 
+                ? 'Check in at events to see them here'
+                : "You haven't attended any events yet"}
+            </p>
+            <button
+              onClick={() => navigate('/')}
+              className="btn-gradient px-6 py-3 rounded-xl"
+            >
+              Browse Events
+            </button>
+          </motion.div>
+        ) : (
+          events.map((event, index) => (
+            <motion.div
+              key={event.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <EventCard
+                id={event.id}
+                title={event.title}
+                date={event.date}
+                startTime={event.start_time}
+                venueName={event.venue_name || ''}
+                imageUrl={event.image_url || ''}
+                musicGenres={event.music_genres || []}
+                price={event.price || 0}
+                capacity={event.capacity || 100}
+                attendeeCount={Math.floor(Math.random() * 50) + 20}
+              />
+            </motion.div>
+          ))
         )}
-      </main>
+      </div>
 
       <BottomNav />
     </div>
