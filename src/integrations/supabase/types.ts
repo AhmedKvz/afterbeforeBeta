@@ -212,30 +212,6 @@ export type Database = {
         }
         Relationships: []
       }
-      championship_votes: {
-        Row: {
-          created_at: string | null
-          destination: string
-          id: string
-          user_id: string
-          year: number
-        }
-        Insert: {
-          created_at?: string | null
-          destination: string
-          id?: string
-          user_id: string
-          year?: number
-        }
-        Update: {
-          created_at?: string | null
-          destination?: string
-          id?: string
-          user_id?: string
-          year?: number
-        }
-        Relationships: []
-      }
       club_favorites: {
         Row: {
           created_at: string | null
@@ -256,47 +232,6 @@ export type Database = {
           venue_name?: string
         }
         Relationships: []
-      }
-      club_weekly_votes: {
-        Row: {
-          created_at: string | null
-          event_id: string | null
-          id: string
-          user_id: string
-          vote_type: string
-          vote_value: string
-          week_number: number
-          year: number
-        }
-        Insert: {
-          created_at?: string | null
-          event_id?: string | null
-          id?: string
-          user_id: string
-          vote_type: string
-          vote_value: string
-          week_number?: number
-          year?: number
-        }
-        Update: {
-          created_at?: string | null
-          event_id?: string | null
-          id?: string
-          user_id?: string
-          vote_type?: string
-          vote_value?: string
-          week_number?: number
-          year?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "club_weekly_votes_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       daily_swipe_limits: {
         Row: {
