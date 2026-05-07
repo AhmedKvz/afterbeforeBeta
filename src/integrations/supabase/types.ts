@@ -212,6 +212,178 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_entries: {
+        Row: {
+          caption: string | null
+          challenge_id: string
+          created_at: string
+          id: string
+          media_url: string | null
+          user_id: string
+          vote_count: number
+        }
+        Insert: {
+          caption?: string | null
+          challenge_id: string
+          created_at?: string
+          id?: string
+          media_url?: string | null
+          user_id: string
+          vote_count?: number
+        }
+        Update: {
+          caption?: string | null
+          challenge_id?: string
+          created_at?: string
+          id?: string
+          media_url?: string | null
+          user_id?: string
+          vote_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_entries_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_votes: {
+        Row: {
+          challenge_id: string
+          created_at: string
+          entry_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          created_at?: string
+          entry_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          created_at?: string
+          entry_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_votes_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_votes_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "challenge_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          challenge_type: string
+          cover_url: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          prize_description: string | null
+          prize_pool_cents: number
+          resolved_at: string | null
+          sponsor_color: string | null
+          sponsor_logo_url: string | null
+          sponsor_name: string | null
+          status: string
+          submission_deadline: string
+          title: string
+          venue_id: string | null
+          voting_deadline: string
+          winner_entry_id: string | null
+        }
+        Insert: {
+          challenge_type?: string
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          prize_description?: string | null
+          prize_pool_cents?: number
+          resolved_at?: string | null
+          sponsor_color?: string | null
+          sponsor_logo_url?: string | null
+          sponsor_name?: string | null
+          status?: string
+          submission_deadline: string
+          title: string
+          venue_id?: string | null
+          voting_deadline: string
+          winner_entry_id?: string | null
+        }
+        Update: {
+          challenge_type?: string
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          prize_description?: string | null
+          prize_pool_cents?: number
+          resolved_at?: string | null
+          sponsor_color?: string | null
+          sponsor_logo_url?: string | null
+          sponsor_name?: string | null
+          status?: string
+          submission_deadline?: string
+          title?: string
+          venue_id?: string | null
+          voting_deadline?: string
+          winner_entry_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenges_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "partner_venues_sc"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      championship_votes: {
+        Row: {
+          created_at: string | null
+          destination: string
+          id: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          destination: string
+          id?: string
+          user_id: string
+          year?: number
+        }
+        Update: {
+          created_at?: string | null
+          destination?: string
+          id?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       club_favorites: {
         Row: {
           created_at: string | null
@@ -232,6 +404,47 @@ export type Database = {
           venue_name?: string
         }
         Relationships: []
+      }
+      club_weekly_votes: {
+        Row: {
+          created_at: string | null
+          event_id: string | null
+          id: string
+          user_id: string
+          vote_type: string
+          vote_value: string
+          week_number: number
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          user_id: string
+          vote_type: string
+          vote_value: string
+          week_number?: number
+          year?: number
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          user_id?: string
+          vote_type?: string
+          vote_value?: string
+          week_number?: number
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_weekly_votes_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       daily_swipe_limits: {
         Row: {
@@ -771,6 +984,42 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_venues_sc: {
+        Row: {
+          active: boolean
+          brand_color: string | null
+          created_at: string
+          id: string
+          last_settlement_at: string | null
+          logo_url: string | null
+          monthly_redemption_cap_cents: number | null
+          platform_fee_bps: number
+          venue_name: string
+        }
+        Insert: {
+          active?: boolean
+          brand_color?: string | null
+          created_at?: string
+          id?: string
+          last_settlement_at?: string | null
+          logo_url?: string | null
+          monthly_redemption_cap_cents?: number | null
+          platform_fee_bps?: number
+          venue_name: string
+        }
+        Update: {
+          active?: boolean
+          brand_color?: string | null
+          created_at?: string
+          id?: string
+          last_settlement_at?: string | null
+          logo_url?: string | null
+          monthly_redemption_cap_cents?: number | null
+          platform_fee_bps?: number
+          venue_name?: string
+        }
+        Relationships: []
+      }
       premium_interest: {
         Row: {
           created_at: string | null
@@ -959,6 +1208,80 @@ export type Database = {
           venue_name?: string
         }
         Relationships: []
+      }
+      scene_credits_accounts: {
+        Row: {
+          balance_cents: number
+          created_at: string
+          kyc_tier: string
+          lifetime_loaded_cents: number
+          lifetime_spent_cents: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance_cents?: number
+          created_at?: string
+          kyc_tier?: string
+          lifetime_loaded_cents?: number
+          lifetime_spent_cents?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance_cents?: number
+          created_at?: string
+          kyc_tier?: string
+          lifetime_loaded_cents?: number
+          lifetime_spent_cents?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      scene_credits_transactions: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          description: string | null
+          event_id: string | null
+          id: string
+          related_user_id: string | null
+          type: string
+          user_id: string
+          venue_id: string | null
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          description?: string | null
+          event_id?: string | null
+          id?: string
+          related_user_id?: string | null
+          type: string
+          user_id: string
+          venue_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          description?: string | null
+          event_id?: string | null
+          id?: string
+          related_user_id?: string | null
+          type?: string
+          user_id?: string
+          venue_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scene_credits_transactions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       secret_party_invites: {
         Row: {
@@ -1347,6 +1670,39 @@ export type Database = {
         }
         Relationships: []
       }
+      xp_gifts: {
+        Row: {
+          amount: number
+          claimed: boolean
+          claimed_at: string | null
+          created_at: string
+          id: string
+          message: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          amount: number
+          claimed?: boolean
+          claimed_at?: string | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          amount?: number
+          claimed?: boolean
+          claimed_at?: string | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       xp_transactions: {
         Row: {
           amount: number
@@ -1389,6 +1745,7 @@ export type Database = {
         Args: { request_id: string }
         Returns: Json
       }
+      claim_xp_gift: { Args: { p_gift_id: string }; Returns: number }
       compute_match_score: {
         Args: { p_event_id?: string; p_target_id: string; p_user_id: string }
         Returns: Json
@@ -1451,6 +1808,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      gift_xp: {
+        Args: { p_amount: number; p_message?: string; p_recipient_id: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1459,6 +1820,25 @@ export type Database = {
         Returns: boolean
       }
       predict_crowd: { Args: { p_event_id: string }; Returns: Json }
+      send_scene_credits: {
+        Args: {
+          p_amount_cents: number
+          p_description?: string
+          p_recipient_id: string
+          p_venue_id?: string
+        }
+        Returns: Json
+      }
+      spend_scene_credits_at_venue: {
+        Args: {
+          p_amount_cents: number
+          p_description?: string
+          p_venue_id: string
+        }
+        Returns: number
+      }
+      topup_scene_credits: { Args: { p_amount_cents: number }; Returns: number }
+      vote_on_challenge_entry: { Args: { p_entry_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user"
