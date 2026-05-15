@@ -9,7 +9,7 @@ const VENUE_TYPE_BADGES: Record<string, { label: string; emoji: string; color: s
   club: { label: 'Club', emoji: '🎵', color: 'bg-purple-500/20 text-purple-300' },
   splav: { label: 'Splav', emoji: '🚢', color: 'bg-blue-500/20 text-blue-300' },
   cafe_bar: { label: 'Cafe', emoji: '☕', color: 'bg-amber-500/20 text-amber-300' },
-  afterplace: { label: 'After', emoji: '🌙', color: 'bg-slate-500/20 text-slate-300' },
+  afterplace: { label: 'Food Corner', emoji: '🍔', color: 'bg-amber-500/20 text-amber-300' },
   gallery: { label: 'Gallery', emoji: '🎨', color: 'bg-pink-500/20 text-pink-300' },
   popup: { label: 'Pop-up', emoji: '⚡', color: 'bg-yellow-500/20 text-yellow-300' },
 };

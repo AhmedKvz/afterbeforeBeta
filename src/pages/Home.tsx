@@ -43,7 +43,7 @@ interface Event {
   max_guests: number | null;
 }
 
-const FILTER_OPTIONS = ['All', 'Clubs', 'Splavi', 'Cafes', 'Afterplaces', 'Galleries', 'Secret 🔒', 'Pop-Up ⚡', 'Tonight', 'This Weekend', 'After Mode'];
+const FILTER_OPTIONS = ['All', 'Clubs', 'Splavi', 'Cafes', 'Food Corner 🍔', 'Galleries', 'Secret 🔒', 'Pop-Up ⚡', 'Tonight', 'This Weekend', 'After Mode'];
 
 const Home = () => {
   const navigate = useNavigate();
@@ -154,7 +154,7 @@ const Home = () => {
     if (activeFilter === 'Clubs') return event.venue_type === 'club';
     if (activeFilter === 'Splavi') return event.venue_type === 'splav';
     if (activeFilter === 'Cafes') return event.venue_type === 'cafe_bar';
-    if (activeFilter === 'Afterplaces') return event.venue_type === 'afterplace';
+    if (activeFilter === 'Food Corner 🍔') return event.venue_type === 'afterplace';
     if (activeFilter === 'Galleries') return event.venue_type === 'gallery';
     if (activeFilter === 'After Mode') return event.venue_type === 'afterplace';
     if (activeFilter === 'Secret 🔒') return event.event_type === 'secret';
@@ -210,10 +210,10 @@ const Home = () => {
             onClick={() => setActiveFilter('After Mode')}
             className="mx-4 mt-3 w-[calc(100%-2rem)] p-3 rounded-xl bg-muted/40 backdrop-blur-xl border border-border flex items-center gap-3"
           >
-            <span className="text-lg animate-pulse">🌙</span>
+            <span className="text-lg animate-pulse">🍔</span>
             <div className="text-left">
-              <span className="text-sm font-semibold text-foreground">After Mode</span>
-              <span className="text-xs text-muted-foreground ml-2">Late-night spots open now</span>
+              <span className="text-sm font-semibold text-foreground">Food Corner</span>
+              <span className="text-xs text-muted-foreground ml-2">Late-night food open after 00:00</span>
             </div>
           </motion.button>
         );
