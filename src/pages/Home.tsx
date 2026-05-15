@@ -296,7 +296,7 @@ const Home = () => {
       {/* Filters */}
       <div className="px-4 mb-6">
         <div className="flex gap-2 overflow-x-auto no-scrollbar">
-          {FILTER_OPTIONS.map((filter) => (
+          {visibleFilters.map((filter) => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
