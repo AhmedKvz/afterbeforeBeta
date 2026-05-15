@@ -154,7 +154,7 @@ const Home = () => {
     if (activeFilter === 'Clubs') return event.venue_type === 'club';
     if (activeFilter === 'Splavi') return event.venue_type === 'splav';
     if (activeFilter === 'Cafes') return event.venue_type === 'cafe_bar';
-    if (activeFilter === 'Afterplaces') return event.venue_type === 'afterplace';
+    if (activeFilter === 'Food Corner 🍔') return event.venue_type === 'afterplace';
     if (activeFilter === 'Galleries') return event.venue_type === 'gallery';
     if (activeFilter === 'After Mode') return event.venue_type === 'afterplace';
     if (activeFilter === 'Secret 🔒') return event.event_type === 'secret';
