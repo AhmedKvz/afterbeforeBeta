@@ -210,10 +210,10 @@ const Home = () => {
             onClick={() => setActiveFilter('After Mode')}
             className="mx-4 mt-3 w-[calc(100%-2rem)] p-3 rounded-xl bg-muted/40 backdrop-blur-xl border border-border flex items-center gap-3"
           >
-            <span className="text-lg animate-pulse">🌙</span>
+            <span className="text-lg animate-pulse">🍔</span>
             <div className="text-left">
-              <span className="text-sm font-semibold text-foreground">After Mode</span>
-              <span className="text-xs text-muted-foreground ml-2">Late-night spots open now</span>
+              <span className="text-sm font-semibold text-foreground">Food Corner</span>
+              <span className="text-xs text-muted-foreground ml-2">Late-night food open after 00:00</span>
             </div>
           </motion.button>
         );
