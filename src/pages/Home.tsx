@@ -213,7 +213,7 @@ const Home = () => {
       {/* After Mode Banner (3AM-7AM) */}
       {(() => {
         const hour = new Date().getHours();
-        const isAfterHours = hour >= 3 && hour < 7;
+        const isAfterHours = hour >= 0 && hour < 7;
         if (!isAfterHours) return null;
         return (
           <motion.button
