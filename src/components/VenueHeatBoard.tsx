@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Flame } from 'lucide-react';
@@ -5,6 +6,14 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+
+type HeatRange = 'today' | 'week' | 'month' | 'all';
+const RANGE_OPTIONS: { id: HeatRange; label: string; days: number }[] = [
+  { id: 'today', label: 'Today', days: 1 },
+  { id: 'week', label: 'This Week', days: 7 },
+  { id: 'month', label: 'Month', days: 30 },
+  { id: 'all', label: 'All Time', days: 3650 },
+];
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const PRIZE_LABELS = ['Featured Club of the Week', 'Trending', 'Rising'];
@@ -24,20 +33,42 @@ interface VenueHeatBoardProps {
 
 export const VenueHeatBoard = ({ compact = false }: VenueHeatBoardProps) => {
   const navigate = useNavigate();
+  const [range, setRange] = useState<HeatRange>('week');
+  const days = RANGE_OPTIONS.find((r) => r.id === range)?.days ?? 7;
 
   const { data: venueHeat, isLoading } = useQuery({
-    queryKey: ['venue-heat'],
+    queryKey: ['venue-heat', days],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_venue_heat', { days_back: 7 });
+      const { data, error } = await supabase.rpc('get_venue_heat', { days_back: days });
       if (error) throw error;
       return (data as unknown as VenueHeat[]) || [];
     },
     refetchInterval: 30000,
   });
 
+  const RangeChips = () => (
+    <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+      {RANGE_OPTIONS.map((r) => (
+        <button
+          key={r.id}
+          onClick={() => setRange(r.id)}
+          className={cn(
+            'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors',
+            range === r.id
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'bg-muted/40 text-muted-foreground border-border hover:text-foreground'
+          )}
+        >
+          {r.label}
+        </button>
+      ))}
+    </div>
+  );
+
   if (isLoading) {
     return (
       <div className="space-y-3">
+        {!compact && <RangeChips />}
         {[...Array(3)].map((_, i) => (
           <div key={i} className="glass-card p-4 animate-pulse">
             <div className="h-12 bg-muted rounded-lg" />
@@ -49,9 +80,12 @@ export const VenueHeatBoard = ({ compact = false }: VenueHeatBoardProps) => {
 
   if (!venueHeat?.length) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        <Flame className="w-8 h-8 mx-auto mb-2 opacity-50" />
-        <p className="text-sm">No venue heat yet this week</p>
+      <div className="space-y-3">
+        {!compact && <RangeChips />}
+        <div className="text-center py-8 text-muted-foreground">
+          <Flame className="w-8 h-8 mx-auto mb-2 opacity-50" />
+          <p className="text-sm">No venue heat yet for {RANGE_OPTIONS.find((r) => r.id === range)?.label}</p>
+        </div>
       </div>
     );
   }
@@ -100,6 +134,7 @@ export const VenueHeatBoard = ({ compact = false }: VenueHeatBoardProps) => {
 
   return (
     <div className="space-y-3">
+      <RangeChips />
       {/* Prizes */}
       <div className="glass-card p-4">
         <h3 className="font-bold mb-3 flex items-center gap-2">
