@@ -40,6 +40,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/event/:id" element={<EventDetail />} />
+            <Route path="/venue/:venueName" element={<VenueDetail />} />
             <Route path="/circle-swipe/:eventId" element={<CircleSwipe />} />
             <Route path="/circle-swipe" element={<LocationSwipe />} />
             <Route path="/matches" element={<Matches />} />
