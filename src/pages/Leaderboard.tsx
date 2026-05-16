@@ -344,6 +344,11 @@ const LeaderboardList = ({
                   {isCurrentUser && (
                     <span className="text-xs text-primary">(You)</span>
                   )}
+                  {isTop3 && championshipMode && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
+                      ✈️ Trip-bound
+                    </span>
+                  )}
                 </div>
                 <Progress
                   value={(entry.total_xp / maxXP) * 100}
