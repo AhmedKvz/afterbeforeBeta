@@ -4,15 +4,7 @@ import { MapPin, Lock, Star } from 'lucide-react';
 import { HeatBadge, getHeatLevel } from './HeatBadge';
 import { AvatarStack } from './AvatarStack';
 import { CountdownTimer } from './CountdownTimer';
-
-const VENUE_TYPE_BADGES: Record<string, { label: string; emoji: string; color: string }> = {
-  club: { label: 'Club', emoji: '🎵', color: 'bg-purple-500/20 text-purple-300' },
-  splav: { label: 'Splav', emoji: '🚢', color: 'bg-blue-500/20 text-blue-300' },
-  cafe_bar: { label: 'Cafe', emoji: '☕', color: 'bg-amber-500/20 text-amber-300' },
-  afterplace: { label: 'Food Corner', emoji: '🍔', color: 'bg-amber-500/20 text-amber-300' },
-  gallery: { label: 'Gallery', emoji: '🎨', color: 'bg-pink-500/20 text-pink-300' },
-  popup: { label: 'Pop-up', emoji: '⚡', color: 'bg-yellow-500/20 text-yellow-300' },
-};
+import { VenueTypeBadge } from './VenueTypeBadge';
 
 interface EventCardProps {
   id: string;
@@ -62,7 +54,6 @@ export const EventCard = ({
   
   const formattedDate = format(new Date(date), 'EEE');
   const formattedTime = startTime.slice(0, 5);
-  const badge = venueType ? VENUE_TYPE_BADGES[venueType] : null;
 
   const isSecretEvent = eventType === 'secret' || isSecret;
   const isPopupEvent = eventType === 'popup';
@@ -140,11 +131,7 @@ export const EventCard = ({
               <MapPin className="w-3 h-3" />
               <span className="truncate">{displayVenueName}</span>
             </div>
-            {badge && !isSecretEvent && (
-              <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${badge.color}`}>
-                {badge.emoji} {badge.label}
-              </span>
-            )}
+            {venueType && !isSecretEvent && <VenueTypeBadge type={venueType} />}
           </div>
           {/* Popup countdown */}
           {isPopupEvent && !locationRevealed && revealTime && (
@@ -207,9 +194,9 @@ export const EventCard = ({
             e.stopPropagation();
             navigate(`/event/${id}#reviews`);
           }}
-          className="w-full flex items-center justify-center gap-1.5 border-t border-white/10 px-4 py-2 text-xs font-medium text-muted-foreground hover:bg-white/5 hover:text-primary transition"
+          className="group/rev flex w-full items-center justify-center gap-1.5 border-t border-white/10 px-4 py-2.5 text-xs font-medium text-muted-foreground transition hover:bg-primary/5 hover:text-primary"
         >
-          <Star className="w-3.5 h-3.5" />
+          <Star className="h-3.5 w-3.5 transition group-hover/rev:fill-primary" />
           View Reviews
         </button>
       )}
