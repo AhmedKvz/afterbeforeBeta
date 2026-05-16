@@ -264,6 +264,7 @@ interface LeaderboardListProps {
   userRank: { rank: number; total_xp: number } | null;
   isLoading: boolean;
   isUserInLeaderboard: boolean;
+  championshipMode?: boolean;
 }
 
 const LeaderboardList = ({
@@ -272,6 +273,7 @@ const LeaderboardList = ({
   userRank,
   isLoading,
   isUserInLeaderboard,
+  championshipMode = false,
 }: LeaderboardListProps) => {
   if (isLoading) {
     return (
