@@ -20,6 +20,7 @@ export interface ReviewWithExtras {
   verified_visit: boolean;
   helpful_count: number;
   venue_name: string | null;
+  moderation_status?: string | null;
   profile?: { display_name: string | null; avatar_url: string | null } | null;
   photos?: { id: string; photo_url: string }[];
   reply?: {
