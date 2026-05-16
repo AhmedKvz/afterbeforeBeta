@@ -43,7 +43,7 @@ interface Event {
   max_guests: number | null;
 }
 
-const FILTER_OPTIONS = ['All', 'Clubs', 'Splavi', 'Cafes', 'Food Corner 🍔', 'Galleries', 'Secret 🔒', 'Pop-Up ⚡', 'Tonight', 'This Weekend', 'After Mode'];
+const FILTER_OPTIONS = ['All', 'Clubs', 'Splavi', 'Cafes', 'Galleries', 'Secret 🔒', 'Pop-Up ⚡', 'Tonight', 'This Weekend'];
 
 const Home = () => {
   const navigate = useNavigate();
