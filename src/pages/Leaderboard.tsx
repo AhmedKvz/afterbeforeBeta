@@ -103,7 +103,22 @@ const Leaderboard = () => {
       </div>
 
       {mode === 'clubs' ? (
-        <div className="px-4">
+        <div className="px-4 space-y-4">
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-accent/40 bg-gradient-to-r from-accent/15 via-primary/10 to-transparent p-4"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <Crown className="w-4 h-4 text-accent" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                Featured Club of the Week
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Top-ranked venue gets a featured spotlight on Home every week. Check in & review to push your favorite up.
+            </p>
+          </motion.div>
           <VenueHeatBoard />
         </div>
       ) : (
