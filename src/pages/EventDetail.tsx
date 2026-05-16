@@ -326,10 +326,21 @@ const EventDetail = () => {
         
         <div className="absolute bottom-4 left-4 right-4">
           <GlassCard className="p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <h1 className="text-2xl font-bold">{event.title}</h1>
-                <p className="text-muted-foreground text-sm">{event.venue_name}</p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="mb-1.5 flex items-center gap-2">
+                  <VenueTypeBadge type={(event as any).venue_type || 'club'} />
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    {format(new Date(event.date), 'EEE, MMM d')}
+                  </span>
+                </div>
+                <h1 className="truncate text-2xl font-black tracking-tight">{event.title}</h1>
+                <button
+                  onClick={() => navigate(`/venue/${encodeURIComponent(event.venue_name)}`)}
+                  className="mt-0.5 text-sm text-muted-foreground transition hover:text-primary"
+                >
+                  {event.venue_name} →
+                </button>
               </div>
               <HeatBadge level={heatLevel} />
             </div>
