@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Flame } from 'lucide-react';
@@ -5,6 +6,14 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+
+type HeatRange = 'today' | 'week' | 'month' | 'all';
+const RANGE_OPTIONS: { id: HeatRange; label: string; days: number }[] = [
+  { id: 'today', label: 'Today', days: 1 },
+  { id: 'week', label: 'This Week', days: 7 },
+  { id: 'month', label: 'Month', days: 30 },
+  { id: 'all', label: 'All Time', days: 3650 },
+];
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const PRIZE_LABELS = ['Featured Club of the Week', 'Trending', 'Rising'];
