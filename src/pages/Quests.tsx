@@ -95,7 +95,32 @@ const Quests = () => {
             <p className="text-sm">Check back shortly — quests are assigned weekly!</p>
           </div>
         ) : (
-          quests.map((quest, index) => (
+          <>
+            {/* Category chips */}
+            <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-none">
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c.key}
+                  onClick={() => setCategory(c.key)}
+                  className={cn(
+                    'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all',
+                    category === c.key
+                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                      : 'bg-muted/40 text-muted-foreground border-border hover:text-foreground'
+                  )}
+                >
+                  <span className="mr-1">{c.emoji}</span>
+                  {c.label}
+                </button>
+              ))}
+            </div>
+
+            {filtered.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">
+                No quests in this category this week.
+              </div>
+            ) : (
+              filtered.map((quest, index) => (
             <QuestCard
               key={quest.id}
               icon={quest.icon || '🎯'}
