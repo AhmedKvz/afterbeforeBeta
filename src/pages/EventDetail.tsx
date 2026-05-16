@@ -17,6 +17,7 @@ import { incrementQuestProgress } from '@/services/questProgress';
 import { logTrainingEvent } from '@/services/aiTracker';
 import { toast } from 'sonner';
 import { AreaChart, Area, XAxis, ResponsiveContainer } from 'recharts';
+import { VenueReviewsSection } from '@/components/reviews/VenueReviewsSection';
 
 interface Event {
   id: string;
@@ -396,6 +397,14 @@ const EventDetail = () => {
             </div>
           </GlassCard>
         )}
+
+        {/* Reviews */}
+        <VenueReviewsSection
+          venueName={event.venue_name}
+          venueType={(event as any).venue_type || 'club'}
+          eventId={event.id}
+          className="pb-32"
+        />
       </div>
 
       {/* CTA Buttons */}

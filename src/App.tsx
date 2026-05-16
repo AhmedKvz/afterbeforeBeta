@@ -23,6 +23,7 @@ import Quests from "./pages/Quests";
 import Explore from "./pages/Explore";
 import SecretPartyRequest from "./pages/SecretPartyRequest";
 import InstagramCallback from "./pages/InstagramCallback";
+import VenueDetail from "./pages/VenueDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/event/:id" element={<EventDetail />} />
+            <Route path="/venue/:venueName" element={<VenueDetail />} />
             <Route path="/circle-swipe/:eventId" element={<CircleSwipe />} />
             <Route path="/circle-swipe" element={<LocationSwipe />} />
             <Route path="/matches" element={<Matches />} />
