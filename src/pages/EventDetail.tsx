@@ -397,6 +397,14 @@ const EventDetail = () => {
             </div>
           </GlassCard>
         )}
+
+        {/* Reviews */}
+        <VenueReviewsSection
+          venueName={event.venue_name}
+          venueType={(event as any).venue_type || 'club'}
+          eventId={event.id}
+          className="pb-32"
+        />
       </div>
 
       {/* CTA Buttons */}
