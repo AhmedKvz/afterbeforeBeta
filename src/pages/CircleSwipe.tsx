@@ -38,6 +38,9 @@ interface SwipeProfile {
   matchScore?: number;
 }
 
+type SwipeMode = 'ravers' | 'clubs' | 'events';
+type Intention = 'meet' | 'text' | 'vibe';
+
 const CircleSwipe = () => {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
@@ -50,6 +53,8 @@ const CircleSwipe = () => {
   const [ghostMode, setGhostMode] = useState(false);
   const [activeUserCount, setActiveUserCount] = useState(0);
   const [userPosition, setUserPosition] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [mode, setMode] = useState<SwipeMode>('ravers');
+  const [intention, setIntention] = useState<Intention>('meet');
   
   // Match modal
   const [showMatchModal, setShowMatchModal] = useState(false);
