@@ -134,6 +134,7 @@ export const VenueHeatBoard = ({ compact = false }: VenueHeatBoardProps) => {
 
   return (
     <div className="space-y-3">
+      <RangeChips />
       {/* Prizes */}
       <div className="glass-card p-4">
         <h3 className="font-bold mb-3 flex items-center gap-2">
