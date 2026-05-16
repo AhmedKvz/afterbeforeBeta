@@ -46,13 +46,12 @@ const EventDetail = () => {
 
   useEffect(() => {
     if (location.hash === '#reviews') {
-      // wait for the section to mount
       const t = setTimeout(() => {
         document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 300);
+      }, 600);
       return () => clearTimeout(t);
     }
-  }, [location.hash, loading]);
+  }, [location.hash]);
   
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
