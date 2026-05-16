@@ -134,7 +134,9 @@ const Quests = () => {
               onClaim={() => handleClaim(quest.id, quest.xp_reward)}
               index={index}
             />
-          ))
+              ))
+            )}
+          </>
         )}
       </div>
 
