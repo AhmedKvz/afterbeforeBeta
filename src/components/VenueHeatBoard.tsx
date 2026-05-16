@@ -46,9 +46,29 @@ export const VenueHeatBoard = ({ compact = false }: VenueHeatBoardProps) => {
     refetchInterval: 30000,
   });
 
+  const RangeChips = () => (
+    <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+      {RANGE_OPTIONS.map((r) => (
+        <button
+          key={r.id}
+          onClick={() => setRange(r.id)}
+          className={cn(
+            'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors',
+            range === r.id
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'bg-muted/40 text-muted-foreground border-border hover:text-foreground'
+          )}
+        >
+          {r.label}
+        </button>
+      ))}
+    </div>
+  );
+
   if (isLoading) {
     return (
       <div className="space-y-3">
+        {!compact && <RangeChips />}
         {[...Array(3)].map((_, i) => (
           <div key={i} className="glass-card p-4 animate-pulse">
             <div className="h-12 bg-muted rounded-lg" />
@@ -60,9 +80,12 @@ export const VenueHeatBoard = ({ compact = false }: VenueHeatBoardProps) => {
 
   if (!venueHeat?.length) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        <Flame className="w-8 h-8 mx-auto mb-2 opacity-50" />
-        <p className="text-sm">No venue heat yet this week</p>
+      <div className="space-y-3">
+        {!compact && <RangeChips />}
+        <div className="text-center py-8 text-muted-foreground">
+          <Flame className="w-8 h-8 mx-auto mb-2 opacity-50" />
+          <p className="text-sm">No venue heat yet for {RANGE_OPTIONS.find((r) => r.id === range)?.label}</p>
+        </div>
       </div>
     );
   }
