@@ -20,6 +20,7 @@ export interface ReviewWithExtras {
   verified_visit: boolean;
   helpful_count: number;
   venue_name: string | null;
+  moderation_status?: string | null;
   profile?: { display_name: string | null; avatar_url: string | null } | null;
   photos?: { id: string; photo_url: string }[];
   reply?: {
@@ -30,6 +31,20 @@ export interface ReviewWithExtras {
   } | null;
   user_voted?: boolean;
 }
+
+const ModerationPill = ({ status }: { status: string }) => {
+  const meta: Record<string, { label: string; cls: string }> = {
+    pending: { label: '⏳ Pending review', cls: 'bg-yellow-500/15 text-yellow-300 border-yellow-500/30' },
+    flagged: { label: '⚠️ Flagged', cls: 'bg-destructive/15 text-destructive border-destructive/30' },
+    published: { label: '✓ Published', cls: 'bg-success/15 text-success border-success/30' },
+  };
+  const m = meta[status] || meta.pending;
+  return (
+    <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${m.cls}`}>
+      {m.label}
+    </span>
+  );
+};
 
 export const ReviewCard = ({
   review,
@@ -82,6 +97,9 @@ export const ReviewCard = ({
               {review.profile?.display_name || 'Anonymous'}
             </span>
             {review.verified_visit && <VerifiedVisitBadge />}
+            {user?.id === review.user_id && review.moderation_status && review.moderation_status !== 'approved' && (
+              <ModerationPill status={review.moderation_status} />
+            )}
             <span className="text-xs text-muted-foreground">
               {format(new Date(review.created_at), 'MMM d, yyyy')}
             </span>

@@ -43,7 +43,7 @@ interface Event {
   max_guests: number | null;
 }
 
-const FILTER_OPTIONS = ['All', 'Clubs', 'Splavi', 'Cafes', 'Galleries', 'Secret 🔒', 'Pop-Up ⚡', 'Tonight', 'This Weekend'];
+const FILTER_OPTIONS = ['All', 'Tonight', 'This Weekend', 'Events', 'Clubs', 'Restaurants', 'Cafes', 'Bars', 'Splavs', 'After Food', 'Galleries', 'Secret 🔒', 'Pop-Up ⚡'];
 
 const Home = () => {
   const navigate = useNavigate();
@@ -134,10 +134,11 @@ const Home = () => {
   };
 
   const filteredEvents = events.filter((event) => {
-    // Food Corner / afterplaces hidden for now
-    if (event.venue_type === 'afterplace') return false;
+    // Afterplaces only included when "After Food" filter is on
+    if (event.venue_type === 'afterplace' && activeFilter !== 'After Food') return false;
 
     if (activeFilter === 'All') return true;
+    if (activeFilter === 'Events') return true;
     if (activeFilter === 'Tonight') {
       const today = new Date().toISOString().split('T')[0];
       return event.date === today;
@@ -155,8 +156,11 @@ const Home = () => {
       return eventDate >= friday && eventDate <= sunday;
     }
     if (activeFilter === 'Clubs') return event.venue_type === 'club';
-    if (activeFilter === 'Splavi') return event.venue_type === 'splav';
-    if (activeFilter === 'Cafes') return event.venue_type === 'cafe_bar';
+    if (activeFilter === 'Splavs') return event.venue_type === 'splav';
+    if (activeFilter === 'Cafes') return event.venue_type === 'cafe_bar' || event.venue_type === 'cafe';
+    if (activeFilter === 'Bars') return event.venue_type === 'bar';
+    if (activeFilter === 'Restaurants') return event.venue_type === 'restaurant';
+    if (activeFilter === 'After Food') return event.venue_type === 'afterplace';
     if (activeFilter === 'Galleries') return event.venue_type === 'gallery';
     if (activeFilter === 'Secret 🔒') return event.event_type === 'secret';
     if (activeFilter === 'Pop-Up ⚡') return event.event_type === 'popup';
@@ -260,7 +264,16 @@ const Home = () => {
       {/* AI "Tonight For You" Section */}
       <TonightForYou userId={user?.id} events={events} navigate={navigate} />
 
-      {/* Venue Heat Widget */}
+      {/* Trending Tonight */}
+      <TrendingTonight events={events} signalCounts={signalCounts} navigate={navigate} />
+
+      {/* Discover Places (venue cards) */}
+      <DiscoverPlaces navigate={navigate} />
+
+      {/* Community Reviewed */}
+      <CommunityReviewed navigate={navigate} />
+
+      {/* Club Board preview (Venue Heat) */}
       <div className="px-4 mb-6">
         <VenueHeatBoard compact />
       </div>
@@ -414,6 +427,202 @@ const TonightForYou = ({ userId, events, navigate }: { userId?: string; events: 
               </div>
             </button>
           </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ──────────────────── Trending Tonight ────────────────────
+const TrendingTonight = ({
+  events,
+  signalCounts,
+  navigate,
+}: {
+  events: Event[];
+  signalCounts: Record<string, number>;
+  navigate: any;
+}) => {
+  const today = new Date().toISOString().split('T')[0];
+  const tonight = events
+    .filter((e) => e.date === today && e.venue_type !== 'afterplace')
+    .sort((a, b) => (signalCounts[b.id] || 0) - (signalCounts[a.id] || 0))
+    .slice(0, 6);
+
+  if (!tonight.length) return null;
+
+  return (
+    <div className="px-4 mb-6">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span>🔥</span>
+          <h2 className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+            Trending tonight
+          </h2>
+        </div>
+        <span className="text-[11px] text-muted-foreground">{tonight.length} live</span>
+      </div>
+      <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-1 px-1">
+        {tonight.map((e) => (
+          <button
+            key={e.id}
+            onClick={() => navigate(`/event/${e.id}`)}
+            className="min-w-[240px] max-w-[240px] flex-shrink-0 rounded-2xl overflow-hidden border border-white/10 bg-white/5 text-left transition hover:border-primary/40"
+          >
+            <div className="relative h-28">
+              <img
+                src={e.image_url || '/placeholder.svg'}
+                alt={e.title}
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+              <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-red-500/90 text-[10px] font-bold text-white">
+                🔥 {signalCounts[e.id] || 0} going
+              </div>
+            </div>
+            <div className="p-3">
+              <p className="truncate text-sm font-semibold">{e.title}</p>
+              <p className="truncate text-[11px] text-muted-foreground">{e.venue_name}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ──────────────────── Discover Places ────────────────────
+const DiscoverPlaces = ({ navigate }: { navigate: any }) => {
+  const { data: venues = [] } = useQuery({
+    queryKey: ['discover-venues'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('venue_name, venue_type, venue_logo_url, neighborhood')
+        .eq('account_type', 'club_venue')
+        .not('venue_name', 'is', null)
+        .limit(12);
+      return data || [];
+    },
+  });
+
+  if (!venues.length) return null;
+
+  const TYPE_META: Record<string, { emoji: string; label: string; color: string }> = {
+    club: { emoji: '🎵', label: 'Club', color: 'from-purple-500/30 to-purple-900/10' },
+    splav: { emoji: '🚢', label: 'Splav', color: 'from-blue-500/30 to-blue-900/10' },
+    cafe: { emoji: '☕', label: 'Cafe', color: 'from-amber-500/30 to-amber-900/10' },
+    cafe_bar: { emoji: '☕', label: 'Cafe', color: 'from-amber-500/30 to-amber-900/10' },
+    bar: { emoji: '🍸', label: 'Bar', color: 'from-rose-500/30 to-rose-900/10' },
+    restaurant: { emoji: '🍽️', label: 'Restaurant', color: 'from-emerald-500/30 to-emerald-900/10' },
+    afterplace: { emoji: '🍔', label: 'After Food', color: 'from-orange-500/30 to-orange-900/10' },
+    gallery: { emoji: '🎨', label: 'Gallery', color: 'from-pink-500/30 to-pink-900/10' },
+  };
+
+  return (
+    <div className="px-4 mb-6">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span>📍</span>
+          <h2 className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+            Discover places
+          </h2>
+        </div>
+        <span className="text-[11px] text-muted-foreground">{venues.length} venues</span>
+      </div>
+      <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-1 px-1">
+        {venues.map((v: any) => {
+          const meta = TYPE_META[v.venue_type || 'club'] || TYPE_META.club;
+          return (
+            <button
+              key={v.venue_name}
+              onClick={() => navigate(`/venue/${encodeURIComponent(v.venue_name)}`)}
+              className={cn(
+                'min-w-[160px] max-w-[160px] flex-shrink-0 rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-br text-left transition hover:border-primary/40',
+                meta.color
+              )}
+            >
+              <div className="relative h-20">
+                {v.venue_logo_url ? (
+                  <img src={v.venue_logo_url} alt="" className="h-full w-full object-cover opacity-70" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-4xl">
+                    {meta.emoji}
+                  </div>
+                )}
+                <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-full bg-black/60 text-[10px] font-bold text-white backdrop-blur">
+                  {meta.emoji} {meta.label}
+                </div>
+              </div>
+              <div className="p-2.5">
+                <p className="truncate text-xs font-bold">{v.venue_name}</p>
+                {v.neighborhood && (
+                  <p className="truncate text-[10px] text-muted-foreground">{v.neighborhood}</p>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ──────────────────── Community Reviewed ────────────────────
+const CommunityReviewed = ({ navigate }: { navigate: any }) => {
+  const { data: reviews = [] } = useQuery({
+    queryKey: ['community-reviewed'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('event_reviews')
+        .select('id, venue_name, rating, review_text, verified_visit, created_at, event_id')
+        .neq('moderation_status', 'flagged')
+        .not('venue_name', 'is', null)
+        .order('helpful_count', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(6);
+      return data || [];
+    },
+  });
+
+  if (!reviews.length) return null;
+
+  return (
+    <div className="px-4 mb-6">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span>💬</span>
+          <h2 className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+            Community reviewed
+          </h2>
+        </div>
+      </div>
+      <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-1 px-1">
+        {reviews.map((r: any) => (
+          <button
+            key={r.id}
+            onClick={() =>
+              r.venue_name && navigate(`/venue/${encodeURIComponent(r.venue_name)}#reviews`)
+            }
+            className="min-w-[240px] max-w-[240px] flex-shrink-0 rounded-2xl border border-white/10 bg-white/5 p-3 text-left transition hover:border-primary/40"
+          >
+            <div className="mb-1.5 flex items-center justify-between">
+              <span className="truncate text-xs font-bold">{r.venue_name}</span>
+              <span className="flex items-center gap-0.5 text-xs text-yellow-300">
+                ⭐ {r.rating}
+              </span>
+            </div>
+            {r.review_text && (
+              <p className="line-clamp-3 text-[11px] text-muted-foreground italic">
+                "{r.review_text}"
+              </p>
+            )}
+            {r.verified_visit && (
+              <span className="mt-2 inline-block rounded-full bg-success/15 px-1.5 py-0.5 text-[9px] font-bold text-success">
+                ✓ Verified Visit
+              </span>
+            )}
+          </button>
         ))}
       </div>
     </div>

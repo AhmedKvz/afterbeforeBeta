@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Target } from 'lucide-react';
 import { useQuests } from '@/hooks/useQuests';
@@ -6,6 +7,7 @@ import { CountdownTimer } from '@/components/CountdownTimer';
 import { BottomNav } from '@/components/BottomNav';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 const getNextMonday = (): Date => {
   const now = new Date();
@@ -17,8 +19,19 @@ const getNextMonday = (): Date => {
   return monday;
 };
 
+const CATEGORIES = [
+  { key: 'all', label: 'All', emoji: '🎯' },
+  { key: 'ice_melt', label: 'Ice-Melt', emoji: '🧊' },
+  { key: 'chaos', label: 'Chaos & Humor', emoji: '😈' },
+  { key: 'spiritual', label: 'Spiritual & Vibe', emoji: '🌙' },
+  { key: 'connection', label: '1-on-1', emoji: '💜' },
+  { key: 'host', label: 'Host Questline', emoji: '🎤' },
+  { key: 'after', label: 'After Quests', emoji: '🌅' },
+];
+
 const Quests = () => {
   const { quests, isLoading, claimReward, completedCount, totalCount } = useQuests();
+  const [category, setCategory] = useState('all');
 
   const handleClaim = (questId: string, xpReward: number) => {
     claimReward({ questId, xpReward });
@@ -29,6 +42,12 @@ const Quests = () => {
   const totalEarnedXP = quests
     .filter((q) => q.xp_claimed)
     .reduce((sum, q) => sum + q.xp_reward, 0);
+
+  const filtered = useMemo(() => {
+    if (category === 'all') return quests;
+    return quests.filter((q: any) => (q.quest_type || '').toLowerCase().includes(category));
+  }, [quests, category]);
+
 
   return (
     <div className="min-h-screen bg-background pb-24">
