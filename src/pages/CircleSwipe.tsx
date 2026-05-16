@@ -346,12 +346,60 @@ const CircleSwipe = () => {
         </div>
       </header>
 
-      {/* Swipe Area */}
-      <div className="flex-1 relative px-4 py-6">
-        {hasMoreProfiles ? (
-          <div className="relative h-[60vh] max-h-[500px]">
-            <AnimatePresence>
-              {profiles.slice(currentIndex, currentIndex + 3).map((p, index) => (
+      {/* Mode tabs */}
+      <div className="px-4 pt-3">
+        <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-muted/50">
+          {(['ravers', 'clubs', 'events'] as SwipeMode[]).map((m) => (
+            <button
+              key={m}
+              onClick={() => {
+                setMode(m);
+                if (m === 'clubs' || m === 'events') {
+                  toast.info(`${m === 'clubs' ? 'Club' : 'Event'} swipe opens from Explore`);
+                  navigate('/explore');
+                }
+              }}
+              className={`py-2 rounded-lg text-xs font-bold capitalize transition-all ${
+                mode === m ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
+              }`}
+            >
+              {m === 'ravers' ? '🎶 Ravers' : m === 'clubs' ? '🏢 Clubs' : '🎟️ Events'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Intention + Vibe compatibility row */}
+      <div className="px-4 pt-3 space-y-2">
+        <div className="flex flex-wrap gap-1.5">
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground self-center mr-1">Intent:</span>
+          {(['meet', 'text', 'vibe'] as Intention[]).map((i) => (
+            <button
+              key={i}
+              onClick={() => setIntention(i)}
+              className={`rounded-full border px-3 py-1 text-xs transition ${
+                intention === i
+                  ? 'border-primary bg-primary/20 text-primary'
+                  : 'border-border text-muted-foreground'
+              }`}
+            >
+              {i === 'meet' ? '👀 Meet' : i === 'text' ? '💬 Text' : '🎶 Vibe'}
+            </button>
+          ))}
+          <button
+            disabled
+            className="ml-auto rounded-full border border-border px-3 py-1 text-xs text-muted-foreground opacity-50 cursor-not-allowed"
+            title="18+ — coming soon"
+          >
+            🌶️ Spicy 18+
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-1.5 text-[10px]">
+          <span className="rounded-full bg-purple-500/15 text-purple-300 px-2 py-0.5">🎵 Vibe match</span>
+          <span className="rounded-full bg-orange-500/15 text-orange-300 px-2 py-0.5">🔥 Heat fit</span>
+          <span className="rounded-full bg-blue-500/15 text-blue-300 px-2 py-0.5">🌙 After-ready</span>
+        </div>
+      </div>
                 <SwipeCard
                   key={p.id}
                   profile={p}
