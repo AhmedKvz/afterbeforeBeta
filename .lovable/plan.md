@@ -1,81 +1,81 @@
-## Full Review System for AfterBefore
 
-Build a comprehensive review system that works across all venue types (clubs, restaurants, cafes, bars, event venues, food corners, after-places).
+# Unification Pass — AfterBefore Nightlife OS
 
-### 1. Database (migration)
+Goal: make the whole app feel like one polished product. Visual & UX polish only. No new business logic, no schema changes. One shared profile template for venues & events. XP / Lucky 100 / Quests surfaced prominently inside event and venue pages.
 
-Extend `event_reviews` and add new tables. Use `venue_name` as the place identifier (existing pattern) plus optional `event_id`.
+## 1. Shared design language
 
-**Extend `event_reviews`:**
-- `vibe_tags TEXT[]` — category-specific tags
-- `visit_date DATE`
-- `venue_name TEXT` — denormalized for venue-level queries
-- `venue_type TEXT` — club/restaurant/cafe/bar/venue/afterplace
-- `verified_visit BOOLEAN DEFAULT false` — true if user checked in or has signal/wishlist for event
-- `helpful_count INT DEFAULT 0`
-- `report_count INT DEFAULT 0`
-- `weight NUMERIC DEFAULT 1.0` — 2.0 if verified, 1.0 if not
-- Unique partial index to prevent duplicate per user/event within 24h
+A single visual vocabulary applied everywhere.
 
-**New tables:**
-- `review_photos` (id, review_id, photo_url, position, created_at)
-- `review_votes` (id, review_id, user_id, vote_type 'helpful', unique(review_id,user_id))
-- `review_reports` (id, review_id, user_id, reason, details, status, created_at)
-- `business_replies` (id, review_id, venue_name, replier_id, reply_text, created_at, updated_at)
-- `venue_review_summary` (venue_name PK, summary_json, computed_at) — AI-generated cache
+- **Hero header component** (`AppHeader`): sticky, blurred, gradient underline, neon title, optional back button, optional right-side action. Used on Home, Explore, Event, Venue, Gamification, Quests, Leaderboard, Scene.
+- **Section heading component** (`SectionHeading`): all-caps tracking-wider muted label + optional accent icon — replaces the inconsistent h2/h3 styles across pages.
+- **Card system**: standardize on `glass-card` (already in index.css). Audit `Card`, `GlassCard`, raw `bg-white/5` usages and align to one card token with consistent radius (`rounded-2xl`), border (`border-white/10`), padding scale, and hover glow.
+- **Badge system**: one `<VenueTypeBadge>` (purple club / blue splav / amber cafe / pink gallery / yellow popup) reused on EventCard, VenueDetail hero, Pulse list, Reviews header — replaces the duplicated maps in `EventCard.tsx` and `reviewTags.ts`.
+- **Motion**: shared `fade-up` and `stagger` framer-motion presets in `src/lib/motion.ts` so cards, lists, and modals animate identically.
 
-**Functions:**
-- `get_venue_review_stats(venue_name)` — returns avg_rating (weighted), review_count, verified_count, tag_frequency
-- `mark_verified_visit()` trigger on insert: check `event_checkins`, `event_signals`, `event_wishlists` for that user+event
-- `compute_venue_review_summary(venue_name)` — AI summary (server-side via edge fn, store result)
-- `vote_review_helpful(review_id)` — idempotent helpful vote
+## 2. Unified Venue/Event profile template
 
-**Storage bucket:** `review-photos` (public read, auth insert in own folder).
+Today `/event/:id` and `/venue/:venueName` are two different layouts. Merge into **one shared `VenueProfileTemplate`** component that both routes render.
 
-**RLS:**
-- review_photos: public select, owner insert/delete (joined to review.user_id)
-- review_votes: public select, auth insert/delete own
-- review_reports: owner select/insert; admins select all
-- business_replies: public select; venue owner insert/update (host_id check via profiles.account_type='club_venue' + matching venue_name)
+```text
+┌─ Hero (image + gradient + back + venue-type badge + title + meta)
+├─ Quick actions row (I'm Going · Check-in · Save · Share)        ← only on event route
+├─ XP Reward Card  (Earn +50 XP for check-in, +30 for review)     ← see §3
+├─ Vibe / Heat strip (HeatBadge + Vibe signals count + avatars)
+├─ AI Predictions (only if event route, AreaChart)
+├─ About / Description
+├─ Recent events strip                                            ← only on venue route
+├─ Reviews section (existing VenueReviewsSection — anchor #reviews)
+└─ Safety / Scene Health implicit indicators
+```
 
-### 2. Edge functions
+- Extract the EventDetail body into `<VenueProfileTemplate mode="event" | "venue" />`.
+- Both routes share hero, reviews anchor, and gamification card → consistent feel.
+- Keep existing data fetching in the route file; pass props in.
 
-- `moderate-review` (existing) — extend with vibe_tags + photo URL checks
-- `summarize-venue-reviews` — uses Lovable AI Gateway (`google/gemini-2.5-flash`) to produce:
-  - `best_for`, `top_positives`, `common_complaints`, `best_nights`
-- Triggered on demand (cached for 24h via `venue_review_summary.computed_at`)
+## 3. Prominent inline gamification
 
-### 3. Shared frontend module: `src/components/reviews/`
+A reusable `<XPRewardCard>` shown high on every event & venue page:
 
-- `VENUE_REVIEW_TAGS` — tag dictionary per venue_type
-- `VenueReviewsSection.tsx` — average stars, count, AI summary card, filters bar, sorted list, "Write Review" CTA, pagination
-- `ReviewCard.tsx` — stars, user, verified badge, visit_date, text, tags, photo grid, helpful button, report button, business reply nested
-- `ReviewFiltersBar.tsx` — Newest / Highest / Lowest / With Photos / Verified
-- `WriteReviewModal.tsx` — replaces/extends current `ReviewModal` with: tag chips (filtered by venue_type), photo upload (up to 4), visit date picker
-- `AIVenueSummaryCard.tsx` — fetches/triggers `summarize-venue-reviews`
-- `ReportReviewDialog.tsx` — reason select + details
-- `BusinessReplyBox.tsx` — shown on venue owner's own reviews
-- `VerifiedVisitBadge.tsx`
+- Lists exactly what the user can earn here right now: `+50 XP Check-in`, `+30 XP Write review`, `+15 XP Vibe signal`, `Lucky 100 progress (X/5)`.
+- Pulls live data from existing hooks (`useLucky100Counter`, `useQuests`).
+- Tappable rows scroll to the matching section (`#reviews`, check-in button, vibe signals).
+- Confetti micro-animation on completed rows.
 
-### 4. Integration points
+Plus subtle XP chips on the action buttons themselves (`Check-in +50 XP`, `Write review +30 XP`).
 
-Add `<VenueReviewsSection venueName venueType eventId? />` to:
-- `EventDetail.tsx` (already partially wired — replace with new section)
-- `VenueDashboard.tsx` (owner sees reviews + reply box)
-- New `VenueDetail.tsx` page (route `/venue/:venueName`) — central place profile so cafes/bars/food-corners that aren't events also have reviews
-- `Home.tsx` / `EventCard.tsx` — clicking a venue chip routes to `/venue/:venueName`
-- Add `Reviews` tab on profile (optional, low priority)
+## 4. Cross-page consistency fixes
 
-### 5. Ranking & weight
+- **Home**: replace ad-hoc filter chips with the same chip style used in Explore neighborhoods. Wrap `Lucky100Banner`, `BestPartyCard`, `LeaderboardPreview`, `VenueHeatBoard` in `SectionHeading` + consistent spacing.
+- **EventCard**: align the "View Reviews" footer with the new chip style; venue badge uses the shared `<VenueTypeBadge>`.
+- **Explore**: header / mode selector restyled to match `AppHeader` and gamification card patterns.
+- **Gamification / Quests / Leaderboard / Scene**: same `AppHeader`, same `SectionHeading`, same card padding. No data changes.
+- **BottomNav**: audit active-state color so it matches the new primary gradient.
 
-- Update `compute_scene_health` and trending utilities to use weighted avg (verified×2)
-- `get_personalized_events` already references reviews; no change needed
+## 5. What is NOT in scope
 
-### 6. Styling
+- No schema changes, no new tables, no new edge functions.
+- No new features (no new gamification rules, no new review mechanics).
+- No routing changes beyond the shared template — `/event/:id` and `/venue/:venueName` stay.
+- No copy rewrite beyond labels needed for the new XP card.
 
-Dark glass cards (existing `GlassCard`), neon purple/pink accent on star fills, gold accent on Verified badge, Framer Motion stagger on review list, `🤖 AI` chip on summary card.
+## Technical notes
 
-### Out of scope
-- Editing/deleting business replies UI beyond a single reply per review
-- Admin moderation dashboard (reports just collected; flagging surfaces via existing moderation_status)
-- Photo EXIF stripping (basic upload only)
+New files:
+- `src/components/layout/AppHeader.tsx`
+- `src/components/layout/SectionHeading.tsx`
+- `src/components/VenueTypeBadge.tsx`
+- `src/components/profile/VenueProfileTemplate.tsx`
+- `src/components/gamification/XPRewardCard.tsx`
+- `src/lib/motion.ts`
+
+Edited files:
+- `src/pages/EventDetail.tsx` — render `VenueProfileTemplate` body
+- `src/pages/VenueDetail.tsx` — render `VenueProfileTemplate` body
+- `src/pages/Home.tsx`, `src/pages/Explore.tsx`, `src/pages/Gamification.tsx`, `src/pages/Quests.tsx`, `src/pages/Leaderboard.tsx`, `src/pages/ScenePanel.tsx` — adopt `AppHeader` + `SectionHeading`
+- `src/components/EventCard.tsx` — use `<VenueTypeBadge>`, polish footer
+- `src/index.css` / `tailwind.config.ts` — add any missing semantic tokens (no color changes — current palette stays)
+
+## Verification
+
+After implementation: visit Home → Explore → tap a venue → tap an event from it → write a review. The hero, badges, sections, motion, and XP card all look identical across surfaces. No console errors. Reviews still scroll to anchor.

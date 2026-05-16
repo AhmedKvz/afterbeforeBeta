@@ -18,6 +18,9 @@ import { logTrainingEvent } from '@/services/aiTracker';
 import { toast } from 'sonner';
 import { AreaChart, Area, XAxis, ResponsiveContainer } from 'recharts';
 import { VenueReviewsSection } from '@/components/reviews/VenueReviewsSection';
+import { VenueTypeBadge } from '@/components/VenueTypeBadge';
+import { SectionHeading } from '@/components/layout/SectionHeading';
+import { XPRewardCard } from '@/components/gamification/XPRewardCard';
 
 interface Event {
   id: string;
@@ -323,10 +326,21 @@ const EventDetail = () => {
         
         <div className="absolute bottom-4 left-4 right-4">
           <GlassCard className="p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <h1 className="text-2xl font-bold">{event.title}</h1>
-                <p className="text-muted-foreground text-sm">{event.venue_name}</p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="mb-1.5 flex items-center gap-2">
+                  <VenueTypeBadge type={(event as any).venue_type || 'club'} />
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    {format(new Date(event.date), 'EEE, MMM d')}
+                  </span>
+                </div>
+                <h1 className="truncate text-2xl font-black tracking-tight">{event.title}</h1>
+                <button
+                  onClick={() => navigate(`/venue/${encodeURIComponent(event.venue_name)}`)}
+                  className="mt-0.5 text-sm text-muted-foreground transition hover:text-primary"
+                >
+                  {event.venue_name} →
+                </button>
               </div>
               <HeatBadge level={heatLevel} />
             </div>
@@ -336,6 +350,19 @@ const EventDetail = () => {
 
       {/* Content */}
       <div className="px-4 py-6 space-y-6">
+        {/* XP reward card — prominent inline gamification */}
+        {user && (
+          <XPRewardCard
+            isCheckedIn={isCheckedIn}
+            isGoing={isGoing}
+            onCheckIn={!isCheckedIn ? handleCheckIn : undefined}
+            onGoing={!isGoing ? toggleSignal : undefined}
+            onReview={() => {
+              document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          />
+        )}
+
         {/* Info Pills */}
         <div className="flex flex-wrap gap-3">
           <div className="flex items-center gap-2 text-sm">
@@ -363,8 +390,8 @@ const EventDetail = () => {
 
         {/* Description */}
         <div>
-          <h2 className="font-bold mb-2">About</h2>
-          <p className="text-muted-foreground">{event.description}</p>
+          <SectionHeading label="About" />
+          <p className="text-muted-foreground leading-relaxed">{event.description}</p>
         </div>
 
         {/* AI Crowd Prediction */}

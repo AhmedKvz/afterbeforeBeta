@@ -315,7 +315,15 @@ const Home = () => {
 
       {/* Events Grid */}
       <div className="px-4">
-        <h2 className="font-bold text-lg mb-4">Upcoming Events</h2>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-primary">🎟️</span>
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+              Upcoming events
+            </h2>
+          </div>
+          <span className="text-[11px] text-muted-foreground">{regularEvents.length} listed</span>
+        </div>
         <div className="grid grid-cols-1 gap-4">
           {regularEvents.map((event, index) => (
             <motion.div
