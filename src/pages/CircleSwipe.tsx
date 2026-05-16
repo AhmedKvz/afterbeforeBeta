@@ -400,6 +400,19 @@ const CircleSwipe = () => {
           <span className="rounded-full bg-blue-500/15 text-blue-300 px-2 py-0.5">🌙 After-ready</span>
         </div>
       </div>
+
+      {/* Swipe Area */}
+      <div className="flex-1 relative px-4 py-6">
+        {hasMoreProfiles ? (
+          <div className="relative h-[60vh] max-h-[500px]">
+            {/* Match-type label */}
+            <div className="absolute -top-1 left-0 right-0 z-10 flex justify-center">
+              <span className="rounded-full border border-primary/30 bg-background/80 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary backdrop-blur">
+                {intention === 'vibe' ? '🎶 Vibe match' : intention === 'text' ? '💬 Classic match' : '🔥 Flame match'}
+              </span>
+            </div>
+            <AnimatePresence>
+              {profiles.slice(currentIndex, currentIndex + 3).map((p, index) => (
                 <SwipeCard
                   key={p.id}
                   profile={p}
