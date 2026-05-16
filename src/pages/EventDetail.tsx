@@ -350,6 +350,19 @@ const EventDetail = () => {
 
       {/* Content */}
       <div className="px-4 py-6 space-y-6">
+        {/* XP reward card — prominent inline gamification */}
+        {user && (
+          <XPRewardCard
+            isCheckedIn={isCheckedIn}
+            isGoing={isGoing}
+            onCheckIn={!isCheckedIn ? handleCheckIn : undefined}
+            onGoing={!isGoing ? toggleSignal : undefined}
+            onReview={() => {
+              document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          />
+        )}
+
         {/* Info Pills */}
         <div className="flex flex-wrap gap-3">
           <div className="flex items-center gap-2 text-sm">
