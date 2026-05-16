@@ -264,7 +264,16 @@ const Home = () => {
       {/* AI "Tonight For You" Section */}
       <TonightForYou userId={user?.id} events={events} navigate={navigate} />
 
-      {/* Venue Heat Widget */}
+      {/* Trending Tonight */}
+      <TrendingTonight events={events} signalCounts={signalCounts} navigate={navigate} />
+
+      {/* Discover Places (venue cards) */}
+      <DiscoverPlaces navigate={navigate} />
+
+      {/* Community Reviewed */}
+      <CommunityReviewed navigate={navigate} />
+
+      {/* Club Board preview (Venue Heat) */}
       <div className="px-4 mb-6">
         <VenueHeatBoard compact />
       </div>
