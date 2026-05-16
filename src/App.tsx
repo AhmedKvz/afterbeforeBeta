@@ -23,6 +23,7 @@ import Quests from "./pages/Quests";
 import Explore from "./pages/Explore";
 import SecretPartyRequest from "./pages/SecretPartyRequest";
 import InstagramCallback from "./pages/InstagramCallback";
+import VenueDetail from "./pages/VenueDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
