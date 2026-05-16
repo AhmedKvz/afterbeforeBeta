@@ -201,26 +201,7 @@ const Home = () => {
         </div>
       </header>
 
-      {/* After Mode Banner (3AM-7AM) */}
-      {(() => {
-        const hour = new Date().getHours();
-        const isAfterHours = hour >= 0 && hour < 7;
-        if (!isAfterHours) return null;
-        return (
-          <motion.button
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            onClick={() => setActiveFilter('After Mode')}
-            className="mx-4 mt-3 w-[calc(100%-2rem)] p-3 rounded-xl bg-muted/40 backdrop-blur-xl border border-border flex items-center gap-3"
-          >
-            <span className="text-lg animate-pulse">🍔</span>
-            <div className="text-left">
-              <span className="text-sm font-semibold text-foreground">Food Corner</span>
-              <span className="text-xs text-muted-foreground ml-2">Late-night food open after 00:00</span>
-            </div>
-          </motion.button>
-        );
-      })()}
+      {/* After Mode / Food Corner banner disabled for now */}
 
       {/* Location */}
       <div className="px-4 py-3 flex items-center gap-2 text-muted-foreground">
