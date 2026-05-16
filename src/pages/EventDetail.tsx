@@ -18,6 +18,9 @@ import { logTrainingEvent } from '@/services/aiTracker';
 import { toast } from 'sonner';
 import { AreaChart, Area, XAxis, ResponsiveContainer } from 'recharts';
 import { VenueReviewsSection } from '@/components/reviews/VenueReviewsSection';
+import { VenueTypeBadge } from '@/components/VenueTypeBadge';
+import { SectionHeading } from '@/components/layout/SectionHeading';
+import { XPRewardCard } from '@/components/gamification/XPRewardCard';
 
 interface Event {
   id: string;
@@ -363,8 +366,8 @@ const EventDetail = () => {
 
         {/* Description */}
         <div>
-          <h2 className="font-bold mb-2">About</h2>
-          <p className="text-muted-foreground">{event.description}</p>
+          <SectionHeading label="About" />
+          <p className="text-muted-foreground leading-relaxed">{event.description}</p>
         </div>
 
         {/* AI Crowd Prediction */}
