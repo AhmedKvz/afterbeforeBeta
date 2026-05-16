@@ -619,4 +619,94 @@ const CrowdPredictionCard = ({ prediction, event }: { prediction: any; event: an
   );
 };
 
+// Venue average rating pill shown next to the venue link in the header
+const VenueRatingPill = ({ venueName }: { venueName: string }) => {
+  const { data } = useQuery({
+    queryKey: ['venue-rating-pill', venueName],
+    queryFn: async () => {
+      const { data } = await supabase.rpc('get_venue_review_stats', { p_venue_name: venueName });
+      return data as any;
+    },
+    enabled: !!venueName,
+  });
+  const avg = Number(data?.avg_rating || 0);
+  const count = Number(data?.review_count || 0);
+  if (!count) return null;
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-yellow-400/15 px-2 py-0.5 text-[10px] font-bold text-yellow-300">
+      <Star className="h-2.5 w-2.5 fill-yellow-300" />
+      {avg.toFixed(1)} · {count}
+    </span>
+  );
+};
+
+// Show the user 2 weekly quests they can unlock here
+const EventQuestPreview = ({ eventId, isCheckedIn }: { eventId: string; isCheckedIn: boolean }) => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { data: quests = [] } = useQuery({
+    queryKey: ['event-quest-preview', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const week = (() => {
+        const now = new Date();
+        const day = now.getDay();
+        const monday = new Date(now);
+        monday.setDate(now.getDate() - ((day + 6) % 7));
+        monday.setHours(0, 0, 0, 0);
+        return monday.toISOString().split('T')[0];
+      })();
+      const { data: uq } = await supabase
+        .from('user_quests')
+        .select('quest_id, progress, is_completed, quests(title, icon, xp_reward, target_count, quest_type)')
+        .eq('user_id', user.id)
+        .eq('week_start', week)
+        .eq('is_completed', false)
+        .limit(3);
+      return uq || [];
+    },
+    enabled: !!user,
+  });
+  if (!quests.length) return null;
+  return (
+    <div className="rounded-2xl border border-primary/25 bg-primary/5 p-4">
+      <div className="mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span>🎯</span>
+          <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+            Quests you can progress here
+          </span>
+        </div>
+        <button
+          onClick={() => navigate('/quests')}
+          className="text-xs font-bold text-primary"
+        >
+          All →
+        </button>
+      </div>
+      <div className="space-y-1.5">
+        {quests.map((q: any) => (
+          <div
+            key={q.quest_id}
+            className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+          >
+            <div className="flex items-center gap-2">
+              <span>{q.quests?.icon || '🎯'}</span>
+              <div>
+                <p className="text-xs font-semibold">{q.quests?.title}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {q.progress}/{q.quests?.target_count} · +{q.quests?.xp_reward} XP
+                </p>
+              </div>
+            </div>
+            {!isCheckedIn && (
+              <span className="text-[10px] text-muted-foreground">Check in to progress</span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default EventDetail;
