@@ -429,20 +429,33 @@ const EventDetail = () => {
           />
         </div>
 
-        {/* Check-in Notice */}
+        {/* Check-in education */}
         {!isCheckedIn && (
           <GlassCard className="bg-primary/10 border-primary/30">
             <div className="flex items-start gap-3">
               <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium">Check in when you arrive to unlock Circle Swipe!</p>
+                <p className="text-sm font-medium">Check in unlocks the full circle.</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  You must be at the event location to check in
+                  Verified review · Circle Swipe visibility · Weekly quests · +XP & Lucky 100 entry
                 </p>
               </div>
             </div>
           </GlassCard>
         )}
+
+        {/* Event-specific quest preview */}
+        <EventQuestPreview eventId={event.id} isCheckedIn={isCheckedIn} />
+
+        {/* Reviews */}
+        <div id="reviews" className="scroll-mt-20">
+          <VenueReviewsSection
+            venueName={event.venue_name}
+            venueType={(event as any).venue_type || 'club'}
+            eventId={event.id}
+            className="pb-32"
+          />
+        </div>
 
         {/* Reviews */}
         <div id="reviews" className="scroll-mt-20">
