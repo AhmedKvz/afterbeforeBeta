@@ -110,13 +110,19 @@ export const WriteReviewModal = ({
         });
       } catch {}
 
-      logTrainingEvent('review', user.id, eventId || venueName, {
-        rating,
-        textLength: text.length,
-        tagCount: tags.length,
-        photoCount: photos.length,
-        venueType,
-      });
+      logTrainingEvent(
+        'review',
+        user.id,
+        eventId || venueName,
+        {
+          rating,
+          textLength: text.length,
+          tagCount: tags.length,
+          photoCount: photos.length,
+          venueType,
+        },
+        `rating_${rating}`
+      );
 
       confetti({
         particleCount: 80,
