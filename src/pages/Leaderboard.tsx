@@ -312,9 +312,10 @@ const LeaderboardList = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
             className={cn(
-              'glass-card p-4',
+              'glass-card p-4 relative',
               isCurrentUser && 'border-2 border-primary',
-              isTop3 && 'bg-gradient-to-r from-amber-500/10 to-orange-500/10'
+              isTop3 && !championshipMode && 'bg-gradient-to-r from-amber-500/10 to-orange-500/10',
+              isTop3 && championshipMode && 'bg-gradient-to-r from-accent/15 via-primary/10 to-transparent border border-accent/40'
             )}
           >
             <div className="flex items-center gap-3">
