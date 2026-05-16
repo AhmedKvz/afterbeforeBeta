@@ -134,10 +134,11 @@ const Home = () => {
   };
 
   const filteredEvents = events.filter((event) => {
-    // Food Corner / afterplaces hidden for now
-    if (event.venue_type === 'afterplace') return false;
+    // Afterplaces only included when "After Food" filter is on
+    if (event.venue_type === 'afterplace' && activeFilter !== 'After Food') return false;
 
     if (activeFilter === 'All') return true;
+    if (activeFilter === 'Events') return true;
     if (activeFilter === 'Tonight') {
       const today = new Date().toISOString().split('T')[0];
       return event.date === today;
@@ -155,8 +156,11 @@ const Home = () => {
       return eventDate >= friday && eventDate <= sunday;
     }
     if (activeFilter === 'Clubs') return event.venue_type === 'club';
-    if (activeFilter === 'Splavi') return event.venue_type === 'splav';
-    if (activeFilter === 'Cafes') return event.venue_type === 'cafe_bar';
+    if (activeFilter === 'Splavs') return event.venue_type === 'splav';
+    if (activeFilter === 'Cafes') return event.venue_type === 'cafe_bar' || event.venue_type === 'cafe';
+    if (activeFilter === 'Bars') return event.venue_type === 'bar';
+    if (activeFilter === 'Restaurants') return event.venue_type === 'restaurant';
+    if (activeFilter === 'After Food') return event.venue_type === 'afterplace';
     if (activeFilter === 'Galleries') return event.venue_type === 'gallery';
     if (activeFilter === 'Secret 🔒') return event.event_type === 'secret';
     if (activeFilter === 'Pop-Up ⚡') return event.event_type === 'popup';
