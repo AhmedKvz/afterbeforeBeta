@@ -33,11 +33,13 @@ interface VenueHeatBoardProps {
 
 export const VenueHeatBoard = ({ compact = false }: VenueHeatBoardProps) => {
   const navigate = useNavigate();
+  const [range, setRange] = useState<HeatRange>('week');
+  const days = RANGE_OPTIONS.find((r) => r.id === range)?.days ?? 7;
 
   const { data: venueHeat, isLoading } = useQuery({
-    queryKey: ['venue-heat'],
+    queryKey: ['venue-heat', days],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_venue_heat', { days_back: 7 });
+      const { data, error } = await supabase.rpc('get_venue_heat', { days_back: days });
       if (error) throw error;
       return (data as unknown as VenueHeat[]) || [];
     },
