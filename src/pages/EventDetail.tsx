@@ -335,12 +335,21 @@ const EventDetail = () => {
                   </span>
                 </div>
                 <h1 className="truncate text-2xl font-black tracking-tight">{event.title}</h1>
-                <button
-                  onClick={() => navigate(`/venue/${encodeURIComponent(event.venue_name)}`)}
-                  className="mt-0.5 text-sm text-muted-foreground transition hover:text-primary"
-                >
-                  {event.venue_name} →
-                </button>
+                <div className="mt-1 flex items-center gap-2">
+                  <button
+                    onClick={() => navigate(`/venue/${encodeURIComponent(event.venue_name)}`)}
+                    className="text-sm text-muted-foreground transition hover:text-primary"
+                  >
+                    {event.venue_name}
+                  </button>
+                  <VenueRatingPill venueName={event.venue_name} />
+                  <button
+                    onClick={() => navigate(`/venue/${encodeURIComponent(event.venue_name)}`)}
+                    className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary transition hover:bg-primary/20"
+                  >
+                    Open venue →
+                  </button>
+                </div>
               </div>
               <HeatBadge level={heatLevel} />
             </div>
