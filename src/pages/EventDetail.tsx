@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { 
   ArrowLeft, Heart, Calendar, MapPin, Users, 
-  DollarSign, Music, Loader2, MapPinCheck, Sparkles, Flame, Bot
+  DollarSign, Music, Loader2, MapPinCheck, Sparkles, Flame, Bot, Star
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -41,7 +41,18 @@ interface Event {
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (location.hash === '#reviews') {
+      // wait for the section to mount
+      const t = setTimeout(() => {
+        document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+      return () => clearTimeout(t);
+    }
+  }, [location.hash, loading]);
   
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
@@ -399,12 +410,14 @@ const EventDetail = () => {
         )}
 
         {/* Reviews */}
-        <VenueReviewsSection
-          venueName={event.venue_name}
-          venueType={(event as any).venue_type || 'club'}
-          eventId={event.id}
-          className="pb-32"
-        />
+        <div id="reviews" className="scroll-mt-20">
+          <VenueReviewsSection
+            venueName={event.venue_name}
+            venueType={(event as any).venue_type || 'club'}
+            eventId={event.id}
+            className="pb-32"
+          />
+        </div>
       </div>
 
       {/* CTA Buttons */}

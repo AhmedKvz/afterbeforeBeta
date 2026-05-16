@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { MapPin, Lock } from 'lucide-react';
+import { MapPin, Lock, Star } from 'lucide-react';
 import { HeatBadge, getHeatLevel } from './HeatBadge';
 import { AvatarStack } from './AvatarStack';
 import { CountdownTimer } from './CountdownTimer';
@@ -199,6 +199,20 @@ export const EventCard = ({
           )}
         </div>
       </div>
+
+      {/* View Reviews shortcut */}
+      {!isSecretEvent && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/event/${id}#reviews`);
+          }}
+          className="w-full flex items-center justify-center gap-1.5 border-t border-white/10 px-4 py-2 text-xs font-medium text-muted-foreground hover:bg-white/5 hover:text-primary transition"
+        >
+          <Star className="w-3.5 h-3.5" />
+          View Reviews
+        </button>
+      )}
     </div>
   );
 };
