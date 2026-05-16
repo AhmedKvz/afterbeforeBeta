@@ -212,6 +212,44 @@ export type Database = {
         }
         Relationships: []
       }
+      business_replies: {
+        Row: {
+          created_at: string
+          id: string
+          replier_id: string
+          reply_text: string
+          review_id: string
+          updated_at: string
+          venue_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          replier_id: string
+          reply_text: string
+          review_id: string
+          updated_at?: string
+          venue_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          replier_id?: string
+          reply_text?: string
+          review_id?: string
+          updated_at?: string
+          venue_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_replies_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: true
+            referencedRelation: "event_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       challenge_entries: {
         Row: {
           caption: string | null
@@ -506,37 +544,61 @@ export type Database = {
         Row: {
           created_at: string | null
           event_id: string
+          helpful_count: number
           id: string
           moderation_flags: string[] | null
           moderation_score: number | null
           moderation_status: string | null
           rating: number
+          report_count: number
           review_text: string | null
           user_id: string
+          venue_name: string | null
+          venue_type: string | null
+          verified_visit: boolean | null
+          vibe_tags: string[] | null
+          visit_date: string | null
+          weight: number
           xp_earned: number | null
         }
         Insert: {
           created_at?: string | null
           event_id: string
+          helpful_count?: number
           id?: string
           moderation_flags?: string[] | null
           moderation_score?: number | null
           moderation_status?: string | null
           rating: number
+          report_count?: number
           review_text?: string | null
           user_id: string
+          venue_name?: string | null
+          venue_type?: string | null
+          verified_visit?: boolean | null
+          vibe_tags?: string[] | null
+          visit_date?: string | null
+          weight?: number
           xp_earned?: number | null
         }
         Update: {
           created_at?: string | null
           event_id?: string
+          helpful_count?: number
           id?: string
           moderation_flags?: string[] | null
           moderation_score?: number | null
           moderation_status?: string | null
           rating?: number
+          report_count?: number
           review_text?: string | null
           user_id?: string
+          venue_name?: string | null
+          venue_type?: string | null
+          verified_visit?: boolean | null
+          vibe_tags?: string[] | null
+          visit_date?: string | null
+          weight?: number
           xp_earned?: number | null
         }
         Relationships: [
@@ -1209,6 +1271,108 @@ export type Database = {
         }
         Relationships: []
       }
+      review_photos: {
+        Row: {
+          created_at: string
+          id: string
+          photo_url: string
+          position: number
+          review_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          photo_url: string
+          position?: number
+          review_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          photo_url?: string
+          position?: number
+          review_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_photos_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "event_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      review_reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          review_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          review_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          review_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_reports_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "event_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      review_votes: {
+        Row: {
+          created_at: string
+          id: string
+          review_id: string
+          user_id: string
+          vote_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          review_id: string
+          user_id: string
+          vote_type?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          review_id?: string
+          user_id?: string
+          vote_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_votes_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "event_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       scene_credits_accounts: {
         Row: {
           balance_cents: number
@@ -1534,6 +1698,24 @@ export type Database = {
         }
         Relationships: []
       }
+      venue_review_summary: {
+        Row: {
+          computed_at: string
+          summary: Json
+          venue_name: string
+        }
+        Insert: {
+          computed_at?: string
+          summary: Json
+          venue_name: string
+        }
+        Update: {
+          computed_at?: string
+          summary?: Json
+          venue_name?: string
+        }
+        Relationships: []
+      }
       vibe_signals: {
         Row: {
           created_at: string | null
@@ -1798,6 +1980,7 @@ export type Database = {
           venue_name: string
         }[]
       }
+      get_venue_review_stats: { Args: { p_venue_name: string }; Returns: Json }
       get_weekly_leaderboard: {
         Args: { limit_count?: number; week_num: number; year_num: number }
         Returns: {
@@ -1837,6 +2020,7 @@ export type Database = {
         }
         Returns: number
       }
+      toggle_review_helpful: { Args: { p_review_id: string }; Returns: Json }
       topup_scene_credits: { Args: { p_amount_cents: number }; Returns: number }
       vote_on_challenge_entry: { Args: { p_entry_id: string }; Returns: Json }
     }
