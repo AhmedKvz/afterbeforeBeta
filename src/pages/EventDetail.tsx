@@ -17,6 +17,7 @@ import { incrementQuestProgress } from '@/services/questProgress';
 import { logTrainingEvent } from '@/services/aiTracker';
 import { toast } from 'sonner';
 import { AreaChart, Area, XAxis, ResponsiveContainer } from 'recharts';
+import { VenueReviewsSection } from '@/components/reviews/VenueReviewsSection';
 
 interface Event {
   id: string;
