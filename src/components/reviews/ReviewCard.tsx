@@ -83,6 +83,9 @@ export const ReviewCard = ({
               {review.profile?.display_name || 'Anonymous'}
             </span>
             {review.verified_visit && <VerifiedVisitBadge />}
+            {user?.id === review.user_id && review.moderation_status && review.moderation_status !== 'approved' && (
+              <ModerationPill status={review.moderation_status} />
+            )}
             <span className="text-xs text-muted-foreground">
               {format(new Date(review.created_at), 'MMM d, yyyy')}
             </span>
