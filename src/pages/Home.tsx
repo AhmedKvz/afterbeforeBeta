@@ -133,12 +133,9 @@ const Home = () => {
     }
   };
 
-  const currentHour = new Date().getHours();
-  const isAfterHours = currentHour >= 0 && currentHour < 7;
-
   const filteredEvents = events.filter((event) => {
-    // Food Corner / afterplace venues only visible after 00:00 (until 07:00)
-    if (event.venue_type === 'afterplace' && !isAfterHours) return false;
+    // Food Corner / afterplaces hidden for now
+    if (event.venue_type === 'afterplace') return false;
 
     if (activeFilter === 'All') return true;
     if (activeFilter === 'Tonight') {
@@ -160,19 +157,13 @@ const Home = () => {
     if (activeFilter === 'Clubs') return event.venue_type === 'club';
     if (activeFilter === 'Splavi') return event.venue_type === 'splav';
     if (activeFilter === 'Cafes') return event.venue_type === 'cafe_bar';
-    if (activeFilter === 'Food Corner 🍔') return event.venue_type === 'afterplace';
     if (activeFilter === 'Galleries') return event.venue_type === 'gallery';
-    if (activeFilter === 'After Mode') return event.venue_type === 'afterplace';
     if (activeFilter === 'Secret 🔒') return event.event_type === 'secret';
     if (activeFilter === 'Pop-Up ⚡') return event.event_type === 'popup';
     return event.music_genres?.includes(activeFilter);
   });
 
-  // Hide Food Corner & After Mode chips outside late-night window
-  const visibleFilters = FILTER_OPTIONS.filter((f) => {
-    if ((f === 'Food Corner 🍔' || f === 'After Mode') && !isAfterHours) return false;
-    return true;
-  });
+  const visibleFilters = FILTER_OPTIONS;
 
   const regularEvents = bestParty 
     ? filteredEvents.filter(e => e.id !== bestParty.id)
