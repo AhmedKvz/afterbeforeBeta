@@ -43,7 +43,7 @@ interface Event {
   max_guests: number | null;
 }
 
-const FILTER_OPTIONS = ['All', 'Clubs', 'Splavi', 'Cafes', 'Food Corner 🍔', 'Galleries', 'Secret 🔒', 'Pop-Up ⚡', 'Tonight', 'This Weekend', 'After Mode'];
+const FILTER_OPTIONS = ['All', 'Clubs', 'Splavi', 'Cafes', 'Galleries', 'Secret 🔒', 'Pop-Up ⚡', 'Tonight', 'This Weekend'];
 
 const Home = () => {
   const navigate = useNavigate();
@@ -133,12 +133,9 @@ const Home = () => {
     }
   };
 
-  const currentHour = new Date().getHours();
-  const isAfterHours = currentHour >= 0 && currentHour < 7;
-
   const filteredEvents = events.filter((event) => {
-    // Food Corner / afterplace venues only visible after 00:00 (until 07:00)
-    if (event.venue_type === 'afterplace' && !isAfterHours) return false;
+    // Food Corner / afterplaces hidden for now
+    if (event.venue_type === 'afterplace') return false;
 
     if (activeFilter === 'All') return true;
     if (activeFilter === 'Tonight') {
@@ -160,19 +157,13 @@ const Home = () => {
     if (activeFilter === 'Clubs') return event.venue_type === 'club';
     if (activeFilter === 'Splavi') return event.venue_type === 'splav';
     if (activeFilter === 'Cafes') return event.venue_type === 'cafe_bar';
-    if (activeFilter === 'Food Corner 🍔') return event.venue_type === 'afterplace';
     if (activeFilter === 'Galleries') return event.venue_type === 'gallery';
-    if (activeFilter === 'After Mode') return event.venue_type === 'afterplace';
     if (activeFilter === 'Secret 🔒') return event.event_type === 'secret';
     if (activeFilter === 'Pop-Up ⚡') return event.event_type === 'popup';
     return event.music_genres?.includes(activeFilter);
   });
 
-  // Hide Food Corner & After Mode chips outside late-night window
-  const visibleFilters = FILTER_OPTIONS.filter((f) => {
-    if ((f === 'Food Corner 🍔' || f === 'After Mode') && !isAfterHours) return false;
-    return true;
-  });
+  const visibleFilters = FILTER_OPTIONS;
 
   const regularEvents = bestParty 
     ? filteredEvents.filter(e => e.id !== bestParty.id)
@@ -210,26 +201,7 @@ const Home = () => {
         </div>
       </header>
 
-      {/* After Mode Banner (3AM-7AM) */}
-      {(() => {
-        const hour = new Date().getHours();
-        const isAfterHours = hour >= 0 && hour < 7;
-        if (!isAfterHours) return null;
-        return (
-          <motion.button
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            onClick={() => setActiveFilter('After Mode')}
-            className="mx-4 mt-3 w-[calc(100%-2rem)] p-3 rounded-xl bg-muted/40 backdrop-blur-xl border border-border flex items-center gap-3"
-          >
-            <span className="text-lg animate-pulse">🍔</span>
-            <div className="text-left">
-              <span className="text-sm font-semibold text-foreground">Food Corner</span>
-              <span className="text-xs text-muted-foreground ml-2">Late-night food open after 00:00</span>
-            </div>
-          </motion.button>
-        );
-      })()}
+      {/* After Mode / Food Corner banner disabled for now */}
 
       {/* Location */}
       <div className="px-4 py-3 flex items-center gap-2 text-muted-foreground">
