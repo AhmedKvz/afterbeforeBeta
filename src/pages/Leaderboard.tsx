@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Trophy, Crown, Ticket, Star, Gift, Zap, Target, HelpCircle, Flame } from 'lucide-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Trophy, Crown, Ticket, Star, Gift, Zap, Target, HelpCircle, Flame } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { AppHeader } from '@/components/layout/AppHeader';
+import { YearlyChampionship } from '@/components/gamification/YearlyChampionship';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
@@ -38,7 +40,6 @@ const XP_GUIDE = [
 ];
 
 const Leaderboard = () => {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const [mode, setMode] = useState<'ravers' | 'clubs'>(
@@ -55,43 +56,23 @@ const Leaderboard = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <div className="relative overflow-hidden">
-        <div className={cn(
-          "absolute inset-0",
-          mode === 'clubs'
-            ? 'bg-gradient-to-br from-orange-500 via-red-500 to-amber-500'
-            : 'bg-gradient-to-br from-amber-500 via-orange-500 to-red-500'
-        )} />
-        <div className="absolute inset-0 bg-black/20" />
-        
-        <div className="relative p-4 pt-6">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-white/80 hover:text-white mb-4"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back</span>
-          </button>
-
-          <div className="text-center pb-4">
-            {mode === 'clubs' ? (
-              <Flame className="w-12 h-12 text-yellow-200 mx-auto mb-2" />
-            ) : (
-              <Trophy className="w-12 h-12 text-yellow-200 mx-auto mb-2" />
-            )}
-            <h1 className="text-2xl font-bold text-white">
-              {mode === 'clubs' ? 'Club Heat' : 'Leaderboard'}
-            </h1>
-            <p className="text-white/80 text-sm">Week {week} of {year}</p>
-            
-            <div className="mt-3 flex items-center justify-center gap-2 text-white/90 text-sm">
-              <span>Resets in:</span>
-              <CountdownTimer targetDate={getNextSunday()} compact className="text-yellow-200" />
-            </div>
-          </div>
-        </div>
-      </div>
+      <AppHeader
+        back
+        title={mode === 'clubs' ? 'Club Heat' : 'Leaderboard'}
+        subtitle={
+          <span className="flex items-center gap-2">
+            Week {week} of {year} · resets in{' '}
+            <CountdownTimer targetDate={getNextSunday()} compact className="text-accent" />
+          </span>
+        }
+        right={
+          mode === 'clubs' ? (
+            <Flame className="h-5 w-5 text-accent" />
+          ) : (
+            <Trophy className="h-5 w-5 text-accent" />
+          )
+        }
+      />
 
       {/* Mode Toggle */}
       <div className="px-4 -mt-3 mb-4">
@@ -155,9 +136,7 @@ const Leaderboard = () => {
               <TabsList className="w-full grid grid-cols-3">
                 <TabsTrigger value="weekly">Weekly</TabsTrigger>
                 <TabsTrigger value="monthly">Monthly</TabsTrigger>
-                <TabsTrigger value="yearly" disabled>
-                  Yearly 🔒
-                </TabsTrigger>
+                <TabsTrigger value="yearly">Yearly 🌍</TabsTrigger>
               </TabsList>
 
               <TabsContent value="weekly" className="mt-4 space-y-4">
@@ -238,12 +217,15 @@ const Leaderboard = () => {
                 />
               </TabsContent>
 
-              <TabsContent value="yearly" className="mt-4">
-                <div className="text-center py-12 text-muted-foreground">
-                  <Trophy className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Yearly leaderboard coming soon!</p>
-                  <p className="text-sm">Available after pilot period</p>
-                </div>
+              <TabsContent value="yearly" className="mt-4 space-y-4">
+                <YearlyChampionship />
+                <LeaderboardList
+                  entries={leaderboard}
+                  currentUserId={user?.id}
+                  userRank={userRank}
+                  isLoading={isLoading}
+                  isUserInLeaderboard={isUserInLeaderboard}
+                />
               </TabsContent>
             </Tabs>
           </div>

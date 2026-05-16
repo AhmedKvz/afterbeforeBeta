@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Compass, Shield, Activity, Bot } from 'lucide-react';
+import { Compass, Activity, Bot } from 'lucide-react';
+import { AppHeader } from '@/components/layout/AppHeader';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,7 +33,6 @@ const SAFETY_TIPS = [
 ];
 
 const ScenePanel = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [tab, setTab] = useState('raverboard');
 
@@ -140,17 +139,12 @@ const ScenePanel = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-4">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div className="flex items-center gap-2">
-            <Compass className="w-6 h-6 text-primary" />
-            <h1 className="font-bold text-xl">Scene Panel</h1>
-          </div>
-        </div>
-      </header>
+      <AppHeader
+        back
+        title="Scene Panel"
+        subtitle="Raverboard · Vibe · Safety"
+        right={<Compass className="h-5 w-5 text-accent" />}
+      />
 
       <div className="px-4 pt-4">
         <Tabs value={tab} onValueChange={setTab}>

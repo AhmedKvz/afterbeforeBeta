@@ -1,10 +1,10 @@
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Target } from 'lucide-react';
+import { Target } from 'lucide-react';
 import { useQuests } from '@/hooks/useQuests';
 import { QuestCard } from '@/components/QuestCard';
 import { CountdownTimer } from '@/components/CountdownTimer';
 import { BottomNav } from '@/components/BottomNav';
+import { AppHeader } from '@/components/layout/AppHeader';
 import { toast } from 'sonner';
 
 const getNextMonday = (): Date => {
@@ -18,7 +18,6 @@ const getNextMonday = (): Date => {
 };
 
 const Quests = () => {
-  const navigate = useNavigate();
   const { quests, isLoading, claimReward, completedCount, totalCount } = useQuests();
 
   const handleClaim = (questId: string, xpReward: number) => {
@@ -33,23 +32,17 @@ const Quests = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-4">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="font-bold text-xl flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary" />
-              Weekly Quests
-            </h1>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>Resets in:</span>
-              <CountdownTimer targetDate={getNextMonday()} compact className="text-primary" />
-            </div>
-          </div>
-        </div>
-      </header>
+      <AppHeader
+        back
+        title="Weekly Quests"
+        subtitle={
+          <span className="flex items-center gap-2">
+            Resets in{' '}
+            <CountdownTimer targetDate={getNextMonday()} compact className="text-accent" />
+          </span>
+        }
+        right={<Target className="h-5 w-5 text-accent" />}
+      />
 
       <div className="px-4 py-4 space-y-4">
         {/* Progress Summary */}
