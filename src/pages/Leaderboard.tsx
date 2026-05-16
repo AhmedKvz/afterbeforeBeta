@@ -219,12 +219,26 @@ const Leaderboard = () => {
 
               <TabsContent value="yearly" className="mt-4 space-y-4">
                 <YearlyChampionship />
+
+                <div className="rounded-2xl border border-accent/30 bg-gradient-to-r from-accent/10 via-primary/5 to-transparent p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Trophy className="w-4 h-4 text-accent" />
+                    <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                      Current Top 3 · Championship Contenders
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    These ravers are leading the yearly race. If standings hold on Dec 31, they fly out together — all-expenses paid.
+                  </p>
+                </div>
+
                 <LeaderboardList
                   entries={leaderboard}
                   currentUserId={user?.id}
                   userRank={userRank}
                   isLoading={isLoading}
                   isUserInLeaderboard={isUserInLeaderboard}
+                  championshipMode
                 />
               </TabsContent>
             </Tabs>
@@ -250,6 +264,7 @@ interface LeaderboardListProps {
   userRank: { rank: number; total_xp: number } | null;
   isLoading: boolean;
   isUserInLeaderboard: boolean;
+  championshipMode?: boolean;
 }
 
 const LeaderboardList = ({
@@ -258,6 +273,7 @@ const LeaderboardList = ({
   userRank,
   isLoading,
   isUserInLeaderboard,
+  championshipMode = false,
 }: LeaderboardListProps) => {
   if (isLoading) {
     return (
@@ -296,9 +312,10 @@ const LeaderboardList = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
             className={cn(
-              'glass-card p-4',
+              'glass-card p-4 relative',
               isCurrentUser && 'border-2 border-primary',
-              isTop3 && 'bg-gradient-to-r from-amber-500/10 to-orange-500/10'
+              isTop3 && !championshipMode && 'bg-gradient-to-r from-amber-500/10 to-orange-500/10',
+              isTop3 && championshipMode && 'bg-gradient-to-r from-accent/15 via-primary/10 to-transparent border border-accent/40'
             )}
           >
             <div className="flex items-center gap-3">
@@ -326,6 +343,11 @@ const LeaderboardList = ({
                   </span>
                   {isCurrentUser && (
                     <span className="text-xs text-primary">(You)</span>
+                  )}
+                  {isTop3 && championshipMode && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
+                      ✈️ Trip-bound
+                    </span>
                   )}
                 </div>
                 <Progress
