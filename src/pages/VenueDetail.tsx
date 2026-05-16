@@ -1,11 +1,16 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, MapPin } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { VenueReviewsSection } from '@/components/reviews/VenueReviewsSection';
-import { VENUE_TYPE_LABEL } from '@/components/reviews/reviewTags';
+import { VenueTypeBadge } from '@/components/VenueTypeBadge';
+import { SectionHeading } from '@/components/layout/SectionHeading';
+import { XPRewardCard } from '@/components/gamification/XPRewardCard';
 
 const VenueDetail = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { venueName: encoded } = useParams<{ venueName: string }>();
   const venueName = decodeURIComponent(encoded || '');
 
@@ -40,10 +45,13 @@ const VenueDetail = () => {
     events?.find((e) => e.venue_type)?.venue_type ||
     'club';
 
+  const scrollToReviews = () =>
+    document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' });
+
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <div className="relative h-44 w-full overflow-hidden bg-gradient-to-br from-purple-900 via-pink-900/60 to-background">
+      {/* Hero */}
+      <div className="relative h-52 w-full overflow-hidden bg-gradient-to-br from-purple-900 via-pink-900/60 to-background">
         {venueProfile?.venue_logo_url && (
           <img
             src={venueProfile.venue_logo_url}
@@ -52,17 +60,18 @@ const VenueDetail = () => {
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-        <Link
-          to="/"
-          className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur"
+
+        <button
+          onClick={() => navigate(-1)}
+          className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
+          aria-label="Go back"
         >
           <ArrowLeft className="h-5 w-5" />
-        </Link>
+        </button>
+
         <div className="absolute bottom-4 left-4 right-4">
-          <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
-            {VENUE_TYPE_LABEL[venueType] || 'Venue'}
-          </span>
-          <h1 className="mt-1 text-2xl font-black text-white">{venueName}</h1>
+          <VenueTypeBadge type={venueType} size="md" />
+          <h1 className="mt-1.5 text-2xl font-black tracking-tight text-white">{venueName}</h1>
           {(venueProfile?.venue_address || venueProfile?.neighborhood) && (
             <p className="mt-1 flex items-center gap-1 text-xs text-white/70">
               <MapPin className="h-3 w-3" />
@@ -72,22 +81,32 @@ const VenueDetail = () => {
         </div>
       </div>
 
-      <div className="mx-auto max-w-2xl px-4 pt-4">
+      <div className="mx-auto max-w-2xl space-y-6 px-4 pt-5">
         {venueProfile?.venue_description && (
-          <p className="mb-4 text-sm text-muted-foreground">{venueProfile.venue_description}</p>
+          <div>
+            <SectionHeading label="About" />
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              {venueProfile.venue_description}
+            </p>
+          </div>
+        )}
+
+        {/* Inline gamification on the venue surface too */}
+        {user && (
+          <XPRewardCard
+            onReview={scrollToReviews}
+          />
         )}
 
         {events && events.length > 0 && (
-          <div className="mb-6">
-            <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-              Recent events
-            </h2>
-            <div className="flex gap-2 overflow-x-auto pb-2">
+          <div>
+            <SectionHeading label="Recent events" />
+            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
               {events.map((e) => (
                 <Link
                   key={e.id}
                   to={`/event/${e.id}`}
-                  className="w-32 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/5"
+                  className="w-32 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 transition hover:border-primary/40"
                 >
                   {e.image_url && (
                     <img src={e.image_url} alt="" className="h-20 w-full object-cover" />
@@ -102,7 +121,9 @@ const VenueDetail = () => {
           </div>
         )}
 
-        <VenueReviewsSection venueName={venueName} venueType={venueType} />
+        <div id="reviews" className="scroll-mt-20">
+          <VenueReviewsSection venueName={venueName} venueType={venueType} />
+        </div>
       </div>
     </div>
   );
