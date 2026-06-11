@@ -3,6 +3,8 @@ import { MapPin, Calendar, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistance } from '@/services/geolocation';
 import { format } from 'date-fns';
+import { GradientImg } from './GradientImg';
+import { hueFromString } from '@/lib/gradients';
 
 interface EventSwipeCardProps {
   event: {
@@ -69,11 +71,11 @@ export const EventSwipeCard = ({ event, onSwipe, isTop = false }: EventSwipeCard
       onDragEnd={handleDragEnd}
     >
       {/* Background Image */}
-      <img
-        src={event.image_url || '/placeholder.svg'}
+      <GradientImg
+        src={event.image_url}
+        hue={hueFromString(event.venue_name || event.title)}
         alt={event.title}
-        className="absolute inset-0 w-full h-full object-cover"
-        draggable={false}
+        className="absolute inset-0 w-full h-full"
       />
 
       {/* Gradient Overlay */}

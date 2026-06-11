@@ -59,8 +59,19 @@ export const Lucky100Banner = ({ onClick }: Lucky100BannerProps) => {
       className="relative overflow-hidden rounded-2xl cursor-pointer group shadow-lg shadow-purple-500/30"
     >
       {/* Gradient Background - Purple to Pink to Orange */}
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400" />
-      
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(110deg, oklch(0.45 0.21 285) 0%, oklch(0.55 0.22 340) 50%, oklch(0.6 0.2 38) 100%)',
+        }}
+      />
+
+      {/* Faded clover accent (prototype) */}
+      <div className="pointer-events-none absolute -top-3 right-1 select-none text-6xl opacity-[0.15]">
+        🍀
+      </div>
+
       {/* Glassmorphism overlay */}
       <div className="absolute inset-0 backdrop-blur-[2px] bg-white/5" />
       

@@ -5,6 +5,8 @@ import { HeatBadge, getHeatLevel } from './HeatBadge';
 import { AvatarStack } from './AvatarStack';
 import { CountdownTimer } from './CountdownTimer';
 import { VenueTypeBadge } from './VenueTypeBadge';
+import { GradientImg } from './GradientImg';
+import { hueFromString } from '@/lib/gradients';
 
 interface EventCardProps {
   id: string;
@@ -78,20 +80,20 @@ export const EventCard = ({
   return (
     <div
       onClick={handleClick}
-      className={`glass-card overflow-hidden cursor-pointer group ${
+      className={`cv-auto rounded-2xl border bg-card overflow-hidden cursor-pointer group ${
         featured ? 'col-span-full' : ''
-      } ${isSecretEvent ? 'border-primary/20' : ''}`}
+      } ${isSecretEvent ? 'border-primary/20' : 'border-white/[0.08]'}`}
     >
       {/* Image Section */}
-      <div className={`relative ${featured ? 'h-48' : 'h-32'} overflow-hidden`}>
-        <img
-          src={imageUrl || '/placeholder.svg'}
-          alt={title}
-          className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 ${
-            isSecretEvent ? 'blur-sm brightness-50' : ''
-          }`}
-        />
-        
+      <GradientImg
+        src={imageUrl}
+        hue={hueFromString(venueName || title)}
+        alt={title}
+        className={`relative ${featured ? 'h-48' : 'h-32'}`}
+        imgClassName={`transition-transform duration-300 group-hover:scale-110 ${
+          isSecretEvent ? 'blur-sm brightness-50' : ''
+        }`}
+      >
         {/* Gradient Overlay */}
         <div className={`absolute inset-0 ${
           isSecretEvent
@@ -145,8 +147,8 @@ export const EventCard = ({
             </div>
           )}
         </div>
-      </div>
-      
+      </GradientImg>
+
       {/* Bottom Section */}
       <div className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">

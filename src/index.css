@@ -18,34 +18,41 @@
     --accent: 38 92% 50%;
     --accent-foreground: 0 0% 0%;
     
-    /* Dark Backgrounds */
+    /* Dark Backgrounds (prototype AB_TOKENS: bg #0a0a0a, bgSoft #121212) */
     --background: 0 0% 4%;
-    --foreground: 0 0% 100%;
-    
-    /* Surfaces */
+    --background-soft: 0 0% 7%;
+    --foreground: 0 0% 98%;          /* prototype text #fafafa, not pure white */
+
+    /* Surfaces (prototype: card #191919, cardSoft #1f1f1f) */
     --card: 0 0% 10%;
-    --card-foreground: 0 0% 100%;
-    
+    --card-foreground: 0 0% 98%;
+    --card-soft: 0 0% 12%;
+
     --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 100%;
-    
+    --popover-foreground: 0 0% 98%;
+
     --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 63%;
-    
-    /* Borders */
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
+    --muted-foreground: 0 0% 63%;    /* prototype textDim rgba .62 */
+    --text-faint: 0 0% 38%;          /* prototype textFaint rgba .38 */
+
+    /* Borders (prototype: rgba(255,255,255,.08) / strong .14) */
+    --border: 0 0% 14%;
+    --border-strong: 0 0% 20%;
+    --input: 0 0% 14%;
     --ring: 263 70% 60%;
-    
+
     /* Semantic */
-    --destructive: 0 84% 60%;
+    --destructive: 0 84% 60%;        /* prototype danger #ef4444 */
     --destructive-foreground: 0 0% 100%;
-    
-    --success: 160 84% 39%;
+
+    --success: 160 84% 39%;          /* prototype success #10b981 */
     --success-foreground: 0 0% 100%;
-    
+
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 0%;
+
+    --heat: 27 95% 61%;              /* prototype heat #fb923c */
+    --heat-foreground: 0 0% 0%;
     
     /* Radius */
     --radius: 1rem;
@@ -57,9 +64,9 @@
     --gradient-heat-hot: linear-gradient(135deg, hsl(25, 95%, 53%) 0%, hsl(30, 90%, 55%) 100%);
     --gradient-heat-warm: linear-gradient(135deg, hsl(45, 93%, 47%) 0%, hsl(50, 90%, 50%) 100%);
     
-    /* Glass effect */
-    --glass-bg: rgba(26, 26, 26, 0.8);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    /* Glass effect (prototype: blurred near-black header/nav) */
+    --glass-bg: rgba(10, 10, 10, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.08);
     
     /* Shadows */
     --shadow-glow: 0 0 40px -10px hsl(263, 70%, 60%, 0.4);
@@ -84,20 +91,45 @@
   
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    /* prototype native stack — SF on Apple, Roboto on Android */
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+      "Segoe UI", Roboto, "Google Sans", system-ui, sans-serif;
   }
 }
 
 @layer components {
-  /* Glass Card */
+  /* Glass Card (prototype: card #191919 + rgba(255,255,255,.08) border) */
   .glass-card {
-    @apply bg-card/80 backdrop-blur-xl border border-white/10 rounded-2xl;
+    @apply bg-card/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl;
     transition: all 0.3s ease;
   }
-  
+
   .glass-card:hover {
     @apply border-primary/30;
     box-shadow: var(--shadow-glow);
+  }
+
+  /* Glass Header — sticky blurred top bar, matches prototype iOS/Android chrome */
+  .glass-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  /* Hairline divider — prototype rgba(255,255,255,.08) */
+  .ab-divider {
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  /* Heat badge — prototype orange heat token */
+  .heat-badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold;
+    background: hsl(var(--heat) / 0.16);
+    color: hsl(var(--heat));
   }
   
   /* Gradient Button */
@@ -248,6 +280,12 @@
     background-clip: text;
   }
   
+  /* Skip painting off-screen cards while scrolling (big scroll perf win) */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 340px;
+  }
+
   /* Hide scrollbar */
   .no-scrollbar::-webkit-scrollbar {
     display: none;

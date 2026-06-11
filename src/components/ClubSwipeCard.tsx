@@ -3,6 +3,8 @@ import { MapPin, Music } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistance } from '@/services/geolocation';
 import { Progress } from '@/components/ui/progress';
+import { GradientImg } from './GradientImg';
+import { hueFromString } from '@/lib/gradients';
 
 interface ClubSwipeCardProps {
   club: {
@@ -57,18 +59,18 @@ export const ClubSwipeCard = ({ club, onSwipe, isTop = false }: ClubSwipeCardPro
       onDragEnd={handleDragEnd}
     >
       {/* Background */}
-      {club.image_url ? (
-        <img
-          src={club.image_url}
-          alt={club.venue_name}
-          className="absolute inset-0 w-full h-full object-cover"
-          draggable={false}
-        />
-      ) : (
-        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
-          <span className="text-7xl">🏢</span>
-        </div>
-      )}
+      <GradientImg
+        src={club.image_url}
+        hue={hueFromString(club.venue_name)}
+        alt={club.venue_name}
+        className="absolute inset-0 w-full h-full"
+      >
+        {!club.image_url && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-7xl opacity-90">🏢</span>
+          </div>
+        )}
+      </GradientImg>
 
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 

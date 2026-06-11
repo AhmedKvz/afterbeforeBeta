@@ -15,10 +15,19 @@ export default {
     extend: {
       colors: {
         border: "hsl(var(--border))",
+        "border-strong": "hsl(var(--border-strong))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
+        background: {
+          DEFAULT: "hsl(var(--background))",
+          soft: "hsl(var(--background-soft))",
+        },
         foreground: "hsl(var(--foreground))",
+        "text-faint": "hsl(var(--text-faint))",
+        heat: {
+          DEFAULT: "hsl(var(--heat))",
+          foreground: "hsl(var(--heat-foreground))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -46,6 +55,7 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+          soft: "hsl(var(--card-soft))",
         },
         success: {
           DEFAULT: "hsl(var(--success))",
@@ -72,7 +82,10 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: [
+          '-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro Text',
+          'Segoe UI', 'Roboto', 'Google Sans', 'system-ui', 'sans-serif',
+        ],
       },
       keyframes: {
         "accordion-down": {

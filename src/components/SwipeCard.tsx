@@ -3,6 +3,8 @@ import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { MapPin, Music, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistance, getDistanceColor } from '@/services/geolocation';
+import { GradientImg } from './GradientImg';
+import { hueFromString } from '@/lib/gradients';
 
 interface SwipeCardProps {
   profile: {
@@ -62,11 +64,11 @@ export const SwipeCard = ({ profile, onSwipe, isTop = false }: SwipeCardProps) =
       onDragEnd={handleDragEnd}
     >
       {/* Background Image */}
-      <img
-        src={profile.avatarUrl || '/placeholder.svg'}
+      <GradientImg
+        src={profile.avatarUrl}
+        hue={hueFromString(profile.displayName)}
         alt={profile.displayName}
-        className="absolute inset-0 w-full h-full object-cover"
-        draggable={false}
+        className="absolute inset-0 w-full h-full"
       />
 
       {/* AI Match Score Badge */}

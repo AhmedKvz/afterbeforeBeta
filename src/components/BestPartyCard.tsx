@@ -4,6 +4,8 @@ import { MapPin, Star, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { VibeBadge } from './VibeBadge';
 import { cn } from '@/lib/utils';
+import { GradientImg } from './GradientImg';
+import { hueFromString } from '@/lib/gradients';
 
 interface BestPartyCardProps {
   id: string;
@@ -40,13 +42,13 @@ export const BestPartyCard = ({
       className="relative overflow-hidden rounded-2xl cursor-pointer group shadow-lg"
     >
       {/* Image */}
-      <div className="relative h-56 overflow-hidden">
-        <img
-          src={imageUrl || '/placeholder.svg'}
-          alt={title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-        />
-        
+      <GradientImg
+        src={imageUrl}
+        hue={hueFromString(venueName || title)}
+        alt={title}
+        className="relative h-56"
+        imgClassName="transition-transform duration-500 group-hover:scale-110"
+      >
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
         
@@ -101,7 +103,7 @@ export const BestPartyCard = ({
             )}
           </div>
         </div>
-      </div>
+      </GradientImg>
     </motion.div>
   );
 };

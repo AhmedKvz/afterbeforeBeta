@@ -1,4 +1,7 @@
 import { cn } from '@/lib/utils';
+import { avatarGradient, hueFromString } from '@/lib/gradients';
+
+const isReal = (src?: string | null) => !!src && !src.includes('placeholder');
 
 interface AvatarStackProps {
   avatars: string[];
@@ -32,17 +35,30 @@ export const AvatarStack = ({
   
   return (
     <div className={cn('avatar-stack', className)}>
-      {displayAvatars.map((avatar, index) => (
-        <img
-          key={index}
-          src={avatar || '/placeholder.svg'}
-          alt={`User ${index + 1}`}
-          className={cn(
-            sizeClasses[size],
-            'rounded-full border-2 border-background object-cover'
-          )}
-        />
-      ))}
+      {displayAvatars.map((avatar, index) =>
+        isReal(avatar) ? (
+          <img
+            key={index}
+            src={avatar}
+            alt={`User ${index + 1}`}
+            className={cn(
+              sizeClasses[size],
+              'rounded-full border-2 border-background object-cover'
+            )}
+          />
+        ) : (
+          // prototype-style hued gradient bubble when no real photo
+          <div
+            key={index}
+            aria-label={`User ${index + 1}`}
+            className={cn(
+              sizeClasses[size],
+              'rounded-full border-2 border-background'
+            )}
+            style={{ background: avatarGradient(hueFromString(`${avatar}-${index}`)) }}
+          />
+        )
+      )}
       {remaining > 0 && (
         <div
           className={cn(

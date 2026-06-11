@@ -9,14 +9,14 @@ import { EventCard } from '@/components/EventCard';
 import { BottomNav } from '@/components/BottomNav';
 import { Lucky100Banner } from '@/components/Lucky100Banner';
 import { Lucky100Modal } from '@/components/Lucky100Modal';
-import { BestPartyCard } from '@/components/BestPartyCard';
+import { PartyOfMonthCard } from '@/components/PartyOfMonthCard';
 import { LeaderboardPreview } from '@/components/LeaderboardPreview';
 import { VenueHeatBoard } from '@/components/VenueHeatBoard';
 import { ReviewModal } from '@/components/ReviewModal';
 import { NotificationBell } from '@/components/NotificationBell';
 import { SceneBanner } from '@/components/SceneBanner';
 import { TrendingEventCard } from '@/components/TrendingEventCard';
-import { useBestPartyThisWeek } from '@/hooks/useEventStats';
+import { usePartyOfMonth } from '@/hooks/usePartyOfMonth';
 import { useReviewPrompt } from '@/hooks/useReviewPrompt';
 import { useQuests } from '@/hooks/useQuests';
 import { cn } from '@/lib/utils';
@@ -54,7 +54,7 @@ const Home = () => {
   const [isLucky100ModalOpen, setIsLucky100ModalOpen] = useState(false);
   const [signalCounts, setSignalCounts] = useState<Record<string, number>>({});
 
-  const { data: bestParty } = useBestPartyThisWeek();
+  const { data: partyOfMonth } = usePartyOfMonth();
   const { shouldShowModal: shouldShowReviewModal, eventToReview, dismissPrompt } = useReviewPrompt();
   const { completedCount, totalCount } = useQuests();
 
@@ -169,8 +169,9 @@ const Home = () => {
 
   const visibleFilters = FILTER_OPTIONS;
 
-  const regularEvents = bestParty 
-    ? filteredEvents.filter(e => e.id !== bestParty.id)
+  const potEventId = partyOfMonth?.event?.id;
+  const regularEvents = potEventId
+    ? filteredEvents.filter(e => e.id !== potEventId)
     : filteredEvents;
 
   if (authLoading || loading) {
@@ -235,45 +236,20 @@ const Home = () => {
         </div>
       )}
 
-      {/* Best Party This Week */}
-      {bestParty && (
+      {/* Party of the Month */}
+      {partyOfMonth?.event && (
         <div className="px-4 mb-4">
-          <BestPartyCard
-            id={bestParty.id}
-            title={bestParty.title}
-            date={bestParty.date}
-            startTime={bestParty.start_time}
-            venueName={bestParty.venue_name || ''}
-            imageUrl={bestParty.image_url || ''}
-            avgRating={bestParty.avgRating}
-            reviewCount={bestParty.reviewCount}
+          <PartyOfMonthCard
+            event={partyOfMonth.event}
+            voteCount={partyOfMonth.vote_count || 0}
+            avgRating={partyOfMonth.avg_rating || 0}
+            reviewCount={partyOfMonth.review_count || 0}
+            userVoted={partyOfMonth.user_voted || false}
           />
         </div>
       )}
 
-      {/* Scene Banner */}
-      <div className="px-4 mb-4">
-        <SceneBanner />
-      </div>
-
-      {/* Leaderboard Preview */}
-      <div className="px-4 mb-4">
-        <LeaderboardPreview />
-      </div>
-
-      {/* AI "Tonight For You" Section */}
-      <TonightForYou userId={user?.id} events={events} navigate={navigate} />
-
-      {/* Trending Tonight */}
-      <TrendingTonight events={events} signalCounts={signalCounts} navigate={navigate} />
-
-      {/* Discover Places (venue cards) */}
-      <DiscoverPlaces navigate={navigate} />
-
-      {/* Community Reviewed */}
-      <CommunityReviewed navigate={navigate} />
-
-      {/* Club Board preview (Venue Heat) */}
+      {/* This Week's Heat — moved up to match prototype order */}
       <div className="px-4 mb-6">
         <VenueHeatBoard compact />
       </div>
@@ -342,11 +318,41 @@ const Home = () => {
       </div>
 
       {/* Empty State */}
-      {regularEvents.length === 0 && !bestParty && (
+      {regularEvents.length === 0 && !partyOfMonth?.event && (
         <div className="px-4 py-12 text-center">
           <p className="text-muted-foreground">No events found</p>
         </div>
       )}
+
+      {/* ───────── More to explore — sekcije van prototipa, ispod evenata ───────── */}
+      <div className="px-4 mt-2 mb-3 flex items-center gap-2">
+        <span>✨</span>
+        <h2 className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+          More to explore
+        </h2>
+      </div>
+
+      {/* AI "Tonight For You" Section */}
+      <TonightForYou userId={user?.id} events={events} navigate={navigate} />
+
+      {/* Trending Tonight */}
+      <TrendingTonight events={events} signalCounts={signalCounts} navigate={navigate} />
+
+      {/* Discover Places (venue cards) */}
+      <DiscoverPlaces navigate={navigate} />
+
+      {/* Community Reviewed */}
+      <CommunityReviewed navigate={navigate} />
+
+      {/* Scene Banner */}
+      <div className="px-4 mb-4">
+        <SceneBanner />
+      </div>
+
+      {/* Leaderboard Preview */}
+      <div className="px-4 mb-6">
+        <LeaderboardPreview />
+      </div>
 
       <BottomNav />
 
@@ -412,7 +418,7 @@ const TonightForYou = ({ userId, events, navigate }: { userId?: string; events: 
               className="w-full rounded-2xl bg-muted/30 backdrop-blur-xl border border-primary/20 overflow-hidden text-left"
             >
               <div className="relative h-24">
-                <img src={event.image_url || '/placeholder.svg'} alt={event.title} className="w-full h-full object-cover" />
+                <img src={event.image_url || '/placeholder.svg'} alt={event.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
                 <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-primary/80 text-[10px] font-bold text-primary-foreground">
                   🤖 AI Pick
@@ -473,6 +479,8 @@ const TrendingTonight = ({
               <img
                 src={e.image_url || '/placeholder.svg'}
                 alt={e.title}
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
@@ -544,7 +552,7 @@ const DiscoverPlaces = ({ navigate }: { navigate: any }) => {
             >
               <div className="relative h-20">
                 {v.venue_logo_url ? (
-                  <img src={v.venue_logo_url} alt="" className="h-full w-full object-cover opacity-70" />
+                  <img src={v.venue_logo_url} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover opacity-70" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-4xl">
                     {meta.emoji}

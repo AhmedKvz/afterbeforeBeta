@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import { 
-  ArrowLeft, Heart, Calendar, MapPin, Users, 
-  DollarSign, Music, Loader2, MapPinCheck, Sparkles, Flame, Bot, Star
+import {
+  ArrowLeft, Heart, Calendar, MapPin, Users,
+  DollarSign, Music, Loader2, MapPinCheck, Sparkles, Flame, Bot, Star,
+  Share2, Ticket, UserPlus
 } from 'lucide-react';
+import { GradientImg } from '@/components/GradientImg';
+import { hueFromString, avatarGradient } from '@/lib/gradients';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { HeatBadge, getHeatLevel } from '@/components/HeatBadge';
@@ -298,18 +301,32 @@ const EventDetail = () => {
   const heatLevel = getHeatLevel(signalCount, event.capacity || 100);
   const formattedDate = format(new Date(event.date), 'EEEE, MMM d');
   const formattedTime = event.start_time?.slice(0, 5);
+  const lineup: string[] = (event as any).lineup || [];
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      if ((navigator as any).share) await (navigator as any).share({ title: event.title, url });
+      else { await navigator.clipboard.writeText(url); toast.success('Link copied'); }
+    } catch { /* cancelled */ }
+  };
+
+  const handleBuyTicket = () => {
+    if (!event.price) toast.success('Free entry — just check in at the door 🎉');
+    else toast.info('Ticketing coming soon — for now, entry at the door.');
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Image */}
-      <div className="relative h-72">
-        <img
-          src={event.image_url || '/placeholder.svg'}
-          alt={event.title}
-          className="w-full h-full object-cover"
-        />
+      {/* Hero */}
+      <GradientImg
+        src={event.image_url}
+        hue={hueFromString(event.venue_name || event.title)}
+        alt={event.title}
+        className="relative h-72"
+      >
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-        
+
         <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
@@ -317,14 +334,22 @@ const EventDetail = () => {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <button
-            onClick={handleToggleSave}
-            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center"
-          >
-            <Heart className={`w-5 h-5 ${isSaved ? 'fill-secondary text-secondary' : ''}`} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleShare}
+              className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center"
+            >
+              <Share2 className="w-[18px] h-[18px]" />
+            </button>
+            <button
+              onClick={handleToggleSave}
+              className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center"
+            >
+              <Heart className={`w-5 h-5 ${isSaved ? 'fill-secondary text-secondary' : ''}`} />
+            </button>
+          </div>
         </div>
-        
+
         <div className="absolute bottom-4 left-4 right-4">
           <GlassCard className="p-4">
             <div className="flex items-start justify-between gap-3">
@@ -356,7 +381,7 @@ const EventDetail = () => {
             </div>
           </GlassCard>
         </div>
-      </div>
+      </GradientImg>
 
       {/* Content */}
       <div className="px-4 py-6 space-y-6">
@@ -398,6 +423,37 @@ const EventDetail = () => {
           </div>
         </div>
 
+        {/* Lineup */}
+        {lineup.length > 0 && (
+          <div>
+            <SectionHeading label="Lineup" />
+            <div className="flex gap-2.5 overflow-x-auto no-scrollbar">
+              {lineup.map((dj, i) => (
+                <div key={dj + i} className="min-w-[72px] text-center">
+                  <div
+                    className="w-16 h-16 rounded-full mx-auto flex items-center justify-center text-white font-bold text-lg"
+                    style={{ background: avatarGradient(hueFromString(dj)) }}
+                  >
+                    {dj.split(' ').map((x) => x[0]).join('').slice(0, 2)}
+                  </div>
+                  <div className="text-[11px] font-medium mt-1.5">{dj}</div>
+                  {i === 0 && <div className="text-[9px] text-accent font-semibold">HEADLINER</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Buy ticket */}
+        <button
+          onClick={handleBuyTicket}
+          className="w-full py-3.5 rounded-xl text-white font-bold flex items-center justify-center gap-2"
+          style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))', boxShadow: '0 12px 32px -10px hsl(var(--primary) / 0.5)' }}
+        >
+          <Ticket className="w-[18px] h-[18px]" />
+          {event.price > 0 ? `Buy ticket · €${event.price}` : 'Free entry'}
+        </button>
+
         {/* Description */}
         <div>
           <SectionHeading label="About" />
@@ -420,8 +476,13 @@ const EventDetail = () => {
         {/* Who's Going */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-bold">Who's Going ({signalCount})</h2>
-            <button className="text-sm text-primary">See all →</button>
+            <h2 className="font-bold">Your circle going ({signalCount})</h2>
+            <button
+              onClick={handleShare}
+              className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.08] px-3 py-1.5 text-xs font-semibold text-foreground"
+            >
+              <UserPlus className="w-3.5 h-3.5" /> Invite
+            </button>
           </div>
           <AvatarStack
             avatars={['/placeholder.svg', '/placeholder.svg', '/placeholder.svg', '/placeholder.svg', '/placeholder.svg']}
@@ -447,16 +508,6 @@ const EventDetail = () => {
 
         {/* Event-specific quest preview */}
         <EventQuestPreview eventId={event.id} isCheckedIn={isCheckedIn} />
-
-        {/* Reviews */}
-        <div id="reviews" className="scroll-mt-20">
-          <VenueReviewsSection
-            venueName={event.venue_name}
-            venueType={(event as any).venue_type || 'club'}
-            eventId={event.id}
-            className="pb-32"
-          />
-        </div>
 
         {/* Reviews */}
         <div id="reviews" className="scroll-mt-20">

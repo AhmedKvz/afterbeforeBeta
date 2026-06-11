@@ -4,6 +4,8 @@ import { TrendingUp, Star, MapPin, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { VibeBadge } from './VibeBadge';
 import { cn } from '@/lib/utils';
+import { GradientImg } from './GradientImg';
+import { hueFromString } from '@/lib/gradients';
 
 interface TrendingEventCardProps {
   id: string;
@@ -44,14 +46,14 @@ export const TrendingEventCard = ({
       className="relative overflow-hidden rounded-2xl cursor-pointer group"
     >
       {/* Background Image */}
-      <div className="aspect-[16/10] relative">
-        <img
-          src={imageUrl || '/placeholder.svg'}
-          alt={title}
-          className="w-full h-full object-cover"
-        />
+      <GradientImg
+        src={imageUrl}
+        hue={hueFromString(venueName || title)}
+        alt={title}
+        className="aspect-[16/10] relative w-full"
+      >
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-      </div>
+      </GradientImg>
 
       {/* Trending Badge */}
       <div className="absolute top-3 left-3">

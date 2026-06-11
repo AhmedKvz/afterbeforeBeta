@@ -24,6 +24,7 @@ import Explore from "./pages/Explore";
 import SecretPartyRequest from "./pages/SecretPartyRequest";
 import InstagramCallback from "./pages/InstagramCallback";
 import VenueDetail from "./pages/VenueDetail";
+import HeatMap from "./pages/HeatMap";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/scene" element={<ScenePanel />} />
             <Route path="/explore" element={<Explore />} />
+            <Route path="/heatmap" element={<HeatMap />} />
             <Route path="/quests" element={<Quests />} />
             <Route path="/secret-request/:eventId" element={<SecretPartyRequest />} />
             <Route path="/auth/instagram/callback" element={<InstagramCallback />} />
