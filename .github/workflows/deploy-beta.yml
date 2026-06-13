@@ -3,6 +3,10 @@ name: Deploy beta app
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.claude/**'
+      - 'supabase/migrations/**'
   workflow_dispatch:
 
 permissions:
