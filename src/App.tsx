@@ -26,6 +26,7 @@ import InstagramCallback from "./pages/InstagramCallback";
 import VenueDetail from "./pages/VenueDetail";
 import HeatMap from "./pages/HeatMap";
 import NotFound from "./pages/NotFound";
+import { BetaFeedback } from "@/components/BetaFeedback";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/auth/instagram/callback" element={<InstagramCallback />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <BetaFeedback />
         </AuthProvider>
       </HashRouter>
     </TooltipProvider>
