@@ -11,7 +11,7 @@ import { BottomNav } from '@/components/BottomNav';
 import { Lucky100ProfileSection } from '@/components/Lucky100ProfileSection';
 import { NightlifeTimeline } from '@/components/NightlifeTimeline';
 import { Lucky100Modal } from '@/components/Lucky100Modal';
-import { getXPProgress, ACHIEVEMENTS, getUserAchievements, MORNING_STAR_ACHIEVEMENT_ID } from '@/services/gamification';
+import { getXPProgress, ACHIEVEMENTS, getUserAchievements, checkAchievements, MORNING_STAR_ACHIEVEMENT_ID } from '@/services/gamification';
 import { hueFromString, avatarGradient, initials } from '@/lib/gradients';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -26,7 +26,10 @@ const Profile = () => {
   useEffect(() => {
     if (!user) { navigate('/auth'); return; }
     if (user && profile) {
-      getUserAchievements(user.id).then(setUserAchievements).catch(() => {});
+      // re-evaluate achievements (auto-awards MorningStar etc. if criteria met), then load
+      checkAchievements(user.id)
+        .catch(() => {})
+        .finally(() => getUserAchievements(user.id).then(setUserAchievements).catch(() => {}));
     }
   }, [user, profile, navigate]);
 
