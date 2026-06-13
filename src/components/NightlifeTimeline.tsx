@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,15 +10,19 @@ import { cn } from '@/lib/utils';
 const db = supabase as any;
 
 type Accent = 'primary' | 'secondary' | 'amber' | 'success';
+type FeedType = 'checkin' | 'review' | 'match' | 'quest' | 'achievement';
 
-interface TimelineItem {
+interface FeedItem {
   id: string;
-  type: 'checkin' | 'review' | 'match' | 'quest' | 'achievement';
+  type: FeedType;
   icon: string;
   title: string;
   description: string;
   timestamp: string | null;
   accent: Accent;
+  link?: string | null;
+  rating?: number | null;
+  snippet?: string | null;
 }
 
 const ACCENT_RING: Record<Accent, string> = {
@@ -26,30 +32,38 @@ const ACCENT_RING: Record<Accent, string> = {
   success: 'border-success/50 text-success',
 };
 
+const FILTERS: { id: 'all' | FeedType; label: string }[] = [
+  { id: 'all', label: 'All' },
+  { id: 'checkin', label: '📍 Been' },
+  { id: 'review', label: '✍️ Reviews' },
+  { id: 'match', label: '💫 Connections' },
+  { id: 'quest', label: '⚡ Quests' },
+];
+
 const rel = (ts: string | null) => {
   if (!ts) return '';
   try { return formatDistanceToNow(new Date(ts), { addSuffix: true }); } catch { return ''; }
 };
 
-/** Recent nightlife activity across check-ins, reviews, matches, quests, achievements. */
-function useNightlifeTimeline() {
+/** Full nightlife history feed: check-ins, reviews, matches, quests, achievements. */
+function useNightlifeFeed() {
   const { user } = useAuth();
-  return useQuery<TimelineItem[]>({
-    queryKey: ['nightlife-timeline', user?.id],
+  return useQuery<FeedItem[]>({
+    queryKey: ['nightlife-feed', user?.id],
     enabled: !!user,
     queryFn: async () => {
       const uid = user!.id;
       const [ci, rv, mt, qz, ach] = await Promise.all([
-        db.from('event_checkins').select('id,event_id,checked_in_at').eq('user_id', uid).order('checked_in_at', { ascending: false }).limit(3),
-        db.from('event_reviews').select('id,venue_name,rating,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(3),
-        db.from('matches').select('id,matched_at,user1_id,user2_id').or(`user1_id.eq.${uid},user2_id.eq.${uid}`).order('matched_at', { ascending: false }).limit(3),
-        db.from('user_quests').select('id,quest_id,completed_at,is_completed').eq('user_id', uid).eq('is_completed', true).order('completed_at', { ascending: false }).limit(3),
-        db.from('user_achievements').select('id,achievement_id,unlocked_at').eq('user_id', uid).order('unlocked_at', { ascending: false }).limit(3),
+        db.from('event_checkins').select('id,event_id,checked_in_at').eq('user_id', uid).order('checked_in_at', { ascending: false }).limit(15),
+        db.from('event_reviews').select('id,event_id,venue_name,rating,review_text,created_at').eq('user_id', uid).order('created_at', { ascending: false }).limit(15),
+        db.from('matches').select('id,matched_at,user1_id,user2_id').or(`user1_id.eq.${uid},user2_id.eq.${uid}`).order('matched_at', { ascending: false }).limit(10),
+        db.from('user_quests').select('id,quest_id,completed_at,is_completed').eq('user_id', uid).eq('is_completed', true).order('completed_at', { ascending: false }).limit(10),
+        db.from('user_achievements').select('id,achievement_id,unlocked_at').eq('user_id', uid).order('unlocked_at', { ascending: false }).limit(10),
       ]);
 
-      const items: TimelineItem[] = [];
+      const items: FeedItem[] = [];
 
-      // check-ins → resolve event titles
+      // check-ins → event titles + links
       const checkins = ci.data || [];
       const eventIds = [...new Set(checkins.map((c: any) => c.event_id).filter(Boolean))];
       const eventMap: Record<string, any> = {};
@@ -63,14 +77,18 @@ function useNightlifeTimeline() {
           id: 'ci-' + c.id, type: 'checkin', icon: '📍', title: 'Checked in',
           description: e?.title || e?.venue_name || 'a night out',
           timestamp: c.checked_in_at, accent: 'primary',
+          link: c.event_id ? `/event/${c.event_id}` : null,
         });
       });
 
       (rv.data || []).forEach((r: any) => {
         items.push({
           id: 'rv-' + r.id, type: 'review', icon: '✍️', title: 'Reviewed a night',
-          description: [r.venue_name || 'an event', r.rating ? `${r.rating}★` : null].filter(Boolean).join(' · '),
+          description: r.venue_name || 'an event',
           timestamp: r.created_at, accent: 'secondary',
+          rating: r.rating ?? null,
+          snippet: r.review_text || null,
+          link: r.venue_name ? `/venue/${encodeURIComponent(r.venue_name)}` : (r.event_id ? `/event/${r.event_id}` : null),
         });
       });
 
@@ -78,11 +96,10 @@ function useNightlifeTimeline() {
         items.push({
           id: 'mt-' + m.id, type: 'match', icon: '💫', title: 'New connection',
           description: 'Matched with someone on the same vibe',
-          timestamp: m.matched_at, accent: 'amber',
+          timestamp: m.matched_at, accent: 'amber', link: '/matches',
         });
       });
 
-      // quests → resolve titles
       const quests = qz.data || [];
       const questIds = [...new Set(quests.map((q: any) => q.quest_id).filter(Boolean))];
       const questMap: Record<string, any> = {};
@@ -94,7 +111,7 @@ function useNightlifeTimeline() {
         items.push({
           id: 'qz-' + q.id, type: 'quest', icon: '⚡', title: 'Quest completed',
           description: questMap[q.quest_id]?.title || 'Weekly quest',
-          timestamp: q.completed_at, accent: 'success',
+          timestamp: q.completed_at, accent: 'success', link: '/quests',
         });
       });
 
@@ -109,21 +126,45 @@ function useNightlifeTimeline() {
 
       return items
         .sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime())
-        .slice(0, 5);
+        .slice(0, 40);
     },
   });
 }
 
 export const NightlifeTimeline = () => {
-  const { data: items = [], isLoading } = useNightlifeTimeline();
+  const navigate = useNavigate();
+  const { data: items = [], isLoading } = useNightlifeFeed();
+  const [filter, setFilter] = useState<'all' | FeedType>('all');
+  const [showAll, setShowAll] = useState(false);
+
+  const filtered = items.filter((it) => filter === 'all' || it.type === filter || (filter === 'match' && it.type === 'match'));
+  const visible = showAll ? filtered : filtered.slice(0, 6);
 
   return (
     <div className="px-4 mb-3.5">
       <div className="rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-4">
         <div className="mb-3">
           <div className="text-[11px] font-bold tracking-[0.14em] text-muted-foreground">NIGHTLIFE TIMELINE</div>
-          <div className="text-[11px] text-muted-foreground/70">Your recent moves in the scene</div>
+          <div className="text-[11px] text-muted-foreground/70">Where you've been · what you did · who you met</div>
         </div>
+
+        {/* filters */}
+        {items.length > 0 && (
+          <div className="flex gap-1.5 overflow-x-auto no-scrollbar mb-3 -mx-1 px-1">
+            {FILTERS.map((f) => (
+              <button
+                key={f.id}
+                onClick={() => { setFilter(f.id); setShowAll(false); }}
+                className={cn(
+                  'shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold border transition',
+                  filter === f.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-white/[0.04] text-muted-foreground border-border',
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {isLoading ? (
           <div className="text-[12px] text-muted-foreground py-4 text-center">Loading your scene history…</div>
@@ -135,30 +176,50 @@ export const NightlifeTimeline = () => {
               Check in, review nights, match with people and complete quests to build your scene history.
             </div>
           </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-6 text-[12px] text-muted-foreground">Nothing here yet — keep moving in the scene.</div>
         ) : (
-          <div className="relative">
-            {/* subtle vertical line */}
-            <div className="absolute left-[15px] top-3 bottom-3 w-px bg-border" />
-            <div className="space-y-3.5">
-              {items.map((it) => (
-                <div key={it.id} className="relative flex gap-3">
-                  <div className={cn(
-                    'relative z-10 w-8 h-8 rounded-full bg-card border flex items-center justify-center text-sm flex-none',
-                    ACCENT_RING[it.accent],
-                  )}>
-                    {it.icon}
-                  </div>
-                  <div className="flex-1 min-w-0 pt-0.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[13px] font-semibold">{it.title}</span>
-                      <span className="text-[10px] text-text-faint flex-none">{rel(it.timestamp)}</span>
+          <>
+            <div className="relative">
+              <div className="absolute left-[15px] top-3 bottom-3 w-px bg-border" />
+              <div className="space-y-3.5">
+                {visible.map((it) => {
+                  const clickable = !!it.link;
+                  return (
+                    <div
+                      key={it.id}
+                      onClick={() => it.link && navigate(it.link)}
+                      className={cn('relative flex gap-3', clickable && 'cursor-pointer')}
+                    >
+                      <div className={cn('relative z-10 w-8 h-8 rounded-full bg-card border flex items-center justify-center text-sm flex-none', ACCENT_RING[it.accent])}>
+                        {it.icon}
+                      </div>
+                      <div className="flex-1 min-w-0 pt-0.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[13px] font-semibold">{it.title}</span>
+                          <span className="text-[10px] text-text-faint flex-none">{rel(it.timestamp)}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
+                          <span className="truncate">{it.description}</span>
+                          {it.rating ? <span className="text-amber-300 flex-none">{'★'.repeat(Math.round(it.rating))}</span> : null}
+                        </div>
+                        {it.snippet && <div className="text-[11px] text-text-faint italic truncate mt-0.5">"{it.snippet}"</div>}
+                      </div>
                     </div>
-                    <div className="text-[12px] text-muted-foreground truncate">{it.description}</div>
-                  </div>
-                </div>
-              ))}
+                  );
+                })}
+              </div>
             </div>
-          </div>
+
+            {filtered.length > 6 && (
+              <button
+                onClick={() => setShowAll((s) => !s)}
+                className="w-full mt-3 py-2 rounded-xl border border-border text-[12px] font-semibold text-muted-foreground hover:text-foreground"
+              >
+                {showAll ? 'Show less' : `Show all ${filtered.length}`}
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>
