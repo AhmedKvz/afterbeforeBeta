@@ -130,6 +130,69 @@
   footer{border-top:1px solid var(--border);padding:34px 0;color:var(--faint);font-size:13px}
   footer .row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
   footer a{color:var(--dim)}footer a:hover{color:var(--text)}
+
+  /* clickable feature cards */
+  .feat{cursor:pointer}
+  .feat .more{margin-top:13px;font-size:13px;font-weight:700;color:var(--primary);display:inline-flex;align-items:center;gap:5px}
+
+  /* modal */
+  .modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(0,0,0,.72);backdrop-filter:blur(8px)}
+  .modal.show{display:flex}
+  .modal-inner{position:relative;display:flex;gap:34px;align-items:center;max-width:760px;width:100%;animation:pop .24s ease}
+  @keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+  @media(max-width:680px){.modal-inner{flex-direction:column;gap:16px}}
+  .modal-cap{flex:1}
+  .modal-cap .eyebrow{text-align:left;margin-bottom:8px}
+  .modal-cap h3{font-size:clamp(24px,4vw,30px);font-weight:830;margin-bottom:11px;letter-spacing:-.01em}
+  .modal-cap p{color:var(--dim);font-size:16px;line-height:1.65}
+  .modal-x{position:fixed;top:18px;right:20px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid var(--border2);color:#fff;font-size:17px;cursor:pointer;z-index:101}
+
+  /* small phone for modal */
+  .phone-sm{width:250px;height:516px;flex:none;border-radius:40px;background:#000;border:2px solid #2a2a2a;box-shadow:0 30px 70px -25px rgba(138,92,246,.55);padding:9px}
+  .phone-sm .screen{border-radius:32px}
+  #screens{display:none}
+  .ms{padding:26px 0 0;color:var(--text);height:100%;position:relative}
+  .ms-t{font-weight:800;font-size:13px;padding:0 13px 9px;display:flex;justify-content:space-between;align-items:center;color:var(--dim)}
+  .ms-t b{color:var(--text);font-size:14px}
+  .ms-card{margin:0 12px 9px;background:#161616;border:1px solid var(--border);border-radius:14px;padding:11px}
+  .ms-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:6px}
+  .ms-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--primary),var(--secondary))}
+  .ms-pill{display:inline-block;font-size:9px;font-weight:800;padding:2px 7px;border-radius:100px}
+
+  /* mini MAP */
+  .ms-map{position:relative;height:210px;margin:0 12px 10px;border-radius:16px;overflow:hidden;background:radial-gradient(120% 80% at 50% 30%,#14101d,#0a0810 60%,#050309)}
+  .ms-blob{position:absolute;width:120px;height:120px;border-radius:50%;filter:blur(14px);transform:translate(-50%,-50%);background:radial-gradient(closest-side,oklch(.68 .22 var(--h)),transparent 70%)}
+  .ms-pin{position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;background:oklch(.7 .22 var(--h));border:1.5px solid rgba(255,255,255,.7);box-shadow:0 2px 8px rgba(0,0,0,.5)}
+  .ms-you{position:absolute;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--primary);box-shadow:0 0 12px rgba(138,92,246,.9)}
+  .ms-locked{display:flex;align-items:center;gap:7px;justify-content:center;font-size:11px;color:var(--dim);background:rgba(255,255,255,.04);border:1px dashed var(--border2);border-radius:10px;padding:9px;margin-top:8px}
+
+  /* mini SWIPE */
+  .ms-scard{margin:0 12px 9px;height:170px;border-radius:16px;position:relative;overflow:hidden;background:radial-gradient(120% 80% at 30% 20%,oklch(.55 .22 var(--h)),oklch(.32 .18 calc(var(--h) + 30)) 50%,#0a0612)}
+  .ms-scard .g{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8),transparent 55%)}
+  .ms-scard .stamp{position:absolute;top:14px;left:14px;border:3px solid var(--success);color:var(--success);font-weight:800;font-size:16px;padding:2px 10px;border-radius:8px;transform:rotate(-12deg)}
+  .ms-scard .info{position:absolute;left:13px;bottom:11px}
+  .ms-scard .info b{font-size:16px}
+  .ms-scard .tg{display:flex;gap:5px;margin-top:5px}
+  .ms-scard .tg span{font-size:9px;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);padding:3px 8px;border-radius:100px}
+  .ms-dm .bub{max-width:75%;padding:7px 11px;border-radius:13px;font-size:11px;margin:0 12px 6px}
+  .ms-dm .them{background:#222;border-bottom-left-radius:3px}
+  .ms-dm .me{background:linear-gradient(135deg,var(--primary),var(--secondary));margin-left:auto;border-bottom-right-radius:3px}
+
+  /* mini QUEST */
+  .ms-q{display:flex;align-items:center;gap:9px;margin:0 12px 8px;background:#161616;border:1px solid var(--border);border-radius:13px;padding:9px}
+  .ms-q .ic{font-size:18px}.ms-q .info{flex:1;min-width:0}.ms-q b{font-size:11px;display:block}
+  .ms-q .xp{font-size:10px;font-weight:800;color:var(--accent)}
+  .ms-q .rd{font-size:9px;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:4px 9px;border-radius:8px}
+  .ms-make{margin:2px 12px 0;border:1.5px dashed rgba(138,92,246,.5);border-radius:12px;padding:9px;text-align:center;font-size:11px;font-weight:700;color:var(--primary)}
+
+  /* mini POM / lucky / lb shared rows */
+  .ms-vote{margin-top:7px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;font-size:10px;font-weight:700;text-align:center;padding:7px;border-radius:9px}
+  .ms-lrow{display:flex;align-items:center;gap:9px;margin:0 12px 7px;background:#161616;border:1px solid var(--border);border-radius:12px;padding:8px 10px;font-size:12px;font-weight:600}
+  .ms-lrow .av{width:24px;height:24px;border-radius:50%}
+  .ms-lrow .sc{margin-left:auto;font-weight:800;color:var(--accent);font-size:11px}
+  .ms-lrow.gold{background:linear-gradient(135deg,rgba(245,166,35,.18),#161616);border-color:rgba(245,166,35,.35)}
+  .ms-prize{display:flex;gap:7px;font-size:10px;color:var(--dim);margin:0 12px 6px;align-items:center}
+  .ms-prize .tag{font-size:9px;font-weight:800;color:var(--accent)}
 </style>
 </head>
 <body>
@@ -203,12 +266,12 @@
     <h2 data-i18n="feat.h2">Sve za izlazak</h2>
     <p class="lead" data-i18n="feat.lead">AfterBefore pretvara izlazak u igru — otkrivaj, povezuj se i zarađuj dok se grad kreće.</p>
     <div class="features">
-      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(138,92,246,.25),rgba(138,92,246,.05))">🗺️</div><h3 data-i18n="f1t">Živa heat mapa grada</h3><p data-i18n="f1d">Gledaj kako se mesta pale uživo. Prošetaj do žarišta, čekiraj se i vidi ko je tu baš sada.</p></div>
-      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(236,72,153,.25),rgba(236,72,153,.05))">💜</div><h3 data-i18n="f2t">Swipe i mečovanje</h3><p data-i18n="f2d">Mečuj se sa ljudima, klubovima i događajima oko tebe. Isplanirajte noć zajedno pre nego što izađete.</p></div>
-      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(245,166,35,.25),rgba(245,166,35,.05))">🎯</div><h3 data-i18n="f3t">Questovi i nagrade</h3><p data-i18n="f3d">Solo ili crew questovi, nizovi i prodavnica nagrada — pretvori XP u besplatna pića i preskakanje reda.</p></div>
-      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(16,185,129,.25),rgba(16,185,129,.05))">👑</div><h3 data-i18n="f4t">Žurka meseca</h3><p data-i18n="f4d">Glasaj za noć o kojoj svi pričaju. Zajednica bira najbolju žurku — pobednik dobija promociju.</p></div>
-      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(251,146,60,.25),rgba(251,146,60,.05))">🍀</div><h3 data-i18n="f5t">Lucky 100</h3><p data-i18n="f5d">Svaki check-in je tiket za žreb. Osvajaj besplatne ulaze, pića i VIP mesta kod partnera — istog trena.</p></div>
-      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(138,92,246,.25),rgba(245,166,35,.08))">🏆</div><h3 data-i18n="f6t">Rang liste</h3><p data-i18n="f6d">Penji se na Ravers listu i Club Heat rang. Nedeljni reset, prave nagrade, pravo na hvalisanje.</p></div>
+      <div class="feat" onclick="openFeature(this,'map')"><div class="ic" style="background:linear-gradient(135deg,rgba(138,92,246,.25),rgba(138,92,246,.05))">🗺️</div><h3 data-i18n="f1t">Živa heat mapa grada</h3><p data-i18n="f1d">Gledaj kako se grad pali uživo. Prošetaj do žarišta, čekiraj se i vidi ko je tu baš sada.</p><span class="more" data-i18n="feat.hint">Pogledaj iz aplikacije →</span></div>
+      <div class="feat" onclick="openFeature(this,'swipe')"><div class="ic" style="background:linear-gradient(135deg,rgba(236,72,153,.25),rgba(236,72,153,.05))">💜</div><h3 data-i18n="f2t">Mečovanje na licu mesta</h3><p data-i18n="f2d">Mečuj se dok ste u istom klubu. DM uživo dok se gledate preko podijuma. Isplanirajte noć — pre, u toku i posle.</p><span class="more" data-i18n="feat.hint">Pogledaj iz aplikacije →</span></div>
+      <div class="feat" onclick="openFeature(this,'quests')"><div class="ic" style="background:linear-gradient(135deg,rgba(245,166,35,.25),rgba(245,166,35,.05))">🎯</div><h3 data-i18n="f3t">Questovi i nagrade</h3><p data-i18n="f3d">Pretvori XP u besplatne karte i brand nagrade. Napravi svoj quest — solo ili sa ekipom. Budi kreativan.</p><span class="more" data-i18n="feat.hint">Pogledaj iz aplikacije →</span></div>
+      <div class="feat" onclick="openFeature(this,'party')"><div class="ic" style="background:linear-gradient(135deg,rgba(16,185,129,.25),rgba(16,185,129,.05))">👑</div><h3 data-i18n="f4t">Žurka meseca — utiči na scenu</h3><p data-i18n="f4d">Glasaj za najbolju žurku i najboljeg DJ-a. Zajednica bira, scena se menja, pobednici dobijaju spotlight.</p><span class="more" data-i18n="feat.hint">Pogledaj iz aplikacije →</span></div>
+      <div class="feat" onclick="openFeature(this,'lucky')"><div class="ic" style="background:linear-gradient(135deg,rgba(251,146,60,.25),rgba(251,146,60,.05))">🍀</div><h3 data-i18n="f5t">Lucky 100</h3><p data-i18n="f5d">Vratite nama — mi vraćamo vama. Svaki check-in je tiket za žreb: besplatni ulazi, pića i VIP mesta, istog trena.</p><span class="more" data-i18n="feat.hint">Pogledaj iz aplikacije →</span></div>
+      <div class="feat" onclick="openFeature(this,'lb')"><div class="ic" style="background:linear-gradient(135deg,rgba(138,92,246,.25),rgba(245,166,35,.08))">🏆</div><h3 data-i18n="f6t">Rang liste — rejveri biraju</h3><p data-i18n="f6d">Nedeljna nagrada (karta + brand deal), mesečna i godišnja. Tri najjača idu na drugi kontinent — a rejveri biraju ko.</p><span class="more" data-i18n="feat.hint">Pogledaj iz aplikacije →</span></div>
     </div>
   </div>
 </section>
@@ -258,6 +321,88 @@
   </div>
 </footer>
 
+<!-- Feature preview modal -->
+<div class="modal" id="modal" onclick="closeModal(event)">
+  <button class="modal-x" onclick="closeModal()" aria-label="Close">✕</button>
+  <div class="modal-inner" onclick="event.stopPropagation()">
+    <div class="phone phone-sm"><div class="notch"></div><div class="screen"><div class="ms" id="msScreen"></div></div></div>
+    <div class="modal-cap">
+      <div class="eyebrow" data-i18n="modal.eyebrow">Iz aplikacije</div>
+      <h3 id="mTitle"></h3>
+      <p id="mDesc"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden mockup screens -->
+<div id="screens">
+  <div class="ms" data-screen="map">
+    <div class="ms-t"><b>🗺️ Heat map</b><span>🌙 Tonight</span></div>
+    <div class="ms-map">
+      <div class="ms-blob" style="--h:282;left:32%;top:34%"></div>
+      <div class="ms-blob" style="--h:38;left:64%;top:56%"></div>
+      <div class="ms-blob" style="--h:200;left:24%;top:64%"></div>
+      <div class="ms-pin" style="--h:282;left:32%;top:34%">🎵</div>
+      <div class="ms-pin" style="--h:38;left:64%;top:56%">🍸</div>
+      <div class="ms-pin" style="--h:200;left:24%;top:64%">🚢</div>
+      <div class="ms-you" style="left:48%;top:48%"></div>
+    </div>
+    <div class="ms-card">
+      <div style="display:flex;align-items:center;gap:6px"><b style="font-size:13px">Drugstore</b><span class="ms-pill" style="background:linear-gradient(90deg,#ef4444,#f97316);color:#fff">HOT</span><span style="margin-left:auto;color:var(--heat);font-weight:700;font-size:12px">🔥 91</span></div>
+      <div style="font-size:10px;color:var(--dim);margin-top:2px">Savamala · 14 min · 184 ovde</div>
+      <div class="ms-locked">🔒 <span data-scr="map.lock">Peek to see who's here</span></div>
+    </div>
+  </div>
+
+  <div class="ms" data-screen="swipe">
+    <div class="ms-t"><b>💜 Circle</b><span>1.2km</span></div>
+    <div class="ms-scard" style="--h:310"><div class="g"></div><div class="stamp">LIKE</div><div class="info"><b>Iva, 26</b><div class="tg"><span>Techno</span><span>Splavi</span><span>Night owl</span></div></div></div>
+    <div class="ms-dm">
+      <div class="bub them" data-scr="swipe.b1">vidimo se na Para večeras?</div>
+      <div class="bub me" data-scr="swipe.b2">krećem 🔥</div>
+    </div>
+  </div>
+
+  <div class="ms" data-screen="quests">
+    <div class="ms-card" style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:9px;color:var(--dim);font-weight:700">LEVEL 14</div><b style="color:var(--accent);font-size:16px">2,870 XP</b></div><span style="font-size:11px;color:var(--dim)">🔥 4</span></div>
+    <div class="ms-q"><span class="ic">🗺️</span><div class="info"><b>Walk 3 hot spots</b><div class="ms-bar"><i style="width:66%"></i></div></div><span class="xp">+100</span></div>
+    <div class="ms-q"><span class="ic">🎟️</span><div class="info"><b data-scr="q.ticket">Besplatna karta — 800 XP</b></div><span class="rd" data-scr="q.redeem">Iskoristi</span></div>
+    <div class="ms-q"><span class="ic">🥂</span><div class="info"><b data-scr="q.brand">Brand nagrada · −20%</b></div><span class="rd" data-scr="q.redeem2">Iskoristi</span></div>
+    <div class="ms-make" data-scr="q.make">+ Napravi svoj quest</div>
+  </div>
+
+  <div class="ms" data-screen="party">
+    <div class="pom" style="margin:0 12px 10px;height:120px"><div class="ov"></div><div class="badge" data-scr="p.badge">👑 ŽURKA MESECA</div><div class="votes">🗳️ 248</div><div class="meta"><b style="font-size:13px">MAGLA · Anniversary</b><span>📍 Drugstore</span><div class="ms-vote" data-scr="p.vote">🗳️ Glasaj · +100 XP</div></div></div>
+    <div class="ms-t" style="padding-top:2px"><b data-scr="p.dj">🎧 Glasaj za DJ-a</b></div>
+    <div class="ms-lrow"><span>🎧</span> MAGLA <span class="sc">🗳️ 120</span></div>
+    <div class="ms-lrow"><span>🎧</span> BLR <span class="sc">🗳️ 98</span></div>
+  </div>
+
+  <div class="ms" data-screen="lucky">
+    <div class="ms-card" style="background:linear-gradient(110deg,oklch(.45 .21 285),oklch(.55 .22 340) 55%,oklch(.6 .2 38));border:0">
+      <div style="font-weight:800;font-size:14px">🍀 LUCKY 100</div>
+      <div style="font-size:9px;opacity:.85;font-weight:700;letter-spacing:.5px" data-scr="l.sub">INSTANT WIN ŽREB</div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;margin:7px 0 4px"><span>#84,200</span><span style="font-weight:700;color:#a7f3d0" data-scr="l.away">još 7 check-ina!</span></div>
+      <div class="ms-bar" style="background:rgba(255,255,255,.25)"><i style="width:78%;background:#fff"></i></div>
+    </div>
+    <div class="ms-t"><b data-scr="l.give">↩︎ Vratite nama — mi vraćamo vama</b></div>
+    <div class="ms-lrow"><span>🏆</span> <span data-scr="l.won">Osvojio: Mila K.</span><span class="sc">VIP</span></div>
+    <div class="ms-lrow"><span>🥂</span> <span data-scr="l.won2">Osvojio: Stefan R.</span><span class="sc" data-scr="l.drink">Piće</span></div>
+  </div>
+
+  <div class="ms" data-screen="lb">
+    <div class="ms-t"><b>🏆 Ravers</b><span data-scr="lb.week">Ova nedelja</span></div>
+    <div class="ms-lrow gold"><span>🥇</span><div class="av" style="background:linear-gradient(135deg,oklch(.6 .2 308),oklch(.35 .15 348))"></div> Mila K. <span class="sc">4,820</span></div>
+    <div class="ms-lrow"><span>🥈</span><div class="av" style="background:linear-gradient(135deg,oklch(.6 .2 220),oklch(.35 .15 260))"></div> Stefan R. <span class="sc">4,210</span></div>
+    <div class="ms-lrow"><span>🥉</span><div class="av" style="background:linear-gradient(135deg,oklch(.6 .2 38),oklch(.35 .15 78))"></div> Jovana N. <span class="sc">3,960</span></div>
+    <div class="ms-card" style="margin-top:6px">
+      <div class="ms-prize"><span class="tag" data-scr="lb.w">NEDELJNO</span><span data-scr="lb.wd">karta + brand deal</span></div>
+      <div class="ms-prize"><span class="tag" data-scr="lb.m">MESEČNO</span><span data-scr="lb.md">VIP + bottle</span></div>
+      <div class="ms-prize"><span class="tag" data-scr="lb.y">GODIŠNJE</span><span data-scr="lb.yd">🌍 top 3 → drugi kontinent</span></div>
+    </div>
+  </div>
+</div>
+
 <script>
   const I18N = {
     sr:{
@@ -269,12 +414,18 @@
       "ph.loc":"Beograd · subota uveče","ph.badge":"👑 ŽURKA MESECA","ph.fri":"pet","ph.vote":"🗳️ Glasaj · +100 XP",
       "ph.c_all":"Sve","ph.c_tonight":"Večeras","ph.c_clubs":"Klubovi","ph.sat":"sub","ph.sat2":"sub",
       "feat.eyebrow":"Šta je unutra","feat.h2":"Sve za izlazak","feat.lead":"AfterBefore pretvara izlazak u igru — otkrivaj, povezuj se i zarađuj dok se grad kreće.",
-      "f1t":"Živa heat mapa grada","f1d":"Gledaj kako se mesta pale uživo. Prošetaj do žarišta, čekiraj se i vidi ko je tu baš sada.",
-      "f2t":"Swipe i mečovanje","f2d":"Mečuj se sa ljudima, klubovima i događajima oko tebe. Isplanirajte noć zajedno pre nego što izađete.",
-      "f3t":"Questovi i nagrade","f3d":"Solo ili crew questovi, nizovi i prodavnica nagrada — pretvori XP u besplatna pića i preskakanje reda.",
-      "f4t":"Žurka meseca","f4d":"Glasaj za noć o kojoj svi pričaju. Zajednica bira najbolju žurku — pobednik dobija promociju.",
-      "f5t":"Lucky 100","f5d":"Svaki check-in je tiket za žreb. Osvajaj besplatne ulaze, pića i VIP mesta kod partnera — istog trena.",
-      "f6t":"Rang liste","f6d":"Penji se na Ravers listu i Club Heat rang. Nedeljni reset, prave nagrade, pravo na hvalisanje.",
+      "f1t":"Živa heat mapa grada","f1d":"Gledaj kako se grad pali uživo. Prošetaj do žarišta, čekiraj se i vidi ko je tu baš sada.",
+      "f2t":"Mečovanje na licu mesta","f2d":"Mečuj se dok ste u istom klubu. DM uživo dok se gledate preko podijuma. Isplanirajte noć — pre, u toku i posle.",
+      "f3t":"Questovi i nagrade","f3d":"Pretvori XP u besplatne karte i brand nagrade. Napravi svoj quest — solo ili sa ekipom. Budi kreativan.",
+      "f4t":"Žurka meseca — utiči na scenu","f4d":"Glasaj za najbolju žurku i najboljeg DJ-a. Zajednica bira, scena se menja, pobednici dobijaju spotlight.",
+      "f5t":"Lucky 100","f5d":"Vratite nama — mi vraćamo vama. Svaki check-in je tiket za žreb: besplatni ulazi, pića i VIP mesta, istog trena.",
+      "f6t":"Rang liste — rejveri biraju","f6d":"Nedeljna nagrada (karta + brand deal), mesečna i godišnja. Tri najjača idu na drugi kontinent — a rejveri biraju ko.",
+      "feat.hint":"Pogledaj iz aplikacije →","modal.eyebrow":"Iz aplikacije",
+      "map.lock":"Zaviri ko je unutra","swipe.b1":"vidimo se na Para večeras?","swipe.b2":"krećem 🔥",
+      "q.ticket":"Besplatna karta — 800 XP","q.redeem":"Iskoristi","q.brand":"Brand nagrada · −20%","q.redeem2":"Iskoristi","q.make":"+ Napravi svoj quest",
+      "p.badge":"👑 ŽURKA MESECA","p.vote":"🗳️ Glasaj · +100 XP","p.dj":"🎧 Glasaj za DJ-a",
+      "l.sub":"INSTANT WIN ŽREB","l.away":"još 7 check-ina!","l.give":"↩︎ Vratite nama — mi vraćamo vama","l.won":"Osvojio: Mila K.","l.won2":"Osvojio: Stefan R.","l.drink":"Piće",
+      "lb.week":"Ova nedelja","lb.w":"NEDELJNO","lb.wd":"karta + brand deal","lb.m":"MESEČNO","lb.md":"VIP + flaša","lb.y":"GODIŠNJE","lb.yd":"🌍 top 3 → drugi kontinent",
       "how.eyebrow":"Kako radi","how.h2":"Izlazak u tri tapa",
       "s1t":"Otvori mapu","s1d":"Vidi gde se grad zagreva večeras — klubovi, splavovi, barovi i after mesta, rangirani po živom heat-u.",
       "s2t":"Čekiraj se i poveži","s2d":"Uđi, čekiraj se GPS-om za XP, vidi ko je tu, mahni i mečuj se pre nego što se podijum napuni.",
@@ -295,12 +446,18 @@
       "ph.loc":"Belgrade · Sat night","ph.badge":"👑 PARTY OF THE MONTH","ph.fri":"Fri","ph.vote":"🗳️ Vote · +100 XP",
       "ph.c_all":"All","ph.c_tonight":"Tonight","ph.c_clubs":"Clubs","ph.sat":"Sat","ph.sat2":"Sat",
       "feat.eyebrow":"What's inside","feat.h2":"Everything for the night out","feat.lead":"AfterBefore turns going out into a game — discover, connect, and earn while the city moves.",
-      "f1t":"Live city heat map","f1d":"Watch venues light up in real time. Walk to a hot spot, check in, and see who's there right now.",
-      "f2t":"Swipe & match","f2d":"Match with ravers, clubs and events around you. Plan the night together before you even leave home.",
-      "f3t":"Quests & rewards","f3d":"Solo or crew quests, streaks, and a rewards store — turn XP into free drinks and skip-the-line passes.",
-      "f4t":"Party of the Month","f4d":"Vote for the night everyone's talking about. The community crowns the best party — winner gets featured.",
-      "f5t":"Lucky 100","f5d":"Every check-in is a raffle entry. Win free entries, drinks and VIP spots at partner venues — instantly.",
-      "f6t":"Leaderboards","f6d":"Climb the Ravers board and the Club Heat ranking. Weekly resets, real prizes, bragging rights.",
+      "f1t":"Live city heat map","f1d":"Watch the city light up in real time. Walk to a hot spot, check in, and see who's there right now.",
+      "f2t":"Match on the spot","f2d":"Match while you're in the same venue. Live DM while you're looking at each other across the floor. Plan the night — before, during and after.",
+      "f3t":"Quests & rewards","f3d":"Turn XP into free tickets and brand rewards. Create your own quest — solo or with your crew. Be creative.",
+      "f4t":"Party of the Month — shape the scene","f4d":"Vote for the best party and the best DJ. The community decides, the scene shifts, winners get the spotlight.",
+      "f5t":"Lucky 100","f5d":"You give back — we give back. Every check-in is a raffle entry: free entries, drinks and VIP spots, instantly.",
+      "f6t":"Leaderboards — ravers decide","f6d":"Weekly prize (ticket + brand deal), monthly and yearly. The top 3 fly to another continent — and the ravers choose who.",
+      "feat.hint":"See it in the app →","modal.eyebrow":"From the app",
+      "map.lock":"Peek to see who's here","swipe.b1":"see u at Para tonight?","swipe.b2":"omw 🔥",
+      "q.ticket":"Free ticket — 800 XP","q.redeem":"Redeem","q.brand":"Brand reward · −20%","q.redeem2":"Redeem","q.make":"+ Make your own quest",
+      "p.badge":"👑 PARTY OF THE MONTH","p.vote":"🗳️ Vote · +100 XP","p.dj":"🎧 Vote for the DJ",
+      "l.sub":"INSTANT WIN RAFFLE","l.away":"7 check-ins away!","l.give":"↩︎ You give back — we give back","l.won":"Winner: Mila K.","l.won2":"Winner: Stefan R.","l.drink":"Drink",
+      "lb.week":"This week","lb.w":"WEEKLY","lb.wd":"ticket + brand deal","lb.m":"MONTHLY","lb.md":"VIP + bottle","lb.y":"YEARLY","lb.yd":"🌍 top 3 → another continent",
       "how.eyebrow":"How it works","how.h2":"Out in three taps",
       "s1t":"Open the map","s1d":"See where the city is heating up tonight — clubs, splavi, bars and after spots, ranked by live heat.",
       "s2t":"Check in & connect","s2d":"Walk in, check in with GPS for XP, see who's there, wave and match before the floor fills up.",
@@ -322,10 +479,28 @@
     document.documentElement.lang = LANG;
     document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(I18N[LANG][k]!==undefined) el.textContent=I18N[LANG][k]; });
     document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ const k=el.getAttribute('data-i18n-ph'); if(I18N[LANG][k]!==undefined) el.placeholder=I18N[LANG][k]; });
+    document.querySelectorAll('[data-scr]').forEach(el=>{ const k=el.getAttribute('data-scr'); if(I18N[LANG][k]!==undefined) el.textContent=I18N[LANG][k]; });
     document.querySelectorAll('.lang button').forEach(b=> b.classList.toggle('on', b.getAttribute('data-lang')===LANG));
   }
   function setLang(l){ LANG=l; localStorage.setItem('ab_lang',l); applyLang(); }
   function focusEmail(){ document.getElementById('email').focus(); }
+
+  function openFeature(card, screen){
+    const src = document.querySelector('#screens [data-screen="'+screen+'"]');
+    const host = document.getElementById('msScreen');
+    host.innerHTML = src ? src.innerHTML : '';
+    document.getElementById('mTitle').textContent = card.querySelector('h3').textContent;
+    document.getElementById('mDesc').textContent  = card.querySelector('p').textContent;
+    applyLang(); // translate cloned [data-scr] nodes
+    document.getElementById('modal').classList.add('show');
+    document.body.style.overflow='hidden';
+  }
+  function closeModal(e){
+    if(e && e.target && e.target.closest && e.target.closest('.modal-inner') && e.target.id!=='modal') return;
+    document.getElementById('modal').classList.remove('show');
+    document.body.style.overflow='';
+  }
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 
   document.getElementById('yr').textContent = new Date().getFullYear();
   applyLang();
