@@ -14,6 +14,8 @@ export const XP_AWARDS = {
   questComplete: 0, // variable, set by quest definition
 } as const;
 
+export const MORNING_STAR_ACHIEVEMENT_ID = 'morning_star';
+
 // Level thresholds
 export const LEVELS = [
   { level: 1, xpRequired: 0 },
@@ -30,6 +32,17 @@ export const LEVELS = [
 
 // Achievements
 export const ACHIEVEMENTS = [
+  {
+    id: MORNING_STAR_ACHIEVEMENT_ID,
+    name: 'MorningStar',
+    description: 'Apex Vibe Archetype: Level 10, 25+ check-ins, 50+ matches and 10+ reviews.',
+    icon: '🌅',
+    checkCondition: (stats: UserStats) =>
+      stats.level >= 10 &&
+      stats.eventsAttended >= 25 &&
+      stats.totalMatches >= 50 &&
+      stats.reviews >= 10,
+  },
   {
     id: 'party_animal',
     name: 'Party Animal',
@@ -80,6 +93,7 @@ export const ACHIEVEMENTS = [
 export interface UserStats {
   eventsAttended: number;
   totalMatches: number;
+  reviews: number;
   xp: number;
   level: number;
 }
@@ -178,11 +192,17 @@ export const checkAchievements = async (userId: string): Promise<string[]> => {
 
     if (!profile) return unlockedAchievements;
 
+    const [checkins, reviews] = await Promise.all([
+      supabase.from('event_checkins').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      supabase.from('event_reviews').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+    ]);
+
     const stats: UserStats = {
-      eventsAttended: profile.events_attended || 0,
+      eventsAttended: Math.max(profile.events_attended || 0, checkins.count ?? 0),
       totalMatches: profile.total_matches || 0,
+      reviews: reviews.count ?? 0,
       xp: profile.xp || 0,
-      level: profile.level || 1,
+      level: profile.level || calculateLevel(profile.xp || 0),
     };
 
     // Get already unlocked achievements
