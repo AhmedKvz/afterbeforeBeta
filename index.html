@@ -1,29 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sr">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AfterBefore — Where the night begins</title>
-<meta name="description" content="AfterBefore is Belgrade's nightlife app — live city heat map, swipe & match at the venue, quests, rewards and the Party of the Month. Coming soon to iOS & Android." />
+<title>AfterBefore — Tamo gde noć počinje</title>
+<meta name="description" content="AfterBefore je aplikacija za beogradski noćni život — živa heat mapa grada, mečovanje u klubu, questovi, nagrade i žurka meseca. Uskoro na iOS i Android." />
 <meta name="theme-color" content="#0a0a0a" />
-<meta property="og:title" content="AfterBefore — Where the night begins" />
-<meta property="og:description" content="Belgrade nightlife, gamified. Live heat map, match at the venue, quests & rewards. Coming soon to iOS & Android." />
+<meta property="og:title" content="AfterBefore — Tamo gde noć počinje" />
+<meta property="og:description" content="Beogradski noćni život, kao igra. Živa heat mapa, mečovanje u klubu, questovi i nagrade. Uskoro na iOS i Android." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://ahmedkvz.github.io/afterbeforeBeta/" />
 <meta property="og:image" content="https://ahmedkvz.github.io/afterbeforeBeta/og.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="AfterBefore — Belgrade nightlife app, coming soon to iOS & Android" />
+<meta property="og:image:alt" content="AfterBefore — aplikacija za beogradski noćni život, uskoro na iOS i Android" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="AfterBefore — Where the night begins" />
-<meta name="twitter:description" content="Belgrade nightlife, gamified. Live heat map, match at the venue, quests & rewards." />
+<meta name="twitter:title" content="AfterBefore — Tamo gde noć počinje" />
+<meta name="twitter:description" content="Beogradski noćni život, kao igra. Živa heat mapa, mečovanje u klubu, questovi i nagrade." />
 <meta name="twitter:image" content="https://ahmedkvz.github.io/afterbeforeBeta/og.png" />
 <style>
   :root{
-    --bg:#0a0a0a; --bg2:#121212; --card:#191919; --card2:#1f1f1f;
-    --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.14);
-    --text:#fafafa; --dim:rgba(255,255,255,.62); --faint:rgba(255,255,255,.38);
-    --primary:#8a5cf6; --secondary:#ec4899; --accent:#f5a623; --success:#10b981; --heat:#fb923c;
+    --bg:#0a0a0a;--card:#191919;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);
+    --text:#fafafa;--dim:rgba(255,255,255,.62);--faint:rgba(255,255,255,.38);
+    --primary:#8a5cf6;--secondary:#ec4899;--accent:#f5a623;--success:#10b981;--heat:#fb923c;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -34,20 +33,19 @@
   .btn{display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer;font-family:inherit;font-weight:700;border-radius:14px;padding:14px 22px;font-size:15px;transition:transform .15s,box-shadow .15s}
   .btn-primary{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;box-shadow:0 12px 34px -12px rgba(138,92,246,.7)}
   .btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 42px -12px rgba(138,92,246,.85)}
-  .btn-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border2)}
-  .btn-ghost:hover{background:rgba(255,255,255,.1)}
 
-  /* NAV */
   nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(18px) saturate(140%);background:rgba(10,10,10,.72);border-bottom:1px solid var(--border)}
   nav .row{display:flex;align-items:center;justify-content:space-between;height:64px}
   .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:19px}
   .logo .moon{font-size:22px}
-  nav .links{display:flex;align-items:center;gap:26px}
+  nav .links{display:flex;align-items:center;gap:22px}
   nav .links a{color:var(--dim);font-size:14px;font-weight:500}
   nav .links a:hover{color:var(--text)}
-  @media(max-width:720px){nav .links a.hide-sm{display:none}}
+  @media(max-width:760px){nav .links a.hide-sm{display:none}}
+  .lang{display:inline-flex;border:1px solid var(--border2);border-radius:100px;overflow:hidden}
+  .lang button{background:transparent;border:0;color:var(--dim);font-family:inherit;font-weight:700;font-size:12px;padding:6px 11px;cursor:pointer;transition:all .15s}
+  .lang button.on{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff}
 
-  /* HERO */
   header.hero{position:relative;padding:74px 0 40px;overflow:hidden}
   .hero-bg{position:absolute;inset:0;z-index:0;pointer-events:none}
   .blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5}
@@ -58,11 +56,9 @@
   @media(max-width:880px){.hero-grid{grid-template-columns:1fr;text-align:center}}
   .pill{display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border-radius:100px;background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.3);color:var(--accent);font-size:12px;font-weight:700;letter-spacing:.3px}
   h1{font-size:clamp(38px,6vw,62px);line-height:1.04;font-weight:850;letter-spacing:-.02em;margin:18px 0 16px}
-  .sub{font-size:clamp(16px,2.4vw,19px);color:var(--dim);max-width:520px;margin-bottom:26px}
+  .sub{font-size:clamp(16px,2.4vw,19px);color:var(--dim);max-width:540px;margin-bottom:26px}
   @media(max-width:880px){.sub{margin-left:auto;margin-right:auto}}
-  .cta-row{display:flex;gap:12px;flex-wrap:wrap}
-  @media(max-width:880px){.cta-row{justify-content:center}}
-  .stores{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+  .stores{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
   @media(max-width:880px){.stores{justify-content:center}}
   .store{position:relative;display:flex;align-items:center;gap:10px;background:#000;border:1px solid var(--border2);border-radius:13px;padding:9px 16px;cursor:pointer;transition:border-color .15s,transform .15s}
   .store:hover{border-color:var(--primary);transform:translateY(-2px)}
@@ -74,7 +70,6 @@
   .trust{margin-top:20px;font-size:13px;color:var(--faint);display:flex;align-items:center;gap:8px;justify-content:flex-start}
   @media(max-width:880px){.trust{justify-content:center}}
 
-  /* PHONE MOCKUP */
   .phone-wrap{display:flex;justify-content:center}
   .phone{position:relative;width:290px;height:600px;border-radius:46px;background:#000;border:2px solid #2a2a2a;box-shadow:0 40px 90px -30px rgba(138,92,246,.55),0 0 0 8px rgba(255,255,255,.02);padding:11px;animation:float 5s ease-in-out infinite}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
@@ -104,11 +99,10 @@
   .scr-nav div{font-size:17px;opacity:.5}
   .scr-nav div.act{opacity:1}
 
-  /* SECTIONS */
   section{padding:66px 0;position:relative}
   .eyebrow{color:var(--accent);font-weight:700;font-size:13px;letter-spacing:1.4px;text-transform:uppercase;text-align:center}
   h2{font-size:clamp(28px,4.2vw,42px);font-weight:820;letter-spacing:-.02em;text-align:center;margin:10px 0 12px}
-  .lead{color:var(--dim);text-align:center;max-width:620px;margin:0 auto 44px;font-size:17px}
+  .lead{color:var(--dim);text-align:center;max-width:640px;margin:0 auto 44px;font-size:17px}
   .features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
   @media(max-width:880px){.features{grid-template-columns:1fr}}
   .feat{background:linear-gradient(180deg,var(--card),#141414);border:1px solid var(--border);border-radius:20px;padding:24px;transition:border-color .2s,transform .2s}
@@ -124,15 +118,13 @@
   .step h3{font-size:18px;margin-bottom:6px}
   .step p{color:var(--dim);font-size:14px}
 
-  /* WAITLIST */
   .join{background:radial-gradient(120% 120% at 50% 0%,rgba(138,92,246,.18),transparent 60%);border:1px solid var(--border);border-radius:28px;padding:50px 28px;text-align:center;position:relative;overflow:hidden}
-  .form{display:flex;gap:10px;max-width:520px;margin:22px auto 0;flex-wrap:wrap;justify-content:center}
+  .form{display:flex;gap:10px;max-width:540px;margin:22px auto 0;flex-wrap:wrap;justify-content:center}
   .form input,.form select{flex:1;min-width:200px;background:#141414;border:1px solid var(--border2);color:var(--text);border-radius:13px;padding:14px 16px;font-size:15px;font-family:inherit;outline:none}
   .form input:focus,.form select:focus{border-color:var(--primary)}
-  .form select{min-width:150px;flex:0 0 auto}
+  .form select{min-width:160px;flex:0 0 auto}
   .msg{margin-top:14px;font-size:14px;min-height:20px}
-  .msg.ok{color:var(--success)}
-  .msg.err{color:#f87171}
+  .msg.ok{color:var(--success)}.msg.err{color:#f87171}
   .privacy{margin-top:10px;font-size:12px;color:var(--faint)}
 
   footer{border-top:1px solid var(--border);padding:34px 0;color:var(--faint);font-size:13px}
@@ -146,9 +138,13 @@
   <div class="wrap row">
     <div class="logo"><span class="moon">🌙</span><span class="grad-text">AfterBefore</span></div>
     <div class="links">
-      <a href="#features" class="hide-sm">Features</a>
-      <a href="#how" class="hide-sm">How it works</a>
-      <a href="#download" class="btn btn-primary" style="padding:9px 16px;font-size:14px">Get the app</a>
+      <a href="#features" class="hide-sm" data-i18n="nav.features">Funkcije</a>
+      <a href="#how" class="hide-sm" data-i18n="nav.how">Kako radi</a>
+      <span class="lang" role="group" aria-label="Language">
+        <button data-lang="sr" onclick="setLang('sr')">SR</button>
+        <button data-lang="en" onclick="setLang('en')">EN</button>
+      </span>
+      <a href="#download" class="btn btn-primary" style="padding:9px 16px;font-size:14px" data-i18n="nav.cta">Preuzmi app</a>
     </div>
   </div>
 </nav>
@@ -157,22 +153,22 @@
   <div class="hero-bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
   <div class="wrap hero-grid">
     <div>
-      <span class="pill">🔥 Belgrade nightlife, gamified</span>
-      <h1>Where the<br><span class="grad-text">night begins.</span></h1>
-      <p class="sub">See the city heat up in real time, match with people at the venue, run quests for real perks, and crown the Party of the Month. One app for going out in Belgrade.</p>
+      <span class="pill" data-i18n="hero.pill">🔥 Beogradski noćni život, kao igra</span>
+      <h1><span data-i18n="hero.h1a">Tamo gde noć</span><br><span class="grad-text" data-i18n="hero.h1b">počinje.</span></h1>
+      <p class="sub" data-i18n="hero.sub">Gledaj kako se grad zagreva uživo, mečuj se sa ljudima u klubu, rešavaj questove za prave nagrade i biraj žurku meseca. Jedna aplikacija za izlazak u Beogradu.</p>
       <div class="stores">
-        <div class="store" onclick="document.getElementById('email').focus()">
+        <div class="store" onclick="focusEmail()">
           <span class="ico"></span>
-          <span class="t"><small>Download on the</small><b>App Store</b></span>
-          <span class="soon">SOON</span>
+          <span class="t"><small data-i18n="hero.s_app">Preuzmi na</small><b>App Store</b></span>
+          <span class="soon" data-i18n="hero.soon">USKORO</span>
         </div>
-        <div class="store" onclick="document.getElementById('email').focus()">
+        <div class="store" onclick="focusEmail()">
           <span class="ico">▶</span>
-          <span class="t"><small>Get it on</small><b>Google Play</b></span>
-          <span class="soon">SOON</span>
+          <span class="t"><small data-i18n="hero.s_play">Nabavi na</small><b>Google Play</b></span>
+          <span class="soon" data-i18n="hero.soon2">USKORO</span>
         </div>
       </div>
-      <div class="trust">⭐ Join the waitlist — be first in line when we launch.</div>
+      <div class="trust" data-i18n="hero.trust">⭐ Prijavi se na listu čekanja — budi prvi kad lansiramo.</div>
     </div>
 
     <div class="phone-wrap">
@@ -180,20 +176,20 @@
         <div class="notch"></div>
         <div class="screen">
           <div class="scr-head"><div class="l"><span>🌙</span><span class="grad-text">AfterBefore</span></div><span>🔔</span></div>
-          <div class="scr-loc">📍 Belgrade · Sat night</div>
+          <div class="scr-loc">📍 <span data-i18n="ph.loc">Beograd · subota uveče</span></div>
           <div class="pom">
             <div class="ov"></div>
-            <div class="badge">👑 PARTY OF JUNE</div>
-            <div class="votes">🗳️ 248 votes</div>
+            <div class="badge" data-i18n="ph.badge">👑 ŽURKA MESECA</div>
+            <div class="votes">🗳️ 248</div>
             <div class="meta">
               <b>MAGLA · 2 Year Anniversary</b>
-              <span>📍 Drugstore · Fri · 23:00</span>
-              <div class="vote">🗳️ Vote · +100 XP</div>
+              <span>📍 Drugstore · <span data-i18n="ph.fri">pet</span> · 23:00</span>
+              <div class="vote" data-i18n="ph.vote">🗳️ Glasaj · +100 XP</div>
             </div>
           </div>
-          <div class="chips"><span class="chip on">All</span><span class="chip off">Tonight</span><span class="chip off">Clubs</span><span class="chip off">Techno</span></div>
-          <div class="ev"><div class="th" style="background:linear-gradient(135deg,oklch(.58 .2 38),oklch(.34 .16 68))"></div><div class="info"><b>16h Session</b><span>Para Klub · Sat</span></div><span class="heat">🔥 88</span></div>
-          <div class="ev"><div class="th" style="background:linear-gradient(135deg,oklch(.58 .2 332),oklch(.34 .16 2))"></div><div class="info"><b>Idem Tour — Life</b><span>Karmakoma · Sat</span></div><span class="heat">🔥 78</span></div>
+          <div class="chips"><span class="chip on" data-i18n="ph.c_all">Sve</span><span class="chip off" data-i18n="ph.c_tonight">Večeras</span><span class="chip off" data-i18n="ph.c_clubs">Klubovi</span><span class="chip off">Techno</span></div>
+          <div class="ev"><div class="th" style="background:linear-gradient(135deg,oklch(.58 .2 38),oklch(.34 .16 68))"></div><div class="info"><b>16h Session</b><span>Para Klub · <span data-i18n="ph.sat">sub</span></span></div><span class="heat">🔥 88</span></div>
+          <div class="ev"><div class="th" style="background:linear-gradient(135deg,oklch(.58 .2 332),oklch(.34 .16 2))"></div><div class="info"><b>Idem Tour — Life</b><span>Karmakoma · <span data-i18n="ph.sat2">sub</span></span></div><span class="heat">🔥 78</span></div>
           <div class="scr-nav"><div class="act">🏠</div><div>🧭</div><div>💜</div><div>⚡</div><div>👤</div></div>
         </div>
       </div>
@@ -203,28 +199,28 @@
 
 <section id="features">
   <div class="wrap">
-    <div class="eyebrow">What's inside</div>
-    <h2>Everything for the night out</h2>
-    <p class="lead">AfterBefore turns going out into a game — discover, connect, and earn while the city moves.</p>
+    <div class="eyebrow" data-i18n="feat.eyebrow">Šta je unutra</div>
+    <h2 data-i18n="feat.h2">Sve za izlazak</h2>
+    <p class="lead" data-i18n="feat.lead">AfterBefore pretvara izlazak u igru — otkrivaj, povezuj se i zarađuj dok se grad kreće.</p>
     <div class="features">
-      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(138,92,246,.25),rgba(138,92,246,.05))">🗺️</div><h3>Live city heat map</h3><p>Watch venues light up in real time. Walk to a hot spot, check in, and see who's there right now.</p></div>
-      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(236,72,153,.25),rgba(236,72,153,.05))">💜</div><h3>Swipe &amp; match</h3><p>Match with ravers, clubs and events around you. Plan the night together before you even leave home.</p></div>
-      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(245,166,35,.25),rgba(245,166,35,.05))">🎯</div><h3>Quests &amp; rewards</h3><p>Solo or crew quests, streaks, and a rewards store — turn XP into free drinks and skip-the-line passes.</p></div>
-      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(16,185,129,.25),rgba(16,185,129,.05))">👑</div><h3>Party of the Month</h3><p>Vote for the night everyone's talking about. The community crowns the best party — winner gets featured.</p></div>
-      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(251,146,60,.25),rgba(251,146,60,.05))">🍀</div><h3>Lucky 100</h3><p>Every check-in is a raffle entry. Win free entries, drinks and VIP spots at partner venues — instantly.</p></div>
-      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(138,92,246,.25),rgba(245,166,35,.08))">🏆</div><h3>Leaderboards</h3><p>Climb the Ravers board and the Club Heat ranking. Weekly resets, real prizes, bragging rights.</p></div>
+      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(138,92,246,.25),rgba(138,92,246,.05))">🗺️</div><h3 data-i18n="f1t">Živa heat mapa grada</h3><p data-i18n="f1d">Gledaj kako se mesta pale uživo. Prošetaj do žarišta, čekiraj se i vidi ko je tu baš sada.</p></div>
+      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(236,72,153,.25),rgba(236,72,153,.05))">💜</div><h3 data-i18n="f2t">Swipe i mečovanje</h3><p data-i18n="f2d">Mečuj se sa ljudima, klubovima i događajima oko tebe. Isplanirajte noć zajedno pre nego što izađete.</p></div>
+      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(245,166,35,.25),rgba(245,166,35,.05))">🎯</div><h3 data-i18n="f3t">Questovi i nagrade</h3><p data-i18n="f3d">Solo ili crew questovi, nizovi i prodavnica nagrada — pretvori XP u besplatna pića i preskakanje reda.</p></div>
+      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(16,185,129,.25),rgba(16,185,129,.05))">👑</div><h3 data-i18n="f4t">Žurka meseca</h3><p data-i18n="f4d">Glasaj za noć o kojoj svi pričaju. Zajednica bira najbolju žurku — pobednik dobija promociju.</p></div>
+      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(251,146,60,.25),rgba(251,146,60,.05))">🍀</div><h3 data-i18n="f5t">Lucky 100</h3><p data-i18n="f5d">Svaki check-in je tiket za žreb. Osvajaj besplatne ulaze, pića i VIP mesta kod partnera — istog trena.</p></div>
+      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(138,92,246,.25),rgba(245,166,35,.08))">🏆</div><h3 data-i18n="f6t">Rang liste</h3><p data-i18n="f6d">Penji se na Ravers listu i Club Heat rang. Nedeljni reset, prave nagrade, pravo na hvalisanje.</p></div>
     </div>
   </div>
 </section>
 
 <section id="how" style="background:linear-gradient(180deg,transparent,rgba(255,255,255,.015))">
   <div class="wrap">
-    <div class="eyebrow">How it works</div>
-    <h2>Out in three taps</h2>
+    <div class="eyebrow" data-i18n="how.eyebrow">Kako radi</div>
+    <h2 data-i18n="how.h2">Izlazak u tri tapa</h2>
     <div class="steps" style="margin-top:36px">
-      <div class="step"><h3>Open the map</h3><p>See where the city is heating up tonight — clubs, splavi, bars and after spots, ranked by live heat.</p></div>
-      <div class="step"><h3>Check in &amp; connect</h3><p>Walk in, check in with GPS for XP, see who's there, wave and match before the floor fills up.</p></div>
-      <div class="step"><h3>Earn &amp; cash in</h3><p>Complete quests, keep your streak, climb the board and spend XP on real perks at partner venues.</p></div>
+      <div class="step"><h3 data-i18n="s1t">Otvori mapu</h3><p data-i18n="s1d">Vidi gde se grad zagreva večeras — klubovi, splavovi, barovi i after mesta, rangirani po živom heat-u.</p></div>
+      <div class="step"><h3 data-i18n="s2t">Čekiraj se i poveži</h3><p data-i18n="s2d">Uđi, čekiraj se GPS-om za XP, vidi ko je tu, mahni i mečuj se pre nego što se podijum napuni.</p></div>
+      <div class="step"><h3 data-i18n="s3t">Zaradi i iskoristi</h3><p data-i18n="s3d">Rešavaj questove, čuvaj niz, penji se na listu i troši XP na prave pogodnosti kod partnera.</p></div>
     </div>
   </div>
 </section>
@@ -232,20 +228,20 @@
 <section id="download">
   <div class="wrap">
     <div class="join">
-      <div class="eyebrow">Coming soon · iOS &amp; Android</div>
-      <h2>Be first on the floor</h2>
-      <p class="lead" style="margin-bottom:0">Join the waitlist and we'll ping you the moment AfterBefore drops on your store.</p>
+      <div class="eyebrow" data-i18n="dl.eyebrow">Uskoro · iOS i Android</div>
+      <h2 data-i18n="dl.h2">Budi prvi na podijumu</h2>
+      <p class="lead" style="margin-bottom:0" data-i18n="dl.lead">Prijavi se na listu čekanja i javimo ti čim AfterBefore izađe na tvoj store.</p>
       <form class="form" id="waitForm">
-        <input id="email" type="email" placeholder="you@email.com" required />
+        <input id="email" type="email" data-i18n-ph="dl.ph" placeholder="ti@email.com" required />
         <select id="platform">
-          <option value="either">iOS or Android</option>
-          <option value="ios">iPhone (iOS)</option>
-          <option value="android">Android</option>
+          <option value="either" data-i18n="dl.o_either">iOS ili Android</option>
+          <option value="ios" data-i18n="dl.o_ios">iPhone (iOS)</option>
+          <option value="android" data-i18n="dl.o_android">Android</option>
         </select>
-        <button class="btn btn-primary" type="submit" id="submitBtn">Join waitlist</button>
+        <button class="btn btn-primary" type="submit" id="submitBtn" data-i18n="dl.btn">Prijavi se</button>
       </form>
       <div class="msg" id="msg"></div>
-      <div class="privacy">No spam — one launch email. Unsubscribe anytime.</div>
+      <div class="privacy" data-i18n="dl.privacy">Bez spama — jedan mejl o lansiranju. Odjava bilo kad.</div>
     </div>
   </div>
 </section>
@@ -253,59 +249,106 @@
 <footer>
   <div class="wrap row">
     <div class="logo" style="font-size:16px"><span class="moon">🌙</span><span class="grad-text">AfterBefore</span></div>
-    <div>© <span id="yr"></span> AfterBefore · Belgrade</div>
+    <div>© <span id="yr"></span> AfterBefore · <span data-i18n="footer.city">Beograd</span></div>
     <div style="display:flex;gap:18px">
       <a href="mailto:hello@afterbefore.rs">hello@afterbefore.rs</a>
-      <a href="#features">Features</a>
-      <a href="#download">Waitlist</a>
+      <a href="#features" data-i18n="nav.features">Funkcije</a>
+      <a href="#download" data-i18n="footer.waitlist">Lista čekanja</a>
     </div>
   </div>
 </footer>
 
 <script>
+  const I18N = {
+    sr:{
+      "nav.features":"Funkcije","nav.how":"Kako radi","nav.cta":"Preuzmi app",
+      "hero.pill":"🔥 Beogradski noćni život, kao igra","hero.h1a":"Tamo gde noć","hero.h1b":"počinje.",
+      "hero.sub":"Gledaj kako se grad zagreva uživo, mečuj se sa ljudima u klubu, rešavaj questove za prave nagrade i biraj žurku meseca. Jedna aplikacija za izlazak u Beogradu.",
+      "hero.s_app":"Preuzmi na","hero.s_play":"Nabavi na","hero.soon":"USKORO","hero.soon2":"USKORO",
+      "hero.trust":"⭐ Prijavi se na listu čekanja — budi prvi kad lansiramo.",
+      "ph.loc":"Beograd · subota uveče","ph.badge":"👑 ŽURKA MESECA","ph.fri":"pet","ph.vote":"🗳️ Glasaj · +100 XP",
+      "ph.c_all":"Sve","ph.c_tonight":"Večeras","ph.c_clubs":"Klubovi","ph.sat":"sub","ph.sat2":"sub",
+      "feat.eyebrow":"Šta je unutra","feat.h2":"Sve za izlazak","feat.lead":"AfterBefore pretvara izlazak u igru — otkrivaj, povezuj se i zarađuj dok se grad kreće.",
+      "f1t":"Živa heat mapa grada","f1d":"Gledaj kako se mesta pale uživo. Prošetaj do žarišta, čekiraj se i vidi ko je tu baš sada.",
+      "f2t":"Swipe i mečovanje","f2d":"Mečuj se sa ljudima, klubovima i događajima oko tebe. Isplanirajte noć zajedno pre nego što izađete.",
+      "f3t":"Questovi i nagrade","f3d":"Solo ili crew questovi, nizovi i prodavnica nagrada — pretvori XP u besplatna pića i preskakanje reda.",
+      "f4t":"Žurka meseca","f4d":"Glasaj za noć o kojoj svi pričaju. Zajednica bira najbolju žurku — pobednik dobija promociju.",
+      "f5t":"Lucky 100","f5d":"Svaki check-in je tiket za žreb. Osvajaj besplatne ulaze, pića i VIP mesta kod partnera — istog trena.",
+      "f6t":"Rang liste","f6d":"Penji se na Ravers listu i Club Heat rang. Nedeljni reset, prave nagrade, pravo na hvalisanje.",
+      "how.eyebrow":"Kako radi","how.h2":"Izlazak u tri tapa",
+      "s1t":"Otvori mapu","s1d":"Vidi gde se grad zagreva večeras — klubovi, splavovi, barovi i after mesta, rangirani po živom heat-u.",
+      "s2t":"Čekiraj se i poveži","s2d":"Uđi, čekiraj se GPS-om za XP, vidi ko je tu, mahni i mečuj se pre nego što se podijum napuni.",
+      "s3t":"Zaradi i iskoristi","s3d":"Rešavaj questove, čuvaj niz, penji se na listu i troši XP na prave pogodnosti kod partnera.",
+      "dl.eyebrow":"Uskoro · iOS i Android","dl.h2":"Budi prvi na podijumu","dl.lead":"Prijavi se na listu čekanja i javimo ti čim AfterBefore izađe na tvoj store.",
+      "dl.ph":"ti@email.com","dl.o_either":"iOS ili Android","dl.o_ios":"iPhone (iOS)","dl.o_android":"Android","dl.btn":"Prijavi se",
+      "dl.privacy":"Bez spama — jedan mejl o lansiranju. Odjava bilo kad.",
+      "footer.city":"Beograd","footer.waitlist":"Lista čekanja",
+      "msg.ok":"🎉 Na listi si! Javimo se na lansiranju.","msg.dup":"✅ Već si na listi — vidimo se na podijumu.",
+      "msg.err":"Nešto nije u redu. Pokušaj ponovo.","msg.net":"Greška u mreži — pokušaj ponovo.","msg.joining":"Prijavljujem…"
+    },
+    en:{
+      "nav.features":"Features","nav.how":"How it works","nav.cta":"Get the app",
+      "hero.pill":"🔥 Belgrade nightlife, gamified","hero.h1a":"Where the","hero.h1b":"night begins.",
+      "hero.sub":"See the city heat up in real time, match with people at the venue, run quests for real perks, and crown the Party of the Month. One app for going out in Belgrade.",
+      "hero.s_app":"Download on the","hero.s_play":"Get it on","hero.soon":"SOON","hero.soon2":"SOON",
+      "hero.trust":"⭐ Join the waitlist — be first in line when we launch.",
+      "ph.loc":"Belgrade · Sat night","ph.badge":"👑 PARTY OF THE MONTH","ph.fri":"Fri","ph.vote":"🗳️ Vote · +100 XP",
+      "ph.c_all":"All","ph.c_tonight":"Tonight","ph.c_clubs":"Clubs","ph.sat":"Sat","ph.sat2":"Sat",
+      "feat.eyebrow":"What's inside","feat.h2":"Everything for the night out","feat.lead":"AfterBefore turns going out into a game — discover, connect, and earn while the city moves.",
+      "f1t":"Live city heat map","f1d":"Watch venues light up in real time. Walk to a hot spot, check in, and see who's there right now.",
+      "f2t":"Swipe & match","f2d":"Match with ravers, clubs and events around you. Plan the night together before you even leave home.",
+      "f3t":"Quests & rewards","f3d":"Solo or crew quests, streaks, and a rewards store — turn XP into free drinks and skip-the-line passes.",
+      "f4t":"Party of the Month","f4d":"Vote for the night everyone's talking about. The community crowns the best party — winner gets featured.",
+      "f5t":"Lucky 100","f5d":"Every check-in is a raffle entry. Win free entries, drinks and VIP spots at partner venues — instantly.",
+      "f6t":"Leaderboards","f6d":"Climb the Ravers board and the Club Heat ranking. Weekly resets, real prizes, bragging rights.",
+      "how.eyebrow":"How it works","how.h2":"Out in three taps",
+      "s1t":"Open the map","s1d":"See where the city is heating up tonight — clubs, splavi, bars and after spots, ranked by live heat.",
+      "s2t":"Check in & connect","s2d":"Walk in, check in with GPS for XP, see who's there, wave and match before the floor fills up.",
+      "s3t":"Earn & cash in","s3d":"Complete quests, keep your streak, climb the board and spend XP on real perks at partner venues.",
+      "dl.eyebrow":"Coming soon · iOS & Android","dl.h2":"Be first on the floor","dl.lead":"Join the waitlist and we'll ping you the moment AfterBefore drops on your store.",
+      "dl.ph":"you@email.com","dl.o_either":"iOS or Android","dl.o_ios":"iPhone (iOS)","dl.o_android":"Android","dl.btn":"Join waitlist",
+      "dl.privacy":"No spam — one launch email. Unsubscribe anytime.",
+      "footer.city":"Belgrade","footer.waitlist":"Waitlist",
+      "msg.ok":"🎉 You're on the list! We'll be in touch at launch.","msg.dup":"✅ You're already on the list — see you on the floor.",
+      "msg.err":"Something went wrong. Please try again.","msg.net":"Network error — please try again.","msg.joining":"Joining…"
+    }
+  };
+
+  let LANG = localStorage.getItem('ab_lang') || 'sr';
+
+  function t(key){ return (I18N[LANG] && I18N[LANG][key]) || (I18N.sr[key]) || key; }
+
+  function applyLang(){
+    document.documentElement.lang = LANG;
+    document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(I18N[LANG][k]!==undefined) el.textContent=I18N[LANG][k]; });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ const k=el.getAttribute('data-i18n-ph'); if(I18N[LANG][k]!==undefined) el.placeholder=I18N[LANG][k]; });
+    document.querySelectorAll('.lang button').forEach(b=> b.classList.toggle('on', b.getAttribute('data-lang')===LANG));
+  }
+  function setLang(l){ LANG=l; localStorage.setItem('ab_lang',l); applyLang(); }
+  function focusEmail(){ document.getElementById('email').focus(); }
+
   document.getElementById('yr').textContent = new Date().getFullYear();
+  applyLang();
 
   const SUPABASE_URL = "https://aptahdctlvrhmrhpaccs.supabase.co";
   const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwdGFoZGN0bHZyaG1yaHBhY2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMDY5NzUsImV4cCI6MjA5NjY4Mjk3NX0.ZlPBWOKxzdiaFyH9v8qNqrAp1Igwb3Buq2LinX4XEec";
-
   const form = document.getElementById('waitForm');
   const msg = document.getElementById('msg');
   const btn = document.getElementById('submitBtn');
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener('submit', async (e)=>{
     e.preventDefault();
-    const email = document.getElementById('email').value.trim();
-    const platform = document.getElementById('platform').value;
-    if (!email) return;
-    btn.disabled = true; btn.textContent = 'Joining…'; msg.className = 'msg'; msg.textContent = '';
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_ANON,
-          'Authorization': 'Bearer ' + SUPABASE_ANON,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({ email, platform, source: 'landing' })
-      });
-      if (res.ok) {
-        msg.className = 'msg ok';
-        msg.textContent = "🎉 You're on the list! We'll be in touch at launch.";
-        form.reset();
-      } else if (res.status === 409) {
-        msg.className = 'msg ok';
-        msg.textContent = "✅ You're already on the list — see you on the floor.";
-      } else {
-        msg.className = 'msg err';
-        msg.textContent = 'Something went wrong. Please try again.';
-      }
-    } catch (err) {
-      msg.className = 'msg err';
-      msg.textContent = 'Network error — please try again.';
-    } finally {
-      btn.disabled = false; btn.textContent = 'Join waitlist';
-    }
+    const email=document.getElementById('email').value.trim();
+    const platform=document.getElementById('platform').value;
+    if(!email) return;
+    btn.disabled=true; btn.textContent=t('msg.joining'); msg.className='msg'; msg.textContent='';
+    try{
+      const res=await fetch(`${SUPABASE_URL}/rest/v1/waitlist`,{method:'POST',headers:{'apikey':SUPABASE_ANON,'Authorization':'Bearer '+SUPABASE_ANON,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({email,platform,source:'landing'})});
+      if(res.ok){ msg.className='msg ok'; msg.textContent=t('msg.ok'); form.reset(); }
+      else if(res.status===409){ msg.className='msg ok'; msg.textContent=t('msg.dup'); }
+      else { msg.className='msg err'; msg.textContent=t('msg.err'); }
+    }catch(err){ msg.className='msg err'; msg.textContent=t('msg.net'); }
+    finally{ btn.disabled=false; btn.textContent=t('dl.btn'); }
   });
 </script>
 </body>
