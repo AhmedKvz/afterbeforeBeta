@@ -25,6 +25,7 @@ import SecretPartyRequest from "./pages/SecretPartyRequest";
 import InstagramCallback from "./pages/InstagramCallback";
 import VenueDetail from "./pages/VenueDetail";
 import HeatMap from "./pages/HeatMap";
+import PublicProfile from "./pages/PublicProfile";
 import NotFound from "./pages/NotFound";
 import { BetaFeedback } from "@/components/BetaFeedback";
 
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/scene" element={<ScenePanel />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/heatmap" element={<HeatMap />} />
+            <Route path="/u/:userId" element={<PublicProfile />} />
             <Route path="/quests" element={<Quests />} />
             <Route path="/secret-request/:eventId" element={<SecretPartyRequest />} />
             <Route path="/auth/instagram/callback" element={<InstagramCallback />} />

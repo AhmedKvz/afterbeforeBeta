@@ -96,6 +96,7 @@ const Matches = () => {
 /* ───────── Chat thread ───────── */
 const ChatView = ({ conv, onBack }: { conv: Conversation; onBack: () => void }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { messages, send, sending } = useChat(conv.id);
   const block = useBlockUser();
   const report = useReportUser();
@@ -114,11 +115,13 @@ const ChatView = ({ conv, onBack }: { conv: Conversation; onBack: () => void }) 
     <div className="min-h-screen bg-background flex flex-col">
       <header className="glass-header px-3 py-3 flex items-center gap-3">
         <button onClick={onBack} className="w-9 h-9 rounded-full bg-white/[0.06] flex items-center justify-center"><ArrowLeft className="w-5 h-5" /></button>
-        <Avatar name={conv.name} avatar={conv.avatar} size={36} />
-        <div className="flex-1 min-w-0">
-          <div className="font-bold text-sm truncate">{conv.name}</div>
-          <div className="text-[10px] text-success">● aktivan/na</div>
-        </div>
+        <button onClick={() => navigate(`/u/${conv.other_id}`)} className="flex items-center gap-3 flex-1 min-w-0 text-left">
+          <Avatar name={conv.name} avatar={conv.avatar} size={36} />
+          <div className="flex-1 min-w-0">
+            <div className="font-bold text-sm truncate">{conv.name}</div>
+            <div className="text-[10px] text-success">● aktivan/na · vidi profil</div>
+          </div>
+        </button>
         <div className="relative">
           <button onClick={() => setMenu((m) => !m)} className="w-9 h-9 rounded-full bg-white/[0.06] flex items-center justify-center"><MoreVertical className="w-5 h-5" /></button>
           {menu && (

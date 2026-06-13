@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { X, Loader2, Lock, Users, Globe, ImagePlus, Pencil, Plus } from 'lucide-react';
+import { X, Loader2, Lock, KeyRound, Globe, ImagePlus, Pencil, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { GradientImg } from '@/components/GradientImg';
@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 
 const db = supabase as any;
 
-type Visibility = 'public' | 'close_friends' | 'private';
+type Visibility = 'public' | 'locked' | 'private';
 
 interface Night {
   eventId: string;
@@ -25,7 +25,7 @@ interface Night {
 
 const VIS: { id: Visibility; label: string; icon: any }[] = [
   { id: 'public', label: 'Everyone', icon: Globe },
-  { id: 'close_friends', label: 'Close friends', icon: Users },
+  { id: 'locked', label: 'Request', icon: KeyRound },
   { id: 'private', label: 'Only me', icon: Lock },
 ];
 const visMeta = (v: Visibility) => VIS.find((x) => x.id === v) || VIS[2];

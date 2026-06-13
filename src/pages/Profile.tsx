@@ -11,6 +11,7 @@ import { BottomNav } from '@/components/BottomNav';
 import { Lucky100ProfileSection } from '@/components/Lucky100ProfileSection';
 import { NightlifeTimeline } from '@/components/NightlifeTimeline';
 import { YourNights } from '@/components/YourNights';
+import { MementoRequests } from '@/components/MementoRequests';
 import { Lucky100Modal } from '@/components/Lucky100Modal';
 import { getXPProgress, ACHIEVEMENTS, getUserAchievements, checkAchievements, MORNING_STAR_ACHIEVEMENT_ID } from '@/services/gamification';
 import { hueFromString, avatarGradient, initials } from '@/lib/gradients';
@@ -233,6 +234,9 @@ const Profile = () => {
           </div>
         ))}
       </div>
+
+      {/* Pending unlock requests (owner) */}
+      <MementoRequests />
 
       {/* Your nights — party diary with mementos */}
       <YourNights />
