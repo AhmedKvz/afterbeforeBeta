@@ -9,6 +9,7 @@ import { GlassCard } from '@/components/GlassCard';
 import { GradientImg } from '@/components/GradientImg';
 import { BottomNav } from '@/components/BottomNav';
 import { Lucky100ProfileSection } from '@/components/Lucky100ProfileSection';
+import { NightlifeTimeline } from '@/components/NightlifeTimeline';
 import { Lucky100Modal } from '@/components/Lucky100Modal';
 import { getXPProgress, ACHIEVEMENTS, getUserAchievements, MORNING_STAR_ACHIEVEMENT_ID } from '@/services/gamification';
 import { hueFromString, avatarGradient, initials } from '@/lib/gradients';
@@ -228,6 +229,9 @@ const Profile = () => {
           </div>
         ))}
       </div>
+
+      {/* Nightlife Timeline */}
+      <NightlifeTimeline />
 
       {/* Lucky 100 */}
       <div className="px-4 mb-3.5">
