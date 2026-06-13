@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { Settings, Edit2, Trophy, LogOut, ChevronRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,7 +10,7 @@ import { GradientImg } from '@/components/GradientImg';
 import { BottomNav } from '@/components/BottomNav';
 import { Lucky100ProfileSection } from '@/components/Lucky100ProfileSection';
 import { Lucky100Modal } from '@/components/Lucky100Modal';
-import { getXPProgress, ACHIEVEMENTS, getUserAchievements } from '@/services/gamification';
+import { getXPProgress, ACHIEVEMENTS, getUserAchievements, MORNING_STAR_ACHIEVEMENT_ID } from '@/services/gamification';
 import { hueFromString, avatarGradient, initials } from '@/lib/gradients';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -55,11 +54,27 @@ const Profile = () => {
   const level = profile.level || 1;
   const hue = hueFromString(profile.display_name || 'AfterBefore');
   const unlocked = ACHIEVEMENTS.filter((a) => userAchievements.some((ua) => ua?.id === a.id));
+  const hasMorningStar = unlocked.some((a) => a.id === MORNING_STAR_ACHIEVEMENT_ID);
+  const checkinsCount = counts?.checkins ?? profile.events_attended ?? 0;
+  const matchesCount = profile.total_matches ?? 0;
+  const reviewsCount = counts?.reviews ?? 0;
+  const morningStarProgress = Math.min(100, Math.round((
+    Math.min(level, 10) / 10 +
+    Math.min(checkinsCount, 25) / 25 +
+    Math.min(matchesCount, 50) / 50 +
+    Math.min(reviewsCount, 10) / 10
+  ) / 4 * 100));
+  const morningStarRequirements = [
+    { label: 'Lv. 10', current: level, target: 10 },
+    { label: '25 Check-ins', current: checkinsCount, target: 25 },
+    { label: '50 Matches', current: matchesCount, target: 50 },
+    { label: '10 Reviews', current: reviewsCount, target: 10 },
+  ];
 
   const stats = [
-    { k: counts?.checkins ?? profile.events_attended ?? 0, l: 'Check-ins' },
-    { k: profile.total_matches ?? 0, l: 'Matches' },
-    { k: counts?.reviews ?? 0, l: 'Reviews' },
+    { k: checkinsCount, l: 'Check-ins' },
+    { k: matchesCount, l: 'Matches' },
+    { k: reviewsCount, l: 'Reviews' },
     { k: `${streak.current_streak}d`, l: 'Streak' },
   ];
 
@@ -112,9 +127,75 @@ const Profile = () => {
               {profile.instagram_handle && profile.city ? ` · ${profile.city}` : ''}
             </div>
           </div>
-          <button className="border border-border-strong px-3.5 py-2 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5">
+          <button
+            onClick={() => navigate('/onboarding')}
+            className="border border-border-strong px-3.5 py-2 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5"
+          >
             <Edit2 className="w-3 h-3" /> Edit
           </button>
+        </div>
+      </div>
+
+      {/* Vibe Archetype */}
+      <div className={cn(
+        'mx-4 mt-4 mb-3.5 p-4 rounded-3xl border overflow-hidden relative',
+        hasMorningStar
+          ? 'border-amber-300/50 bg-gradient-to-br from-amber-300/20 via-primary/15 to-secondary/10 shadow-[0_0_38px_rgba(251,191,36,0.16)]'
+          : 'border-accent/25 bg-gradient-to-br from-white/[0.06] to-accent/10'
+      )}>
+        <div className="absolute -right-10 -top-10 w-28 h-28 rounded-full bg-amber-300/10 blur-2xl" />
+        <div className="flex items-start justify-between gap-3 relative">
+          <div>
+            <div className="text-[10px] font-black tracking-[0.18em] text-muted-foreground uppercase">
+              Vibe Archetype · Apex Achievement
+            </div>
+            <div className="mt-1 flex items-center gap-2">
+              <span className="text-3xl">🌅</span>
+              <div>
+                <div className={cn('text-2xl font-black leading-none', hasMorningStar ? 'text-amber-200' : 'text-foreground')}>
+                  MorningStar
+                </div>
+                <div className="text-[11px] text-muted-foreground mt-1">
+                  {hasMorningStar
+                    ? 'You survived the night, carried the after and became scene signal.'
+                    : 'Locked: the strongest AfterBefore identity status.'}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={cn(
+            'px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.12em] border',
+            hasMorningStar ? 'border-amber-300/50 text-amber-200 bg-amber-300/10' : 'border-border text-muted-foreground bg-black/20'
+          )}>
+            {hasMorningStar ? 'Unlocked' : `${morningStarProgress}%`}
+          </div>
+        </div>
+
+        <div className="mt-4 h-1.5 rounded bg-white/[0.08] overflow-hidden relative">
+          <div
+            className="h-full rounded bg-gradient-to-r from-amber-300 via-primary to-secondary"
+            style={{ width: `${hasMorningStar ? 100 : morningStarProgress}%` }}
+          />
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          {morningStarRequirements.map((r) => {
+            const complete = r.current >= r.target;
+            return (
+              <div
+                key={r.label}
+                className={cn(
+                  'rounded-2xl border px-3 py-2',
+                  complete ? 'border-amber-300/40 bg-amber-300/10' : 'border-border bg-black/10'
+                )}
+              >
+                <div className="text-[10px] text-muted-foreground">{r.label}</div>
+                <div className={cn('text-sm font-extrabold', complete && 'text-amber-200')}>
+                  {Math.min(r.current, r.target)} / {r.target}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -164,7 +245,10 @@ const Profile = () => {
         ) : (
           <div className="flex gap-2 overflow-x-auto no-scrollbar">
             {unlocked.map((b) => (
-              <div key={b.id} className="min-w-[78px] py-3 px-2 rounded-2xl bg-card border border-border text-center">
+              <div key={b.id} className={cn(
+                'min-w-[78px] py-3 px-2 rounded-2xl bg-card border text-center',
+                b.id === MORNING_STAR_ACHIEVEMENT_ID ? 'border-amber-300/50 bg-amber-300/10' : 'border-border'
+              )}>
                 <div className="text-[26px] mb-1">{b.icon}</div>
                 <div className="text-[10px] text-muted-foreground font-medium leading-tight">{b.name}</div>
               </div>
@@ -204,10 +288,19 @@ const Profile = () => {
         <div className="grid grid-cols-2 gap-2.5">
           {ACHIEVEMENTS.map((a) => {
             const isUnlocked = unlocked.some((u) => u.id === a.id);
+            const isMorningStar = a.id === MORNING_STAR_ACHIEVEMENT_ID;
             return (
-              <GlassCard key={a.id} className={cn('p-3 text-center', !isUnlocked && 'opacity-50')} hoverable={false}>
+              <GlassCard
+                key={a.id}
+                className={cn(
+                  'p-3 text-center',
+                  !isUnlocked && 'opacity-50',
+                  isMorningStar && 'border-amber-300/40 bg-amber-300/10'
+                )}
+                hoverable={false}
+              >
                 <div className="text-2xl mb-1">{a.icon}</div>
-                <h4 className="font-bold text-[13px]">{a.name}</h4>
+                <h4 className={cn('font-bold text-[13px]', isMorningStar && 'text-amber-200')}>{a.name}</h4>
                 <p className="text-[11px] text-muted-foreground">{a.description}</p>
                 {isUnlocked && <span className="text-[10px] text-success mt-1.5 block">✓ Unlocked</span>}
               </GlassCard>
@@ -257,7 +350,6 @@ const Profile = () => {
           <LogOut className="w-5 h-5" /> Sign Out
         </button>
       </div>
-
       <BottomNav />
       <Lucky100Modal isOpen={isLucky100ModalOpen} onClose={() => setIsLucky100ModalOpen(false)} />
     </div>
