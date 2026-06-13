@@ -16,6 +16,7 @@ import { ReviewModal } from '@/components/ReviewModal';
 import { NotificationBell } from '@/components/NotificationBell';
 import { SceneBanner } from '@/components/SceneBanner';
 import { TrendingEventCard } from '@/components/TrendingEventCard';
+import { StoriesRail } from '@/components/StoriesRail';
 import { usePartyOfMonth } from '@/hooks/usePartyOfMonth';
 import { useReviewPrompt } from '@/hooks/useReviewPrompt';
 import { useQuests } from '@/hooks/useQuests';
@@ -213,6 +214,9 @@ const Home = () => {
         <MapPin className="w-4 h-4" />
         <span className="text-sm">{profile?.city || 'Belgrade'}</span>
       </div>
+
+      {/* Stories rail */}
+      <StoriesRail />
 
       {/* Lucky 100 Banner */}
       <div className="px-4 mb-4">

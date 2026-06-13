@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
 import { Plus, Minus, MapPin, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useHeatVenues, useVenuePresence, BELGRADE_HOODS, HeatVenue } from '@/hooks/useHeatVenues';
+import { useHeatVenues, useVenuePresence, useSetVenuePresence, BELGRADE_HOODS, HeatVenue } from '@/hooks/useHeatVenues';
+import { useSendWave } from '@/hooks/useMessaging';
 import { BottomNav } from '@/components/BottomNav';
 import { avatarGradient, hueFromString, initials } from '@/lib/gradients';
-import { awardXP } from '@/services/gamification';
+import { supabase } from '@/integrations/supabase/client';
+import { awardXP, XP_AWARDS } from '@/services/gamification';
 import { incrementQuestProgress } from '@/services/questProgress';
 import { getCurrentPosition, calculateDistance, formatDistance } from '@/services/geolocation';
 import { cn } from '@/lib/utils';
@@ -26,6 +28,9 @@ const NIGHT_TYPES = [
   { id: 'splav', label: '🚢 Splavi' }, { id: 'afterplace', label: '☕ After' },
 ];
 
+// GPS geofence enforced on check-in (set true only for local testing)
+const DEV_SKIP_GEOFENCE = false;
+
 const HeatMap = () => {
   const { user } = useAuth();
   const { data: venues = [], isLoading } = useHeatVenues();
@@ -36,6 +41,33 @@ const HeatMap = () => {
   const [peeked, setPeeked] = useState<Set<string>>(new Set());
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [checkingIn, setCheckingIn] = useState(false);
+  const [swiped, setSwiped] = useState<Set<string>>(new Set());
+
+  // on-the-spot like/pass on someone in the "who's here" list
+  const swipePerson = async (pid: string, name: string, action: 'like' | 'pass') => {
+    if (!user || !pid || pid === 'x' || pid === user.id) return;
+    setSwiped((s) => new Set(s).add(pid));
+    try {
+      await supabase.from('swipes').insert({ swiper_id: user.id, swiped_id: pid, event_id: null, action });
+      if (action === 'pass') return;
+      const { data: theirs } = await supabase
+        .from('swipes').select('id')
+        .eq('swiper_id', pid).eq('swiped_id', user.id).is('event_id', null)
+        .in('action', ['like', 'superlike']).maybeSingle();
+      if (theirs) {
+        await supabase.from('matches').insert({ user1_id: user.id, user2_id: pid, event_id: null });
+        await awardXP(user.id, XP_AWARDS.match, 'Got a match!');
+        await incrementQuestProgress(user.id, 'match');
+        await supabase.from('notifications').insert([
+          { user_id: user.id, type: 'match', title: 'New Match! 💜', body: `You matched with ${name}`, data: { matchedUserId: pid } },
+          { user_id: pid, type: 'match', title: 'New Match! 💜', body: 'You matched with someone at the venue', data: { matchedUserId: user.id } },
+        ]);
+        toast.success(`It's a match with ${name}! 💜`);
+      } else {
+        toast(`❤️ Liked ${name}`);
+      }
+    } catch { /* duplicate swipe / RLS — ignore */ }
+  };
 
   const visible = useMemo(
     () => venues.filter((v) => v.mode === 'both' || v.mode === mode).filter((v) => filter === 'all' || v.type === filter),
@@ -46,37 +78,46 @@ const HeatMap = () => {
   const locked = selected ? atVenueId !== selected.id && !peeked.has(selected.id) : true;
   const types = mode === 'day' ? DAY_TYPES : NIGHT_TYPES;
 
-  const { data: presence = [] } = useVenuePresence(selected?.id || null);
+  const { data: presence } = useVenuePresence(selected?.id || null);
+  const setPresence = useSetVenuePresence();
+  const sendWave = useSendWave();
+  const meVisible = !!presence?.me_visible;
+  const toggleVisible = () => {
+    if (selected) setPresence.mutate({ venue: selected.id, visible: !meVisible });
+  };
 
   const handleCheckIn = async () => {
     if (!selected) return;
     setCheckingIn(true);
     try {
       // 1. real device location (rejects if blocked/unsupported)
-      let pos: GeolocationPosition;
+      let pos: GeolocationPosition | null = null;
       try {
         pos = await getCurrentPosition();
       } catch {
-        toast.error('Enable location access to check in.');
-        return;
+        if (!DEV_SKIP_GEOFENCE) { toast.error('Enable location access to check in.'); return; }
       }
-      const { latitude, longitude } = pos.coords;
 
-      // 2. GPS verify: must be physically within the venue geofence
-      if (selected.lat != null && selected.lng != null) {
-        const dist = calculateDistance(latitude, longitude, selected.lat, selected.lng);
-        const radius = Math.max(selected.radius || 100, 120); // small buffer for GPS noise
-        if (dist > radius) {
-          toast.error(`You're ${formatDistance(dist)} from ${selected.name} — walk closer to check in.`);
+      // 2. GPS verify: must be physically within the venue geofence (skipped in test mode)
+      if (!DEV_SKIP_GEOFENCE) {
+        if (!pos) { toast.error('Enable location access to check in.'); return; }
+        const { latitude, longitude } = pos.coords;
+        if (selected.lat != null && selected.lng != null) {
+          const dist = calculateDistance(latitude, longitude, selected.lat, selected.lng);
+          const radius = Math.max(selected.radius || 100, 120); // small buffer for GPS noise
+          if (dist > radius) {
+            toast.error(`You're ${formatDistance(dist)} from ${selected.name} — walk closer to check in.`);
+            return;
+          }
+        } else {
+          toast.error(`${selected.name} has no location set yet — can't verify check-in.`);
           return;
         }
-      } else {
-        toast.error(`${selected.name} has no location set yet — can't verify check-in.`);
-        return;
       }
 
-      // 3. verified → unlock + award XP (once)
+      // 3. verified → unlock + award XP (once) + register presence (hidden by default — opt-in)
       setAtVenueId(selected.id);
+      await setPresence.mutateAsync({ venue: selected.id, visible: meVisible }).catch(() => {});
       if (user && !peeked.has(`xp-${selected.id}`)) {
         await awardXP(user.id, 50, 'Venue check-in');
         await incrementQuestProgress(user.id, 'check_in');
@@ -164,8 +205,10 @@ const HeatMap = () => {
       {selected && (
         <div className="px-3.5 pb-3">
           <LivePresenceCard venue={selected} locked={locked} atVenue={atVenueId === selected.id}
-            presence={presence} onUnlock={() => setPaywallOpen(true)} onCheckIn={handleCheckIn}
-            checkingIn={checkingIn} onWalk={comingSoon} onWave={() => toast('👋 Wave sent')} />
+            presence={presence} meVisible={meVisible} onToggleVisible={toggleVisible} togglingVisible={setPresence.isPending}
+            onUnlock={() => setPaywallOpen(true)} onCheckIn={handleCheckIn}
+            checkingIn={checkingIn} onWalk={comingSoon} onWave={(pid: string) => sendWave.mutate(pid)}
+            onSwipe={swipePerson} swiped={swiped} />
         </div>
       )}
 
@@ -285,10 +328,86 @@ const HeatMapSVG = ({ venues, selectedId, atVenueId, mode, onSelect }: {
   );
 };
 
+/* ───────── Hybrid browse: rail → featured swipe → grid (Hinge + Happn) ───────── */
+const Avatar = ({ p, size = 40 }: any) =>
+  p.avatar
+    ? <img src={p.avatar} className="rounded-full object-cover" style={{ width: size, height: size }} />
+    : <div className="rounded-full flex items-center justify-center font-bold text-white" style={{ width: size, height: size, fontSize: size * 0.34, background: avatarGradient(hueFromString(p.name || p.user_id)) }}>{initials(p.name || '·')}</div>;
+
+const BrowseHybrid = ({ people, onSwipe, onWave, swiped, venue }: any) => {
+  const [view, setView] = useState<'swipe' | 'grid'>('swipe');
+  const [featuredId, setFeaturedId] = useState<string | null>(null);
+  const active = people.filter((p: any) => !swiped?.has(p.user_id));
+  const featured = active.find((p: any) => p.user_id === featuredId) || active[0] || null;
+
+  if (!people.length) {
+    return <div className="text-center text-[12px] text-muted-foreground py-6">Niko vidljiv još — budi prvi 👋</div>;
+  }
+
+  return (
+    <div>
+      {/* rail */}
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[10px] font-bold tracking-[0.1em] text-muted-foreground">KO JE TU · {people.length}</span>
+        <button onClick={() => setView(view === 'swipe' ? 'grid' : 'swipe')} className="text-[11px] font-bold text-primary inline-flex items-center gap-1">
+          {view === 'swipe' ? <>▦ Grid</> : <>❤ Swipe</>}
+        </button>
+      </div>
+      <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-2 mb-1">
+        {people.map((p: any) => {
+          const done = swiped?.has(p.user_id);
+          return (
+            <button key={p.user_id} onClick={() => { setFeaturedId(p.user_id); setView('swipe'); }} className="flex flex-col items-center gap-1 flex-none" style={{ opacity: done ? 0.4 : 1 }}>
+              <div className={cn('rounded-full p-0.5', featured?.user_id === p.user_id ? 'bg-gradient-to-br from-primary to-secondary' : 'bg-white/10')}>
+                <Avatar p={p} size={46} />
+              </div>
+              <span className="text-[9px] text-muted-foreground max-w-[48px] truncate">{p.name}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {view === 'grid' ? (
+        <div className="grid grid-cols-3 gap-1.5 mt-1">
+          {people.map((p: any) => (
+            <button key={p.user_id} onClick={() => { setFeaturedId(p.user_id); setView('swipe'); }} className="relative aspect-square rounded-xl overflow-hidden" style={{ opacity: swiped?.has(p.user_id) ? 0.45 : 1 }}>
+              {p.avatar ? <img src={p.avatar} className="absolute inset-0 w-full h-full object-cover" /> :
+                <div className="absolute inset-0" style={{ background: avatarGradient(hueFromString(p.name || p.user_id)) }} />}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-1.5">
+                <span className="text-[10px] font-bold">{p.name}{p.age ? `, ${p.age}` : ''}</span>
+              </div>
+              {swiped?.has(p.user_id) && <span className="absolute top-1 right-1 text-success text-xs">✓</span>}
+            </button>
+          ))}
+        </div>
+      ) : featured ? (
+        <div>
+          <div className="relative rounded-2xl overflow-hidden h-56" style={{ background: `radial-gradient(120% 80% at 30% 20%, oklch(0.55 0.22 ${hueFromString(featured.name || featured.user_id)}), oklch(0.32 0.18 ${(hueFromString(featured.name || featured.user_id) + 30) % 360}) 50%, #0a0612)` }}>
+            {featured.avatar && <img src={featured.avatar} className="absolute inset-0 w-full h-full object-cover" />}
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,.85), transparent 55%)' }} />
+            <div className="absolute left-3.5 bottom-3.5">
+              <div className="text-[20px] font-extrabold">{featured.name}{featured.age ? <span className="font-semibold">, {featured.age}</span> : ''}</div>
+              <div className="text-[11px] text-white/85">📍 ovde · {venue.name}</div>
+            </div>
+          </div>
+          <div className="flex items-center justify-center gap-4 mt-3">
+            <button onClick={() => onSwipe(featured.user_id, featured.name, 'pass')} className="w-12 h-12 rounded-full bg-card border border-border-strong flex items-center justify-center text-lg text-[#f87171]">✕</button>
+            <button onClick={() => onSwipe(featured.user_id, featured.name, 'like')} className="w-14 h-14 rounded-full flex items-center justify-center text-2xl text-white" style={{ background: 'linear-gradient(135deg, hsl(var(--success)), #34d399)' }}>❤️</button>
+            <button onClick={() => onWave(featured.user_id, featured.name)} className="w-12 h-12 rounded-full bg-card border border-border-strong flex items-center justify-center text-lg">👋</button>
+          </div>
+        </div>
+      ) : (
+        <div className="text-center text-[12px] text-muted-foreground py-6">To je sve za sad — prošao/la si sve koji su tu ✨</div>
+      )}
+    </div>
+  );
+};
+
 /* ───────── Live presence card ───────── */
-const LivePresenceCard = ({ venue, locked, atVenue, presence, onUnlock, onCheckIn, checkingIn, onWalk, onWave }: any) => {
+const LivePresenceCard = ({ venue, locked, atVenue, presence, meVisible, onToggleVisible, togglingVisible, onUnlock, onCheckIn, checkingIn, onWalk, onWave, onSwipe, swiped }: any) => {
   const isHot = venue.heat >= 80;
-  const list = presence.length ? presence : [];
+  const people = presence?.people || [];
+  const headcount = presence?.headcount ?? venue.here ?? 0;
   return (
     <div className="relative rounded-[20px] overflow-hidden border" style={{
       background: `linear-gradient(135deg, oklch(0.32 0.16 ${venue.hue} / 0.6) 0%, hsl(var(--card)) 50%)`,
@@ -314,38 +433,50 @@ const LivePresenceCard = ({ venue, locked, atVenue, presence, onUnlock, onCheckI
           </div>
         </div>
 
-        {/* public stats */}
+        {/* public stats — headcount always shown */}
         <div className="flex gap-3 py-2.5 mt-3 border-y border-border">
-          <Stat n={venue.here} l="here now" emoji="👥" />
+          <Stat n={headcount} l="here now" emoji="👥" />
           <div className="w-px self-stretch bg-border" />
-          <Stat n={list.length} l="checked in" emoji="💜" blur={locked} />
+          <Stat n={meVisible ? people.length : '—'} l="visible" emoji="💜" />
           <div className="w-px self-stretch bg-border" />
           <Stat n={`${venue.walk}m`} l="walk" emoji="🚶" />
           <div className="w-px self-stretch bg-border" />
           <Stat n="4.6" l="rating" emoji="⭐" />
         </div>
 
-        {/* gated who's-here */}
+        {/* gated section */}
         <div className="relative mt-3">
           <div className={cn('transition', locked && 'blur-[7px] pointer-events-none select-none')}>
-            <div className="text-[10px] font-bold tracking-[0.1em] text-muted-foreground mb-1.5">WHO'S HERE NOW</div>
-            {(list.length ? list : [{ name: 'Be the first', avatar: null, status: 'check in to appear', user_id: 'x' }]).slice(0, 3).map((p: any, i: number) => (
-              <div key={p.user_id + i} className={cn('flex items-center gap-2.5 py-1.5', i > 0 && 'border-t border-border')}>
-                <div className="relative">
-                  {p.avatar ? <img src={p.avatar} className="w-8 h-8 rounded-full object-cover" /> :
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style={{ background: avatarGradient(hueFromString(p.name + i)) }}>{initials(p.name)}</div>}
-                  <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-success border-2 border-card" />
+            {/* opt-in visibility toggle */}
+            {atVenue && (
+              <button onClick={onToggleVisible} disabled={togglingVisible}
+                className={cn('flex w-full items-center justify-between rounded-xl border px-3 py-2 mb-3', meVisible ? 'border-success/40 bg-success/10' : 'border-border bg-white/[0.04]')}>
+                <div className="text-left">
+                  <div className="text-[12px] font-semibold">Prikaži me ovde</div>
+                  <div className="text-[10px] text-muted-foreground">{meVisible ? 'Vidljiv si — i listaš ko je tu' : 'Skriven — vidiš samo broj'}</div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[13px] font-semibold">{p.name}</div>
-                  <div className="text-[11px] text-muted-foreground">{p.status}</div>
-                </div>
-                <button onClick={onWave} className="w-8 h-8 rounded-full bg-white/[0.08] flex items-center justify-center text-sm">👋</button>
+                <span className={cn('relative w-10 h-6 rounded-full transition', meVisible ? 'bg-success' : 'bg-white/15')}>
+                  <span className={cn('absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all', meVisible ? 'left-[18px]' : 'left-0.5')} />
+                </span>
+              </button>
+            )}
+
+            {meVisible ? (
+              <BrowseHybrid people={people} onSwipe={onSwipe} onWave={onWave} swiped={swiped} venue={venue} />
+            ) : (
+              <div className="text-center py-6">
+                <div className="text-3xl mb-2">🫥</div>
+                <div className="text-[13px] font-semibold mb-1">{headcount} {headcount === 1 ? 'osoba je' : 'ljudi je'} ovde</div>
+                <div className="text-[11px] text-muted-foreground mb-3 max-w-[240px] mx-auto">Uključi „Prikaži me ovde" da vidiš ko je tu — i da oni vide tebe. Fer razmena 🤝</div>
+                {atVenue
+                  ? <button onClick={onToggleVisible} className="px-4 py-2.5 rounded-full text-white font-bold text-[13px]" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))' }}>Prikaži me i listaj</button>
+                  : <div className="text-[11px] text-muted-foreground">Čekiraj se (GPS) da postaneš vidljiv ovde.</div>}
               </div>
-            ))}
+            )}
+
             <div className="flex gap-2 mt-3">
               <button onClick={onWalk} className="flex-[2] py-3 rounded-xl text-white font-bold text-[13px] flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))' }}>🚶 Walk here · {venue.walk} min</button>
-              <button onClick={onCheckIn} className="flex-1 py-3 rounded-xl border border-border-strong font-semibold text-[13px]">📍 Check in</button>
+              <button onClick={onCheckIn} disabled={checkingIn} className="flex-1 py-3 rounded-xl border border-border-strong font-semibold text-[13px]">{checkingIn ? '…' : '📍 Check in'}</button>
             </div>
           </div>
 

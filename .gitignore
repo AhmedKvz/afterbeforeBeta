@@ -29,3 +29,4 @@ dist-ssr
 # local ops notes / stray creds (do NOT commit)
 .supabase-new-anon.txt
 BACKEND-MIGRATION.md
+.supabase-sr.txt

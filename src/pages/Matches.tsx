@@ -1,286 +1,160 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, MessageCircle, Instagram, Hand } from 'lucide-react';
-import { format, formatDistanceToNow } from 'date-fns';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Send, MoreVertical, Heart } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
-import { GlassCard } from '@/components/GlassCard';
+import { useConversations, useChat, useBlockUser, Conversation } from '@/hooks/useMessaging';
+import { useReportUser } from '@/hooks/useStories';
 import { BottomNav } from '@/components/BottomNav';
-import { incrementQuestProgress } from '@/services/questProgress';
-import { toast } from 'sonner';
+import { avatarGradient, hueFromString, initials } from '@/lib/gradients';
+import { cn } from '@/lib/utils';
 
-interface Match {
-  id: string;
-  matched_at: string;
-  event_id: string;
-  other_user: {
-    id: string;
-    display_name: string;
-    avatar_url: string;
-    age: number;
-  };
-  event: {
-    title: string;
-  };
-  has_waved: boolean;
-}
+const Avatar = ({ name, avatar, size = 48 }: { name: string; avatar?: string | null; size?: number }) =>
+  avatar
+    ? <img src={avatar} className="rounded-full object-cover flex-none" style={{ width: size, height: size }} />
+    : <div className="rounded-full flex-none flex items-center justify-center font-bold text-white" style={{ width: size, height: size, fontSize: size * 0.36, background: avatarGradient(hueFromString(name)) }}>{initials(name)}</div>;
+
+const rel = (d: string) => { try { return formatDistanceToNow(new Date(d), { addSuffix: false }); } catch { return ''; } };
 
 const Matches = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [params] = useSearchParams();
+  const { data: conversations = [], isLoading } = useConversations();
+  const [openId, setOpenId] = useState<string | null>(params.get('c'));
 
-  useEffect(() => {
-    if (user) {
-      fetchMatches();
-    }
-  }, [user]);
+  if (!user) { navigate('/auth'); return null; }
 
-  const fetchMatches = async () => {
-    if (!user) return;
-    
-    try {
-      // Fetch matches where user is either user1 or user2
-      const { data: matchesData, error } = await supabase
-        .from('matches')
-        .select(`
-          id,
-          matched_at,
-          event_id,
-          user1_id,
-          user2_id,
-          events (title)
-        `)
-        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
-        .eq('status', 'active')
-        .order('matched_at', { ascending: false });
-      
-      if (error) throw error;
-      
-      // Get the other user's profile for each match
-      const matchPromises = (matchesData || []).map(async (match) => {
-        const otherUserId = match.user1_id === user.id ? match.user2_id : match.user1_id;
-        
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('user_id, display_name, avatar_url, age')
-          .eq('user_id', otherUserId)
-          .single();
-        
-        // Check if wave was sent
-        const { data: waveData } = await supabase
-          .from('waves')
-          .select('id')
-          .eq('sender_id', user.id)
-          .eq('match_id', match.id)
-          .maybeSingle();
-        
-        return {
-          id: match.id,
-          matched_at: match.matched_at,
-          event_id: match.event_id,
-          other_user: {
-            id: profileData?.user_id || '',
-            display_name: profileData?.display_name || 'Unknown',
-            avatar_url: profileData?.avatar_url || '/placeholder.svg',
-            age: profileData?.age || 0,
-          },
-          event: {
-            title: (match.events as any)?.title || 'Event',
-          },
-          has_waved: !!waveData,
-        };
-      });
-      
-      const enrichedMatches = await Promise.all(matchPromises);
-      setMatches(enrichedMatches);
-    } catch (error) {
-      console.error('Error fetching matches:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const open = conversations.find((c) => c.id === openId) || null;
+  if (openId && open) return <ChatView conv={open} onBack={() => setOpenId(null)} />;
 
-  const handleSendWave = async (match: Match) => {
-    if (!user) return;
-    
-    try {
-      await supabase.from('waves').insert({
-        sender_id: user.id,
-        receiver_id: match.other_user.id,
-        match_id: match.id,
-      });
-      
-      // Update local state
-      setMatches(matches.map(m => 
-        m.id === match.id ? { ...m, has_waved: true } : m
-      ));
-      
-      await incrementQuestProgress(user.id, 'social');
-      toast.success(`Wave sent to ${match.other_user.display_name}! 👋`);
-    } catch (error) {
-      console.error('Error sending wave:', error);
-      toast.error('Failed to send wave');
-    }
-  };
-
-  // Separate new matches (last 24 hours) from older ones
-  const now = new Date();
-  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  
-  const newMatches = matches.filter(m => new Date(m.matched_at) > oneDayAgo);
-  const recentMatches = matches.filter(m => new Date(m.matched_at) <= oneDayAgo);
-
-  if (!user) {
-    navigate('/auth');
-    return null;
-  }
+  const waves = conversations.filter((c) => c.is_incoming_wave);
+  const chats = conversations.filter((c) => !c.is_incoming_wave);
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-4">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full bg-muted flex items-center justify-center"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="font-bold text-xl">Matches</h1>
-        </div>
+      <header className="glass-header px-4 py-4">
+        <h1 className="font-bold text-xl">Poruke</h1>
       </header>
 
-      <div className="px-4 py-6 space-y-6">
-        {/* New Matches */}
-        {newMatches.length > 0 && (
+      <div className="px-4 py-4 space-y-6">
+        {isLoading && <p className="text-center text-muted-foreground text-sm py-8">Učitavam…</p>}
+
+        {!isLoading && conversations.length === 0 && (
+          <div className="text-center py-16 text-muted-foreground">
+            <Heart className="w-10 h-10 mx-auto mb-3 opacity-40" />
+            <p className="font-medium">Još nema poruka</p>
+            <p className="text-sm mt-1">Pozdravi nekoga 👋 sa heat mape da započneš.</p>
+          </div>
+        )}
+
+        {waves.length > 0 && (
           <section>
-            <h2 className="font-bold mb-4">New Matches ({newMatches.length})</h2>
-            <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
-              {newMatches.map((match, index) => (
-                <motion.div
-                  key={match.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex-shrink-0 text-center"
-                >
-                  <div className="relative">
-                    <img
-                      src={match.other_user.avatar_url || '/placeholder.svg'}
-                      alt={match.other_user.display_name}
-                      className="w-20 h-20 rounded-full object-cover border-2 border-primary"
-                    />
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs">
-                      💜
-                    </div>
-                  </div>
-                  <p className="text-sm font-medium mt-2 truncate max-w-[80px]">
-                    {match.other_user.display_name}
-                  </p>
-                </motion.div>
+            <h2 className="text-[11px] font-bold tracking-[0.12em] text-muted-foreground mb-2">👋 POZDRAVI · {waves.length}</h2>
+            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
+              {waves.map((c) => (
+                <button key={c.id} onClick={() => setOpenId(c.id)} className="flex flex-col items-center gap-1.5 flex-none w-[72px]">
+                  <div className="rounded-full p-0.5 bg-gradient-to-br from-primary to-secondary"><Avatar name={c.name} avatar={c.avatar} size={58} /></div>
+                  <span className="text-[11px] truncate max-w-[68px]">{c.name}</span>
+                </button>
               ))}
             </div>
           </section>
         )}
 
-        {/* Recent Matches */}
-        <section>
-          <h2 className="font-bold mb-4">Recent</h2>
-          
-          {loading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="glass-card p-4 animate-pulse">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-muted" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-muted rounded w-1/2" />
-                      <div className="h-3 bg-muted rounded w-1/3" />
+        {chats.length > 0 && (
+          <section>
+            <h2 className="text-[11px] font-bold tracking-[0.12em] text-muted-foreground mb-2">RAZGOVORI</h2>
+            <div className="space-y-1">
+              {chats.map((c) => (
+                <button key={c.id} onClick={() => setOpenId(c.id)} className="flex w-full items-center gap-3 p-2.5 rounded-2xl hover:bg-white/[0.04] text-left">
+                  <Avatar name={c.name} avatar={c.avatar} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-sm truncate">{c.name}</span>
+                      <span className={cn('text-[10px]', c.unread ? 'text-primary font-bold' : 'text-muted-foreground')}>{c.last_at ? rel(c.last_at) : ''}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={cn('text-[12px] truncate', c.unread ? 'text-foreground' : 'text-muted-foreground')}>
+                        {c.last_message || (c.status === 'wave' ? 'Pozdrav poslat 👋' : 'Recite ćao 👋')}
+                      </span>
+                      {c.unread > 0 && <span className="flex-none min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] font-bold text-white grid place-items-center">{c.unread}</span>}
                     </div>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
-          ) : matches.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-12"
-            >
-              <div className="text-6xl mb-4">💜</div>
-              <h3 className="text-xl font-bold mb-2">No matches yet</h3>
-              <p className="text-muted-foreground mb-6">
-                Start swiping at events to find connections!
-              </p>
-              <button
-                onClick={() => navigate('/')}
-                className="btn-gradient px-6 py-3 rounded-xl"
-              >
-                Browse Events
-              </button>
-            </motion.div>
-          ) : (
-            <div className="space-y-4">
-              {[...newMatches, ...recentMatches].map((match, index) => (
-                <motion.div
-                  key={match.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <GlassCard className="p-4">
-                    <div className="flex items-center gap-4">
-                      <img
-                        src={match.other_user.avatar_url || '/placeholder.svg'}
-                        alt={match.other_user.display_name}
-                        className="w-16 h-16 rounded-full object-cover"
-                      />
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-bold truncate">
-                            {match.other_user.display_name}
-                          </h3>
-                          {match.other_user.age > 0 && (
-                            <span className="text-muted-foreground">
-                              {match.other_user.age}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground truncate">
-                          {match.event.title}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(match.matched_at), { addSuffix: true })}
-                        </p>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleSendWave(match)}
-                          disabled={match.has_waved}
-                          className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                            match.has_waved
-                              ? 'bg-success/20 text-success'
-                              : 'bg-primary/20 text-primary hover:bg-primary/30'
-                          }`}
-                        >
-                          <Hand className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-                  </GlassCard>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </section>
+          </section>
+        )}
       </div>
 
       <BottomNav />
+    </div>
+  );
+};
+
+/* ───────── Chat thread ───────── */
+const ChatView = ({ conv, onBack }: { conv: Conversation; onBack: () => void }) => {
+  const { user } = useAuth();
+  const { messages, send, sending } = useChat(conv.id);
+  const block = useBlockUser();
+  const report = useReportUser();
+  const [text, setText] = useState('');
+  const [menu, setMenu] = useState(false);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const body = text.trim();
+    if (!body) return;
+    setText('');
+    send(body);
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="glass-header px-3 py-3 flex items-center gap-3">
+        <button onClick={onBack} className="w-9 h-9 rounded-full bg-white/[0.06] flex items-center justify-center"><ArrowLeft className="w-5 h-5" /></button>
+        <Avatar name={conv.name} avatar={conv.avatar} size={36} />
+        <div className="flex-1 min-w-0">
+          <div className="font-bold text-sm truncate">{conv.name}</div>
+          <div className="text-[10px] text-success">● aktivan/na</div>
+        </div>
+        <div className="relative">
+          <button onClick={() => setMenu((m) => !m)} className="w-9 h-9 rounded-full bg-white/[0.06] flex items-center justify-center"><MoreVertical className="w-5 h-5" /></button>
+          {menu && (
+            <div className="absolute right-0 top-11 z-20 w-44 rounded-xl border border-border bg-card shadow-lg overflow-hidden">
+              <button onClick={() => { report.mutate({ target: conv.other_id, reason: 'inappropriate' }); setMenu(false); }} className="w-full text-left px-3 py-2.5 text-sm hover:bg-white/[0.04]">🚩 Prijavi</button>
+              <button onClick={() => { block.mutate(conv.other_id); onBack(); }} className="w-full text-left px-3 py-2.5 text-sm text-destructive hover:bg-white/[0.04] border-t border-border">🚫 Blokiraj</button>
+            </div>
+          )}
+        </div>
+      </header>
+
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2.5">
+        {conv.status === 'wave' && messages.length === 0 && (
+          <div className="text-center text-[12px] text-muted-foreground py-6">
+            👋 Pozdrav. Napiši poruku — kad {conv.is_incoming_wave ? 'odgovoriš' : 'uzvrate'}, otvara se chat.
+          </div>
+        )}
+        {messages.map((m: any) => {
+          const mine = m.sender_id === user?.id;
+          return (
+            <div key={m.id} className={cn('max-w-[78%] px-3.5 py-2 rounded-2xl text-sm', mine
+              ? 'ml-auto bg-gradient-to-br from-primary to-secondary text-white rounded-br-sm'
+              : 'bg-card border border-border rounded-bl-sm')}>
+              {m.body}
+            </div>
+          );
+        })}
+      </div>
+
+      <form onSubmit={submit} className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border p-3 flex items-center gap-2">
+        <input value={text} onChange={(e) => setText(e.target.value)} placeholder={`Poruka za ${conv.name}…`}
+          className="flex-1 bg-card border border-border-strong rounded-full px-4 py-3 text-sm outline-none focus:border-primary" />
+        <button type="submit" disabled={sending || !text.trim()} className="w-12 h-12 rounded-full flex items-center justify-center text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))' }}>
+          <Send className="w-5 h-5" />
+        </button>
+      </form>
     </div>
   );
 };

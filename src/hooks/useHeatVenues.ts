@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { hueFromString } from '@/lib/gradients';
 
@@ -134,38 +134,32 @@ export const useHeatVenues = () => {
   });
 };
 
-/** Who's recently checked in at a venue (real, via event_checkins → events → profiles). */
+/**
+ * Reciprocal opt-in presence for a venue (RPC get_venue_presence).
+ * Always returns headcount; returns people[] only if the caller is visible there.
+ */
 export const useVenuePresence = (venueName: string | null) => {
   return useQuery({
     queryKey: ['venue-presence', venueName],
     enabled: !!venueName,
+    refetchInterval: 30_000,
     queryFn: async () => {
-      // events at this venue
-      const { data: events } = await db.from('events').select('id').eq('venue_name', venueName);
-      const ids = (events || []).map((e: any) => e.id);
-      if (!ids.length) return [];
-      const sixHoursAgo = new Date(Date.now() - 6 * 3600 * 1000).toISOString();
-      const { data: checkins } = await db
-        .from('event_checkins')
-        .select('user_id, checked_in_at')
-        .in('event_id', ids)
-        .gte('checked_in_at', sixHoursAgo)
-        .order('checked_in_at', { ascending: false })
-        .limit(8);
-      const userIds = [...new Set((checkins || []).map((c: any) => c.user_id))];
-      if (!userIds.length) return [];
-      const { data: profiles } = await db
-        .from('profiles')
-        .select('user_id, display_name, avatar_url')
-        .in('user_id', userIds);
-      const pmap = new Map<string, any>();
-      (profiles || []).forEach((p: any) => pmap.set(p.user_id, p));
-      return (checkins || []).slice(0, 5).map((c: any) => ({
-        user_id: c.user_id,
-        name: pmap.get(c.user_id)?.display_name || 'Raver',
-        avatar: pmap.get(c.user_id)?.avatar_url || null,
-        status: 'checked in',
-      }));
+      const { data, error } = await db.rpc('get_venue_presence', { p_venue: venueName });
+      if (error) throw error;
+      return (data as { headcount: number; me_visible: boolean; people: any[] }) || { headcount: 0, me_visible: false, people: [] };
     },
+  });
+};
+
+/** Set / refresh / toggle my opt-in visibility at a venue. */
+export const useSetVenuePresence = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ venue, visible }: { venue: string; visible: boolean }) => {
+      const { error } = await db.rpc('set_venue_presence', { p_venue: venue, p_visible: visible });
+      if (error) throw error;
+      return { venue, visible };
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['venue-presence'] }),
   });
 };
