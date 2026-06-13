@@ -28,8 +28,9 @@ const NIGHT_TYPES = [
   { id: 'splav', label: '🚢 Splavi' }, { id: 'afterplace', label: '☕ After' },
 ];
 
-// GPS geofence enforced on check-in (set true only for local testing)
-const DEV_SKIP_GEOFENCE = false;
+// GPS geofence enforced on check-in. Build with VITE_OPEN_CHECKIN=true to bypass
+// (used for the open beta build so testers can check in from anywhere). Default = enforced.
+const DEV_SKIP_GEOFENCE = import.meta.env.VITE_OPEN_CHECKIN === 'true';
 
 const HeatMap = () => {
   const { user } = useAuth();
