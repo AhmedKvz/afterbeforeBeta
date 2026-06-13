@@ -1,10 +1,11 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { MapPin, Star, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { GradientImg } from './GradientImg';
 import { hueFromString } from '@/lib/gradients';
-import { usePartyOfMonthVote } from '@/hooks/usePartyOfMonth';
+import { PartyOfMonthVoteModal } from './PartyOfMonthVoteModal';
 import { cn } from '@/lib/utils';
 
 interface PartyOfMonthCardProps {
@@ -23,7 +24,7 @@ export const PartyOfMonthCard = ({
   userVoted,
 }: PartyOfMonthCardProps) => {
   const navigate = useNavigate();
-  const vote = usePartyOfMonthVote();
+  const [voteOpen, setVoteOpen] = useState(false);
 
   const monthLabel = (() => {
     try {
@@ -98,24 +99,22 @@ export const PartyOfMonthCard = ({
             )}
           </div>
 
-          {/* Vote button */}
+          {/* Vote button → opens candidate picker */}
           <button
             onClick={(e) => {
               e.stopPropagation();
-              vote.mutate(event.id);
+              setVoteOpen(true);
             }}
-            disabled={vote.isPending}
             className={cn(
               'relative z-10 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold transition',
               userVoted
                 ? 'bg-success/20 text-success border border-success/40'
-                : 'bg-gradient-to-r from-primary to-secondary text-white shadow-[0_8px_24px_-8px_rgba(138,92,246,0.6)] hover:brightness-110',
-              vote.isPending && 'opacity-70'
+                : 'bg-gradient-to-r from-primary to-secondary text-white shadow-[0_8px_24px_-8px_rgba(138,92,246,0.6)] hover:brightness-110'
             )}
           >
             {userVoted ? (
               <>
-                <Check className="h-4 w-4" /> You voted · +XP earned
+                <Check className="h-4 w-4" /> You voted · change pick
               </>
             ) : (
               <>🗳️ Vote for Party of the Month · +100 XP</>
@@ -123,6 +122,8 @@ export const PartyOfMonthCard = ({
           </button>
         </div>
       </GradientImg>
+
+      {voteOpen && <PartyOfMonthVoteModal onClose={() => setVoteOpen(false)} />}
     </motion.div>
   );
 };

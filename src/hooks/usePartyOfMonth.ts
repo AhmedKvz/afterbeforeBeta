@@ -32,6 +32,30 @@ export const usePartyOfMonth = () => {
   });
 };
 
+export interface PartyCandidate {
+  event_id: string;
+  title: string;
+  venue_name: string;
+  date: string;
+  image_url: string | null;
+  vote_count: number;
+  avg_rating: number;
+  user_voted: boolean;
+}
+
+/** All events in the current month that can be voted Party of the Month. */
+export const usePartyCandidates = () => {
+  return useQuery<PartyCandidate[]>({
+    queryKey: ['party-candidates'],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc('get_party_of_month_candidates');
+      if (error) throw error;
+      return (data as PartyCandidate[]) || [];
+    },
+    staleTime: 30_000,
+  });
+};
+
 /**
  * Cast (or move) the current user's vote for the Party of the Month.
  * Also nudges the "vote_best_party" quest forward.
@@ -56,6 +80,7 @@ export const usePartyOfMonthVote = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['party-of-month'] });
+      queryClient.invalidateQueries({ queryKey: ['party-candidates'] });
       queryClient.invalidateQueries({ queryKey: ['user-quests'] });
       toast('Vote counted! 🗳️', { description: 'Thanks for backing your Party of the Month.' });
     },

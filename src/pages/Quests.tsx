@@ -10,6 +10,7 @@ import { QuestCard } from '@/components/QuestCard';
 import { CustomQuestCard } from '@/components/quests/CustomQuestCard';
 import { MakeQuestSheet } from '@/components/quests/MakeQuestSheet';
 import { QuestDetailView } from '@/components/quests/QuestDetailView';
+import { PartyOfMonthVoteModal } from '@/components/PartyOfMonthVoteModal';
 import { SponsoredStrip } from '@/components/quests/SponsoredStrip';
 import { RewardsHub } from '@/components/quests/RewardsHub';
 import { StreakHub } from '@/components/quests/StreakHub';
@@ -50,6 +51,7 @@ const Quests = () => {
   const [hub, setHub] = useState<Hub>('quests');
   const [tab, setTab] = useState<Tab>('heatmap');
   const [makerOpen, setMakerOpen] = useState(false);
+  const [voteOpen, setVoteOpen] = useState(false);
   const [openQuestId, setOpenQuestId] = useState<string | null>(null);
 
   const openQuest = openQuestId ? customQuests.find((q: any) => q.id === openQuestId) : null;
@@ -195,21 +197,43 @@ const Quests = () => {
             ) : shownSystem.length === 0 ? (
               <EmptyState icon="🎯" text="No quests here this week" sub="Check other tabs or come back next week." />
             ) : (
-              shownSystem.map((quest: any, index: number) => (
-                <QuestCard
-                  key={quest.id}
-                  icon={quest.icon || '🎯'}
-                  title={quest.title}
-                  description={quest.description}
-                  progress={quest.progress}
-                  targetCount={quest.target_count}
-                  xpReward={quest.xp_reward}
-                  isCompleted={quest.is_completed}
-                  xpClaimed={quest.xp_claimed}
-                  onClaim={() => handleClaim(quest.id, quest.xp_reward)}
-                  index={index}
-                />
-              ))
+              shownSystem.map((quest: any, index: number) =>
+                (quest.quest_type || '') === 'vote_best_party' ? (
+                  <div key={quest.id} className="rounded-2xl border border-accent/40 bg-gradient-to-br from-accent/10 to-secondary/5 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">🗳️</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <h4 className="font-bold text-sm">{quest.title}</h4>
+                          <span className="text-xs font-bold text-accent">+{quest.xp_reward} XP</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-2.5">{quest.description}</p>
+                        <button
+                          onClick={() => setVoteOpen(true)}
+                          className="w-full py-2 rounded-xl text-white font-bold text-xs"
+                          style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))' }}
+                        >
+                          {quest.is_completed ? '✓ Voted · change pick' : '🗳️ Vote now'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <QuestCard
+                    key={quest.id}
+                    icon={quest.icon || '🎯'}
+                    title={quest.title}
+                    description={quest.description}
+                    progress={quest.progress}
+                    targetCount={quest.target_count}
+                    xpReward={quest.xp_reward}
+                    isCompleted={quest.is_completed}
+                    xpClaimed={quest.xp_claimed}
+                    onClaim={() => handleClaim(quest.id, quest.xp_reward)}
+                    index={index}
+                  />
+                )
+              )
             )}
           </div>
         </>
@@ -220,6 +244,7 @@ const Quests = () => {
       <BottomNav />
 
       {makerOpen && <MakeQuestSheet onClose={() => setMakerOpen(false)} />}
+      {voteOpen && <PartyOfMonthVoteModal onClose={() => setVoteOpen(false)} />}
     </div>
   );
 };
