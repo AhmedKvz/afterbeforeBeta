@@ -1,0 +1,48 @@
+name: Deploy beta app
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-beta
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build beta (geofence off, subpath base)
+        run: npx vite build --base=/afterbeforeBeta/app/
+        env:
+          VITE_OPEN_CHECKIN: 'true'
+
+      - name: SPA fallback
+        run: cp dist/index.html dist/404.html
+
+      - name: Publish to landing/app
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin landing
+          git worktree add -B landing /tmp/landing origin/landing
+          rm -rf /tmp/landing/app
+          mkdir -p /tmp/landing/app
+          cp -R dist/* /tmp/landing/app/
+          cd /tmp/landing
+          git add -A
+          git commit -m "ci: deploy beta app preview" || { echo "no changes"; exit 0; }
+          git push origin landing
