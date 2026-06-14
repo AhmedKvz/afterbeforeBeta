@@ -85,5 +85,6 @@ export interface CreatorStatus {
   tier: number;
   level: number;
   created: number;
+  is_founding_raver?: boolean;
   requirements: { tier: number; need_level: number; need_created: number; met: boolean }[];
 }

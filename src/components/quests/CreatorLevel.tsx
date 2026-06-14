@@ -45,6 +45,9 @@ export const CreatorLevelCard = () => {
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold tracking-[0.1em] text-muted-foreground">CREATOR</span>
             <span className="text-[10px] font-bold text-accent">TIER {status.tier}</span>
+            {status.is_founding_raver && (
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-gradient-to-r from-primary to-secondary text-white">✨ FOUNDING RAVER</span>
+            )}
           </div>
           <div className="font-extrabold text-sm leading-tight">{cur.name}</div>
           {next ? (

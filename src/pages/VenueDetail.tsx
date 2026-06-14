@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { VenueReviewsSection } from '@/components/reviews/VenueReviewsSection';
 import { WriteReviewModal } from '@/components/reviews/WriteReviewModal';
 import { VenueTypeBadge } from '@/components/VenueTypeBadge';
+import { VenueClaimBanner } from '@/components/VenueClaimBanner';
 import { SectionHeading } from '@/components/layout/SectionHeading';
 import { XPRewardCard } from '@/components/gamification/XPRewardCard';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -134,6 +135,9 @@ const VenueDetail = () => {
       </div>
 
       <div className="mx-auto max-w-2xl px-4 pt-5">
+        {/* Claim your venue */}
+        <VenueClaimBanner venueName={venueName} />
+
         {/* Rating summary header */}
         <div className="mb-4 flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
           <div className="text-center">
