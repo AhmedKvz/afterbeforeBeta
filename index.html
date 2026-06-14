@@ -129,6 +129,30 @@
   .rung .req{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:100px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--dim)}
   .cr-safe{max-width:700px;margin:20px auto 0;text-align:center;font-size:14px;color:var(--dim);background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.25);border-radius:14px;padding:13px 18px}
 
+  /* Partners / B2B */
+  #partners{background:linear-gradient(180deg,rgba(236,72,153,.05),rgba(245,166,35,.035))}
+  .pillar-label{display:flex;align-items:center;gap:10px;max-width:1080px;margin:46px auto 16px;font-size:13px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--secondary)}
+  .pillar-label.b{color:var(--accent)}
+  .pillar-label .ln{flex:1;height:1px;background:var(--border)}
+  .engine{max-width:900px;margin:36px auto 0;border:1px solid rgba(236,72,153,.3);background:linear-gradient(135deg,rgba(236,72,153,.08),rgba(245,166,35,.05));border-radius:24px;padding:30px 26px}
+  .engine h3{font-size:22px;font-weight:780;text-align:center}
+  .engine .esub{color:var(--dim);text-align:center;max-width:620px;margin:8px auto 0;font-size:15px}
+  .flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:12px;align-items:center;margin-top:24px}
+  @media(max-width:760px){.flow{grid-template-columns:1fr}.flow .arr{transform:rotate(90deg)}}
+  .flow .node{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 14px;text-align:center}
+  .flow .node .ne{font-size:26px}
+  .flow .node b{display:block;font-size:14px;margin-top:7px}
+  .flow .node span{font-size:12px;color:var(--dim)}
+  .flow .arr{color:var(--accent);font-size:24px;text-align:center;font-weight:800}
+  .social-badges{display:flex;gap:7px;justify-content:center;margin-top:9px;flex-wrap:wrap}
+  .social-badges span{font-size:11px;font-weight:700;padding:4px 11px;border-radius:100px;border:1px solid var(--border2);color:var(--text)}
+  .statrow{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:30px auto 0;max-width:900px}
+  .statc{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:13px 20px;text-align:center;min-width:150px}
+  .statc b{font-size:16px;font-weight:800;display:block}
+  .statc span{font-size:12px;color:var(--dim)}
+  .partner-cta{text-align:center;margin-top:36px}
+  .partner-cta .sub{color:var(--dim);font-size:13px;margin-top:10px}
+
   .join{background:radial-gradient(120% 120% at 50% 0%,rgba(138,92,246,.18),transparent 60%);border:1px solid var(--border);border-radius:28px;padding:50px 28px;text-align:center;position:relative;overflow:hidden}
   .form{display:flex;gap:10px;max-width:540px;margin:22px auto 0;flex-wrap:wrap;justify-content:center}
   .form input,.form select{flex:1;min-width:200px;background:#141414;border:1px solid var(--border2);color:var(--text);border-radius:13px;padding:14px 16px;font-size:15px;font-family:inherit;outline:none}
@@ -215,6 +239,7 @@
       <a href="#features" class="hide-sm" data-i18n="nav.features">Funkcije</a>
       <a href="#how" class="hide-sm" data-i18n="nav.how">Kako radi</a>
       <a href="#creators" class="hide-sm" data-i18n="nav.creators">Kreatori</a>
+      <a href="#partners" class="hide-sm" data-i18n="nav.partners">Partneri</a>
       <span class="lang" role="group" aria-label="Language">
         <button data-lang="sr" onclick="setLang('sr')">SR</button>
         <button data-lang="en" onclick="setLang('en')">EN</button>
@@ -356,6 +381,52 @@
   </div>
 </section>
 
+<section id="partners">
+  <div class="wrap">
+    <div class="eyebrow" style="color:var(--secondary)" data-i18n="b2b.eyebrow">Za klubove i brendove</div>
+    <h2 data-i18n="b2b.h2">Reklama koja dovodi ljude — i puni tvoj TikTok i Instagram</h2>
+    <p class="lead" data-i18n="b2b.lead">AfterBefore nije samo oglasni prostor. To je mašina za sadržaj: svaka noć u tvom klubu pretvara se u gotov sadržaj za TikTok i Instagram — a rejveri dolaze na tvoja vrata.</p>
+
+    <div class="pillar-label"><span data-i18n="b2b.p1">01 · Reklama koja dovodi ljude</span><span class="ln"></span></div>
+    <div class="features">
+      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(245,166,35,.25),rgba(245,166,35,.05))">🎯</div><h3 data-i18n="b2b.a1t">Sponzorisani questovi</h3><p data-i18n="b2b.a1d">Plati po rezultatu — check-in, dolazak sa ekipom, review. Ti zadaješ nagradu, mi dovodimo gužvu.</p></div>
+      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(138,92,246,.25),rgba(138,92,246,.05))">🗺️</div><h3 data-i18n="b2b.a2t">Istaknuto na heat mapi + push</h3><p data-i18n="b2b.a2d">Tvoj pin gori i ide prvi. Push poruka rejverima u blizini — „večeras kod nas" u pravom trenutku.</p></div>
+      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(16,185,129,.25),rgba(16,185,129,.05))">👑</div><h3 data-i18n="b2b.a3t">Spotlight & nagrade</h3><p data-i18n="b2b.a3d">Sponzoriši Žurku meseca, rang-listu ili Lucky 100 nagradu — tvoj brend pred celom scenom.</p></div>
+    </div>
+
+    <div class="pillar-label b"><span data-i18n="b2b.p2">02 · Mašina za sadržaj · TikTok & Instagram</span><span class="ln"></span></div>
+    <div class="features">
+      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(236,72,153,.25),rgba(236,72,153,.05))">🎬</div><h3 data-i18n="b2b.b1t">Auto-recap svake noći</h3><p data-i18n="b2b.b1d">Najbolji momenti iz stories i check-ina sklope se u gotov klip — spremno za Reels i TikTok, bez montaže.</p></div>
+      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(138,92,246,.25),rgba(245,166,35,.08))">📸</div><h3 data-i18n="b2b.b2t">UGC uz pristanak</h3><p data-i18n="b2b.b2d">Gosti prave stories i momente u tvom klubu. Dobijaš pravo da ih repostuješ — pravi sadržaj, pravi ljudi.</p></div>
+      <div class="feat"><div class="ic" style="background:linear-gradient(135deg,rgba(251,146,60,.25),rgba(236,72,153,.08))">🏷️</div><h3 data-i18n="b2b.b3t">Auto-tag & „Tonight" template-i</h3><p data-i18n="b2b.b3d">Gotovi vizuali sa živim heat brojem, lineupom i glasovima — i tvoj @ tagovan u svakom postu.</p></div>
+    </div>
+
+    <div class="engine">
+      <h3 data-i18n="b2b.eh">Stalan dotok sadržaja — bez marketing tima</h3>
+      <p class="esub" data-i18n="b2b.es">Aktivnost u aplikaciji se svake nedelje upakuje u content pack koji objaviš za par minuta.</p>
+      <div class="flow">
+        <div class="node"><div class="ne">🌙</div><b data-i18n="b2b.n1t">Aktivnost u appu</b><span data-i18n="b2b.n1d">check-in · stories · momenti</span></div>
+        <div class="arr">→</div>
+        <div class="node"><div class="ne">🎁</div><b data-i18n="b2b.n2t">Nedeljni content pack</b><span data-i18n="b2b.n2d">recap · vizuali · captions</span></div>
+        <div class="arr">→</div>
+        <div class="node"><div class="ne">📱</div><b data-i18n="b2b.n3t">Ti objaviš</b><div class="social-badges"><span>▶ TikTok</span><span>◎ Instagram</span></div></div>
+      </div>
+    </div>
+
+    <div class="statrow">
+      <div class="statc"><b data-i18n="b2b.s1t">Plati po rezultatu</b><span data-i18n="b2b.s1d">ne po prikazu</span></div>
+      <div class="statc"><b data-i18n="b2b.s2t">Verifikovan dolazak</b><span data-i18n="b2b.s2d">GPS check-in</span></div>
+      <div class="statc"><b data-i18n="b2b.s3t">0h marketinga</b><span data-i18n="b2b.s3d">sadržaj stiže gotov</span></div>
+      <div class="statc"><b data-i18n="b2b.s4t">Nedeljni paket</b><span data-i18n="b2b.s4d">+ analitika</span></div>
+    </div>
+
+    <div class="partner-cta">
+      <a class="btn btn-primary" href="mailto:partneri@afterbefore.rs?subject=AfterBefore%20partnerstvo" data-i18n="b2b.cta">Postani partner →</a>
+      <div class="sub" data-i18n="b2b.ctasub">Javljamo se za 24h · partneri@afterbefore.rs</div>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div class="wrap row">
     <div class="logo" style="font-size:16px"><span class="moon">🌙</span><span class="grad-text">AfterBefore</span></div>
@@ -453,7 +524,7 @@
 <script>
   const I18N = {
     sr:{
-      "nav.features":"Funkcije","nav.how":"Kako radi","nav.creators":"Kreatori","nav.cta":"Preuzmi app",
+      "nav.features":"Funkcije","nav.how":"Kako radi","nav.creators":"Kreatori","nav.partners":"Partneri","nav.cta":"Preuzmi app",
       "hero.pill":"🔥 Beogradski noćni život, kao igra","hero.h1a":"Tamo gde noć","hero.h1b":"počinje.",
       "hero.sub":"Gledaj kako se grad zagreva uživo, mečuj se sa ljudima u klubu, rešavaj questove za prave nagrade i biraj žurku meseca. Jedna aplikacija za izlazak u Beogradu.",
       "hero.s_app":"Preuzmi na","hero.s_play":"Nabavi na","hero.soon":"USKORO","hero.soon2":"USKORO",
@@ -486,6 +557,19 @@
       "cr.t4t":"Tier 4 · Pro Creator","cr.t4h":"Pravi zvanično sa klubovima","cr.t4d":"Venue-collab questovi, više aktivnih odjednom i istaknuto mesto u aplikaciji.","cr.t4r":"🔓 Level 7 · 10 questova",
       "cr.t5t":"Tier 5 · Partner Creator","cr.t5h":"Pretvori questove u zaradu","cr.t5d":"Sponzorisani questovi sa podelom prihoda (70 / 20 / 10) i pun analitički panel.","cr.t5r":"🔓 Level 10 · 20 questova",
       "cr.safe":"🛡️ Sve prolazi bezbednosnu proveru — bez izazova sa alkoholom, bez pritiska, bez rizika. Rizični questovi se automatski blokiraju ili prepravljaju u bezbednu verziju.",
+      "b2b.eyebrow":"Za klubove i brendove","b2b.h2":"Reklama koja dovodi ljude — i puni tvoj TikTok i Instagram",
+      "b2b.lead":"AfterBefore nije samo oglasni prostor. To je mašina za sadržaj: svaka noć u tvom klubu pretvara se u gotov sadržaj za TikTok i Instagram — a rejveri dolaze na tvoja vrata.",
+      "b2b.p1":"01 · Reklama koja dovodi ljude","b2b.p2":"02 · Mašina za sadržaj · TikTok & Instagram",
+      "b2b.a1t":"Sponzorisani questovi","b2b.a1d":"Plati po rezultatu — check-in, dolazak sa ekipom, review. Ti zadaješ nagradu, mi dovodimo gužvu.",
+      "b2b.a2t":"Istaknuto na heat mapi + push","b2b.a2d":"Tvoj pin gori i ide prvi. Push poruka rejverima u blizini — „večeras kod nas” u pravom trenutku.",
+      "b2b.a3t":"Spotlight & nagrade","b2b.a3d":"Sponzoriši Žurku meseca, rang-listu ili Lucky 100 nagradu — tvoj brend pred celom scenom.",
+      "b2b.b1t":"Auto-recap svake noći","b2b.b1d":"Najbolji momenti iz stories i check-ina sklope se u gotov klip — spremno za Reels i TikTok, bez montaže.",
+      "b2b.b2t":"UGC uz pristanak","b2b.b2d":"Gosti prave stories i momente u tvom klubu. Dobijaš pravo da ih repostuješ — pravi sadržaj, pravi ljudi.",
+      "b2b.b3t":"Auto-tag & „Tonight” template-i","b2b.b3d":"Gotovi vizuali sa živim heat brojem, lineupom i glasovima — i tvoj @ tagovan u svakom postu.",
+      "b2b.eh":"Stalan dotok sadržaja — bez marketing tima","b2b.es":"Aktivnost u aplikaciji se svake nedelje upakuje u content pack koji objaviš za par minuta.",
+      "b2b.n1t":"Aktivnost u appu","b2b.n1d":"check-in · stories · momenti","b2b.n2t":"Nedeljni content pack","b2b.n2d":"recap · vizuali · captions","b2b.n3t":"Ti objaviš",
+      "b2b.s1t":"Plati po rezultatu","b2b.s1d":"ne po prikazu","b2b.s2t":"Verifikovan dolazak","b2b.s2d":"GPS check-in","b2b.s3t":"0h marketinga","b2b.s3d":"sadržaj stiže gotov","b2b.s4t":"Nedeljni paket","b2b.s4d":"+ analitika",
+      "b2b.cta":"Postani partner →","b2b.ctasub":"Javljamo se za 24h · partneri@afterbefore.rs",
       "dl.eyebrow":"Uskoro · iOS i Android","dl.h2":"Budi prvi na podijumu","dl.lead":"Prijavi se na listu čekanja i javimo ti čim AfterBefore izađe na tvoj store.",
       "dl.ph":"ti@email.com","dl.o_either":"iOS ili Android","dl.o_ios":"iPhone (iOS)","dl.o_android":"Android","dl.btn":"Prijavi se",
       "dl.privacy":"Bez spama — jedan mejl o lansiranju. Odjava bilo kad.",
@@ -494,7 +578,7 @@
       "msg.err":"Nešto nije u redu. Pokušaj ponovo.","msg.net":"Greška u mreži — pokušaj ponovo.","msg.joining":"Prijavljujem…"
     },
     en:{
-      "nav.features":"Features","nav.how":"How it works","nav.creators":"Creators","nav.cta":"Get the app",
+      "nav.features":"Features","nav.how":"How it works","nav.creators":"Creators","nav.partners":"Partners","nav.cta":"Get the app",
       "hero.pill":"🔥 Belgrade nightlife, gamified","hero.h1a":"Where the","hero.h1b":"night begins.",
       "hero.sub":"See the city heat up in real time, match with people at the venue, run quests for real perks, and crown the Party of the Month. One app for going out in Belgrade.",
       "hero.s_app":"Download on the","hero.s_play":"Get it on","hero.soon":"SOON","hero.soon2":"SOON",
@@ -527,6 +611,19 @@
       "cr.t4t":"Tier 4 · Pro Creator","cr.t4h":"Build officially with venues","cr.t4d":"Venue-collab quests, more active at once, and featured placement in the app.","cr.t4r":"🔓 Level 7 · 10 quests",
       "cr.t5t":"Tier 5 · Partner Creator","cr.t5h":"Turn quests into income","cr.t5d":"Sponsored quests with revenue share (70 / 20 / 10) and a full analytics dashboard.","cr.t5r":"🔓 Level 10 · 20 quests",
       "cr.safe":"🛡️ Everything passes a safety check — no drinking dares, no pressure, no risk. Risky quests are auto-blocked or rewritten into a safe version.",
+      "b2b.eyebrow":"For venues & brands","b2b.h2":"Advertising that drives footfall — and fills your TikTok & Instagram",
+      "b2b.lead":"AfterBefore isn't just ad space. It's a content engine: every night at your venue becomes ready-to-post TikTok and Instagram content — and ravers show up at your door.",
+      "b2b.p1":"01 · Advertising that drives footfall","b2b.p2":"02 · Content engine · TikTok & Instagram",
+      "b2b.a1t":"Sponsored quests","b2b.a1d":"Pay per result — check-in, arriving with a crew, a review. You set the reward, we bring the crowd.",
+      "b2b.a2t":"Featured heat map + push","b2b.a2d":"Your pin burns and ranks first. Push to nearby ravers — “tonight at our place” at the right moment.",
+      "b2b.a3t":"Spotlight & prizes","b2b.a3d":"Sponsor Party of the Month, a leaderboard or a Lucky 100 prize — your brand in front of the whole scene.",
+      "b2b.b1t":"Auto-recap every night","b2b.b1d":"Best moments from stories and check-ins cut into a ready clip — drop it straight to Reels and TikTok, no editing.",
+      "b2b.b2t":"UGC with consent","b2b.b2d":"Guests make stories and moments at your venue. You get the right to repost them — real content, real people.",
+      "b2b.b3t":"Auto-tag & “Tonight” templates","b2b.b3d":"Ready-made visuals with live heat count, lineup and votes — and your @ tagged in every post.",
+      "b2b.eh":"A constant stream of content — no marketing team","b2b.es":"In-app activity is packaged into a weekly content pack you post in minutes.",
+      "b2b.n1t":"In-app activity","b2b.n1d":"check-in · stories · moments","b2b.n2t":"Weekly content pack","b2b.n2d":"recap · visuals · captions","b2b.n3t":"You post",
+      "b2b.s1t":"Pay per result","b2b.s1d":"not per impression","b2b.s2t":"Verified footfall","b2b.s2d":"GPS check-in","b2b.s3t":"0h marketing","b2b.s3d":"content arrives done","b2b.s4t":"Weekly pack","b2b.s4d":"+ analytics",
+      "b2b.cta":"Become a partner →","b2b.ctasub":"We reply within 24h · partneri@afterbefore.rs",
       "dl.eyebrow":"Coming soon · iOS & Android","dl.h2":"Be first on the floor","dl.lead":"Join the waitlist and we'll ping you the moment AfterBefore drops on your store.",
       "dl.ph":"you@email.com","dl.o_either":"iOS or Android","dl.o_ios":"iPhone (iOS)","dl.o_android":"Android","dl.btn":"Join waitlist",
       "dl.privacy":"No spam — one launch email. Unsubscribe anytime.",
