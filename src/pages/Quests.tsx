@@ -10,6 +10,7 @@ import { QuestCard } from '@/components/QuestCard';
 import { CustomQuestCard } from '@/components/quests/CustomQuestCard';
 import { MakeQuestSheet } from '@/components/quests/MakeQuestSheet';
 import { CreatorLevelCard } from '@/components/quests/CreatorLevel';
+import { CommunityQuests, QuestEngineStats } from '@/components/quests/CommunityQuests';
 import { QuestDetailView } from '@/components/quests/QuestDetailView';
 import { PartyOfMonthVoteModal } from '@/components/PartyOfMonthVoteModal';
 import { SponsoredStrip } from '@/components/quests/SponsoredStrip';
@@ -135,8 +136,9 @@ const Quests = () => {
 
       {hub === 'quests' && (
         <>
-          {/* Creator level ladder */}
-          <div className="px-4 pb-3">
+          {/* Quest engine stats + creator level ladder */}
+          <div className="px-4 pb-3 space-y-2.5">
+            <QuestEngineStats />
             <CreatorLevelCard />
           </div>
 
@@ -159,6 +161,9 @@ const Quests = () => {
               <ChevronRight className="w-4 h-4 text-accent" />
             </button>
           </div>
+
+          {/* Community quests — social proof */}
+          <CommunityQuests />
 
           {/* Sponsored */}
           <SponsoredStrip />

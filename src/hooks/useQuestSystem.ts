@@ -169,13 +169,14 @@ export const useCustomQuests = () => {
   const create = useMutation({
     mutationFn: async (input: {
       icon: string; title: string; description?: string; kind: string;
-      target: number; xp: number; timeframe: string; isCrew: boolean; visibility?: string;
+      target: number; xp: number; timeframe: string; isCrew: boolean; visibility?: string; category?: string;
     }) => {
       const { data, error } = await db.rpc('create_user_quest', {
         p_icon: input.icon, p_title: input.title, p_description: input.description ?? '',
         p_kind: input.kind, p_target: input.target, p_xp: input.xp,
         p_timeframe: input.timeframe, p_is_crew: input.isCrew,
         p_visibility: input.visibility ?? (input.isCrew ? 'crew' : 'private'),
+        p_category: input.category ?? 'custom',
       });
       if (error) throw error;
       return data as { visibility: string; moderation_status: string };
@@ -183,6 +184,8 @@ export const useCustomQuests = () => {
     onSuccess: (res: any) => {
       queryClient.invalidateQueries({ queryKey: ['custom-quests'] });
       queryClient.invalidateQueries({ queryKey: ['creator-status'] });
+      queryClient.invalidateQueries({ queryKey: ['community-quests'] });
+      queryClient.invalidateQueries({ queryKey: ['quest-engine-stats'] });
       const pending = res?.moderation_status === 'pending';
       toast(pending ? 'Quest submitted 🕓' : 'Quest created 🚀', {
         description: pending ? 'In review — live once it passes the safety check.' : 'Find it under "Yours".',
@@ -234,4 +237,48 @@ export const useCreatorStatus = () => {
     status: data ?? { tier: 0, level: 1, created: 0, requirements: [] },
     isLoading,
   };
+};
+
+/* ─────────────── Community quest feed (social proof) ─────────────── */
+export const useCommunityQuests = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { data: quests = [], isLoading } = useQuery({
+    queryKey: ['community-quests', user?.id],
+    queryFn: async () => {
+      const { data, error } = await db.rpc('get_community_quests');
+      if (error) throw error;
+      return (data as any[]) || [];
+    },
+  });
+
+  const join = useMutation({
+    mutationFn: async (questId: string) => {
+      const { error } = await db.rpc('join_community_quest', { p_quest: questId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['community-quests'] });
+      queryClient.invalidateQueries({ queryKey: ['custom-quests'] });
+      toast('Joined ✨', { description: 'Find it under "Yours".' });
+    },
+    onError: (e: any) => toast('Could not join', { description: e?.message ?? 'Try again.' }),
+  });
+
+  return { quests, isLoading, join: join.mutate, isJoining: join.isPending };
+};
+
+/* ─────────────── Quest engine stats (our beta metric) ─────────────── */
+export const useQuestEngineStats = () => {
+  const { user } = useAuth();
+  const { data } = useQuery({
+    queryKey: ['quest-engine-stats', user?.id],
+    queryFn: async () => {
+      const { data, error } = await db.rpc('get_quest_engine_stats');
+      if (error) throw error;
+      return data as { total_created: number; created_this_week: number; unique_creators: number; my_created: number };
+    },
+  });
+  return data ?? { total_created: 0, created_this_week: 0, unique_creators: 0, my_created: 0 };
 };

@@ -45,7 +45,7 @@ export const CREATOR_TIERS: CreatorTier[] = [
   {
     tier: 1, name: 'Crew Maker', icon: '🛠️', hue: 282,
     blurb: 'Design quests for yourself and your friends.',
-    needLevel: 2, needCreated: 0,
+    needLevel: 1, needCreated: 0,
     unlocks: ['Create private quests', 'Create crew quests (invite friends · 1.5× XP)'],
   },
   {
