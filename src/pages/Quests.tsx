@@ -9,6 +9,7 @@ import { getXPProgress } from '@/services/gamification';
 import { QuestCard } from '@/components/QuestCard';
 import { CustomQuestCard } from '@/components/quests/CustomQuestCard';
 import { MakeQuestSheet } from '@/components/quests/MakeQuestSheet';
+import { CreatorLevelCard } from '@/components/quests/CreatorLevel';
 import { QuestDetailView } from '@/components/quests/QuestDetailView';
 import { PartyOfMonthVoteModal } from '@/components/PartyOfMonthVoteModal';
 import { SponsoredStrip } from '@/components/quests/SponsoredStrip';
@@ -134,6 +135,11 @@ const Quests = () => {
 
       {hub === 'quests' && (
         <>
+          {/* Creator level ladder */}
+          <div className="px-4 pb-3">
+            <CreatorLevelCard />
+          </div>
+
           {/* Make a Quest CTA */}
           <div className="px-4 pb-3">
             <button

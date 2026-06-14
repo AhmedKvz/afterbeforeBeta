@@ -169,19 +169,24 @@ export const useCustomQuests = () => {
   const create = useMutation({
     mutationFn: async (input: {
       icon: string; title: string; description?: string; kind: string;
-      target: number; xp: number; timeframe: string; isCrew: boolean;
+      target: number; xp: number; timeframe: string; isCrew: boolean; visibility?: string;
     }) => {
-      const { data, error } = await db.rpc('create_custom_quest', {
+      const { data, error } = await db.rpc('create_user_quest', {
         p_icon: input.icon, p_title: input.title, p_description: input.description ?? '',
         p_kind: input.kind, p_target: input.target, p_xp: input.xp,
         p_timeframe: input.timeframe, p_is_crew: input.isCrew,
+        p_visibility: input.visibility ?? (input.isCrew ? 'crew' : 'private'),
       });
       if (error) throw error;
-      return data;
+      return data as { visibility: string; moderation_status: string };
     },
-    onSuccess: () => {
+    onSuccess: (res: any) => {
       queryClient.invalidateQueries({ queryKey: ['custom-quests'] });
-      toast('Quest created 🚀', { description: 'Find it under "Yours".' });
+      queryClient.invalidateQueries({ queryKey: ['creator-status'] });
+      const pending = res?.moderation_status === 'pending';
+      toast(pending ? 'Quest submitted 🕓' : 'Quest created 🚀', {
+        description: pending ? 'In review — live once it passes the safety check.' : 'Find it under "Yours".',
+      });
     },
     onError: (e: any) => toast('Could not create quest', { description: e?.message ?? 'Try again.' }),
   });
@@ -206,5 +211,27 @@ export const useCustomQuests = () => {
     isCreating: create.isPending,
     join: (questId: string) => setMembership.mutate({ questId, status: 'joined' }),
     decline: (questId: string) => setMembership.mutate({ questId, status: 'declined' }),
+  };
+};
+
+/* ─────────────── Creator Trust Level ─────────────── */
+import type { CreatorStatus } from '@/lib/creatorLevels';
+
+export const useCreatorStatus = () => {
+  const { user } = useAuth();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['creator-status', user?.id],
+    enabled: !!user,
+    queryFn: async (): Promise<CreatorStatus> => {
+      const { data, error } = await db.rpc('get_creator_status');
+      if (error) throw error;
+      return data as CreatorStatus;
+    },
+  });
+
+  return {
+    status: data ?? { tier: 0, level: 1, created: 0, requirements: [] },
+    isLoading,
   };
 };
