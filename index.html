@@ -118,6 +118,17 @@
   .step h3{font-size:18px;margin-bottom:6px}
   .step p{color:var(--dim);font-size:14px}
 
+  /* Creator ladder */
+  .ladder{max-width:700px;margin:38px auto 0;display:flex;flex-direction:column;gap:13px}
+  .rung{display:flex;gap:16px;align-items:flex-start;background:linear-gradient(180deg,var(--card),#141414);border:1px solid var(--border);border-radius:18px;padding:18px 20px}
+  .rung.start{border-color:rgba(138,92,246,.42);box-shadow:0 14px 40px -22px rgba(138,92,246,.6)}
+  .rung .rico{width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:24px;flex:none}
+  .rung .rt{font-size:11px;font-weight:800;color:var(--accent);letter-spacing:.7px;text-transform:uppercase}
+  .rung h3{font-size:17px;font-weight:760;margin:2px 0 5px}
+  .rung p{color:var(--dim);font-size:14.5px;line-height:1.5}
+  .rung .req{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:100px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--dim)}
+  .cr-safe{max-width:700px;margin:20px auto 0;text-align:center;font-size:14px;color:var(--dim);background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.25);border-radius:14px;padding:13px 18px}
+
   .join{background:radial-gradient(120% 120% at 50% 0%,rgba(138,92,246,.18),transparent 60%);border:1px solid var(--border);border-radius:28px;padding:50px 28px;text-align:center;position:relative;overflow:hidden}
   .form{display:flex;gap:10px;max-width:540px;margin:22px auto 0;flex-wrap:wrap;justify-content:center}
   .form input,.form select{flex:1;min-width:200px;background:#141414;border:1px solid var(--border2);color:var(--text);border-radius:13px;padding:14px 16px;font-size:15px;font-family:inherit;outline:none}
@@ -203,6 +214,7 @@
     <div class="links">
       <a href="#features" class="hide-sm" data-i18n="nav.features">Funkcije</a>
       <a href="#how" class="hide-sm" data-i18n="nav.how">Kako radi</a>
+      <a href="#creators" class="hide-sm" data-i18n="nav.creators">Kreatori</a>
       <span class="lang" role="group" aria-label="Language">
         <button data-lang="sr" onclick="setLang('sr')">SR</button>
         <button data-lang="en" onclick="setLang('en')">EN</button>
@@ -285,6 +297,41 @@
       <div class="step"><h3 data-i18n="s2t">Čekiraj se i poveži</h3><p data-i18n="s2d">Uđi, čekiraj se GPS-om za XP, vidi ko je tu, mahni i mečuj se pre nego što se podijum napuni.</p></div>
       <div class="step"><h3 data-i18n="s3t">Zaradi i iskoristi</h3><p data-i18n="s3d">Rešavaj questove, čuvaj niz, penji se na listu i troši XP na prave pogodnosti kod partnera.</p></div>
     </div>
+  </div>
+</section>
+
+<section id="creators" style="background:linear-gradient(180deg,transparent,rgba(138,92,246,.04))">
+  <div class="wrap">
+    <div class="eyebrow" data-i18n="cr.eyebrow">Postani kreator</div>
+    <h2 data-i18n="cr.h2">Što više igraš, više možeš da napraviš</h2>
+    <p class="lead" data-i18n="cr.lead">Kreiranje questova se otključava korak po korak. Svaki nivo nadograđuje prethodni — od questova za ekipu do sponzorisanih, sa podelom prihoda.</p>
+    <div class="ladder">
+      <div class="rung">
+        <div class="rico" style="background:linear-gradient(135deg,oklch(.5 .2 200),oklch(.45 .22 240))">🎮</div>
+        <div><div class="rt" data-i18n="cr.t0t">Tier 0 · Igrač</div><h3 data-i18n="cr.t0h">Svako počinje ovde</h3><p data-i18n="cr.t0d">Igraj questove, skupljaj XP, bedževe i prave nagrade. Gradi svoj rejver pasoš.</p><span class="req" data-i18n="cr.t0r">✓ Od starta</span></div>
+      </div>
+      <div class="rung start">
+        <div class="rico" style="background:linear-gradient(135deg,oklch(.5 .2 282),oklch(.45 .22 322))">🛠️</div>
+        <div><div class="rt" data-i18n="cr.t1t">Tier 1 · Crew Maker</div><h3 data-i18n="cr.t1h">Pravi za sebe i ekipu</h3><p data-i18n="cr.t1d">Otključaj kreiranje: private questovi i crew questovi (pozovi prijatelje, 1.5× XP).</p><span class="req" data-i18n="cr.t1r">🔓 Level 2</span></div>
+      </div>
+      <div class="rung">
+        <div class="rico" style="background:linear-gradient(135deg,oklch(.5 .2 330),oklch(.45 .22 10))">🗳️</div>
+        <div><div class="rt" data-i18n="cr.t2t">Tier 2 · Contributor</div><h3 data-i18n="cr.t2h">Predloži celoj sceni</h3><p data-i18n="cr.t2d">Pošalji community questove — prolaze brzu bezbednosnu proveru i glasanje pre nego što se pojave.</p><span class="req" data-i18n="cr.t2r">🔓 Level 3 · 2 questa napravljena</span></div>
+      </div>
+      <div class="rung">
+        <div class="rico" style="background:linear-gradient(135deg,oklch(.55 .2 38),oklch(.5 .2 70))">⭐</div>
+        <div><div class="rt" data-i18n="cr.t3t">Tier 3 · Verified Creator</div><h3 data-i18n="cr.t3h">Objavljuj direktno gradu</h3><p data-i18n="cr.t3d">Javni questovi se objavljuju odmah (uz AI proveru). Bedž kreatora na profilu + osnovna analitika.</p><span class="req" data-i18n="cr.t3r">🔓 Level 5 · 5 questova</span></div>
+      </div>
+      <div class="rung">
+        <div class="rico" style="background:linear-gradient(135deg,oklch(.5 .2 160),oklch(.45 .2 190))">🏛️</div>
+        <div><div class="rt" data-i18n="cr.t4t">Tier 4 · Pro Creator</div><h3 data-i18n="cr.t4h">Pravi zvanično sa klubovima</h3><p data-i18n="cr.t4d">Venue-collab questovi, više aktivnih odjednom i istaknuto mesto u aplikaciji.</p><span class="req" data-i18n="cr.t4r">🔓 Level 7 · 10 questova</span></div>
+      </div>
+      <div class="rung">
+        <div class="rico" style="background:linear-gradient(135deg,oklch(.5 .2 145),oklch(.5 .2 110))">💸</div>
+        <div><div class="rt" data-i18n="cr.t5t">Tier 5 · Partner Creator</div><h3 data-i18n="cr.t5h">Pretvori questove u zaradu</h3><p data-i18n="cr.t5d">Sponzorisani questovi sa podelom prihoda (70 / 20 / 10) i pun analitički panel.</p><span class="req" data-i18n="cr.t5r">🔓 Level 10 · 20 questova</span></div>
+      </div>
+    </div>
+    <div class="cr-safe" data-i18n="cr.safe">🛡️ Sve prolazi bezbednosnu proveru — bez izazova sa alkoholom, bez pritiska, bez rizika. Rizični questovi se automatski blokiraju ili prepravljaju u bezbednu verziju.</div>
   </div>
 </section>
 
@@ -406,7 +453,7 @@
 <script>
   const I18N = {
     sr:{
-      "nav.features":"Funkcije","nav.how":"Kako radi","nav.cta":"Preuzmi app",
+      "nav.features":"Funkcije","nav.how":"Kako radi","nav.creators":"Kreatori","nav.cta":"Preuzmi app",
       "hero.pill":"🔥 Beogradski noćni život, kao igra","hero.h1a":"Tamo gde noć","hero.h1b":"počinje.",
       "hero.sub":"Gledaj kako se grad zagreva uživo, mečuj se sa ljudima u klubu, rešavaj questove za prave nagrade i biraj žurku meseca. Jedna aplikacija za izlazak u Beogradu.",
       "hero.s_app":"Preuzmi na","hero.s_play":"Nabavi na","hero.soon":"USKORO","hero.soon2":"USKORO",
@@ -430,6 +477,15 @@
       "s1t":"Otvori mapu","s1d":"Vidi gde se grad zagreva večeras — klubovi, splavovi, barovi i after mesta, rangirani po živom heat-u.",
       "s2t":"Čekiraj se i poveži","s2d":"Uđi, čekiraj se GPS-om za XP, vidi ko je tu, mahni i mečuj se pre nego što se podijum napuni.",
       "s3t":"Zaradi i iskoristi","s3d":"Rešavaj questove, čuvaj niz, penji se na listu i troši XP na prave pogodnosti kod partnera.",
+      "cr.eyebrow":"Postani kreator","cr.h2":"Što više igraš, više možeš da napraviš",
+      "cr.lead":"Kreiranje questova se otključava korak po korak. Svaki nivo nadograđuje prethodni — od questova za ekipu do sponzorisanih, sa podelom prihoda.",
+      "cr.t0t":"Tier 0 · Igrač","cr.t0h":"Svako počinje ovde","cr.t0d":"Igraj questove, skupljaj XP, bedževe i prave nagrade. Gradi svoj rejver pasoš.","cr.t0r":"✓ Od starta",
+      "cr.t1t":"Tier 1 · Crew Maker","cr.t1h":"Pravi za sebe i ekipu","cr.t1d":"Otključaj kreiranje: private questovi i crew questovi (pozovi prijatelje, 1.5× XP).","cr.t1r":"🔓 Level 2",
+      "cr.t2t":"Tier 2 · Contributor","cr.t2h":"Predloži celoj sceni","cr.t2d":"Pošalji community questove — prolaze brzu bezbednosnu proveru i glasanje pre nego što se pojave.","cr.t2r":"🔓 Level 3 · 2 questa napravljena",
+      "cr.t3t":"Tier 3 · Verified Creator","cr.t3h":"Objavljuj direktno gradu","cr.t3d":"Javni questovi se objavljuju odmah (uz AI proveru). Bedž kreatora na profilu + osnovna analitika.","cr.t3r":"🔓 Level 5 · 5 questova",
+      "cr.t4t":"Tier 4 · Pro Creator","cr.t4h":"Pravi zvanično sa klubovima","cr.t4d":"Venue-collab questovi, više aktivnih odjednom i istaknuto mesto u aplikaciji.","cr.t4r":"🔓 Level 7 · 10 questova",
+      "cr.t5t":"Tier 5 · Partner Creator","cr.t5h":"Pretvori questove u zaradu","cr.t5d":"Sponzorisani questovi sa podelom prihoda (70 / 20 / 10) i pun analitički panel.","cr.t5r":"🔓 Level 10 · 20 questova",
+      "cr.safe":"🛡️ Sve prolazi bezbednosnu proveru — bez izazova sa alkoholom, bez pritiska, bez rizika. Rizični questovi se automatski blokiraju ili prepravljaju u bezbednu verziju.",
       "dl.eyebrow":"Uskoro · iOS i Android","dl.h2":"Budi prvi na podijumu","dl.lead":"Prijavi se na listu čekanja i javimo ti čim AfterBefore izađe na tvoj store.",
       "dl.ph":"ti@email.com","dl.o_either":"iOS ili Android","dl.o_ios":"iPhone (iOS)","dl.o_android":"Android","dl.btn":"Prijavi se",
       "dl.privacy":"Bez spama — jedan mejl o lansiranju. Odjava bilo kad.",
@@ -438,7 +494,7 @@
       "msg.err":"Nešto nije u redu. Pokušaj ponovo.","msg.net":"Greška u mreži — pokušaj ponovo.","msg.joining":"Prijavljujem…"
     },
     en:{
-      "nav.features":"Features","nav.how":"How it works","nav.cta":"Get the app",
+      "nav.features":"Features","nav.how":"How it works","nav.creators":"Creators","nav.cta":"Get the app",
       "hero.pill":"🔥 Belgrade nightlife, gamified","hero.h1a":"Where the","hero.h1b":"night begins.",
       "hero.sub":"See the city heat up in real time, match with people at the venue, run quests for real perks, and crown the Party of the Month. One app for going out in Belgrade.",
       "hero.s_app":"Download on the","hero.s_play":"Get it on","hero.soon":"SOON","hero.soon2":"SOON",
@@ -462,6 +518,15 @@
       "s1t":"Open the map","s1d":"See where the city is heating up tonight — clubs, splavi, bars and after spots, ranked by live heat.",
       "s2t":"Check in & connect","s2d":"Walk in, check in with GPS for XP, see who's there, wave and match before the floor fills up.",
       "s3t":"Earn & cash in","s3d":"Complete quests, keep your streak, climb the board and spend XP on real perks at partner venues.",
+      "cr.eyebrow":"Become a creator","cr.h2":"The more you play, the more you can build",
+      "cr.lead":"Quest creation unlocks step by step. Each level builds on the last — from crew quests to sponsored ones with revenue share.",
+      "cr.t0t":"Tier 0 · Player","cr.t0h":"Everyone starts here","cr.t0d":"Play quests, earn XP, badges and real rewards. Build your raver passport.","cr.t0r":"✓ From the start",
+      "cr.t1t":"Tier 1 · Crew Maker","cr.t1h":"Build for you and your crew","cr.t1d":"Unlock creation: private quests and crew quests (invite friends, 1.5× XP).","cr.t1r":"🔓 Level 2",
+      "cr.t2t":"Tier 2 · Contributor","cr.t2h":"Pitch the whole scene","cr.t2d":"Submit community quests — they pass a quick safety review and votes before they show up.","cr.t2r":"🔓 Level 3 · 2 quests created",
+      "cr.t3t":"Tier 3 · Verified Creator","cr.t3h":"Publish straight to the city","cr.t3d":"Public quests go live instantly (with an AI check). Creator badge on your profile + basic analytics.","cr.t3r":"🔓 Level 5 · 5 quests",
+      "cr.t4t":"Tier 4 · Pro Creator","cr.t4h":"Build officially with venues","cr.t4d":"Venue-collab quests, more active at once, and featured placement in the app.","cr.t4r":"🔓 Level 7 · 10 quests",
+      "cr.t5t":"Tier 5 · Partner Creator","cr.t5h":"Turn quests into income","cr.t5d":"Sponsored quests with revenue share (70 / 20 / 10) and a full analytics dashboard.","cr.t5r":"🔓 Level 10 · 20 quests",
+      "cr.safe":"🛡️ Everything passes a safety check — no drinking dares, no pressure, no risk. Risky quests are auto-blocked or rewritten into a safe version.",
       "dl.eyebrow":"Coming soon · iOS & Android","dl.h2":"Be first on the floor","dl.lead":"Join the waitlist and we'll ping you the moment AfterBefore drops on your store.",
       "dl.ph":"you@email.com","dl.o_either":"iOS or Android","dl.o_ios":"iPhone (iOS)","dl.o_android":"Android","dl.btn":"Join waitlist",
       "dl.privacy":"No spam — one launch email. Unsubscribe anytime.",
