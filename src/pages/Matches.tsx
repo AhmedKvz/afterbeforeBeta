@@ -5,6 +5,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
 import { useConversations, useChat, useBlockUser, Conversation } from '@/hooks/useMessaging';
 import { useReportUser } from '@/hooks/useStories';
+import { useReceivedSparks, useSparkActions } from '@/hooks/useSparks';
 import { BottomNav } from '@/components/BottomNav';
 import { avatarGradient, hueFromString, initials } from '@/lib/gradients';
 import { cn } from '@/lib/utils';
@@ -21,6 +22,8 @@ const Matches = () => {
   const { user } = useAuth();
   const [params] = useSearchParams();
   const { data: conversations = [], isLoading } = useConversations();
+  const { data: sparks = [] } = useReceivedSparks();
+  const { respond } = useSparkActions();
   const [openId, setOpenId] = useState<string | null>(params.get('c'));
 
   if (!user) { navigate('/auth'); return null; }
@@ -40,12 +43,38 @@ const Matches = () => {
       <div className="px-4 py-4 space-y-6">
         {isLoading && <p className="text-center text-muted-foreground text-sm py-8">Učitavam…</p>}
 
-        {!isLoading && conversations.length === 0 && (
+        {!isLoading && conversations.length === 0 && sparks.length === 0 && (
           <div className="text-center py-16 text-muted-foreground">
             <Heart className="w-10 h-10 mx-auto mb-3 opacity-40" />
             <p className="font-medium">Još nema poruka</p>
-            <p className="text-sm mt-1">Pozdravi nekoga 👋 sa heat mape da započneš.</p>
+            <p className="text-sm mt-1">Pozdravi nekoga 👋 ili pošalji iskru ✨ sa žurke.</p>
           </div>
+        )}
+
+        {sparks.length > 0 && (
+          <section>
+            <h2 className="text-[11px] font-bold tracking-[0.12em] text-muted-foreground mb-2">✨ ISKRE · {sparks.length}</h2>
+            <p className="text-[11px] text-muted-foreground mb-2.5 -mt-1">Neko sa žurke ti je poslao iskru. Uzvrati da se otkrije ko.</p>
+            <div className="space-y-2">
+              {sparks.map((s: any) => (
+                <div key={s.id} className="flex items-center gap-3 p-3 rounded-2xl border border-secondary/40 bg-gradient-to-br from-secondary/[0.1] to-primary/[0.05]">
+                  <div className="w-11 h-11 rounded-full flex-none grid place-items-center text-xl bg-gradient-to-br from-primary to-secondary">✨</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-sm">Tajna iskra</div>
+                    <div className="text-[11px] text-muted-foreground truncate">sa {s.venue_emoji || '📍'} {s.venue_name} · {s.created_at ? rel(s.created_at) : ''}</div>
+                  </div>
+                  <button
+                    onClick={() => respond.mutate(s.id, { onSuccess: (d: any) => d?.conversation_id && setOpenId(d.conversation_id) })}
+                    disabled={respond.isPending}
+                    className="flex-none text-[12px] font-bold px-3.5 py-2 rounded-xl text-white disabled:opacity-60"
+                    style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))' }}
+                  >
+                    ✨ Uzvrati
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
         )}
 
         {waves.length > 0 && (
