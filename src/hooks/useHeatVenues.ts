@@ -54,6 +54,7 @@ function walkFor(key: string) {
 
 export interface HeatVenue {
   id: string;
+  venue_id: string | null;   // directory uuid (for secure check-in + sparks); null if unmapped
   name: string;
   type: string;
   neighborhood: string;
@@ -81,7 +82,7 @@ export const useHeatVenues = () => {
     queryKey: ['heat-venues'],
     refetchInterval: 60_000,
     queryFn: async () => {
-      const [{ data: venues }, { data: heat }, { data: evCoords }] = await Promise.all([
+      const [{ data: venues }, { data: heat }, { data: evCoords }, { data: dirVenues }] = await Promise.all([
         db.from('profiles')
           .select('venue_name, venue_type, neighborhood')
           .eq('account_type', 'club_venue')
@@ -90,10 +91,15 @@ export const useHeatVenues = () => {
         db.from('events')
           .select('venue_name, latitude, longitude, geofence_radius')
           .not('latitude', 'is', null),
+        db.from('venues').select('id, name'),   // directory → canonical venue_id (check-in + sparks)
       ]);
 
       const heatMap = new Map<string, any>();
       (heat || []).forEach((h: any) => heatMap.set(h.venue_name, h));
+
+      // bridge: venue name → directory uuid
+      const venueIdMap = new Map<string, string>();
+      (dirVenues || []).forEach((d: any) => venueIdMap.set(d.name, d.id));
 
       // first known coordinate per venue (from its events)
       const coordMap = new Map<string, { lat: number; lng: number; radius: number }>();
@@ -113,6 +119,7 @@ export const useHeatVenues = () => {
         const heat = Math.min(100, Math.round((totalHeat / Math.max(1, 1)) > 100 ? 100 : totalHeat));
         return {
           id: v.venue_name,
+          venue_id: venueIdMap.get(v.venue_name) ?? null,
           name: v.venue_name,
           type,
           neighborhood: v.neighborhood || 'Belgrade',

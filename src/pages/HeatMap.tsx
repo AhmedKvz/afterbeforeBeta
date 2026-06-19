@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useHeatVenues, useVenuePresence, useSetVenuePresence, BELGRADE_HOODS, HeatVenue } from '@/hooks/useHeatVenues';
 import { useSendWave } from '@/hooks/useMessaging';
 import { BottomNav } from '@/components/BottomNav';
+import { IskraSheet } from '@/components/IskraSheet';
 import { avatarGradient, hueFromString, initials } from '@/lib/gradients';
 import { supabase } from '@/integrations/supabase/client';
 import { awardXP, XP_AWARDS } from '@/services/gamification';
@@ -43,6 +44,7 @@ const HeatMap = () => {
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [checkingIn, setCheckingIn] = useState(false);
   const [swiped, setSwiped] = useState<Set<string>>(new Set());
+  const [iskraOpen, setIskraOpen] = useState(false);
 
   // on-the-spot like/pass on someone in the "who's here" list
   const swipePerson = async (pid: string, name: string, action: 'like' | 'pass') => {
@@ -116,15 +118,28 @@ const HeatMap = () => {
         }
       }
 
-      // 3. verified → unlock + award XP (once) + register presence (hidden by default — opt-in)
+      // 3. verified → unlock + register presence + secure check-in (XP + AFC + Iskra eligibility)
       setAtVenueId(selected.id);
       await setPresence.mutateAsync({ venue: selected.id, visible: meVisible }).catch(() => {});
       if (user && !peeked.has(`xp-${selected.id}`)) {
-        await awardXP(user.id, 50, 'Venue check-in');
-        await incrementQuestProgress(user.id, 'check_in');
-        setPeeked((s) => new Set(s).add(`xp-${selected.id}`));
+        if (selected.venue_id) {
+          // server-side Haversine + anti-cheat + atomic XP/AFC ledger + records venue_checkins
+          const lat = pos?.coords.latitude ?? selected.lat ?? 0;
+          const lon = pos?.coords.longitude ?? selected.lng ?? 0;
+          const { data, error } = await (supabase as any).rpc('process_secure_checkin', { p_venue: selected.venue_id, p_lat: lat, p_lon: lon });
+          await incrementQuestProgress(user.id, 'check_in').catch(() => {});
+          setPeeked((s) => new Set(s).add(`xp-${selected.id}`));
+          if (!error && data) toast.success(`Checked in at ${selected.name} · +${data.awarded_xp} XP · +${data.awarded_afc} AFC 📍`);
+          else toast.success(`Checked in at ${selected.name} 📍`);
+        } else {
+          await awardXP(user.id, 50, 'Venue check-in');
+          await incrementQuestProgress(user.id, 'check_in');
+          setPeeked((s) => new Set(s).add(`xp-${selected.id}`));
+          toast.success(`Checked in at ${selected.name} · +50 XP 📍`);
+        }
+      } else {
+        toast.success(`Checked in at ${selected.name} 📍`);
       }
-      toast.success(`Checked in at ${selected.name} · +50 XP 📍`);
     } finally {
       setCheckingIn(false);
     }
@@ -211,6 +226,20 @@ const HeatMap = () => {
             checkingIn={checkingIn} onWalk={comingSoon} onWave={(pid: string) => sendWave.mutate(pid)}
             onSwipe={swipePerson} swiped={swiped} />
         </div>
+      )}
+
+      {/* Iskra — send a spark to someone at this venue (only when checked in here) */}
+      {selected && atVenueId === selected.id && selected.venue_id && (
+        <div className="px-3.5 pb-3 -mt-1">
+          <button onClick={() => setIskraOpen(true)}
+            className="w-full py-3 rounded-2xl text-white font-bold text-sm flex items-center justify-center gap-2"
+            style={{ background: 'linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--primary)))', boxShadow: '0 10px 28px -10px hsl(var(--secondary) / 0.6)' }}>
+            ✨ Pošalji isku nekome ovde
+          </button>
+        </div>
+      )}
+      {iskraOpen && selected?.venue_id && (
+        <IskraSheet venueId={selected.venue_id} venueName={selected.name} onClose={() => setIskraOpen(false)} />
       )}
 
       {/* Ranked list */}
