@@ -12,8 +12,8 @@ export const RewardsHub = () => {
       <div className="flex items-center gap-3 p-3.5 rounded-2xl mb-4 border border-accent/40 bg-gradient-to-br from-accent/15 to-secondary/10">
         <div className="text-3xl">💰</div>
         <div className="flex-1">
-          <div className="text-[11px] text-muted-foreground">Your balance</div>
-          <div className="text-2xl font-extrabold text-accent">{balance.toLocaleString()} XP</div>
+          <div className="text-[11px] text-muted-foreground">Tvoj AFC balans</div>
+          <div className="text-2xl font-extrabold text-accent">{balance.toLocaleString()} AFC</div>
         </div>
         <div className="text-[11px] text-muted-foreground text-right leading-tight">
           Earn more<br />in Quests →
@@ -56,7 +56,7 @@ export const RewardsHub = () => {
               <div className="text-[10px] text-muted-foreground mt-0.5 mb-2.5 flex-1">{r.sub}</div>
               <div className="flex items-center justify-between mb-2">
                 <span className={`font-extrabold text-sm ${afford ? 'text-accent' : 'text-muted-foreground'}`}>
-                  {r.cost_xp.toLocaleString()}
+                  {r.cost_xp.toLocaleString()} <span className="text-[10px] font-bold opacity-80">AFC</span>
                 </span>
                 <span className="text-[9px] text-text-faint">{r.stock_label}</span>
               </div>
@@ -70,7 +70,7 @@ export const RewardsHub = () => {
                     : { background: 'rgba(255,255,255,0.06)', color: 'hsl(var(--text-faint))' }
                 }
               >
-                {r.is_locked ? 'VIP locked' : afford ? 'Redeem' : 'Not enough XP'}
+                {r.is_locked ? 'VIP locked' : afford ? 'Iskoristi' : 'Nema dovoljno AFC'}
               </button>
             </div>
           );

@@ -99,8 +99,8 @@ const Quests = () => {
               <div className="text-[28px] font-extrabold text-white mt-0.5">Lv. {level}</div>
             </div>
             <div className="text-right">
-              <div className="text-[11px] text-white/80">Spendable</div>
-              <div className="text-xl font-extrabold text-white">{spendable.toLocaleString()} XP</div>
+              <div className="text-[11px] text-white/80">🪙 AFC balans</div>
+              <div className="text-xl font-extrabold text-white">{spendable.toLocaleString()} AFC</div>
             </div>
           </div>
           <div className="h-2 rounded bg-white/20 overflow-hidden mb-1.5">
