@@ -2,9 +2,8 @@ import { useState, useMemo } from 'react';
 import { Plus, Minus, MapPin, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useHeatVenues, useVenuePresence, useSetVenuePresence, BELGRADE_HOODS, HeatVenue } from '@/hooks/useHeatVenues';
-import { useSendWave } from '@/hooks/useMessaging';
+import { useSparkActions } from '@/hooks/useSparks';
 import { BottomNav } from '@/components/BottomNav';
-import { IskraSheet } from '@/components/IskraSheet';
 import { avatarGradient, hueFromString, initials } from '@/lib/gradients';
 import { supabase } from '@/integrations/supabase/client';
 import { awardXP, XP_AWARDS } from '@/services/gamification';
@@ -44,7 +43,6 @@ const HeatMap = () => {
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [checkingIn, setCheckingIn] = useState(false);
   const [swiped, setSwiped] = useState<Set<string>>(new Set());
-  const [iskraOpen, setIskraOpen] = useState(false);
 
   // on-the-spot like/pass on someone in the "who's here" list
   const swipePerson = async (pid: string, name: string, action: 'like' | 'pass') => {
@@ -83,7 +81,7 @@ const HeatMap = () => {
 
   const { data: presence } = useVenuePresence(selected?.id || null);
   const setPresence = useSetVenuePresence();
-  const sendWave = useSendWave();
+  const { send: sendSpark } = useSparkActions();
   const meVisible = !!presence?.me_visible;
   const toggleVisible = () => {
     if (selected) setPresence.mutate({ venue: selected.id, visible: !meVisible });
@@ -223,23 +221,10 @@ const HeatMap = () => {
           <LivePresenceCard venue={selected} locked={locked} atVenue={atVenueId === selected.id}
             presence={presence} meVisible={meVisible} onToggleVisible={toggleVisible} togglingVisible={setPresence.isPending}
             onUnlock={() => setPaywallOpen(true)} onCheckIn={handleCheckIn}
-            checkingIn={checkingIn} onWalk={comingSoon} onWave={(pid: string) => sendWave.mutate(pid)}
+            checkingIn={checkingIn} onWalk={comingSoon}
+            onSpark={(pid: string) => { if (selected.venue_id) { sendSpark.mutate({ to: pid, venue: selected.venue_id }); setSwiped((s) => new Set(s).add(pid)); } }}
             onSwipe={swipePerson} swiped={swiped} />
         </div>
-      )}
-
-      {/* Iskra — send a spark to someone at this venue (only when checked in here) */}
-      {selected && atVenueId === selected.id && selected.venue_id && (
-        <div className="px-3.5 pb-3 -mt-1">
-          <button onClick={() => setIskraOpen(true)}
-            className="w-full py-3 rounded-2xl text-white font-bold text-sm flex items-center justify-center gap-2"
-            style={{ background: 'linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--primary)))', boxShadow: '0 10px 28px -10px hsl(var(--secondary) / 0.6)' }}>
-            ✨ Pošalji isku nekome ovde
-          </button>
-        </div>
-      )}
-      {iskraOpen && selected?.venue_id && (
-        <IskraSheet venueId={selected.venue_id} venueName={selected.name} onClose={() => setIskraOpen(false)} />
       )}
 
       {/* Ranked list */}
@@ -364,7 +349,7 @@ const Avatar = ({ p, size = 40 }: any) =>
     ? <img src={p.avatar} className="rounded-full object-cover" style={{ width: size, height: size }} />
     : <div className="rounded-full flex items-center justify-center font-bold text-white" style={{ width: size, height: size, fontSize: size * 0.34, background: avatarGradient(hueFromString(p.name || p.user_id)) }}>{initials(p.name || '·')}</div>;
 
-const BrowseHybrid = ({ people, onSwipe, onWave, swiped, venue }: any) => {
+const BrowseHybrid = ({ people, onSwipe, onSpark, swiped, venue }: any) => {
   const [view, setView] = useState<'swipe' | 'grid'>('swipe');
   const [featuredId, setFeaturedId] = useState<string | null>(null);
   const active = people.filter((p: any) => !swiped?.has(p.user_id));
@@ -420,11 +405,15 @@ const BrowseHybrid = ({ people, onSwipe, onWave, swiped, venue }: any) => {
               <div className="text-[11px] text-white/85">📍 ovde · {venue.name}</div>
             </div>
           </div>
-          <div className="flex items-center justify-center gap-4 mt-3">
-            <button onClick={() => onSwipe(featured.user_id, featured.name, 'pass')} className="w-12 h-12 rounded-full bg-card border border-border-strong flex items-center justify-center text-lg text-[#f87171]">✕</button>
-            <button onClick={() => onSwipe(featured.user_id, featured.name, 'like')} className="w-14 h-14 rounded-full flex items-center justify-center text-2xl text-white" style={{ background: 'linear-gradient(135deg, hsl(var(--success)), #34d399)' }}>❤️</button>
-            <button onClick={() => onWave(featured.user_id, featured.name)} className="w-12 h-12 rounded-full bg-card border border-border-strong flex items-center justify-center text-lg">👋</button>
+          <div className="flex items-center justify-center gap-3 mt-3">
+            <button onClick={() => onSwipe(featured.user_id, featured.name, 'pass')} className="w-12 h-12 rounded-full bg-card border border-border-strong flex items-center justify-center text-lg text-muted-foreground flex-none">✕</button>
+            <button onClick={() => onSpark(featured.user_id)}
+              className="flex-1 max-w-[220px] py-3 rounded-2xl text-white font-extrabold text-sm flex items-center justify-center gap-2"
+              style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))', boxShadow: '0 10px 28px -10px hsl(var(--secondary) / 0.6)' }}>
+              ✨ Pošalji isku
+            </button>
           </div>
+          <p className="text-center text-[10px] text-muted-foreground mt-2">Anonimno — javimo ti ako uzvrati. ✕ da preskočiš.</p>
         </div>
       ) : (
         <div className="text-center text-[12px] text-muted-foreground py-6">To je sve za sad — prošao/la si sve koji su tu ✨</div>
@@ -434,7 +423,7 @@ const BrowseHybrid = ({ people, onSwipe, onWave, swiped, venue }: any) => {
 };
 
 /* ───────── Live presence card ───────── */
-const LivePresenceCard = ({ venue, locked, atVenue, presence, meVisible, onToggleVisible, togglingVisible, onUnlock, onCheckIn, checkingIn, onWalk, onWave, onSwipe, swiped }: any) => {
+const LivePresenceCard = ({ venue, locked, atVenue, presence, meVisible, onToggleVisible, togglingVisible, onUnlock, onCheckIn, checkingIn, onWalk, onSpark, onSwipe, swiped }: any) => {
   const isHot = venue.heat >= 80;
   const people = presence?.people || [];
   const headcount = presence?.headcount ?? venue.here ?? 0;
@@ -492,7 +481,7 @@ const LivePresenceCard = ({ venue, locked, atVenue, presence, meVisible, onToggl
             )}
 
             {meVisible ? (
-              <BrowseHybrid people={people} onSwipe={onSwipe} onWave={onWave} swiped={swiped} venue={venue} />
+              <BrowseHybrid people={people} onSwipe={onSwipe} onSpark={onSpark} swiped={swiped} venue={venue} />
             ) : (
               <div className="text-center py-6">
                 <div className="text-3xl mb-2">🫥</div>

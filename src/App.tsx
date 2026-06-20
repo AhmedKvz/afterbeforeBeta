@@ -8,8 +8,6 @@ import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import EventDetail from "./pages/EventDetail";
-import CircleSwipe from "./pages/CircleSwipe";
-import LocationSwipe from "./pages/LocationSwipe";
 import Matches from "./pages/Matches";
 import Profile from "./pages/Profile";
 import VenueDashboard from "./pages/VenueDashboard";
@@ -39,8 +37,6 @@ const App = () => (
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/event/:id" element={<EventDetail />} />
             <Route path="/venue/:venueName" element={<VenueDetail />} />
-            <Route path="/circle-swipe/:eventId" element={<CircleSwipe />} />
-            <Route path="/circle-swipe" element={<LocationSwipe />} />
             <Route path="/matches" element={<Matches />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/venue-dashboard" element={<VenueDashboard />} />
@@ -50,6 +46,8 @@ const App = () => (
             <Route path="/quests" element={<Quests />} />
             <Route path="/auth/instagram/callback" element={<InstagramCallback />} />
             {/* Out-of-focus → redirect to the 5-screen core */}
+            <Route path="/circle-swipe/:eventId" element={<Navigate to="/heatmap" replace />} />
+            <Route path="/circle-swipe" element={<Navigate to="/heatmap" replace />} />
             <Route path="/gamification" element={<Navigate to="/quests" replace />} />
             <Route path="/my-events" element={<Navigate to="/" replace />} />
             <Route path="/leaderboard" element={<Navigate to="/" replace />} />
