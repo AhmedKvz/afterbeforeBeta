@@ -212,9 +212,6 @@ const Profile = () => {
             <div className="text-[11px] font-semibold text-muted-foreground">LEVEL {level} · NIGHT OWL</div>
             <div className="font-extrabold text-xl text-accent mt-0.5">{(profile.xp || 0).toLocaleString()} XP</div>
           </div>
-          <button onClick={() => navigate('/leaderboard')} className="bg-white/[0.08] px-3 py-1.5 rounded-full text-[11px] font-semibold inline-flex items-center gap-1">
-            Rank <ChevronRight className="w-3 h-3" />
-          </button>
         </div>
         <div className="h-1.5 rounded bg-white/[0.08] overflow-hidden">
           <div className="h-full rounded bg-gradient-to-r from-primary to-secondary" style={{ width: `${xpProgress.percentage}%` }} />

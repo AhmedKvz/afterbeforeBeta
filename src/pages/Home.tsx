@@ -10,11 +10,8 @@ import { BottomNav } from '@/components/BottomNav';
 import { Lucky100Banner } from '@/components/Lucky100Banner';
 import { Lucky100Modal } from '@/components/Lucky100Modal';
 import { PartyOfMonthCard } from '@/components/PartyOfMonthCard';
-import { LeaderboardPreview } from '@/components/LeaderboardPreview';
-import { VenueHeatBoard } from '@/components/VenueHeatBoard';
 import { ReviewModal } from '@/components/ReviewModal';
 import { NotificationBell } from '@/components/NotificationBell';
-import { SceneBanner } from '@/components/SceneBanner';
 import { TrendingEventCard } from '@/components/TrendingEventCard';
 import { StoriesRail } from '@/components/StoriesRail';
 import { usePartyOfMonth } from '@/hooks/usePartyOfMonth';
@@ -253,10 +250,6 @@ const Home = () => {
         </div>
       )}
 
-      {/* This Week's Heat — moved up to match prototype order */}
-      <div className="px-4 mb-6">
-        <VenueHeatBoard compact />
-      </div>
 
       {/* Filters */}
       <div className="px-4 mb-6">
@@ -348,15 +341,6 @@ const Home = () => {
       {/* Community Reviewed */}
       <CommunityReviewed navigate={navigate} />
 
-      {/* Scene Banner */}
-      <div className="px-4 mb-4">
-        <SceneBanner />
-      </div>
-
-      {/* Leaderboard Preview */}
-      <div className="px-4 mb-6">
-        <LeaderboardPreview />
-      </div>
 
       <BottomNav />
 
