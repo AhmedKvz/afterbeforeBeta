@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { getCurrentWeekStart } from '@/services/questProgress';
 import { toast } from 'sonner';
+import { track } from '@/lib/analytics';
 
 // untyped helper for tables/RPCs not in generated types
 const db = supabase as any;
@@ -25,12 +26,19 @@ export const useRewards = () => {
     mutationFn: async (rewardId: string) => {
       const { data, error } = await db.rpc('redeem_reward', { p_reward_id: rewardId });
       if (error) throw error;
-      return data as { redeemed: boolean; balance: number; title: string };
+      return data as { redeemed: boolean; status: string; needs_checkin: boolean; code: string; balance: number; title: string };
     },
     onSuccess: async (res) => {
       await refreshProfile();
+      track('reward_claimed', { title: res.title, status: res.status, needs_checkin: res.needs_checkin });
       queryClient.invalidateQueries({ queryKey: ['reward-redemptions'] });
-      toast('Redeemed 🎁', { description: `${res.title} — ${res.balance.toLocaleString()} XP left.` });
+      queryClient.invalidateQueries({ queryKey: ['my-redemptions'] });
+      queryClient.invalidateQueries({ queryKey: ['rewards'] });
+      if (res.needs_checkin) {
+        toast(`Rezervisano 🎟️ · kod ${res.code}`, { description: 'Čekiraj se na lokaciji da otključaš — onda pokaži kod na vratima.' });
+      } else {
+        toast('Iskorišćeno 🎁', { description: `${res.title} — ${res.balance.toLocaleString()} AFC ostalo.` });
+      }
     },
     onError: (e: any) => toast('Could not redeem', { description: e?.message ?? 'Try again.' }),
   });

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { GlassCard } from '@/components/GlassCard';
+import { VenueDoor } from '@/components/VenueDoor';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -275,6 +276,9 @@ const VenueDashboard = () => {
                 </GlassCard>
               </div>
             </section>
+
+            {/* Door · guest-list verification (redemption rail, Z6) */}
+            <VenueDoor />
 
             {/* Your Events */}
             <section>

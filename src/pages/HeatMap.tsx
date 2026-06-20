@@ -3,6 +3,7 @@ import { Plus, Minus, MapPin, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useHeatVenues, useVenuePresence, useSetVenuePresence, BELGRADE_HOODS, HeatVenue } from '@/hooks/useHeatVenues';
 import { useSparkActions } from '@/hooks/useSparks';
+import { useSignalIntent } from '@/hooks/useRedemptions';
 import { BottomNav } from '@/components/BottomNav';
 import { avatarGradient, hueFromString, initials } from '@/lib/gradients';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,6 +12,7 @@ import { incrementQuestProgress } from '@/services/questProgress';
 import { getCurrentPosition, calculateDistance, formatDistance } from '@/services/geolocation';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { track } from '@/lib/analytics';
 
 const PRICING = [
   { id: 'peek', rsd: 100, label: 'Peek this venue', sub: '24h · this venue only', emoji: '👁', best: false },
@@ -82,6 +84,7 @@ const HeatMap = () => {
   const { data: presence } = useVenuePresence(selected?.id || null);
   const setPresence = useSetVenuePresence();
   const { send: sendSpark } = useSparkActions();
+  const signalIntent = useSignalIntent();
   const meVisible = !!presence?.me_visible;
   const toggleVisible = () => {
     if (selected) setPresence.mutate({ venue: selected.id, visible: !meVisible });
@@ -127,12 +130,14 @@ const HeatMap = () => {
           const { data, error } = await (supabase as any).rpc('process_secure_checkin', { p_venue: selected.venue_id, p_lat: lat, p_lon: lon });
           await incrementQuestProgress(user.id, 'check_in').catch(() => {});
           setPeeked((s) => new Set(s).add(`xp-${selected.id}`));
+          track('check_in', { venue_id: selected.venue_id, venue: selected.name, secure: true, awarded_xp: data?.awarded_xp, awarded_afc: data?.awarded_afc, spoof: data?.spoof_flag ?? null, error: error?.message ?? null });
           if (!error && data) toast.success(`Checked in at ${selected.name} · +${data.awarded_xp} XP · +${data.awarded_afc} AFC 📍`);
           else toast.success(`Checked in at ${selected.name} 📍`);
         } else {
           await awardXP(user.id, 50, 'Venue check-in');
           await incrementQuestProgress(user.id, 'check_in');
           setPeeked((s) => new Set(s).add(`xp-${selected.id}`));
+          track('check_in', { venue: selected.name, secure: false, awarded_xp: 50 });
           toast.success(`Checked in at ${selected.name} · +50 XP 📍`);
         }
       } else {
@@ -143,7 +148,7 @@ const HeatMap = () => {
     }
   };
 
-  const comingSoon = () => toast.info('Passes & payments coming soon — walk in & check in to unlock free.');
+  const comingSoon = () => toast('🔒 Uskoro — još nije gotovo', { description: 'Za sad: uđi u lokal i čekiraj se — besplatno otključavaš.' });
 
   if (isLoading) {
     return (
@@ -180,7 +185,7 @@ const HeatMap = () => {
               <div className="text-xs font-bold">Off-site mode</div>
               <div className="text-[10px] text-muted-foreground">You see heat — peek inside, or check in at any venue → free</div>
             </div>
-            <button onClick={() => setPaywallOpen(true)} className="px-3 py-1.5 rounded-full text-white text-[11px] font-bold bg-gradient-to-r from-primary to-secondary whitespace-nowrap">
+            <button onClick={comingSoon} className="px-3 py-1.5 rounded-full text-white text-[11px] font-bold bg-gradient-to-r from-primary to-secondary whitespace-nowrap">
               Get pass
             </button>
           </div>
@@ -220,8 +225,10 @@ const HeatMap = () => {
         <div className="px-3.5 pb-3">
           <LivePresenceCard venue={selected} locked={locked} atVenue={atVenueId === selected.id}
             presence={presence} meVisible={meVisible} onToggleVisible={toggleVisible} togglingVisible={setPresence.isPending}
-            onUnlock={() => setPaywallOpen(true)} onCheckIn={handleCheckIn}
+            onUnlock={comingSoon} onCheckIn={handleCheckIn}
             checkingIn={checkingIn} onWalk={comingSoon}
+            onIdem={() => { if (selected.venue_id) signalIntent.mutate({ venue: selected.venue_id }); }}
+            idemPending={signalIntent.isPending}
             onSpark={(pid: string) => { if (selected.venue_id) { sendSpark.mutate({ to: pid, venue: selected.venue_id }); setSwiped((s) => new Set(s).add(pid)); } }}
             onSwipe={swipePerson} swiped={swiped} />
         </div>
@@ -423,7 +430,7 @@ const BrowseHybrid = ({ people, onSwipe, onSpark, swiped, venue }: any) => {
 };
 
 /* ───────── Live presence card ───────── */
-const LivePresenceCard = ({ venue, locked, atVenue, presence, meVisible, onToggleVisible, togglingVisible, onUnlock, onCheckIn, checkingIn, onWalk, onSpark, onSwipe, swiped }: any) => {
+const LivePresenceCard = ({ venue, locked, atVenue, presence, meVisible, onToggleVisible, togglingVisible, onUnlock, onCheckIn, checkingIn, onWalk, onSpark, onSwipe, swiped, onIdem, idemPending }: any) => {
   const isHot = venue.heat >= 80;
   const people = presence?.people || [];
   const headcount = presence?.headcount ?? venue.here ?? 0;
@@ -494,6 +501,9 @@ const LivePresenceCard = ({ venue, locked, atVenue, presence, meVisible, onToggl
             )}
 
             <div className="flex gap-2 mt-3">
+              {!atVenue && (
+                <button onClick={onIdem} disabled={idemPending} className="flex-1 py-3 rounded-xl border border-accent/40 bg-accent/10 text-accent font-bold text-[13px]">{idemPending ? '…' : '✋ Idem'}</button>
+              )}
               <button onClick={onWalk} className="flex-[2] py-3 rounded-xl text-white font-bold text-[13px] flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))' }}>🚶 Walk here · {venue.walk} min</button>
               <button onClick={onCheckIn} disabled={checkingIn} className="flex-1 py-3 rounded-xl border border-border-strong font-semibold text-[13px]">{checkingIn ? '…' : '📍 Check in'}</button>
             </div>

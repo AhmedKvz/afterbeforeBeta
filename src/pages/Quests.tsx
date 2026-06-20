@@ -60,6 +60,7 @@ const Quests = () => {
 
   const handleClaim = (questId: string, xpReward: number) => {
     claimReward({ questId, xpReward });
+    track('quest_done', { quest_id: questId, xp_reward: xpReward });
     toast.success(`+${xpReward} XP claimed! 🎯`);
   };
 

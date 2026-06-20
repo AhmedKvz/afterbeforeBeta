@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { track } from '@/lib/analytics';
 
 interface Profile {
   id: string;
@@ -89,11 +90,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user) {
         fetchProfile(session.user.id);
       }
-      
+
+      track('app_open', { authed: !!session?.user });
       setLoading(false);
     });
 
@@ -111,7 +113,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         data: { account_type: accountType || 'party_goer' },
       },
     });
-    
+
+    if (!error) track('signup', { account_type: accountType || 'party_goer' });
     return { error: error as Error | null };
   };
 

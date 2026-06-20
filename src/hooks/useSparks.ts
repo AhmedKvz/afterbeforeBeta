@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { track } from '@/lib/analytics';
 
 const db = supabase as any;
 
@@ -42,7 +43,9 @@ export const useSparkActions = () => {
       if (error) throw error;
       return data as { mutual: boolean; conversation_id: string; other_id: string };
     },
-    onSuccess: () => {
+    onSuccess: (res: any) => {
+      track('iskra_respond', { mutual: !!res?.mutual });
+      if (res?.mutual) track('iskra_mutual', { from: 'respond', conversation_id: res?.conversation_id });
       queryClient.invalidateQueries({ queryKey: ['received-sparks'] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       toast('Iskra uzvraćena ✨', { description: 'Otvara se chat — reci ćao.' });
@@ -56,7 +59,9 @@ export const useSparkActions = () => {
       if (error) throw error;
       return data as { mutual: boolean; conversation_id?: string };
     },
-    onSuccess: (res: any) => {
+    onSuccess: (res: any, vars: any) => {
+      track('iskra_sent', { venue: vars?.venue, to: vars?.to, mutual: !!res?.mutual });
+      if (res?.mutual) track('iskra_mutual', { from: 'send', conversation_id: res?.conversation_id });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       queryClient.invalidateQueries({ queryKey: ['sparkable'] });
       toast(res?.mutual ? 'Mutual! ✨' : 'Iskra poslata ✨', {

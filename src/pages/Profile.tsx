@@ -12,6 +12,7 @@ import { Lucky100ProfileSection } from '@/components/Lucky100ProfileSection';
 import { NightlifeTimeline } from '@/components/NightlifeTimeline';
 import { YourNights } from '@/components/YourNights';
 import { MementoRequests } from '@/components/MementoRequests';
+import { InviteCard } from '@/components/InviteCard';
 import { Lucky100Modal } from '@/components/Lucky100Modal';
 import { getXPProgress, ACHIEVEMENTS, getUserAchievements, checkAchievements, MORNING_STAR_ACHIEVEMENT_ID } from '@/services/gamification';
 import { hueFromString, avatarGradient, initials } from '@/lib/gradients';
@@ -230,6 +231,11 @@ const Profile = () => {
             <div className="text-[10px] text-muted-foreground mt-0.5">{s.l}</div>
           </div>
         ))}
+      </div>
+
+      {/* Share-to-earn — invite the crew */}
+      <div className="px-4 mb-3.5">
+        <InviteCard />
       </div>
 
       {/* Pending unlock requests (owner) */}
