@@ -82,59 +82,44 @@ export const useHeatVenues = () => {
     queryKey: ['heat-venues'],
     refetchInterval: 60_000,
     queryFn: async () => {
-      const [{ data: venues }, { data: heat }, { data: evCoords }, { data: dirVenues }] = await Promise.all([
-        db.from('profiles')
-          .select('venue_name, venue_type, neighborhood')
-          .eq('account_type', 'club_venue')
-          .not('venue_name', 'is', null),
+      // `venues` is now the canonical source of truth (Phase 1 of venue unification).
+      const [{ data: dirVenues }, { data: heat }, { data: evCoords }] = await Promise.all([
+        db.from('venues').select('*'),
         db.rpc('get_venue_heat', { days_back: 7 }),
-        db.from('events')
-          .select('venue_name, latitude, longitude, geofence_radius')
-          .not('latitude', 'is', null),
-        db.from('venues').select('id, name'),   // directory → canonical venue_id (check-in + sparks)
+        db.from('events').select('venue_name, geofence_radius').not('latitude', 'is', null),
       ]);
 
       const heatMap = new Map<string, any>();
       (heat || []).forEach((h: any) => heatMap.set(h.venue_name, h));
 
-      // bridge: venue name → directory uuid
-      const venueIdMap = new Map<string, string>();
-      (dirVenues || []).forEach((d: any) => venueIdMap.set(d.name, d.id));
+      // geofence radius per venue (from events; venues coords come from the directory)
+      const radiusMap = new Map<string, number>();
+      (evCoords || []).forEach((e: any) => { if (!radiusMap.has(e.venue_name)) radiusMap.set(e.venue_name, e.geofence_radius || 100); });
 
-      // first known coordinate per venue (from its events)
-      const coordMap = new Map<string, { lat: number; lng: number; radius: number }>();
-      (evCoords || []).forEach((e: any) => {
-        if (!coordMap.has(e.venue_name) && e.latitude != null) {
-          coordMap.set(e.venue_name, { lat: Number(e.latitude), lng: Number(e.longitude), radius: e.geofence_radius || 100 });
-        }
-      });
-
-      return (venues || []).map((v: any) => {
-        const h = heatMap.get(v.venue_name);
-        const c = coordMap.get(v.venue_name);
-        const type = v.venue_type || 'club';
-        const { x, y } = coordFor(v.neighborhood, v.venue_name);
+      return (dirVenues || []).map((v: any) => {
+        const h = heatMap.get(v.name);
+        const type = v.type || 'club';
+        const { x, y } = coordFor(v.neighborhood, v.name);
         const totalHeat = h?.total_heat ?? 0;
-        // clamp heat to 0–100 for the visual scale
-        const heat = Math.min(100, Math.round((totalHeat / Math.max(1, 1)) > 100 ? 100 : totalHeat));
+        const heat = Math.min(100, Math.round(totalHeat > 100 ? 100 : totalHeat));
         return {
-          id: v.venue_name,
-          venue_id: venueIdMap.get(v.venue_name) ?? null,
-          name: v.venue_name,
+          id: v.name,                          // presence keys by name (kept for compat)
+          venue_id: v.id,                      // canonical directory uuid (check-in / sparks)
+          name: v.name,
           type,
           neighborhood: v.neighborhood || 'Belgrade',
-          emoji: TYPE_EMOJI[type] || '📍',
-          hue: hueFromString(v.venue_name),
+          emoji: v.emoji || TYPE_EMOJI[type] || '📍',
+          hue: v.hue ?? hueFromString(v.name),
           mode: TYPE_MODE[type] || 'both',
           x, y,
           heat: Math.max(heat, 8),
           here: h?.signal_count ?? 0,
-          walk: walkFor(v.venue_name),
+          walk: walkFor(v.name),
           vibe: h?.top_event_title || `${type} · Belgrade`,
           topEventId: h?.top_event_id || null,
-          lat: c?.lat ?? null,
-          lng: c?.lng ?? null,
-          radius: c?.radius ?? 100,
+          lat: v.latitude != null ? Number(v.latitude) : null,
+          lng: v.longitude != null ? Number(v.longitude) : null,
+          radius: radiusMap.get(v.name) ?? 100,
         } as HeatVenue;
       });
     },
