@@ -6,6 +6,7 @@ import { useCustomQuests } from '@/hooks/useQuestSystem';
 import { useStreak } from '@/hooks/useQuestSystem';
 import { useAuth } from '@/contexts/AuthContext';
 import { getXPProgress } from '@/services/gamification';
+import { track } from '@/lib/analytics';
 import { QuestCard } from '@/components/QuestCard';
 import { CustomQuestCard } from '@/components/quests/CustomQuestCard';
 import { MakeQuestSheet } from '@/components/quests/MakeQuestSheet';

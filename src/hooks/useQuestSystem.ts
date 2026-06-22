@@ -46,7 +46,7 @@ export const useRewards = () => {
   return { rewards, isLoading, redeem: redeem.mutate, isRedeeming: redeem.isPending };
 };
 
-/* ─────────────── Daily streak ─────────────── */
+/* ─────────────── Daily streak + Weekend Shield ─────────────── */
 export const useStreak = () => {
   const { user, refreshProfile } = useAuth();
   const queryClient = useQueryClient();
@@ -56,8 +56,12 @@ export const useStreak = () => {
     queryKey: ['user-streak', user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await db.from('user_streaks').select('*').eq('user_id', user!.id).maybeSingle();
-      return data || { current_streak: 0, longest_streak: 0, last_claim_date: null };
+      const { data } = await db
+        .from('user_streaks')
+        .select('current_streak, longest_streak, last_claim_date, shield_month, shield_saved_at')
+        .eq('user_id', user!.id)
+        .maybeSingle();
+      return data || { current_streak: 0, longest_streak: 0, last_claim_date: null, shield_month: null, shield_saved_at: null };
     },
   });
 
@@ -75,27 +79,41 @@ export const useStreak = () => {
   });
 
   const today = new Date().toISOString().split('T')[0];
+  const curMonth = today.slice(0, 7); // 'YYYY-MM'
   const claimedToday = (claims as any[]).some((c) => c.claim_date === today);
+  const shieldAvailable = !streak?.shield_month || streak.shield_month !== curMonth;
 
   const claim = useMutation({
     mutationFn: async () => {
       const { data, error } = await db.rpc('claim_daily_streak');
       if (error) throw error;
-      return data as { current_streak: number; xp: number; claimed?: boolean; already_claimed?: boolean };
+      return data as {
+        current_streak: number; xp: number;
+        claimed?: boolean; already_claimed?: boolean;
+        shield_used?: boolean; shield_available?: boolean;
+      };
     },
     onSuccess: async (res) => {
       await refreshProfile();
       queryClient.invalidateQueries({ queryKey: ['user-streak'] });
       queryClient.invalidateQueries({ queryKey: ['streak-claims'] });
-      if (res.already_claimed) toast('Already claimed today ✓');
-      else toast(`+${res.xp} XP · ${res.current_streak}-day streak 🔥`);
+      if (res.already_claimed) {
+        toast('Već si danas uzeo XP ✓');
+      } else if (res.shield_used) {
+        toast(`🛡 Shield spasio streak! +${res.xp} XP`, {
+          description: `${res.current_streak} dana zaredom · shield potrošen ovog meseca`,
+        });
+      } else {
+        toast(`+${res.xp} XP · ${res.current_streak} dana zaredom 🔥`);
+      }
     },
-    onError: (e: any) => toast('Could not claim', { description: e?.message ?? 'Try again.' }),
+    onError: (e: any) => toast('Greška', { description: e?.message ?? 'Pokušaj ponovo.' }),
   });
 
   return {
-    streak: streak || { current_streak: 0, longest_streak: 0, last_claim_date: null },
+    streak: streak || { current_streak: 0, longest_streak: 0, last_claim_date: null, shield_month: null, shield_saved_at: null },
     claimedToday,
+    shieldAvailable,
     claimedDates: new Set((claims as any[]).map((c) => c.claim_date)),
     claim: claim.mutate,
     isClaiming: claim.isPending,
