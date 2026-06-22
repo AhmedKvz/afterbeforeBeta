@@ -34,17 +34,12 @@ export const ReportReviewDialog = ({
       return;
     }
     setSubmitting(true);
-    const { error } = await supabase.from('review_reports').insert({
-      review_id: reviewId,
-      user_id: user.id,
-      reason,
-      details: details || null,
-    });
+    const { error } = await (supabase as any).rpc('flag_review', { p_review_id: reviewId, p_reason: reason });
     setSubmitting(false);
     if (error) {
-      toast.error('Could not submit report');
+      toast.error(error.message?.includes('prijaviti') ? error.message : 'Greška — pokušaj ponovo.');
     } else {
-      toast.success('Report submitted. Thanks for keeping the scene safe.');
+      toast.success('Prijavljeno. Hvala što čuvaš scenu.');
       onOpenChange(false);
       setDetails('');
     }
