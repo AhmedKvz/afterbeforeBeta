@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { Plus, Minus, MapPin, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useHeatVenues, useVenuePresence, useSetVenuePresence, BELGRADE_HOODS, HeatVenue } from '@/hooks/useHeatVenues';
@@ -13,6 +14,7 @@ import { getCurrentPosition, calculateDistance, formatDistance } from '@/service
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { track } from '@/lib/analytics';
+import { FeedbackSheet, shouldShowFeedback } from '@/components/FeedbackSheet';
 
 const PRICING = [
   { id: 'peek', rsd: 100, label: 'Peek this venue', sub: '24h · this venue only', emoji: '👁', best: false },
@@ -44,6 +46,7 @@ const HeatMap = () => {
   const [peeked, setPeeked] = useState<Set<string>>(new Set());
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [checkingIn, setCheckingIn] = useState(false);
+  const [feedbackVenueId, setFeedbackVenueId] = useState<string | null>(null);
   const [swiped, setSwiped] = useState<Set<string>>(new Set());
 
   // on-the-spot like/pass on someone in the "who's here" list
@@ -133,6 +136,7 @@ const HeatMap = () => {
           track('check_in', { venue_id: selected.venue_id, venue: selected.name, secure: true, awarded_xp: data?.awarded_xp, awarded_afc: data?.awarded_afc, spoof: data?.spoof_flag ?? null, error: error?.message ?? null });
           if (!error && data) toast.success(`Checked in at ${selected.name} · +${data.awarded_xp} XP · +${data.awarded_afc} AFC 📍`);
           else toast.success(`Checked in at ${selected.name} 📍`);
+          if (shouldShowFeedback()) setTimeout(() => setFeedbackVenueId(selected.venue_id), 4500);
         } else {
           await awardXP(user.id, 50, 'Venue check-in');
           await incrementQuestProgress(user.id, 'check_in');
@@ -249,6 +253,12 @@ const HeatMap = () => {
       {paywallOpen && selected && (
         <PaywallSheet venue={selected} onClose={() => setPaywallOpen(false)} onBuy={comingSoon} onCheckIn={() => { setPaywallOpen(false); handleCheckIn(); }} />
       )}
+
+      <AnimatePresence>
+        {feedbackVenueId !== null && (
+          <FeedbackSheet venueId={feedbackVenueId} onDone={() => setFeedbackVenueId(null)} />
+        )}
+      </AnimatePresence>
 
       <BottomNav />
     </div>
