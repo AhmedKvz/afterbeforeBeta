@@ -179,15 +179,11 @@ const HeatMap = () => {
             <span className="text-[9px] px-2 py-0.5 rounded-full bg-success/25 text-success font-extrabold">FREE</span>
           </div>
         ) : (
-          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl border border-border bg-white/[0.03]">
-            <span className="text-xl">👀</span>
+          <div className="flex items-center gap-2.5 px-3 py-2 rounded-2xl border border-border bg-white/[0.03]">
+            <span className="w-2 h-2 rounded-full bg-white/30 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-bold">Off-site mode</div>
-              <div className="text-[10px] text-muted-foreground">You see heat — peek inside, or check in at any venue → free</div>
+              <div className="text-[11px] font-semibold text-muted-foreground">Vidiš grad. Čekiraj se da vidiš ljude.</div>
             </div>
-            <button onClick={comingSoon} className="px-3 py-1.5 rounded-full text-white text-[11px] font-bold bg-gradient-to-r from-primary to-secondary whitespace-nowrap">
-              Get pass
-            </button>
           </div>
         )}
       </div>
@@ -449,7 +445,10 @@ const LivePresenceCard = ({ venue, locked, atVenue, presence, meVisible, onToggl
               {isHot && <span className="px-1.5 rounded-full text-white text-[9px] font-extrabold" style={{ background: 'linear-gradient(90deg,#ef4444,#f97316)' }}>HOT</span>}
               {atVenue && <span className="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-success/25 text-success">📍 YOU'RE HERE</span>}
             </div>
-            <div className="text-[11px] text-muted-foreground mb-1.5">{venue.neighborhood} · {venue.walk} min walk · {venue.vibe}</div>
+            <div className="flex items-center gap-1.5 mb-1.5">
+          <span className="text-[10px] text-muted-foreground">{venue.neighborhood} · {venue.walk} min walk</span>
+          <span className="px-1.5 py-0.5 rounded-full text-[8px] font-extrabold tracking-wider" style={{ background: `oklch(0.55 0.22 ${venue.hue} / 0.2)`, color: `oklch(0.75 0.22 ${venue.hue})`, border: `1px solid oklch(0.55 0.22 ${venue.hue} / 0.4)` }}>{venue.genreLabel}</span>
+        </div>
             <div className="flex items-center gap-2">
               <div className="flex-1 h-1.5 rounded bg-white/[0.08] overflow-hidden">
                 <div className="h-full rounded" style={{ width: `${venue.heat}%`, background: `linear-gradient(90deg, oklch(0.55 0.22 ${venue.hue}), hsl(var(--heat)))` }} />
@@ -556,7 +555,10 @@ const VenueRow = ({ v, selected, atVenue, peeked, onClick }: any) => {
           {v.name}
           {atVenue && <span className="text-[8px] px-1 rounded-full bg-success/25 text-success font-extrabold">HERE · FREE</span>}
         </div>
-        <div className="text-[10px] text-muted-foreground">{v.neighborhood} · 🚶 {v.walk}m · 👥 {v.here} here</div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] text-muted-foreground">{v.neighborhood} · 🚶 {v.walk}m</span>
+          <span className="px-1 py-0.5 rounded text-[8px] font-extrabold tracking-wider" style={{ background: `oklch(0.55 0.22 ${v.hue} / 0.15)`, color: `oklch(0.72 0.22 ${v.hue})` }}>{v.genreLabel}</span>
+        </div>
       </div>
       <div className="text-right flex-shrink-0">
         <div className="text-[13px] font-extrabold text-heat">🔥 {v.heat}</div>

@@ -33,6 +33,58 @@ const TYPE_EMOJI: Record<string, string> = {
   restaurant: '🍽', gallery: '🎨', afterplace: '🍔',
 };
 
+// Design system: genre drives color. Each music scene has its own hue.
+export const GENRE_HUE: Record<string, number> = {
+  techno: 222,    // Electric Blue
+  house: 38,      // Amber
+  'tech house': 55,
+  'deep house': 42,
+  'hip hop': 280, // Purple
+  trap: 280,
+  rap: 280,
+  'drum and bass': 185, // Cyan
+  'dnb': 185,
+  bass: 185,
+  ambient: 330,   // Pink
+  jazz: 330,
+  afrobeat: 90,   // Green-yellow
+  reggae: 120,
+  electronic: 210,
+  edm: 200,
+  pop: 310,
+  rock: 20,
+  underground: 270,
+};
+
+export const GENRE_LABEL: Record<number, string> = {
+  222: 'TECHNO',
+  38: 'HOUSE',
+  55: 'TECH HOUSE',
+  42: 'DEEP HOUSE',
+  280: 'HIP HOP',
+  185: 'DNB',
+  330: 'AFTER',
+  210: 'ELECTRONIC',
+  120: 'REGGAE',
+  270: 'UNDERGROUND',
+};
+
+function genreHue(genres: string[] | null | undefined, type: string): number {
+  if (genres && genres.length > 0) {
+    for (const g of genres) {
+      const key = g.toLowerCase().trim();
+      if (GENRE_HUE[key] !== undefined) return GENRE_HUE[key];
+      for (const [pattern, hue] of Object.entries(GENRE_HUE)) {
+        if (key.includes(pattern)) return hue;
+      }
+    }
+  }
+  if (type === 'afterplace') return 330;
+  if (type === 'splav') return 120;
+  if (type === 'bar') return 38;
+  return 270; // underground purple as default for clubs
+}
+
 // time-of-day surface for each venue type
 const TYPE_MODE: Record<string, 'day' | 'night' | 'both'> = {
   club: 'night', splav: 'night', bar: 'both', afterplace: 'night',
@@ -60,6 +112,7 @@ export interface HeatVenue {
   neighborhood: string;
   emoji: string;
   hue: number;
+  genreLabel: string;        // human-readable genre for display (TECHNO, HOUSE, etc.)
   mode: 'day' | 'night' | 'both';
   x: number;
   y: number;
@@ -109,7 +162,8 @@ export const useHeatVenues = () => {
           type,
           neighborhood: v.neighborhood || 'Belgrade',
           emoji: v.emoji || TYPE_EMOJI[type] || '📍',
-          hue: v.hue ?? hueFromString(v.name),
+          hue: v.hue ?? genreHue(v.music_genres, type),
+          genreLabel: GENRE_LABEL[v.hue ?? genreHue(v.music_genres, type)] || (type.toUpperCase()),
           mode: TYPE_MODE[type] || 'both',
           x, y,
           heat: Math.max(heat, 8),
