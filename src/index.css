@@ -81,6 +81,32 @@
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 0 0% 20%;
     --sidebar-ring: 263 70% 60%;
+
+    /* ─────────────────────────────────────────────────────────────
+       AfterBefore Design System v1 (oklch) — see AFTERBEFORE_DESIGN.md
+       Additive. Migrated screen-by-screen; legacy HSL tokens above
+       stay until a screen adopts these. Quests is the first pilot.
+       ───────────────────────────────────────────────────────────── */
+    /* The Frame — surfaces */
+    --ab-void: oklch(0.135 0.012 285);
+    --ab-surface: oklch(0.175 0.015 285);
+    --ab-raised: oklch(0.215 0.018 285);
+    --ab-hairline: oklch(1 0 0 / 0.08);
+    --ab-hairline-strong: oklch(1 0 0 / 0.14);
+    /* The Frame — ink */
+    --ab-ink: oklch(0.97 0.005 285);
+    --ab-ink-2: oklch(0.72 0.01 285);
+    --ab-ink-3: oklch(0.52 0.012 285);
+    /* Signature accents */
+    --ab-acid: oklch(0.88 0.19 158);
+    --ab-acid-dim: oklch(0.70 0.15 158);
+    --ab-acid-ink: oklch(0.16 0.02 160);   /* dark ink for text ON acid */
+    --ab-uv: oklch(0.62 0.25 300);
+    --ab-uv-dim: oklch(0.48 0.18 300);
+    --ab-hot: oklch(0.66 0.25 18);
+    /* Earned glows */
+    --ab-glow-acid: 0 0 20px oklch(0.88 0.19 158 / 0.45);
+    --ab-glow-uv: 0 0 22px oklch(0.62 0.25 300 / 0.40);
   }
 }
 
@@ -290,9 +316,43 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
-  
+
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* ── AfterBefore DS motion vocabulary ─────────────────────────── */
+  /* Pulse — the city's heartbeat (live venues, presence). */
+  .ab-pulse { animation: ab-pulse var(--dur-pulse, 1800ms) ease-in-out infinite; }
+  @keyframes ab-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50%      { transform: scale(1.12); opacity: 0.6; }
+  }
+
+  /* Ignite — one-shot acid bloom on unlock / claim. */
+  .ab-ignite { animation: ab-ignite 600ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+  @keyframes ab-ignite {
+    0%   { box-shadow: 0 0 0 0 oklch(0.88 0.19 158 / 0); }
+    40%  { box-shadow: 0 0 26px 2px oklch(0.88 0.19 158 / 0.6); }
+    100% { box-shadow: 0 0 20px 0 oklch(0.88 0.19 158 / 0.25); }
+  }
+
+  /* Acid edge-glow helper for progress fills. */
+  .ab-acid-fill {
+    background: var(--ab-acid);
+    box-shadow: 0 0 8px oklch(0.88 0.19 158 / 0.55);
+  }
+}
+
+/* Rave energy, accessibility-safe: kill looping/large motion on request. */
+@media (prefers-reduced-motion: reduce) {
+  .ab-pulse, .ab-ignite, .animate-glow, .animate-float,
+  .animate-pulse, .pulse-dot {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
   }
 }

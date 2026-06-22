@@ -6,7 +6,7 @@ import { AvatarStack } from './AvatarStack';
 import { CountdownTimer } from './CountdownTimer';
 import { VenueTypeBadge } from './VenueTypeBadge';
 import { GradientImg } from './GradientImg';
-import { hueFromString } from '@/lib/gradients';
+import { hueFromString, genreHue } from '@/lib/gradients';
 
 interface EventCardProps {
   id: string;
@@ -53,6 +53,7 @@ export const EventCard = ({
 }: EventCardProps) => {
   const navigate = useNavigate();
   const heatLevel = getHeatLevel(attendeeCount, capacity);
+  const genreH = genreHue(musicGenres?.[0]); // genre identity edge
   
   const formattedDate = format(new Date(date), 'EEE');
   const formattedTime = startTime.slice(0, 5);
@@ -80,9 +81,16 @@ export const EventCard = ({
   return (
     <div
       onClick={handleClick}
-      className={`cv-auto rounded-2xl border bg-card overflow-hidden cursor-pointer group ${
+      className={`cv-auto rounded-2xl overflow-hidden cursor-pointer group ${
         featured ? 'col-span-full' : ''
-      } ${isSecretEvent ? 'border-primary/20' : 'border-white/[0.08]'}`}
+      }`}
+      style={{
+        background: 'var(--ab-surface)',
+        border: '1px solid var(--ab-hairline)',
+        borderLeft: isSecretEvent
+          ? '3px solid oklch(0.62 0.25 300 / 0.6)'
+          : `3px solid oklch(0.64 0.18 ${genreH})`,
+      }}
     >
       {/* Image Section */}
       <GradientImg
@@ -177,12 +185,16 @@ export const EventCard = ({
         
         <div className="flex items-center gap-2">
           {musicGenres.slice(0, 2).map((genre) => (
-            <span key={genre} className="text-xs text-muted-foreground">
+            <span
+              key={genre}
+              className="text-[11px] font-semibold px-1.5 py-0.5 rounded"
+              style={{ color: `oklch(0.80 0.13 ${genreHue(genre)})`, background: `oklch(0.64 0.18 ${genreHue(genre)} / 0.1)` }}
+            >
               {genre}
             </span>
           ))}
           {!isSecretEvent && (
-            <span className="text-accent font-bold">
+            <span className="font-bold" style={{ color: 'var(--ab-ink)' }}>
               {price > 0 ? `€${price}` : 'Free'}
             </span>
           )}
@@ -196,10 +208,11 @@ export const EventCard = ({
             e.stopPropagation();
             navigate(`/event/${id}#reviews`);
           }}
-          className="group/rev flex w-full items-center justify-center gap-1.5 border-t border-white/10 px-4 py-2.5 text-xs font-medium text-muted-foreground transition hover:bg-primary/5 hover:text-primary"
+          className="group/rev flex w-full items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-medium transition"
+          style={{ borderTop: '1px solid var(--ab-hairline)', color: 'var(--ab-ink-3)' }}
         >
-          <Star className="h-3.5 w-3.5 transition group-hover/rev:fill-primary" />
-          View Reviews
+          <Star className="h-3.5 w-3.5" />
+          Recenzije
         </button>
       )}
     </div>

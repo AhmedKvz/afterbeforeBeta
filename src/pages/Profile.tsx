@@ -15,7 +15,7 @@ import { MementoRequests } from '@/components/MementoRequests';
 import { InviteCard } from '@/components/InviteCard';
 import { Lucky100Modal } from '@/components/Lucky100Modal';
 import { getXPProgress, ACHIEVEMENTS, getUserAchievements, checkAchievements, MORNING_STAR_ACHIEVEMENT_ID } from '@/services/gamification';
-import { hueFromString, avatarGradient, initials } from '@/lib/gradients';
+import { hueFromString, avatarGradient, initials, genreHue } from '@/lib/gradients';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -59,7 +59,10 @@ const Profile = () => {
 
   const xpProgress = getXPProgress(profile.xp || 0);
   const level = profile.level || 1;
-  const hue = hueFromString(profile.display_name || 'AfterBefore');
+  // Cover hue follows the user's primary genre (culture color); falls back to a name-derived hue.
+  const primaryGenre = profile.music_preferences?.[0];
+  const genreH = primaryGenre ? genreHue(primaryGenre) : 285;
+  const hue = genreH !== 285 ? genreH : hueFromString(profile.display_name || 'AfterBefore');
   const unlocked = ACHIEVEMENTS.filter((a) => userAchievements.some((ua) => ua?.id === a.id));
   const hasMorningStar = unlocked.some((a) => a.id === MORNING_STAR_ACHIEVEMENT_ID);
   const checkinsCount = counts?.checkins ?? profile.events_attended ?? 0;
@@ -71,26 +74,28 @@ const Profile = () => {
     Math.min(matchesCount, 50) / 50 +
     Math.min(reviewsCount, 10) / 10
   ) / 4 * 100));
-  const morningStarRequirements = [
-    { label: 'Lv. 10', current: level, target: 10 },
-    { label: '25 Check-ins', current: checkinsCount, target: 25 },
-    { label: '50 Matches', current: matchesCount, target: 50 },
-    { label: '10 Reviews', current: reviewsCount, target: 10 },
+  // Show the single NEAREST unmet milestone, not a wall of locked requirements.
+  const msReqs = [
+    { noun: 'nivoa', current: level, target: 10 },
+    { noun: 'check-ina', current: checkinsCount, target: 25 },
+    { noun: 'mečeva', current: matchesCount, target: 50 },
+    { noun: 'recenzija', current: reviewsCount, target: 10 },
   ];
+  const nextMs = msReqs
+    .filter((r) => r.current < r.target)
+    .sort((a, b) => (b.current / b.target) - (a.current / a.target))[0];
 
   const stats = [
-    { k: checkinsCount, l: 'Check-ins' },
-    { k: matchesCount, l: 'Matches' },
-    { k: reviewsCount, l: 'Reviews' },
-    { k: `${streak.current_streak}d`, l: 'Streak' },
+    { k: checkinsCount, l: 'Mesta' },
+    { k: matchesCount, l: 'Veze' },
+    { k: reviewsCount, l: 'Recenzije' },
+    { k: `${streak.current_streak}🔥`, l: 'Streak' },
   ];
 
+  // Only real, implemented settings — no "coming soon" placeholders.
   const SETTINGS = [
-    { icon: '📷', label: 'Photos', sub: 'Manage your photos', onClick: () => toast.info('Photo manager coming soon') },
-    { icon: '🔔', label: 'Notifications', sub: 'View your alerts', onClick: () => navigate('/notifications') },
-    { icon: '🔒', label: 'Privacy', sub: 'Verified only', onClick: () => toast.info('Privacy settings coming soon') },
-    { icon: '💳', label: 'Payment methods', sub: 'Add a card', onClick: () => toast.info('Payments coming soon') },
-    { icon: '❓', label: 'Help & support', onClick: () => toast.info('Support: hello@afterbefore.rs') },
+    { icon: '🔔', label: 'Notifikacije', sub: 'Tvoja obaveštenja', onClick: () => navigate('/notifications') },
+    { icon: '❓', label: 'Pomoć i podrška', sub: 'hello@afterbefore.rs', onClick: () => toast.info('Podrška: hello@afterbefore.rs') },
   ];
 
   const handleSignOut = async () => {
@@ -101,20 +106,24 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Cover + avatar */}
-      <GradientImg hue={hue} className="h-[130px] relative">
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 30%, rgba(10,10,10,0.85) 100%)' }} />
+      {/* ── Vibe Card hero: cover (genre hue) + identity ───────────── */}
+      <GradientImg hue={hue} className="h-[140px] relative">
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 25%, var(--ab-void) 100%)' }} />
         <button
           onClick={() => navigate('/notifications')}
-          className="absolute top-3 right-3 w-[34px] h-[34px] rounded-full bg-black/55 backdrop-blur flex items-center justify-center text-white"
+          className="absolute top-3 right-3 w-[34px] h-[34px] rounded-full backdrop-blur flex items-center justify-center"
+          style={{ background: 'oklch(0.1 0.01 285 / 0.55)', color: 'var(--ab-ink)' }}
         >
           <Settings className="w-4 h-4" />
         </button>
       </GradientImg>
 
-      <div className="px-4 -mt-[42px] relative">
+      <div className="px-[18px] -mt-[44px] relative">
         <div className="flex items-end gap-3">
-          <div className="w-[84px] h-[84px] rounded-full border-[3px] border-background overflow-hidden flex-shrink-0">
+          <div
+            className="w-[84px] h-[84px] rounded-full overflow-hidden flex-shrink-0"
+            style={{ border: '3px solid var(--ab-void)' }}
+          >
             {profile.avatar_url ? (
               <img src={profile.avatar_url} alt={profile.display_name} className="w-full h-full object-cover" />
             ) : (
@@ -124,113 +133,118 @@ const Profile = () => {
               </div>
             )}
           </div>
-          <div className="mb-1.5 flex-1 min-w-0">
-            <div className="font-extrabold text-[19px] flex items-center gap-1.5">
-              {profile.display_name}
-              {profile.instagram_verified && <span className="text-blue-500 text-sm">✓</span>}
+          <div className="mb-1 flex-1 min-w-0">
+            <div className="font-extrabold text-[20px] flex items-center gap-1.5 flex-wrap leading-tight" style={{ color: 'var(--ab-ink)', letterSpacing: '-0.01em' }}>
+              <span className="truncate">{profile.display_name}</span>
+              {profile.instagram_verified && <span className="text-blue-400 text-sm">✓</span>}
+              {profile.is_founding_raver && (
+                <span
+                  className="text-[10px] font-extrabold px-2 py-0.5 rounded-full inline-flex items-center gap-1 align-middle"
+                  style={{ background: 'oklch(0.62 0.25 300 / 0.18)', color: 'oklch(0.78 0.18 300)', border: '1px solid oklch(0.62 0.25 300 / 0.45)' }}
+                >
+                  🏴 {profile.founding_raver_number ? `#${profile.founding_raver_number}` : 'OG'}
+                </span>
+              )}
             </div>
-            <div className="text-xs text-muted-foreground truncate">
+            <div className="text-xs truncate mt-0.5" style={{ color: 'var(--ab-ink-3)' }}>
               {profile.instagram_handle ? `@${profile.instagram_handle}` : profile.city || 'Belgrade'}
               {profile.instagram_handle && profile.city ? ` · ${profile.city}` : ''}
             </div>
           </div>
           <button
             onClick={() => navigate('/onboarding')}
-            className="border border-border-strong px-3.5 py-2 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5"
+            style={{ border: '1px solid var(--ab-hairline-strong)', color: 'var(--ab-ink-2)' }}
           >
-            <Edit2 className="w-3 h-3" /> Edit
+            <Edit2 className="w-3 h-3" /> Izmeni
           </button>
         </div>
+
+        {/* Genre tags — the vibe, colored by the culture wheel */}
+        {profile.music_preferences?.length ? (
+          <div className="flex gap-1.5 mt-3 flex-wrap">
+            {profile.music_preferences.slice(0, 5).map((g) => {
+              const gh = genreHue(g);
+              return (
+                <span
+                  key={g}
+                  className="px-2.5 py-1 rounded-full text-[11px] font-bold"
+                  style={{ color: `oklch(0.80 0.13 ${gh})`, background: `oklch(0.64 0.18 ${gh} / 0.12)`, border: `1px solid oklch(0.64 0.18 ${gh} / 0.4)` }}
+                >
+                  {g}
+                </span>
+              );
+            })}
+          </div>
+        ) : null}
       </div>
 
-      {/* Vibe Archetype */}
-      <div className={cn(
-        'mx-4 mt-4 mb-3.5 p-4 rounded-3xl border overflow-hidden relative',
-        hasMorningStar
-          ? 'border-amber-300/50 bg-gradient-to-br from-amber-300/20 via-primary/15 to-secondary/10 shadow-[0_0_38px_rgba(251,191,36,0.16)]'
-          : 'border-accent/25 bg-gradient-to-br from-white/[0.06] to-accent/10'
-      )}>
-        <div className="absolute -right-10 -top-10 w-28 h-28 rounded-full bg-amber-300/10 blur-2xl" />
-        <div className="flex items-start justify-between gap-3 relative">
-          <div>
-            <div className="text-[10px] font-black tracking-[0.18em] text-muted-foreground uppercase">
-              Vibe Archetype · Apex Achievement
-            </div>
-            <div className="mt-1 flex items-center gap-2">
-              <span className="text-3xl">🌅</span>
-              <div>
-                <div className={cn('text-2xl font-black leading-none', hasMorningStar ? 'text-amber-200' : 'text-foreground')}>
-                  MorningStar
-                </div>
-                <div className="text-[11px] text-muted-foreground mt-1">
-                  {hasMorningStar
-                    ? 'You survived the night, carried the after and became scene signal.'
-                    : 'Locked: the strongest AfterBefore identity status.'}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className={cn(
-            'px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.12em] border',
-            hasMorningStar ? 'border-amber-300/50 text-amber-200 bg-amber-300/10' : 'border-border text-muted-foreground bg-black/20'
-          )}>
-            {hasMorningStar ? 'Unlocked' : `${morningStarProgress}%`}
-          </div>
-        </div>
-
-        <div className="mt-4 h-1.5 rounded bg-white/[0.08] overflow-hidden relative">
-          <div
-            className="h-full rounded bg-gradient-to-r from-amber-300 via-primary to-secondary"
-            style={{ width: `${hasMorningStar ? 100 : morningStarProgress}%` }}
-          />
-        </div>
-
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          {morningStarRequirements.map((r) => {
-            const complete = r.current >= r.target;
-            return (
-              <div
-                key={r.label}
-                className={cn(
-                  'rounded-2xl border px-3 py-2',
-                  complete ? 'border-amber-300/40 bg-amber-300/10' : 'border-border bg-black/10'
-                )}
-              >
-                <div className="text-[10px] text-muted-foreground">{r.label}</div>
-                <div className={cn('text-sm font-extrabold', complete && 'text-amber-200')}>
-                  {Math.min(r.current, r.target)} / {r.target}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Level card */}
-      <div className="mx-4 mt-4 mb-3.5 p-3.5 rounded-2xl border border-accent/30 bg-gradient-to-br from-accent/15 to-secondary/10">
-        <div className="flex items-center justify-between mb-2">
-          <div>
-            <div className="text-[11px] font-semibold text-muted-foreground">LEVEL {level} · NIGHT OWL</div>
-            <div className="font-extrabold text-xl text-accent mt-0.5">{(profile.xp || 0).toLocaleString()} XP</div>
-          </div>
-        </div>
-        <div className="h-1.5 rounded bg-white/[0.08] overflow-hidden">
-          <div className="h-full rounded bg-gradient-to-r from-primary to-secondary" style={{ width: `${xpProgress.percentage}%` }} />
-        </div>
-        <div className="flex justify-between text-[10px] text-muted-foreground mt-1.5">
-          <span>{Math.max(xpProgress.required - xpProgress.current, 0).toLocaleString()} to Lv. {level + 1}</span>
-          <span>{xpProgress.required.toLocaleString()} XP</span>
-        </div>
-      </div>
-
-      {/* Stat row */}
-      <div className="px-4 pb-3.5 grid grid-cols-4 gap-2">
+      {/* Stat row — human language */}
+      <div className="px-[18px] pt-4 pb-3.5 grid grid-cols-4 gap-2">
         {stats.map((s) => (
-          <div key={s.l} className="py-2.5 px-2 text-center rounded-2xl bg-card border border-border">
-            <div className="font-extrabold text-lg">{s.k}</div>
-            <div className="text-[10px] text-muted-foreground mt-0.5">{s.l}</div>
+          <div key={s.l} className="py-2.5 px-2 text-center rounded-2xl" style={{ background: 'var(--ab-surface)', border: '1px solid var(--ab-hairline)' }}>
+            <div className="font-extrabold text-lg tabular-nums" style={{ color: 'var(--ab-ink)' }}>{s.k}</div>
+            <div className="text-[10px] mt-0.5" style={{ color: 'var(--ab-ink-3)' }}>{s.l}</div>
           </div>
         ))}
+      </div>
+
+      {/* Archetype — slim strip, shows the NEXT milestone (amber is the archetype's culture color) */}
+      <div
+        className="mx-[18px] mb-3 p-3.5 rounded-2xl overflow-hidden relative"
+        style={
+          hasMorningStar
+            ? { background: 'linear-gradient(135deg, oklch(0.30 0.14 75 / 0.35), oklch(0.20 0.06 75 / 0.2))', border: '1px solid oklch(0.55 0.16 75 / 0.5)', boxShadow: '0 0 32px oklch(0.80 0.15 75 / 0.14)' }
+            : { background: 'var(--ab-surface)', border: '1px solid var(--ab-hairline)' }
+        }
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl flex-shrink-0">🌅</span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-[15px] font-extrabold" style={{ color: hasMorningStar ? 'oklch(0.85 0.14 75)' : 'var(--ab-ink)' }}>
+                MorningStar
+              </div>
+              <div className="text-[10px] font-extrabold uppercase tracking-[0.1em] px-2 py-0.5 rounded-full"
+                style={hasMorningStar
+                  ? { color: 'oklch(0.85 0.14 75)', background: 'oklch(0.55 0.16 75 / 0.18)' }
+                  : { color: 'var(--ab-ink-3)' }}>
+                {hasMorningStar ? 'Otključano' : `${morningStarProgress}%`}
+              </div>
+            </div>
+            <div className="text-[11px] mt-0.5" style={{ color: 'var(--ab-ink-3)' }}>
+              {hasMorningStar
+                ? 'Preživeo si noć, izneo after i postao scene signal.'
+                : nextMs
+                  ? `Još ${nextMs.target - nextMs.current} ${nextMs.noun} do najjačeg statusa`
+                  : 'Najjači AfterBefore identitet.'}
+            </div>
+            <div className="mt-2 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--ab-hairline)' }}>
+              <div
+                className="h-full rounded-full"
+                style={{
+                  width: `${hasMorningStar ? 100 : morningStarProgress}%`,
+                  background: 'linear-gradient(90deg, oklch(0.80 0.15 75), oklch(0.85 0.16 60))',
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Level — slim, acid is the single hero glow here */}
+      <div className="mx-[18px] mb-3.5 p-3.5 rounded-2xl" style={{ background: 'var(--ab-surface)', border: '1px solid var(--ab-hairline)' }}>
+        <div className="flex items-end justify-between mb-2">
+          <div className="text-[11px] font-extrabold tracking-[0.1em] uppercase" style={{ color: 'var(--ab-ink-3)' }}>Nivo {level}</div>
+          <div className="font-extrabold text-base tabular-nums" style={{ color: 'var(--ab-ink)' }}>{(profile.xp || 0).toLocaleString()} XP</div>
+        </div>
+        <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--ab-hairline)' }}>
+          <div className="h-full rounded-full ab-acid-fill" style={{ width: `${xpProgress.percentage}%` }} />
+        </div>
+        <div className="flex justify-between text-[10px] mt-1.5" style={{ color: 'var(--ab-ink-3)' }}>
+          <span className="tabular-nums">{Math.max(xpProgress.required - xpProgress.current, 0).toLocaleString()} do Lv. {level + 1}</span>
+          <span className="tabular-nums">{xpProgress.required.toLocaleString()} XP</span>
+        </div>
       </div>
 
       {/* Share-to-earn — invite the crew */}
@@ -253,81 +267,40 @@ const Profile = () => {
       </div>
 
       {/* Founding Raver badge */}
-      {profile?.is_founding_raver && (
-        <div className="px-4 mb-3.5">
-          <div
-            className="flex items-center gap-3 px-4 py-3 rounded-2xl border"
-            style={{ background: 'linear-gradient(135deg, oklch(0.30 0.12 260 / 0.6), oklch(0.22 0.08 300 / 0.4))', borderColor: 'oklch(0.55 0.18 260 / 0.5)' }}
-          >
-            <div className="text-3xl">🏴</div>
-            <div className="flex-1">
-              <div className="text-[13px] font-bold">Founding Raver</div>
-              <div className="text-[11px] text-muted-foreground">
-                {profile.founding_raver_number
-                  ? `#${profile.founding_raver_number} u Beogradu`
-                  : 'Primera generacija AfterBefore'}
-              </div>
-            </div>
-            <div
-              className="text-[11px] font-extrabold px-2.5 py-1 rounded-full"
-              style={{ background: 'oklch(0.45 0.18 260 / 0.3)', color: 'oklch(0.78 0.16 260)' }}
-            >
-              OG
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Badges */}
-      <div className="px-4 mb-3.5">
+      <div className="px-[18px] mb-3.5">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-bold tracking-[0.12em] text-muted-foreground">BADGES</span>
-          {unlocked.length > 0 && <span className="text-[11px] text-muted-foreground">{unlocked.length} earned</span>}
+          <span className="text-[11px] font-extrabold tracking-[0.12em]" style={{ color: 'var(--ab-ink-3)' }}>BEDŽEVI</span>
+          {unlocked.length > 0 && <span className="text-[11px]" style={{ color: 'var(--ab-ink-3)' }}>{unlocked.length} zarađeno</span>}
         </div>
         {unlocked.length === 0 ? (
-          <p className="text-xs text-muted-foreground">No badges yet — earn them by checking in, matching and reviewing.</p>
+          <p className="text-xs" style={{ color: 'var(--ab-ink-3)' }}>Još nema bedževa — zaradi ih kroz check-in, veze i recenzije.</p>
         ) : (
           <div className="flex gap-2 overflow-x-auto no-scrollbar">
-            {unlocked.map((b) => (
-              <div key={b.id} className={cn(
-                'min-w-[78px] py-3 px-2 rounded-2xl bg-card border text-center',
-                b.id === MORNING_STAR_ACHIEVEMENT_ID ? 'border-amber-300/50 bg-amber-300/10' : 'border-border'
-              )}>
-                <div className="text-[26px] mb-1">{b.icon}</div>
-                <div className="text-[10px] text-muted-foreground font-medium leading-tight">{b.name}</div>
-              </div>
-            ))}
+            {unlocked.map((b) => {
+              const isMs = b.id === MORNING_STAR_ACHIEVEMENT_ID;
+              return (
+                <div
+                  key={b.id}
+                  className="min-w-[78px] py-3 px-2 rounded-2xl text-center"
+                  style={isMs
+                    ? { background: 'oklch(0.55 0.16 75 / 0.12)', border: '1px solid oklch(0.55 0.16 75 / 0.45)' }
+                    : { background: 'var(--ab-surface)', border: '1px solid var(--ab-hairline)' }}
+                >
+                  <div className="text-[26px] mb-1">{b.icon}</div>
+                  <div className="text-[10px] font-medium leading-tight" style={{ color: 'var(--ab-ink-3)' }}>{b.name}</div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* Music taste */}
-      <div className="px-4 mb-3.5">
-        <span className="text-[11px] font-bold tracking-[0.12em] text-muted-foreground">MUSIC TASTE</span>
-        <div className="flex gap-1.5 mt-2 flex-wrap">
-          {profile.music_preferences?.length ? (
-            profile.music_preferences.map((g, i) => (
-              <span
-                key={g}
-                className={cn(
-                  'px-3 py-1.5 rounded-full text-[11px] font-semibold border',
-                  i < 3 ? 'bg-accent/15 text-accent border-accent/40' : 'bg-white/[0.06] text-muted-foreground border-border'
-                )}
-              >
-                {g}
-              </span>
-            ))
-          ) : (
-            <p className="text-xs text-muted-foreground">No preferences set</p>
-          )}
-        </div>
-      </div>
-
       {/* All achievements */}
-      <div className="px-4 mb-3.5">
+      <div className="px-[18px] mb-3.5">
         <div className="flex items-center gap-2 mb-2">
-          <Trophy className="w-4 h-4 text-accent" />
-          <span className="text-[11px] font-bold tracking-[0.12em] text-muted-foreground">ALL ACHIEVEMENTS</span>
+          <Trophy className="w-4 h-4" style={{ color: 'var(--ab-acid-dim)' }} />
+          <span className="text-[11px] font-extrabold tracking-[0.12em]" style={{ color: 'var(--ab-ink-3)' }}>SVA POSTIGNUĆA</span>
         </div>
         <div className="grid grid-cols-2 gap-2.5">
           {ACHIEVEMENTS.map((a) => {
@@ -346,7 +319,7 @@ const Profile = () => {
                 <div className="text-2xl mb-1">{a.icon}</div>
                 <h4 className={cn('font-bold text-[13px]', isMorningStar && 'text-amber-200')}>{a.name}</h4>
                 <p className="text-[11px] text-muted-foreground">{a.description}</p>
-                {isUnlocked && <span className="text-[10px] text-success mt-1.5 block">✓ Unlocked</span>}
+                {isUnlocked && <span className="text-[10px] mt-1.5 block" style={{ color: 'var(--ab-acid)' }}>✓ Otključano</span>}
               </GlassCard>
             );
           })}
@@ -354,44 +327,34 @@ const Profile = () => {
       </div>
 
       {/* Settings list */}
-      <div className="px-4 mb-3.5">
-        <div className="rounded-2xl border border-border overflow-hidden bg-card">
+      <div className="px-[18px] mb-3.5">
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--ab-surface)', border: '1px solid var(--ab-hairline)' }}>
           {SETTINGS.map((r, i) => (
             <button
               key={r.label}
               onClick={r.onClick}
-              className={cn('flex w-full items-center gap-3 px-3.5 py-3 text-left', i > 0 && 'border-t border-border')}
+              className="flex w-full items-center gap-3 px-3.5 py-3 text-left"
+              style={i > 0 ? { borderTop: '1px solid var(--ab-hairline)' } : undefined}
             >
               <span className="text-lg">{r.icon}</span>
               <div className="flex-1">
-                <div className="text-[13px] font-medium">{r.label}</div>
-                {r.sub && <div className="text-[11px] text-muted-foreground">{r.sub}</div>}
+                <div className="text-[13px] font-semibold" style={{ color: 'var(--ab-ink)' }}>{r.label}</div>
+                {r.sub && <div className="text-[11px]" style={{ color: 'var(--ab-ink-3)' }}>{r.sub}</div>}
               </div>
-              <ChevronRight className="w-3.5 h-3.5 text-text-faint" />
+              <ChevronRight className="w-3.5 h-3.5" style={{ color: 'var(--ab-ink-3)' }} />
             </button>
           ))}
         </div>
       </div>
 
-      {/* Connect Instagram (real feature) */}
-      {!profile.instagram_verified && (
-        <div className="px-4 mb-3.5">
-          <button
-            onClick={() => toast.info('Instagram connection coming soon!')}
-            className="w-full py-3 rounded-xl text-sm font-medium bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-orange-500/20 border border-pink-500/30"
-          >
-            📸 Connect Instagram
-          </button>
-        </div>
-      )}
-
       {/* Sign out */}
-      <div className="px-4">
+      <div className="px-[18px]">
         <button
           onClick={handleSignOut}
-          className="w-full py-3.5 rounded-xl bg-destructive/10 text-destructive font-semibold flex items-center justify-center gap-2 hover:bg-destructive/20 transition-colors"
+          className="w-full py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors"
+          style={{ background: 'oklch(0.64 0.22 22 / 0.1)', color: 'oklch(0.70 0.20 22)' }}
         >
-          <LogOut className="w-5 h-5" /> Sign Out
+          <LogOut className="w-5 h-5" /> Odjavi se
         </button>
       </div>
       <BottomNav />

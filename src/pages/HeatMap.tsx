@@ -39,7 +39,11 @@ const DEV_SKIP_GEOFENCE = import.meta.env.VITE_OPEN_CHECKIN === 'true';
 const HeatMap = () => {
   const { user } = useAuth();
   const { data: venues = [], isLoading } = useHeatVenues();
-  const [mode, setMode] = useState<'day' | 'night'>('night');
+  // Auto-default to night after 18h / before 6h — never show "day" to someone going out.
+  const [mode, setMode] = useState<'day' | 'night'>(() => {
+    const h = new Date().getHours();
+    return h >= 18 || h < 6 ? 'night' : 'day';
+  });
   const [filter, setFilter] = useState('all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [atVenueId, setAtVenueId] = useState<string | null>(null);
@@ -83,6 +87,14 @@ const HeatMap = () => {
   const selected = venues.find((v) => v.id === selectedId) || ranked[0] || venues[0] || null;
   const locked = selected ? atVenueId !== selected.id && !peeked.has(selected.id) : true;
   const types = mode === 'day' ? DAY_TYPES : NIGHT_TYPES;
+  // Time-aware emotional pull instead of a flat instruction.
+  const ambientCopy = (() => {
+    const h = new Date().getHours();
+    if (h >= 22 || h < 5) return 'Beograd je budan. Dođi bliže. 🌃';
+    if (h >= 18) return 'Veče počinje. Grad se budi.';
+    if (h >= 6 && h < 12) return 'Tiho je. Vrati se kad padne mrak. 🌙';
+    return 'Vidiš grad. Čekiraj se da vidiš ljude.';
+  })();
 
   const { data: presence } = useVenuePresence(selected?.id || null);
   const setPresence = useSetVenuePresence();
@@ -157,7 +169,7 @@ const HeatMap = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--ab-acid)' }} />
       </div>
     );
   }
@@ -168,37 +180,42 @@ const HeatMap = () => {
         @keyframes abPulse { 0%{transform:scale(.9);opacity:.6} 70%{transform:scale(2.4);opacity:0} 100%{opacity:0} }
       `}</style>
 
-      {/* Access banner */}
-      <div className="px-3.5 pt-3 pb-2.5">
+      {/* Access banner — acid heartbeat when checked in, ambient pull when away */}
+      <div className="px-[18px] pt-3 pb-2.5">
         {atVenueId ? (
-          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl border border-success/40 bg-gradient-to-r from-success/20 to-success/5">
+          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl"
+            style={{ border: '1px solid oklch(0.78 0.18 152 / 0.45)', background: 'linear-gradient(90deg, oklch(0.78 0.18 152 / 0.16), transparent)' }}>
             <span className="relative w-2.5 h-2.5">
-              <span className="absolute inset-0 rounded-full bg-success" />
-              <span className="absolute -inset-1 rounded-full bg-success/40" style={{ animation: 'abPulse 1.8s ease-out infinite' }} />
+              <span className="absolute inset-0 rounded-full" style={{ background: 'var(--ab-acid)' }} />
+              <span className="absolute -inset-1 rounded-full" style={{ background: 'oklch(0.88 0.19 158 / 0.4)', animation: 'abPulse 1.8s ease-out infinite' }} />
             </span>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-bold text-success">📍 You're at {venues.find((v) => v.id === atVenueId)?.name} · unlocked</div>
-              <div className="text-[10px] text-muted-foreground">Verified by GPS · +50 XP earned</div>
+              <div className="text-xs font-bold" style={{ color: 'var(--ab-acid)' }}>📍 Tu si — {venues.find((v) => v.id === atVenueId)?.name} · otključano</div>
+              <div className="text-[10px]" style={{ color: 'var(--ab-ink-3)' }}>Potvrđeno GPS-om · +50 XP</div>
             </div>
-            <span className="text-[9px] px-2 py-0.5 rounded-full bg-success/25 text-success font-extrabold">FREE</span>
+            <span className="text-[9px] px-2 py-0.5 rounded-full font-extrabold" style={{ background: 'oklch(0.78 0.18 152 / 0.22)', color: 'var(--ab-acid)' }}>FREE</span>
           </div>
         ) : (
-          <div className="flex items-center gap-2.5 px-3 py-2 rounded-2xl border border-border bg-white/[0.03]">
-            <span className="w-2 h-2 rounded-full bg-white/30 flex-shrink-0" />
+          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl" style={{ border: '1px solid var(--ab-hairline)', background: 'var(--ab-surface)' }}>
+            <span className="w-2 h-2 rounded-full flex-shrink-0 ab-pulse" style={{ background: 'var(--ab-hot)' }} />
             <div className="flex-1 min-w-0">
-              <div className="text-[11px] font-semibold text-muted-foreground">Vidiš grad. Čekiraj se da vidiš ljude.</div>
+              <div className="text-[12px] font-bold" style={{ color: 'var(--ab-ink)' }}>{ambientCopy}</div>
+              <div className="text-[10px]" style={{ color: 'var(--ab-ink-3)' }}>Čekiraj se (GPS) da vidiš ko je tu.</div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Day / Night toggle */}
-      <div className="px-3.5 pb-2.5">
-        <div className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-card border border-border">
+      {/* Day / Night toggle — auto by clock, quiet ink active */}
+      <div className="px-[18px] pb-2.5">
+        <div className="grid grid-cols-2 gap-1 p-1 rounded-2xl" style={{ background: 'var(--ab-void)', border: '1px solid var(--ab-hairline)' }}>
           {(['day', 'night'] as const).map((m) => (
             <button key={m} onClick={() => setMode(m)}
-              className={cn('py-2 rounded-xl text-xs font-semibold transition', mode === m ? 'bg-gradient-to-r from-primary to-secondary text-white' : 'text-muted-foreground')}>
-              {m === 'day' ? '☀️ Now (day)' : '🌙 Tonight'}
+              className="py-2 rounded-xl text-xs font-bold transition-colors"
+              style={mode === m
+                ? { background: 'var(--ab-raised)', color: 'var(--ab-ink)', boxShadow: 'inset 0 0 0 1px var(--ab-hairline-strong)' }
+                : { color: 'var(--ab-ink-3)' }}>
+              {m === 'day' ? '☀️ Dan' : '🌙 Noć'}
             </button>
           ))}
         </div>
@@ -210,11 +227,13 @@ const HeatMap = () => {
       </div>
 
       {/* Type chips */}
-      <div className="flex gap-1.5 overflow-x-auto no-scrollbar px-3.5 py-3">
+      <div className="flex gap-1.5 overflow-x-auto no-scrollbar px-[18px] py-3">
         {types.map((t) => (
           <button key={t.id} onClick={() => setFilter(t.id)}
-            className={cn('shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition',
-              filter === t.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted/40 text-muted-foreground border-border')}>
+            className="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors"
+            style={filter === t.id
+              ? { background: 'var(--ab-raised)', color: 'var(--ab-ink)', boxShadow: 'inset 0 0 0 1px var(--ab-hairline-strong)' }
+              : { color: 'var(--ab-ink-3)' }}>
             {t.label}
           </button>
         ))}
@@ -235,9 +254,9 @@ const HeatMap = () => {
       )}
 
       {/* Ranked list */}
-      <div className="px-3.5">
+      <div className="px-[18px]">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-bold tracking-[0.1em] text-muted-foreground">🔥 HOT NEARBY · WITHIN 25 MIN WALK</span>
+          <span className="text-[11px] font-extrabold tracking-[0.1em]" style={{ color: 'var(--ab-ink-3)' }}>🔥 VRUĆE U BLIZINI · DO 25 MIN HODA</span>
         </div>
         <div className="flex flex-col gap-2">
           {ranked.slice(0, 8).map((v) => (
@@ -245,7 +264,7 @@ const HeatMap = () => {
               peeked={peeked.has(v.id)} onClick={() => setSelectedId(v.id)} />
           ))}
           {ranked.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-8">No venues for {mode === 'day' ? 'daytime' : 'tonight'} yet.</p>
+            <p className="text-sm text-center py-8" style={{ color: 'var(--ab-ink-3)' }}>Još nema mesta za {mode === 'day' ? 'danas' : 'večeras'}.</p>
           )}
         </div>
       </div>
@@ -315,7 +334,11 @@ const HeatMapSVG = ({ venues, selectedId, atVenueId, mode, onSelect }: {
         return (
           <button key={v.id} onClick={() => onSelect(v.id)} className="absolute -translate-x-1/2 -translate-y-1/2 p-0 bg-transparent"
             style={{ left: `${v.x}%`, top: `${v.y}%`, zIndex: isSel ? 9 : 5 }}>
-            <div className="rounded-full flex items-center justify-center" style={{
+            {v.heat >= 70 && (
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
+                style={{ width: size, height: size, background: `oklch(0.7 0.22 ${v.hue} / 0.55)`, animation: 'abPulse 2.2s ease-out infinite' }} />
+            )}
+            <div className="rounded-full flex items-center justify-center relative" style={{
               width: size, height: size, background: `oklch(0.7 0.22 ${v.hue})`, color: '#0a0a0a',
               fontSize: Math.max(8, size * 0.55),
               border: isAt ? '2.5px solid hsl(var(--success))' : isSel ? '2.5px solid #fff' : '1.5px solid rgba(255,255,255,0.7)',
@@ -331,26 +354,26 @@ const HeatMapSVG = ({ venues, selectedId, atVenueId, mode, onSelect }: {
         );
       })}
 
-      {/* your location */}
+      {/* your location — acid heartbeat */}
       <div className="absolute -translate-x-1/2 -translate-y-1/2 z-10" style={{ left: '50%', top: '47%' }}>
         <div className="relative w-5 h-5">
-          <div className="absolute -inset-2 rounded-full bg-primary/35" style={{ animation: 'abPulse 2s ease-out infinite' }} />
-          <div className="absolute inset-0 rounded-full bg-white border-[3px] border-primary shadow-[0_0_12px_rgba(138,92,246,0.8)]" />
+          <div className="absolute -inset-2 rounded-full" style={{ background: 'oklch(0.88 0.19 158 / 0.3)', animation: 'abPulse 2s ease-out infinite' }} />
+          <div className="absolute inset-0 rounded-full" style={{ background: '#fff', border: '3px solid var(--ab-acid)', boxShadow: '0 0 12px oklch(0.88 0.19 158 / 0.8)' }} />
         </div>
       </div>
 
       {/* controls */}
       <div className="absolute top-2.5 right-2.5 flex flex-col gap-1.5">
-        <button className="w-8 h-8 rounded-full bg-black/55 backdrop-blur border border-white/10 text-white flex items-center justify-center"><Plus className="w-3.5 h-3.5" /></button>
-        <button className="w-8 h-8 rounded-full bg-black/55 backdrop-blur border border-white/10 text-white flex items-center justify-center"><Minus className="w-3.5 h-3.5" /></button>
+        <button className="w-8 h-8 rounded-full backdrop-blur flex items-center justify-center" style={{ background: 'oklch(0.1 0.01 285 / 0.55)', border: '1px solid var(--ab-hairline)', color: 'var(--ab-ink)' }}><Plus className="w-3.5 h-3.5" /></button>
+        <button className="w-8 h-8 rounded-full backdrop-blur flex items-center justify-center" style={{ background: 'oklch(0.1 0.01 285 / 0.55)', border: '1px solid var(--ab-hairline)', color: 'var(--ab-ink)' }}><Minus className="w-3.5 h-3.5" /></button>
       </div>
-      <button className="absolute bottom-2.5 right-2.5 w-9 h-9 rounded-full text-white flex items-center justify-center shadow-[0_4px_12px_rgba(138,92,246,0.5)]" style={{ background: 'rgba(138,92,246,0.9)', border: '1px solid rgba(255,255,255,0.2)' }}>
+      <button className="absolute bottom-2.5 right-2.5 w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'var(--ab-acid)', color: 'var(--ab-acid-ink)', boxShadow: 'var(--ab-glow-acid)' }}>
         <MapPin className="w-4 h-4" />
       </button>
-      <div className="absolute bottom-2.5 left-2.5 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur text-[9px] text-white/90 font-semibold flex items-center gap-2">
-        <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-white shadow-[0_0_6px_#8a5cf6]" /> YOU</span>
+      <div className="absolute bottom-2.5 left-2.5 px-2.5 py-1 rounded-full backdrop-blur text-[9px] font-semibold flex items-center gap-2" style={{ background: 'oklch(0.1 0.01 285 / 0.5)', color: 'var(--ab-ink-2)' }}>
+        <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: 'var(--ab-acid)', boxShadow: '0 0 6px var(--ab-acid)' }} /> TI</span>
         <span className="opacity-40">·</span>
-        <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: '#fb923c' }} /> HEAT</span>
+        <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: 'var(--ab-hot)' }} /> HEAT</span>
       </div>
     </div>
   );
@@ -376,20 +399,21 @@ const BrowseHybrid = ({ people, onSwipe, onSpark, swiped, venue }: any) => {
     <div>
       {/* rail */}
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] font-bold tracking-[0.1em] text-muted-foreground">KO JE TU · {people.length}</span>
-        <button onClick={() => setView(view === 'swipe' ? 'grid' : 'swipe')} className="text-[11px] font-bold text-primary inline-flex items-center gap-1">
+        <span className="text-[10px] font-extrabold tracking-[0.1em]" style={{ color: 'var(--ab-ink-3)' }}>KO JE TU · {people.length}</span>
+        <button onClick={() => setView(view === 'swipe' ? 'grid' : 'swipe')} className="text-[11px] font-bold inline-flex items-center gap-1" style={{ color: 'var(--ab-uv)' }}>
           {view === 'swipe' ? <>▦ Grid</> : <>❤ Swipe</>}
         </button>
       </div>
       <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-2 mb-1">
         {people.map((p: any) => {
           const done = swiped?.has(p.user_id);
+          const sel = featured?.user_id === p.user_id;
           return (
             <button key={p.user_id} onClick={() => { setFeaturedId(p.user_id); setView('swipe'); }} className="flex flex-col items-center gap-1 flex-none" style={{ opacity: done ? 0.4 : 1 }}>
-              <div className={cn('rounded-full p-0.5', featured?.user_id === p.user_id ? 'bg-gradient-to-br from-primary to-secondary' : 'bg-white/10')}>
+              <div className="rounded-full p-0.5" style={{ background: sel ? 'linear-gradient(135deg, var(--ab-uv), var(--ab-acid))' : 'var(--ab-hairline)' }}>
                 <Avatar p={p} size={46} />
               </div>
-              <span className="text-[9px] text-muted-foreground max-w-[48px] truncate">{p.name}</span>
+              <span className="text-[9px] max-w-[48px] truncate" style={{ color: 'var(--ab-ink-3)' }}>{p.name}</span>
             </button>
           );
         })}
@@ -422,11 +446,11 @@ const BrowseHybrid = ({ people, onSwipe, onSpark, swiped, venue }: any) => {
             <button onClick={() => onSwipe(featured.user_id, featured.name, 'pass')} className="w-12 h-12 rounded-full bg-card border border-border-strong flex items-center justify-center text-lg text-muted-foreground flex-none">✕</button>
             <button onClick={() => onSpark(featured.user_id)}
               className="flex-1 max-w-[220px] py-3 rounded-2xl text-white font-extrabold text-sm flex items-center justify-center gap-2"
-              style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))', boxShadow: '0 10px 28px -10px hsl(var(--secondary) / 0.6)' }}>
-              ✨ Pošalji isku
+              style={{ background: 'linear-gradient(135deg, var(--ab-uv), oklch(0.58 0.24 330))', boxShadow: 'var(--ab-glow-uv)' }}>
+              ✨ Pošalji iskru
             </button>
           </div>
-          <p className="text-center text-[10px] text-muted-foreground mt-2">Anonimno — javimo ti ako uzvrati. ✕ da preskočiš.</p>
+          <p className="text-center text-[10px] mt-2" style={{ color: 'var(--ab-ink-3)' }}>Anonimno — javimo ti ako uzvrati. ✕ da preskočiš.</p>
         </div>
       ) : (
         <div className="text-center text-[12px] text-muted-foreground py-6">To je sve za sad — prošao/la si sve koji su tu ✨</div>
@@ -441,9 +465,9 @@ const LivePresenceCard = ({ venue, locked, atVenue, presence, meVisible, onToggl
   const people = presence?.people || [];
   const headcount = presence?.headcount ?? venue.here ?? 0;
   return (
-    <div className="relative rounded-[20px] overflow-hidden border" style={{
-      background: `linear-gradient(135deg, oklch(0.32 0.16 ${venue.hue} / 0.6) 0%, hsl(var(--card)) 50%)`,
-      borderColor: `oklch(0.55 0.18 ${venue.hue} / 0.4)`,
+    <div className="relative rounded-[20px] overflow-hidden" style={{
+      background: `radial-gradient(120% 90% at 0% 0%, oklch(0.64 0.18 ${venue.hue} / 0.18), transparent 55%), var(--ab-surface)`,
+      border: `1px solid oklch(0.64 0.18 ${venue.hue} / 0.4)`,
     }}>
       <div className="p-3.5">
         <div className="flex items-start gap-3">
@@ -451,32 +475,32 @@ const LivePresenceCard = ({ venue, locked, atVenue, presence, meVisible, onToggl
             style={{ background: `linear-gradient(135deg, oklch(0.55 0.22 ${venue.hue}), oklch(0.35 0.18 ${(venue.hue + 30) % 360}))` }}>{venue.emoji}</div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-              <span className="font-extrabold text-base">{venue.name}</span>
-              {isHot && <span className="px-1.5 rounded-full text-white text-[9px] font-extrabold" style={{ background: 'linear-gradient(90deg,#ef4444,#f97316)' }}>HOT</span>}
-              {atVenue && <span className="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-success/25 text-success">📍 YOU'RE HERE</span>}
+              <span className="font-extrabold text-base" style={{ color: 'var(--ab-ink)' }}>{venue.name}</span>
+              {isHot && <span className="px-1.5 rounded-full text-[9px] font-extrabold" style={{ background: 'oklch(0.66 0.25 18 / 0.2)', color: 'var(--ab-hot)' }}>HOT</span>}
+              {atVenue && <span className="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold" style={{ background: 'oklch(0.78 0.18 152 / 0.22)', color: 'var(--ab-acid)' }}>📍 TU SI</span>}
             </div>
             <div className="flex items-center gap-1.5 mb-1.5">
-          <span className="text-[10px] text-muted-foreground">{venue.neighborhood} · {venue.walk} min walk</span>
-          <span className="px-1.5 py-0.5 rounded-full text-[8px] font-extrabold tracking-wider" style={{ background: `oklch(0.55 0.22 ${venue.hue} / 0.2)`, color: `oklch(0.75 0.22 ${venue.hue})`, border: `1px solid oklch(0.55 0.22 ${venue.hue} / 0.4)` }}>{venue.genreLabel}</span>
+          <span className="text-[10px]" style={{ color: 'var(--ab-ink-3)' }}>{venue.neighborhood} · {venue.walk} min hoda</span>
+          <span className="px-1.5 py-0.5 rounded-full text-[8px] font-extrabold tracking-wider" style={{ background: `oklch(0.64 0.18 ${venue.hue} / 0.2)`, color: `oklch(0.80 0.14 ${venue.hue})`, border: `1px solid oklch(0.64 0.18 ${venue.hue} / 0.4)` }}>{venue.genreLabel}</span>
         </div>
             <div className="flex items-center gap-2">
-              <div className="flex-1 h-1.5 rounded bg-white/[0.08] overflow-hidden">
-                <div className="h-full rounded" style={{ width: `${venue.heat}%`, background: `linear-gradient(90deg, oklch(0.55 0.22 ${venue.hue}), hsl(var(--heat)))` }} />
+              <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--ab-hairline)' }}>
+                <div className="h-full rounded-full" style={{ width: `${venue.heat}%`, background: `linear-gradient(90deg, oklch(0.64 0.18 ${venue.hue}), var(--ab-hot))` }} />
               </div>
-              <span className="text-[10px] font-bold text-heat">🔥 {venue.heat}</span>
+              <span className="text-[10px] font-bold" style={{ color: 'var(--ab-hot)' }}>🔥 {venue.heat}</span>
             </div>
           </div>
         </div>
 
         {/* public stats — headcount always shown */}
-        <div className="flex gap-3 py-2.5 mt-3 border-y border-border">
-          <Stat n={headcount} l="here now" emoji="👥" />
-          <div className="w-px self-stretch bg-border" />
-          <Stat n={meVisible ? people.length : '—'} l="visible" emoji="💜" />
-          <div className="w-px self-stretch bg-border" />
-          <Stat n={`${venue.walk}m`} l="walk" emoji="🚶" />
-          <div className="w-px self-stretch bg-border" />
-          <Stat n="4.6" l="rating" emoji="⭐" />
+        <div className="flex gap-3 py-2.5 mt-3" style={{ borderTop: '1px solid var(--ab-hairline)', borderBottom: '1px solid var(--ab-hairline)' }}>
+          <Stat n={headcount} l="ovde sad" emoji="👥" />
+          <div className="w-px self-stretch" style={{ background: 'var(--ab-hairline)' }} />
+          <Stat n={meVisible ? people.length : '—'} l="vidljivo" emoji="💜" />
+          <div className="w-px self-stretch" style={{ background: 'var(--ab-hairline)' }} />
+          <Stat n={`${venue.walk}m`} l="hoda" emoji="🚶" />
+          <div className="w-px self-stretch" style={{ background: 'var(--ab-hairline)' }} />
+          <Stat n="4.6" l="ocena" emoji="⭐" />
         </div>
 
         {/* gated section */}
@@ -485,12 +509,15 @@ const LivePresenceCard = ({ venue, locked, atVenue, presence, meVisible, onToggl
             {/* opt-in visibility toggle */}
             {atVenue && (
               <button onClick={onToggleVisible} disabled={togglingVisible}
-                className={cn('flex w-full items-center justify-between rounded-xl border px-3 py-2 mb-3', meVisible ? 'border-success/40 bg-success/10' : 'border-border bg-white/[0.04]')}>
+                className="flex w-full items-center justify-between rounded-xl px-3 py-2 mb-3"
+                style={meVisible
+                  ? { border: '1px solid oklch(0.78 0.18 152 / 0.45)', background: 'oklch(0.78 0.18 152 / 0.1)' }
+                  : { border: '1px solid var(--ab-hairline)', background: 'var(--ab-void)' }}>
                 <div className="text-left">
-                  <div className="text-[12px] font-semibold">Prikaži me ovde</div>
-                  <div className="text-[10px] text-muted-foreground">{meVisible ? 'Vidljiv si — i listaš ko je tu' : 'Skriven — vidiš samo broj'}</div>
+                  <div className="text-[12px] font-semibold" style={{ color: 'var(--ab-ink)' }}>Prikaži me ovde</div>
+                  <div className="text-[10px]" style={{ color: 'var(--ab-ink-3)' }}>{meVisible ? 'Vidljiv si — i listaš ko je tu' : 'Skriven — vidiš samo broj'}</div>
                 </div>
-                <span className={cn('relative w-10 h-6 rounded-full transition', meVisible ? 'bg-success' : 'bg-white/15')}>
+                <span className="relative w-10 h-6 rounded-full transition" style={{ background: meVisible ? 'var(--ab-acid)' : 'var(--ab-hairline-strong)' }}>
                   <span className={cn('absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all', meVisible ? 'left-[18px]' : 'left-0.5')} />
                 </span>
               </button>
@@ -501,36 +528,43 @@ const LivePresenceCard = ({ venue, locked, atVenue, presence, meVisible, onToggl
             ) : (
               <div className="text-center py-6">
                 <div className="text-3xl mb-2">🫥</div>
-                <div className="text-[13px] font-semibold mb-1">{headcount} {headcount === 1 ? 'osoba je' : 'ljudi je'} ovde</div>
-                <div className="text-[11px] text-muted-foreground mb-3 max-w-[240px] mx-auto">Uključi „Prikaži me ovde" da vidiš ko je tu — i da oni vide tebe. Fer razmena 🤝</div>
+                <div className="text-[13px] font-semibold mb-1" style={{ color: 'var(--ab-ink)' }}>{headcount} {headcount === 1 ? 'osoba je' : 'ljudi je'} ovde</div>
+                <div className="text-[11px] mb-3 max-w-[240px] mx-auto" style={{ color: 'var(--ab-ink-3)' }}>Uključi „Prikaži me ovde" da vidiš ko je tu — i da oni vide tebe. Fer razmena 🤝</div>
                 {atVenue
-                  ? <button onClick={onToggleVisible} className="px-4 py-2.5 rounded-full text-white font-bold text-[13px]" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))' }}>Prikaži me i listaj</button>
-                  : <div className="text-[11px] text-muted-foreground">Čekiraj se (GPS) da postaneš vidljiv ovde.</div>}
+                  ? <button onClick={onToggleVisible} className="px-4 py-2.5 rounded-full font-bold text-[13px]" style={{ background: 'var(--ab-acid)', color: 'var(--ab-acid-ink)' }}>Prikaži me i listaj</button>
+                  : <div className="text-[11px]" style={{ color: 'var(--ab-ink-3)' }}>Čekiraj se (GPS) da postaneš vidljiv ovde.</div>}
               </div>
             )}
 
-            <div className="flex gap-2 mt-3">
-              {!atVenue && (
-                <button onClick={onIdem} disabled={idemPending} className="flex-1 py-3 rounded-xl border border-accent/40 bg-accent/10 text-accent font-bold text-[13px]">{idemPending ? '…' : '✋ Idem'}</button>
-              )}
-              <button onClick={onWalk} className="flex-[2] py-3 rounded-xl text-white font-bold text-[13px] flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))' }}>🚶 Walk here · {venue.walk} min</button>
-              <button onClick={onCheckIn} disabled={checkingIn} className="flex-1 py-3 rounded-xl border border-border-strong font-semibold text-[13px]">{checkingIn ? '…' : '📍 Check in'}</button>
-            </div>
+            {/* Primary action: check-in is the hero (acid). Idem/Walk secondary. */}
+            {!atVenue && (
+              <>
+                <button onClick={onCheckIn} disabled={checkingIn}
+                  className="w-full mt-3 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2"
+                  style={{ height: 54, background: 'var(--ab-acid)', color: 'var(--ab-acid-ink)', boxShadow: 'var(--ab-glow-acid)' }}>
+                  {checkingIn ? '…' : `📍 ČEKIRAJ SE · ${venue.name}`}
+                </button>
+                <div className="flex gap-2 mt-2">
+                  <button onClick={onIdem} disabled={idemPending} className="flex-1 py-2.5 rounded-xl font-bold text-[13px]" style={{ border: '1px solid oklch(0.62 0.25 300 / 0.45)', background: 'oklch(0.62 0.25 300 / 0.1)', color: 'var(--ab-uv)' }}>{idemPending ? '…' : '✋ Idem'}</button>
+                  <button onClick={onWalk} className="flex-1 py-2.5 rounded-xl font-semibold text-[13px]" style={{ border: '1px solid var(--ab-hairline-strong)', color: 'var(--ab-ink-2)' }}>🚶 {venue.walk} min</button>
+                </div>
+              </>
+            )}
           </div>
 
           {locked && (
             <div className="absolute -inset-2.5 z-[5] rounded-2xl flex flex-col items-center justify-center text-center p-4"
-              style={{ background: 'linear-gradient(180deg, rgba(10,10,10,0.4), rgba(10,10,10,0.88) 60%)' }}>
-              <div className="w-11 h-11 rounded-full mb-2.5 flex items-center justify-center text-xl border border-accent/40 bg-gradient-to-br from-accent/20 to-secondary/15"><Lock className="w-5 h-5" /></div>
-              <div className="font-bold text-sm mb-1">Peek to see who's here</div>
-              <div className="text-[11px] text-muted-foreground mb-3 max-w-[240px]">Or walk to {venue.name} and check in — it's free when you're there.</div>
-              <div className="flex gap-2">
-                <button onClick={onUnlock} className="px-4 py-2.5 rounded-full text-white font-extrabold text-[13px] inline-flex items-center gap-1.5" style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))' }}>🔓 Unlock · 100 RSD</button>
-                <button onClick={onCheckIn} disabled={checkingIn} className="px-3.5 py-2.5 rounded-full border border-border-strong bg-white/[0.06] font-semibold text-xs">
-                  {checkingIn ? '…' : '📍 Check in free'}
+              style={{ background: 'linear-gradient(180deg, oklch(0.135 0.012 285 / 0.4), oklch(0.135 0.012 285 / 0.9) 60%)' }}>
+              <div className="w-11 h-11 rounded-full mb-2.5 flex items-center justify-center text-xl" style={{ border: '1px solid oklch(0.62 0.25 300 / 0.45)', background: 'oklch(0.62 0.25 300 / 0.15)', color: 'var(--ab-uv)' }}><Lock className="w-5 h-5" /></div>
+              <div className="font-bold text-sm mb-1" style={{ color: 'var(--ab-ink)' }}>Viri ko je ovde</div>
+              <div className="text-[11px] mb-3 max-w-[240px]" style={{ color: 'var(--ab-ink-3)' }}>Ili dođi do {venue.name} i čekiraj se — besplatno kad si tu.</div>
+              <div className="flex gap-2 items-center">
+                <button onClick={onCheckIn} disabled={checkingIn} className="px-4 py-2.5 rounded-full font-extrabold text-[13px] inline-flex items-center gap-1.5" style={{ background: 'var(--ab-acid)', color: 'var(--ab-acid-ink)', boxShadow: 'var(--ab-glow-acid)' }}>
+                  {checkingIn ? '…' : '📍 Čekiraj se · FREE'}
                 </button>
+                <button onClick={onUnlock} className="px-3.5 py-2.5 rounded-full font-semibold text-xs" style={{ border: '1px solid var(--ab-hairline-strong)', color: 'var(--ab-ink-2)' }}>🔓 100 RSD</button>
               </div>
-              <div className="text-[10px] text-text-faint mt-2.5">100 RSD ≈ €0.85 · 24h access · 1 venue</div>
+              <div className="text-[10px] mt-2.5" style={{ color: 'var(--ab-ink-3)' }}>100 RSD ≈ €0.85 · 24h · 1 mesto</div>
             </div>
           )}
         </div>
@@ -539,40 +573,43 @@ const LivePresenceCard = ({ venue, locked, atVenue, presence, meVisible, onToggl
   );
 };
 
-const Stat = ({ n, l, emoji, highlight, blur }: any) => (
+const Stat = ({ n, l, emoji, blur }: any) => (
   <div className={cn('flex-1 text-center', blur && 'blur-[4px]')}>
-    <div className={cn('text-base font-extrabold inline-flex items-baseline gap-1', highlight && 'text-[#c4b5fd]')}>
+    <div className="text-base font-extrabold inline-flex items-baseline gap-1 tabular-nums" style={{ color: 'var(--ab-ink)' }}>
       <span className="text-[11px]">{emoji}</span>{n}
     </div>
-    <div className="text-[9px] text-muted-foreground mt-0.5 tracking-wide">{l}</div>
+    <div className="text-[9px] mt-0.5 tracking-wide" style={{ color: 'var(--ab-ink-3)' }}>{l}</div>
   </div>
 );
 
 /* ───────── Ranked venue row ───────── */
 const VenueRow = ({ v, selected, atVenue, peeked, onClick }: any) => {
-  const isUnlocked = atVenue || peeked;
   const tier = v.heat >= 85 ? 'INFERNO' : v.heat >= 70 ? 'HOT' : 'WARM';
   return (
-    <button onClick={onClick} className={cn('flex items-center gap-3 p-2.5 rounded-2xl border text-left transition', selected ? 'border-primary/50' : 'border-border')}
-      style={selected ? { background: `linear-gradient(135deg, oklch(0.3 0.15 ${v.hue} / 0.35), hsl(var(--card)))` } : { background: 'hsl(var(--card))' }}>
+    <button onClick={onClick} className="flex items-center gap-3 p-2.5 rounded-2xl text-left transition"
+      style={{
+        background: selected ? `oklch(0.64 0.18 ${v.hue} / 0.10)` : 'var(--ab-surface)',
+        border: '1px solid var(--ab-hairline)',
+        borderLeft: `3px solid oklch(0.64 0.18 ${v.hue})`,
+      }}>
       <div className="relative w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
         style={{ background: `linear-gradient(135deg, oklch(0.5 0.2 ${v.hue}), oklch(0.32 0.16 ${(v.hue + 30) % 360}))` }}>
         {v.emoji}
         {atVenue && <span className="absolute -top-1 -right-1 text-[8px]">📍</span>}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[13px] font-bold truncate flex items-center gap-1.5">
+        <div className="text-[13px] font-bold truncate flex items-center gap-1.5" style={{ color: 'var(--ab-ink)' }}>
           {v.name}
-          {atVenue && <span className="text-[8px] px-1 rounded-full bg-success/25 text-success font-extrabold">HERE · FREE</span>}
+          {atVenue && <span className="text-[8px] px-1 rounded-full font-extrabold" style={{ background: 'oklch(0.78 0.18 152 / 0.22)', color: 'var(--ab-acid)' }}>TU · FREE</span>}
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-muted-foreground">{v.neighborhood} · 🚶 {v.walk}m</span>
-          <span className="px-1 py-0.5 rounded text-[8px] font-extrabold tracking-wider" style={{ background: `oklch(0.55 0.22 ${v.hue} / 0.15)`, color: `oklch(0.72 0.22 ${v.hue})` }}>{v.genreLabel}</span>
+          <span className="text-[10px]" style={{ color: 'var(--ab-ink-3)' }}>{v.neighborhood} · 🚶 {v.walk}m</span>
+          <span className="px-1 py-0.5 rounded text-[8px] font-extrabold tracking-wider" style={{ background: `oklch(0.64 0.18 ${v.hue} / 0.15)`, color: `oklch(0.78 0.14 ${v.hue})` }}>{v.genreLabel}</span>
         </div>
       </div>
       <div className="text-right flex-shrink-0">
-        <div className="text-[13px] font-extrabold text-heat">🔥 {v.heat}</div>
-        <div className="text-[8px] text-muted-foreground">{tier}</div>
+        <div className="text-[13px] font-extrabold" style={{ color: 'var(--ab-hot)' }}>🔥 {v.heat}</div>
+        <div className="text-[8px]" style={{ color: 'var(--ab-ink-3)' }}>{tier}</div>
       </div>
     </button>
   );

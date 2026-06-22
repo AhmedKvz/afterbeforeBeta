@@ -55,6 +55,48 @@ export function initials(name: string): string {
     .toUpperCase();
 }
 
+// ── AfterBefore Design System — Genre Hue Wheel ──────────────────────────────
+// The canonical genre→hue map (AFTERBEFORE_DESIGN.md §2.4). Content carries the
+// culture color; the brand Frame stays monochrome. Same layout, different genre
+// energy — a Techno night reads blue, a House night reads gold.
+
+const GENRE_WHEEL: Record<string, number> = {
+  techno: 240,
+  house: 60,
+  'deep house': 60,
+  underground: 300,
+  minimal: 300,
+  dnb: 150,
+  'drum and bass': 150,
+  'drum & bass': 150,
+  jungle: 150,
+  trance: 200,
+  psy: 200,
+  psytrance: 200,
+  disco: 350,
+  funk: 350,
+  'hip hop': 35,
+  'hip-hop': 35,
+  rnb: 35,
+  'r&b': 35,
+};
+
+/** Genre name → hue (0–360). Falls back to the neutral "mixed" hue 285. */
+export function genreHue(genre: string | null | undefined): number {
+  if (!genre) return 285;
+  return GENRE_WHEEL[genre.trim().toLowerCase()] ?? 285;
+}
+
+/** Full-saturation genre color, for left-edges, tags, glows. */
+export function genreColor(genre: string | null | undefined, L = 0.64, C = 0.18): string {
+  return `oklch(${L} ${C} ${genreHue(genre)})`;
+}
+
+/** Faint genre wash for card backgrounds — never a full fill. */
+export function genreTint(genre: string | null | undefined, alpha = 0.08): string {
+  return `oklch(0.64 0.18 ${genreHue(genre)} / ${alpha})`;
+}
+
 /** Heat tier → label/class, mirroring the prototype's INFERNO / HOT / WARM tiers. */
 export function heatTier(heat: number): 'inferno' | 'hot' | 'warm' | 'cool' {
   if (heat >= 85) return 'inferno';
