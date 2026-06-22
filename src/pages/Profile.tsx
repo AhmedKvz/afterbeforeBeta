@@ -252,6 +252,32 @@ const Profile = () => {
         <Lucky100ProfileSection onOpenModal={() => setIsLucky100ModalOpen(true)} />
       </div>
 
+      {/* Founding Raver badge */}
+      {profile?.is_founding_raver && (
+        <div className="px-4 mb-3.5">
+          <div
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl border"
+            style={{ background: 'linear-gradient(135deg, oklch(0.30 0.12 260 / 0.6), oklch(0.22 0.08 300 / 0.4))', borderColor: 'oklch(0.55 0.18 260 / 0.5)' }}
+          >
+            <div className="text-3xl">🏴</div>
+            <div className="flex-1">
+              <div className="text-[13px] font-bold">Founding Raver</div>
+              <div className="text-[11px] text-muted-foreground">
+                {profile.founding_raver_number
+                  ? `#${profile.founding_raver_number} u Beogradu`
+                  : 'Primera generacija AfterBefore'}
+              </div>
+            </div>
+            <div
+              className="text-[11px] font-extrabold px-2.5 py-1 rounded-full"
+              style={{ background: 'oklch(0.45 0.18 260 / 0.3)', color: 'oklch(0.78 0.16 260)' }}
+            >
+              OG
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Badges */}
       <div className="px-4 mb-3.5">
         <div className="flex items-center justify-between mb-2">

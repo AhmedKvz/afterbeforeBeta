@@ -8,6 +8,8 @@ import { awardXP, XP_AWARDS } from '@/services/gamification';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+const db = supabase as any;
+
 const MUSIC_GENRES = [
   'Techno', 'House', 'Deep House', 'Trance', 'Hip Hop', 'R&B',
   'Indie', 'Rock', 'Pop', 'Electronic', 'Minimal', 'Progressive',
@@ -24,6 +26,7 @@ const Onboarding = () => {
   const { user, profile, refreshProfile } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [founderReveal, setFounderReveal] = useState<{ number: number; xp: number } | null>(null);
 
   const isVenue = profile?.account_type === 'club_venue';
 
@@ -145,11 +148,26 @@ const Onboarding = () => {
 
       await awardXP(user.id, XP_AWARDS.completeOnboarding, 'Completed onboarding');
       await refreshProfile();
-      toast.success('Welcome to AfterBefore! 🎉');
+
+      // Founding Raver claim — if they arrived via ?founder= link
+      const founderCode = localStorage.getItem('ab_founder_code');
+      if (founderCode) {
+        try {
+          const { data, error } = await db.rpc('claim_founding_raver', { p_code: founderCode });
+          if (!error && data) {
+            localStorage.removeItem('ab_founder_code');
+            await refreshProfile();
+            setFounderReveal({ number: data.number, xp: data.already ? 0 : data.xp });
+            return; // stay on onboarding to show reveal screen
+          }
+        } catch (_) { /* not a founder code — proceed normally */ }
+      }
+
+      toast.success('Dobrodošao u AfterBefore! 🎉');
       navigate('/');
     } catch (error) {
       console.error('Error completing onboarding:', error);
-      toast.error('Failed to save profile. Please try again.');
+      toast.error('Greška pri čuvanju profila. Pokušaj ponovo.');
     } finally {
       setLoading(false);
     }
@@ -336,6 +354,60 @@ const Onboarding = () => {
       </motion.div>
     );
   };
+
+  // ── Founding Raver reveal screen ──
+  if (founderReveal) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
+        <motion.div
+          initial={{ scale: 0.7, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 180, damping: 16 }}
+          className="w-full max-w-sm"
+        >
+          {/* Shield/flag icon */}
+          <div className="text-[80px] mb-4">🏴</div>
+
+          {/* Number */}
+          <div
+            className="text-[72px] font-black leading-none mb-1"
+            style={{ background: 'linear-gradient(135deg, oklch(0.78 0.16 260), oklch(0.65 0.20 300))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+          >
+            #{founderReveal.number}
+          </div>
+
+          <div className="text-2xl font-extrabold mb-1">Founding Raver</div>
+          <div className="text-muted-foreground text-sm mb-6">u Beogradu</div>
+
+          {/* XP pill */}
+          {founderReveal.xp > 0 && (
+            <motion.div
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.35 }}
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full mb-6 text-sm font-bold"
+              style={{ background: 'oklch(0.45 0.18 260 / 0.3)', color: 'oklch(0.78 0.16 260)', border: '1px solid oklch(0.55 0.18 260 / 0.5)' }}
+            >
+              +{founderReveal.xp} XP · Bonus dobrodošlice
+            </motion.div>
+          )}
+
+          <p className="text-[13px] text-muted-foreground mb-8 leading-relaxed">
+            Ti si deo prve generacije koja gradi AfterBefore.<br />
+            Samo <strong className="text-foreground">100 Founding Ravera</strong> postoji u Beogradu.
+          </p>
+
+          <button
+            onClick={() => navigate('/')}
+            className="w-full py-4 rounded-2xl text-white font-extrabold text-sm"
+            style={{ background: 'linear-gradient(135deg, oklch(0.55 0.22 260), oklch(0.45 0.24 300))', boxShadow: '0 12px 32px -8px oklch(0.55 0.22 260 / 0.5)' }}
+          >
+            Kreni 🏴
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-6">

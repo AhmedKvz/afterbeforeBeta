@@ -24,6 +24,11 @@ import { BetaFeedback } from "@/components/BetaFeedback";
 
 const queryClient = new QueryClient();
 
+// Capture ?founder=CODE before HashRouter rewrites the URL.
+// Persists through auth flow so onboarding can claim it.
+const founderCode = new URLSearchParams(window.location.search).get('founder');
+if (founderCode) localStorage.setItem('ab_founder_code', founderCode.toUpperCase());
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>

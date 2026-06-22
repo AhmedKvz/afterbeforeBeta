@@ -33,6 +33,8 @@ interface Profile {
   instagram_avatar_url: string | null;
   venue_type: string | null;
   neighborhood: string | null;
+  is_founding_raver: boolean;
+  founding_raver_number: number | null;
 }
 
 interface AuthContextType {
@@ -62,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .single();
     
     if (data) {
-      setProfile(data as Profile);
+      setProfile(data as unknown as Profile);
     }
   };
 
