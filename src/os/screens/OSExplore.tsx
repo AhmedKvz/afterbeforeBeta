@@ -1,22 +1,26 @@
 import { useState, useMemo } from 'react';
 import { useHeatVenues } from '@/hooks/useHeatVenues';
-import { OS, G, hexA, MONO, genreCol } from '../osTheme';
+import { OS, G, hexA, MONO, ROLE, genreCol } from '../osTheme';
 import type { OSVenue } from '../OSVenueSheet';
 
 const HOODS = ['All', 'Savamala', 'Dorćol', 'Vračar', 'Stari Grad', 'Novi Beograd'];
-const MODES: [string, string, string][] = [['pulse', 'Pulse', 'See the city live'], ['active', 'Active', '5 free / day']];
+const TYPES: [string, string][] = [
+  ['all', 'Sve'], ['club', 'Klubovi'], ['bar', 'Barovi'], ['splav', 'Splavovi'], ['cafe', 'Kafići'], ['afterplace', 'After'],
+];
+const typeMatch = (vt: string, t: string) => t === 'all' || (t === 'cafe' ? /cafe/.test(vt) : vt === t);
 
 export const OSExplore = ({ onOpenVenue }: { onOpenVenue: (v: OSVenue) => void }) => {
   const { data: venues = [] } = useHeatVenues();
   const [ghost, setGhost] = useState(false);
-  const [mode, setMode] = useState('pulse');
+  const [type, setType] = useState('all');
   const [hood, setHood] = useState('All');
 
-  const pins = useMemo(() => venues
-    .filter((v: any) => hood === 'All' || (v.neighborhood || '').toLowerCase().includes(hood.toLowerCase()))
-    .slice(0, 12)
-    .map((v: any) => ({ v, col: genreCol(v.genreLabel || v.type), left: `${v.x}%`, top: `${v.y}%`, count: v.here ?? 0 })), [venues, hood]);
-
+  const filtered = useMemo(() => venues
+    .filter((v: any) => typeMatch(v.type || '', type))
+    .filter((v: any) => hood === 'All' || (v.neighborhood || '').toLowerCase().includes(hood.toLowerCase())),
+    [venues, type, hood]);
+  const pins = filtered.slice(0, 12).map((v: any) => ({ v, col: genreCol(v.genreLabel || v.type), left: `${v.x}%`, top: `${v.y}%`, count: v.here ?? 0 }));
+  const ranked = useMemo(() => [...filtered].sort((a: any, b: any) => (b.heat ?? 0) - (a.heat ?? 0)).slice(0, 12), [filtered]);
   const liveTotal = venues.reduce((s: number, v: any) => s + (v.here ?? 0), 0);
 
   const open = (v: any) => onOpenVenue({
@@ -30,50 +34,46 @@ export const OSExplore = ({ onOpenVenue }: { onOpenVenue: (v: OSVenue) => void }
       {/* header + ghost */}
       <div style={{ padding: '8px 18px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.22em', color: OS.ink6 }}>CITY PULSE · LIVE</div>
+          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.22em', color: OS.ink6 }}>CITY PULSE · LIVE</div>
           <div style={{ fontWeight: 700, fontSize: 22, letterSpacing: '-.02em', color: OS.ink, marginTop: 2 }}>Heat</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontFamily: MONO, fontSize: 9, color: ghost ? OS.ink5 : G.festival }}>{ghost ? 'GHOST' : 'VISIBLE'}</span>
-          <button onClick={() => setGhost((g) => !g)} style={{ cursor: 'pointer', width: 42, height: 24, borderRadius: 999, border: '1px solid rgba(255,255,255,.12)', background: ghost ? 'rgba(255,255,255,.06)' : hexA(G.festival, 0.3), position: 'relative', padding: 0 }}>
+          <span style={{ fontFamily: MONO, fontSize: 10, color: ghost ? OS.ink5 : G.festival }}>{ghost ? 'GHOST' : 'VISIBLE'}</span>
+          <button onClick={() => setGhost((g) => !g)} aria-label="Vidljivost" style={{ cursor: 'pointer', width: 42, height: 24, borderRadius: 999, border: '1px solid rgba(255,255,255,.12)', background: ghost ? 'rgba(255,255,255,.06)' : hexA(G.festival, 0.3), position: 'relative', padding: 0 }}>
             <span style={{ position: 'absolute', top: 2, left: ghost ? 2 : 20, width: 18, height: 18, borderRadius: '50%', background: OS.ink, transition: 'left .2s' }} />
           </button>
         </div>
       </div>
 
-      {/* modes */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 11, padding: '14px 16px 0' }}>
-        {MODES.map(([k, l, d]) => {
-          const on = mode === k;
-          return (
-            <button key={k} onClick={() => setMode(k)} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 3, padding: 13, borderRadius: 14, border: `1px solid ${on ? hexA(G.community, 0.4) : 'rgba(255,255,255,.07)'}`, background: on ? hexA(G.community, 0.14) : OS.surface, textAlign: 'left' }}>
-              <span style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.1em', color: G.community }}>{on ? 'AKTIVNO' : ''}</span>
-              <span style={{ fontWeight: 640, fontSize: 15, color: OS.ink, marginTop: 2 }}>{l}</span>
-              <span style={{ fontSize: 11, color: OS.ink5 }}>{d}</span>
-            </button>
-          );
-        })}
+      {/* type chips */}
+      <div className="os-scroll" style={{ overflowX: 'auto', padding: '14px 16px 0' }}>
+        <div style={{ display: 'flex', gap: 8, width: 'max-content' }}>
+          {TYPES.map(([k, l]) => {
+            const on = type === k;
+            return <button key={k} onClick={() => setType(k)} style={{ flex: 'none', cursor: 'pointer', padding: '8px 14px', borderRadius: 999, fontFamily: MONO, fontSize: 11, letterSpacing: '.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', border: `1px solid ${on ? hexA(G.community, 0.4) : 'rgba(255,255,255,.07)'}`, background: on ? hexA(G.community, 0.16) : OS.surface, color: on ? OS.ink : OS.ink5 }}>{l}</button>;
+          })}
+        </div>
       </div>
 
       {/* hoods */}
-      <div className="os-scroll" style={{ overflowX: 'auto', padding: '14px 16px 0' }}>
+      <div className="os-scroll" style={{ overflowX: 'auto', padding: '10px 16px 0' }}>
         <div style={{ display: 'flex', gap: 8, width: 'max-content' }}>
           {HOODS.map((h) => {
             const on = hood === h;
-            return <button key={h} onClick={() => setHood(h)} style={{ flex: 'none', cursor: 'pointer', padding: '7px 13px', borderRadius: 999, fontFamily: MONO, fontSize: 10, letterSpacing: '.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', border: `1px solid ${on ? hexA(G.house, 0.4) : 'rgba(255,255,255,.07)'}`, background: on ? hexA(G.house, 0.16) : OS.surface, color: on ? G.house : OS.ink5 }}>{h}</button>;
+            return <button key={h} onClick={() => setHood(h)} style={{ flex: 'none', cursor: 'pointer', padding: '6px 12px', borderRadius: 999, fontFamily: MONO, fontSize: 10, letterSpacing: '.04em', whiteSpace: 'nowrap', border: `1px solid ${on ? hexA(G.house, 0.4) : 'rgba(255,255,255,.07)'}`, background: on ? hexA(G.house, 0.16) : 'transparent', color: on ? G.house : OS.ink6 }}>{h === 'All' ? 'SVI KVARTOVI' : h.toUpperCase()}</button>;
           })}
         </div>
       </div>
 
       {/* pulse map */}
-      <div style={{ position: 'relative', margin: '14px 16px 0', height: 470, borderRadius: 20, overflow: 'hidden', background: `radial-gradient(70% 50% at 40% 30%, ${hexA(G.techno, 0.1)}, transparent 70%), #101013`, border: `1px solid ${OS.line}` }}>
-        <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }} viewBox="0 0 380 470" preserveAspectRatio="xMidYMid slice">
-          <line x1="0" y1="150" x2="380" y2="120" stroke="#1f1f22" strokeWidth="1" />
-          <line x1="0" y1="300" x2="380" y2="330" stroke="#1f1f22" strokeWidth="1" />
-          <line x1="120" y1="0" x2="150" y2="470" stroke="#1f1f22" strokeWidth="1" />
-          <line x1="270" y1="0" x2="240" y2="470" stroke="#1f1f22" strokeWidth="1" />
-          <path d="M -20 380 Q 120 350 220 400 T 420 420 L 420 500 L -20 500 Z" fill="#0e1a1f" stroke="#16323a" strokeWidth="1" />
-          <text x="34" y="430" fill="#2f4a52" fontFamily="'IBM Plex Mono',monospace" fontSize="10" letterSpacing="3">SAVA</text>
+      <div style={{ position: 'relative', margin: '14px 16px 0', height: 360, borderRadius: 20, overflow: 'hidden', background: `radial-gradient(70% 50% at 40% 30%, ${hexA(G.techno, 0.1)}, transparent 70%), #101013`, border: `1px solid ${OS.line}` }}>
+        <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }} viewBox="0 0 380 360" preserveAspectRatio="xMidYMid slice">
+          <line x1="0" y1="120" x2="380" y2="100" stroke="#1f1f22" strokeWidth="1" />
+          <line x1="0" y1="240" x2="380" y2="260" stroke="#1f1f22" strokeWidth="1" />
+          <line x1="120" y1="0" x2="150" y2="360" stroke="#1f1f22" strokeWidth="1" />
+          <line x1="270" y1="0" x2="240" y2="360" stroke="#1f1f22" strokeWidth="1" />
+          <path d="M -20 300 Q 120 280 220 310 T 420 320 L 420 400 L -20 400 Z" fill="#0e1a1f" stroke="#16323a" strokeWidth="1" />
+          <text x="34" y="335" fill="#2f4a52" fontFamily="'IBM Plex Mono',monospace" fontSize="10" letterSpacing="3">SAVA</text>
         </svg>
         {pins.map(({ v, col, left, top, count }) => (
           <button key={v.id} onClick={() => open(v)} style={{ position: 'absolute', left, top, transform: 'translate(-50%,-50%)', cursor: 'pointer', background: 'transparent', border: 0, padding: 0 }}>
@@ -87,8 +87,42 @@ export const OSExplore = ({ onOpenVenue }: { onOpenVenue: (v: OSVenue) => void }
         <div style={{ position: 'absolute', left: '46%', top: '54%', transform: 'translate(-50%,-50%)' }}>
           <span style={{ display: 'block', width: 12, height: 12, borderRadius: '50%', background: '#fff', border: '2px solid #0B0B0D', boxShadow: '0 0 0 4px rgba(255,255,255,.18)' }} />
         </div>
-        <div style={{ position: 'absolute', bottom: 10, left: 12, fontFamily: MONO, fontSize: 10, color: OS.ink5 }}>{venues.length} VENUES · {liveTotal} LIVE</div>
+        <div style={{ position: 'absolute', bottom: 10, left: 12, fontFamily: MONO, fontSize: 10, color: OS.ink5 }}>{filtered.length} MESTA · {liveTotal} LIVE</div>
+      </div>
+
+      {/* ranked venue list — RA/OS rows */}
+      <div style={{ padding: '20px 16px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6 }}>VRUĆE U BLIZINI</span>
+          <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>DO 25 MIN</span>
+        </div>
+        <div>
+          {ranked.map((v: any) => <VenueRow key={v.id} v={v} onClick={() => open(v)} />)}
+          {ranked.length === 0 && <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink5, textAlign: 'center', padding: '24px 0' }}>NEMA MESTA ZA OVAJ FILTER.</div>}
+        </div>
       </div>
     </div>
+  );
+};
+
+/* ── Venue row: emoji | name(red) + genre(blue)·hood | energy(green) ── */
+const VenueRow = ({ v, onClick }: { v: any; onClick: () => void }) => {
+  const here = v.here ?? 0;
+  return (
+    <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 13, width: '100%', textAlign: 'left', padding: '13px 0', background: 'transparent', border: 0, borderTop: `1px solid ${OS.line}`, cursor: 'pointer' }}>
+      <div style={{ flex: 'none', width: 46, height: 46, borderRadius: 12, background: 'linear-gradient(135deg,#1b1c20,#0e0f12)', border: `1px solid ${OS.line2}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{v.emoji || '📍'}</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 15.5, fontWeight: 600, color: ROLE.name, lineHeight: 1.2 }}>{v.name}</div>
+        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.06em', marginTop: 4 }}>
+          <span style={{ color: ROLE.genre }}>{(v.genreLabel || v.type || '').toUpperCase()}</span>
+          <span style={{ color: OS.ink6 }}> · {(v.neighborhood || 'BEOGRAD').toUpperCase()}</span>
+        </div>
+        <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink2, marginTop: 3 }}>{here} ovde · {v.walk ?? '—'} min</div>
+      </div>
+      <div style={{ flex: 'none', textAlign: 'right' }}>
+        <div style={{ fontFamily: MONO, fontSize: 19, fontWeight: 600, color: ROLE.energy }}>{v.heat ?? 0}</div>
+        <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: '.1em', color: OS.ink6, marginTop: 1 }}>ENERGY</div>
+      </div>
+    </button>
   );
 };

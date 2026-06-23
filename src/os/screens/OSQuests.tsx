@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react';
 import { useQuests } from '@/hooks/useQuests';
 import { useStreak, useRewards, useCustomQuests } from '@/hooks/useQuestSystem';
+import { usePartyOfMonth, usePartyCandidates, usePartyOfMonthVote } from '@/hooks/usePartyOfMonth';
 import { useAuth } from '@/contexts/AuthContext';
 import { track } from '@/lib/analytics';
 import { toast } from 'sonner';
-import { OS, G, hexA, MONO } from '../osTheme';
+import { OS, G, hexA, MONO, ROLE } from '../osTheme';
 
 const TYPE_COL: Record<string, string> = {
   check_in: G.techno, explore: G.community, match: G.afterparty, social: G.afterparty,
@@ -17,6 +18,44 @@ const TYPE_LABEL: Record<string, string> = {
 const colOf = (t?: string) => TYPE_COL[(t || '').toLowerCase()] || G.community;
 const DAYS = ['PON', 'UTO', 'SRE', 'ČET', 'PET', 'SUB', 'NED'];
 type Hub = 'quests' | 'rewards' | 'streak';
+
+/* ── Party of the Month — current leader + vote among candidates ── */
+const OSPartyOfMonth = () => {
+  const { data: pom } = usePartyOfMonth();
+  const { data: candidates = [] } = usePartyCandidates();
+  const vote = usePartyOfMonthVote();
+  const [open, setOpen] = useState(false);
+  if (!pom?.event && candidates.length === 0) return null;
+  const leader = pom?.event;
+  return (
+    <div style={{ margin: '14px 16px 0', borderRadius: 18, overflow: 'hidden', background: OS.surface, border: `1px solid ${hexA(G.house, 0.3)}` }}>
+      <div style={{ position: 'relative', height: 122, background: leader?.image_url ? `center/cover url(${leader.image_url})` : 'linear-gradient(135deg,#2a1c00,#0e0f12)' }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,#131417 4%,transparent 70%)' }} />
+        <div style={{ position: 'absolute', top: 11, left: 13, fontFamily: MONO, fontSize: 9, letterSpacing: '.16em', color: '#f5c97a' }}>👑 ŽURKA MESECA</div>
+        <div style={{ position: 'absolute', bottom: 12, left: 13, right: 13 }}>
+          <div style={{ fontSize: 17, fontWeight: 700, color: OS.ink }}>{leader?.title || 'Glasanje u toku'}</div>
+          <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink4, marginTop: 3 }}>{(leader?.venue_name || 'BEOGRAD')} · {pom?.vote_count ?? 0} glasova{pom?.avg_rating ? ` · ★ ${pom.avg_rating.toFixed(1)}` : ''}</div>
+        </div>
+      </div>
+      <button onClick={() => setOpen((o) => !o)} style={{ width: '100%', padding: 12, background: 'transparent', border: 0, borderTop: `1px solid ${OS.line}`, cursor: 'pointer', fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.06em', color: G.house }}>{open ? 'ZATVORI ↑' : '🗳️ GLASAJ ZA ŽURKU MESECA ↓'}</button>
+      {open && (
+        <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {candidates.map((c) => (
+            <div key={c.event_id} style={{ display: 'flex', alignItems: 'center', gap: 11, padding: 8, borderRadius: 12, background: OS.bg, border: `1px solid ${c.user_voted ? hexA(G.house, 0.5) : OS.line}` }}>
+              <div style={{ flex: 'none', width: 40, height: 40, borderRadius: 9, background: c.image_url ? `center/cover url(${c.image_url})` : 'linear-gradient(135deg,#1b1c20,#0e0f12)', border: `1px solid ${OS.line2}` }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: ROLE.name }}>{c.title}</div>
+                <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 2 }}>{(c.venue_name || '').toUpperCase()} · {c.vote_count} glasova</div>
+              </div>
+              <button onClick={() => vote.mutate(c.event_id)} disabled={vote.isPending} style={{ flex: 'none', padding: '7px 12px', borderRadius: 10, border: 0, cursor: 'pointer', fontFamily: MONO, fontSize: 10, fontWeight: 600, background: c.user_voted ? hexA(G.house, 0.2) : G.house, color: c.user_voted ? G.house : '#0B0B0D' }}>{c.user_voted ? '✓ GLAS' : 'GLASAJ'}</button>
+            </div>
+          ))}
+          {candidates.length === 0 && <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink5, textAlign: 'center', padding: '10px 0' }}>NEMA KANDIDATA OVOG MESECA.</div>}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const OSQuests = () => {
   const { quests = [], claimReward } = useQuests() as any;
@@ -88,6 +127,9 @@ export const OSQuests = () => {
             <div style={{ fontFamily: MONO, fontWeight: 600, fontSize: 36, color: OS.ink, marginTop: 4 }}>{done}<span style={{ fontSize: 18, color: OS.ink6 }}>/{quests.length || 0}</span></div>
             <div style={{ fontFamily: MONO, fontSize: 10, color: G.underground, marginTop: 2 }}>{earnedXP} / {totalXP} XP EARNED</div>
           </div>
+
+          {/* party of the month — vote */}
+          <OSPartyOfMonth />
 
           {/* make a quest */}
           <div style={{ padding: '14px 16px 0' }}>

@@ -1,13 +1,11 @@
-import { OS, MONO } from './osTheme';
+import { OS, MONO, ROLE } from './osTheme';
 
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAJ', 'JUN', 'JUL', 'AVG', 'SEP', 'OKT', 'NOV', 'DEC'];
 const DOW3 = ['NED', 'PON', 'UTO', 'SRE', 'ČET', 'PET', 'SUB'];
 
-// Role-based fixed colors — every field has ONE consistent color across the
-// whole list (no per-genre rainbow). Calm, editorial — not a betting site.
-// genre = blue · name = red · date + time = white.
-const GENRE_C = '#7AA0E8';        // genre — always this blue
-const NAME_C = '#E8705F';         // event/club name — always this red
+// Role-based fixed colors (osTheme ROLE) — no per-genre rainbow in lists.
+const GENRE_C = ROLE.genre;       // genre — always blue
+const NAME_C = ROLE.name;         // event/club name — always red
 const NEUTRAL_THUMB = 'linear-gradient(135deg,#1b1c20,#0e0f12)';
 
 /** Resident Advisor-style event row, OS-skinned. Shared by Home + venue profile. */

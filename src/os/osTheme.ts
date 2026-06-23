@@ -35,6 +35,14 @@ export const OS = {
 
 export const MONO = "'IBM Plex Mono', monospace";
 
+/** Role-based fixed field colors for dense lists (no per-genre rainbow).
+ *  genre = blue · name = red · energy = green. Same across the whole app. */
+export const ROLE = {
+  genre: '#7AA0E8',
+  name: '#E8705F',
+  energy: '#34d399',
+} as const;
+
 /** hex + alpha → rgba() string. */
 export const hexA = (hex: string, a: number): string => {
   const n = parseInt(hex.slice(1), 16);
