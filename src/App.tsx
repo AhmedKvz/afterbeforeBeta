@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import EventDetail from "./pages/EventDetail";
@@ -21,6 +20,7 @@ import HeatMap from "./pages/HeatMap";
 import PublicProfile from "./pages/PublicProfile";
 import NotFound from "./pages/NotFound";
 import MetricsDashboard from "./pages/MetricsDashboard";
+import { OSApp } from "./os/OSApp";
 import { BetaFeedback } from "@/components/BetaFeedback";
 
 const queryClient = new QueryClient();
@@ -38,7 +38,9 @@ const App = () => (
       <HashRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Home />} />
+            {/* Nightlife OS — primary app (orb nav drives the 5 core screens). */}
+            <Route path="/" element={<OSApp />} />
+            {/* Legacy Acid/UV screens kept as deep-link targets (not the primary flow). */}
             <Route path="/auth" element={<Auth />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/event/:id" element={<EventDetail />} />

@@ -1,6 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Nightlife OS direction — animations (see src/os/) ─────────────── */
+@keyframes os-pulse{ 0%,100%{ opacity:.5; transform:scale(1);} 50%{ opacity:1; transform:scale(1.25);} }
+@keyframes os-ping{ 0%{ transform:scale(.6); opacity:.7;} 100%{ transform:scale(2.4); opacity:0;} }
+@keyframes os-xp{ 0%{ opacity:0; transform:translate(-50%,0) scale(.7);} 20%{ opacity:1; transform:translate(-50%,-12px) scale(1);} 80%{ opacity:1;} 100%{ opacity:0; transform:translate(-50%,-90px) scale(.6);} }
+@keyframes os-screen{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:translateY(0);} }
+@keyframes os-sheet{ from{ transform:translateY(100%);} to{ transform:translateY(0);} }
+@keyframes os-scrim{ from{ opacity:0;} to{ opacity:1;} }
+.os-scroll::-webkit-scrollbar{ display:none; }
+.os-scroll{ -ms-overflow-style:none; scrollbar-width:none; }
+@media (prefers-reduced-motion: reduce){
+  [class*="os-"], [style*="os-pulse"], [style*="os-ping"], [style*="os-xp"]{ animation-duration:.001ms !important; animation-iteration-count:1 !important; }
+}
 
 /* AfterBefore Design System - Dark Nightclub Theme */
 
