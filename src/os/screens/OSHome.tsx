@@ -1,9 +1,18 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Bell } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { OSLucky100Modal } from '../OSLucky100Modal';
+import { OSStories } from '../OSStories';
 import { OS, G, hexA, MONO, HATCH, stripe, genreCol, CONIC } from '../osTheme';
 import type { OSVenue } from '../OSVenueSheet';
+
+const TYPE_META: Record<string, { emoji: string; label: string }> = {
+  club: { emoji: '🎵', label: 'CLUB' }, splav: { emoji: '🚢', label: 'SPLAV' }, cafe: { emoji: '☕', label: 'CAFE' },
+  cafe_bar: { emoji: '☕', label: 'CAFE' }, bar: { emoji: '🍸', label: 'BAR' }, restaurant: { emoji: '🍽', label: 'EATS' },
+  afterplace: { emoji: '🍔', label: 'AFTER' }, gallery: { emoji: '🎨', label: 'ART' },
+};
 
 interface Ev {
   id: string; title: string; date: string; start_time: string; venue_name: string;
@@ -14,7 +23,7 @@ interface Ev {
 const energyOf = (id: string) => { let h = 0; for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 34; return 60 + h; };
 const dayLabel = (d: string) => { try { return ['NED', 'PON', 'UTO', 'SRE', 'ČET', 'PET', 'SUB'][new Date(d).getDay()]; } catch { return ''; } };
 
-const Mono = ({ children, ...s }: any) => <div style={{ fontFamily: MONO, ...s }}>{children}</div>;
+const Mono = ({ children, style, ...s }: any) => <div style={{ fontFamily: MONO, ...s, ...(style || {}) }}>{children}</div>;
 const SectionLabel = ({ children, right }: { children: string; right?: string }) => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
     <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.18em', color: OS.ink6 }}>{children}</span>
@@ -23,6 +32,7 @@ const SectionLabel = ({ children, right }: { children: string; right?: string })
 );
 
 export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) => void; goProfile: () => void }) => {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState('ALL');
   const [lucky, setLucky] = useState(false);
 
@@ -77,9 +87,15 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
             <Mono fontSize={9} letterSpacing=".24em" color={OS.ink6}>NIGHTLIFE OS</Mono>
             <div style={{ fontWeight: 700, fontSize: 19, letterSpacing: '-.02em', color: OS.ink, lineHeight: 1, marginTop: 2 }}>AfterBefore</div>
           </div>
-          <button onClick={goProfile} style={{ width: 32, height: 32, borderRadius: 10, border: '1px solid rgba(255,255,255,.1)', cursor: 'pointer', background: CONIC, padding: 0 }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button onClick={() => navigate('/notifications')} aria-label="Notifikacije" style={{ width: 32, height: 32, borderRadius: 10, border: `1px solid ${OS.line2}`, cursor: 'pointer', background: OS.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', color: OS.ink3 }}><Bell className="w-4 h-4" /></button>
+            <button onClick={goProfile} aria-label="Profil" style={{ width: 32, height: 32, borderRadius: 10, border: '1px solid rgba(255,255,255,.1)', cursor: 'pointer', background: CONIC, padding: 0 }} />
+          </div>
         </div>
       </div>
+
+      {/* stories */}
+      <OSStories />
 
       {/* live line */}
       <div style={{ padding: '14px 18px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -193,7 +209,71 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
         </div>
       </div>
 
+      {/* discover places + community reviewed */}
+      <OSDiscover navigate={navigate} />
+      <OSCommunity navigate={navigate} />
+
       <OSLucky100Modal isOpen={lucky} onClose={() => setLucky(false)} />
+    </div>
+  );
+};
+
+/* ── Discover places (venue cards) ── */
+const OSDiscover = ({ navigate }: { navigate: (p: string) => void }) => {
+  const { data: venues = [] } = useQuery({
+    queryKey: ['os-discover'],
+    queryFn: async () => {
+      const { data } = await supabase.from('profiles').select('venue_name, venue_type, venue_logo_url, neighborhood').eq('account_type', 'club_venue').not('venue_name', 'is', null).limit(12);
+      return data || [];
+    },
+  });
+  if (!venues.length) return null;
+  return (
+    <div style={{ padding: '24px 0 0' }}>
+      <div style={{ padding: '0 16px' }}><SectionLabel right={`${venues.length} VENUES`}>[ OTKRIJ MESTA ]</SectionLabel></div>
+      <div className="os-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 16px 4px' }}>
+        {venues.map((v: any) => {
+          const meta = TYPE_META[v.venue_type || 'club'] || TYPE_META.club;
+          const col = genreCol(v.venue_type);
+          return (
+            <button key={v.venue_name} onClick={() => navigate(`/venue/${encodeURIComponent(v.venue_name)}`)} style={{ minWidth: 160, maxWidth: 160, flex: 'none', borderRadius: 16, overflow: 'hidden', border: `1px solid ${OS.line2}`, background: OS.surface, textAlign: 'left', cursor: 'pointer', padding: 0 }}>
+              <div style={{ position: 'relative', height: 82, background: v.venue_logo_url ? `center/cover url(${v.venue_logo_url})` : stripe(col), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30 }}>{!v.venue_logo_url && meta.emoji}
+                <div style={{ position: 'absolute', top: 8, left: 8, fontFamily: MONO, fontSize: 9, color: col, background: 'rgba(11,11,13,.66)', border: `1px solid ${hexA(col, 0.4)}`, padding: '2px 7px', borderRadius: 999 }}>{meta.label}</div>
+              </div>
+              <div style={{ padding: 11 }}><div style={{ fontWeight: 600, fontSize: 13, color: OS.ink }}>{v.venue_name}</div>{v.neighborhood && <Mono fontSize={9} color={OS.ink6} style={{ marginTop: 3 }}>{v.neighborhood.toUpperCase()}</Mono>}</div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+/* ── Community reviewed ── */
+const OSCommunity = ({ navigate }: { navigate: (p: string) => void }) => {
+  const { data: reviews = [] } = useQuery({
+    queryKey: ['os-community-reviewed'],
+    queryFn: async () => {
+      const { data } = await supabase.from('event_reviews').select('id, venue_name, rating, review_text, verified_visit').neq('moderation_status', 'flagged').not('venue_name', 'is', null).order('helpful_count', { ascending: false }).limit(6);
+      return data || [];
+    },
+  });
+  if (!reviews.length) return null;
+  return (
+    <div style={{ padding: '24px 0 0' }}>
+      <div style={{ padding: '0 16px' }}><SectionLabel>[ OCENILA ZAJEDNICA ]</SectionLabel></div>
+      <div className="os-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 16px 4px' }}>
+        {reviews.map((r: any) => (
+          <button key={r.id} onClick={() => r.venue_name && navigate(`/venue/${encodeURIComponent(r.venue_name)}#reviews`)} style={{ minWidth: 240, maxWidth: 240, flex: 'none', borderRadius: 16, border: `1px solid ${OS.line2}`, background: OS.surface, padding: 13, textAlign: 'left', cursor: 'pointer' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: OS.ink }}>{r.venue_name}</span>
+              <span style={{ fontFamily: MONO, fontSize: 11, color: G.house }}>★ {r.rating}</span>
+            </div>
+            {r.review_text && <div style={{ fontSize: 11.5, fontStyle: 'italic', color: OS.ink4, lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>"{r.review_text}"</div>}
+            {r.verified_visit && <span style={{ display: 'inline-block', marginTop: 8, fontFamily: MONO, fontSize: 9, color: G.festival, background: hexA(G.festival, 0.12), padding: '2px 7px', borderRadius: 999 }}>✓ POSEĆENO</span>}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

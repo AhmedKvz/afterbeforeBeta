@@ -31,7 +31,7 @@ export const OSExplore = ({ onOpenVenue }: { onOpenVenue: (v: OSVenue) => void }
       <div style={{ padding: '8px 18px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.22em', color: OS.ink6 }}>CITY PULSE · LIVE</div>
-          <div style={{ fontWeight: 700, fontSize: 22, letterSpacing: '-.02em', color: OS.ink, marginTop: 2 }}>Explore</div>
+          <div style={{ fontWeight: 700, fontSize: 22, letterSpacing: '-.02em', color: OS.ink, marginTop: 2 }}>Heat</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontFamily: MONO, fontSize: 9, color: ghost ? OS.ink5 : G.festival }}>{ghost ? 'GHOST' : 'VISIBLE'}</span>

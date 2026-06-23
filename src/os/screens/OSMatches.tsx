@@ -28,8 +28,8 @@ export const OSMatches = () => {
   return (
     <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
       <div style={{ padding: '8px 18px 0' }}>
-        <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.22em', color: OS.ink6 }}>VEZE · CONNECTIONS</div>
-        <div style={{ fontWeight: 700, fontSize: 22, letterSpacing: '-.02em', color: OS.ink, marginTop: 2 }}>Matches</div>
+        <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.22em', color: OS.ink6 }}>PORUKE · MESSAGES</div>
+        <div style={{ fontWeight: 700, fontSize: 22, letterSpacing: '-.02em', color: OS.ink, marginTop: 2 }}>Chat</div>
       </div>
 
       {isLoading && <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink5, textAlign: 'center', padding: '40px 0' }}>UČITAVAM…</div>}

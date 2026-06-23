@@ -5,16 +5,16 @@ export type OSScreen = 'home' | 'explore' | 'matches' | 'quests' | 'profile';
 
 const NAV: { screen: OSScreen; label: string; col: string }[] = [
   { screen: 'home', label: 'HOME', col: G.community },
-  { screen: 'explore', label: 'MAPA', col: G.techno },
-  { screen: 'matches', label: 'SPARK', col: G.afterparty },
+  { screen: 'explore', label: 'HEAT', col: G.techno },
+  { screen: 'matches', label: 'CHAT', col: G.afterparty },
   { screen: 'quests', label: 'QUEST', col: G.underground },
-  { screen: 'profile', label: 'JA', col: G.house },
+  { screen: 'profile', label: 'PROFILE', col: G.house },
 ];
 
 const LABELS: Record<OSScreen, string> = {
   home: 'HOME · DISCOVERY',
-  explore: 'EXPLORE · CITY PULSE',
-  matches: 'MATCHES',
+  explore: 'HEAT · CITY PULSE',
+  matches: 'CHAT · MESSAGES',
   quests: 'WEEKLY QUESTS',
   profile: 'PROFILE',
 };
