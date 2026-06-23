@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useVenuePresence, useSetVenuePresence } from '@/hooks/useHeatVenues';
@@ -22,6 +23,7 @@ export interface OSVenue {
   col: string;               // wheel color
   venueId?: string | null;   // real venue uuid → enables GPS check-in / spark / idem
   presenceId?: string | null;// heat-venue id → live presence (opt-in, who's here)
+  eventId?: string | null;   // event uuid → enables writing a review
   lat?: number | null;
   lng?: number | null;
   radius?: number;
@@ -67,6 +69,79 @@ const PAvatar = ({ p, size = 38 }: any) => (
     ? <img src={p.avatar} style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover' }} />
     : <div style={{ width: size, height: size, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#fff', fontSize: size * 0.34, background: avatarGradient(hueFromString(p.name || p.user_id)) }}>{initials(p.name || '·')}</div>
 );
+
+/* ── Reviews: list by venue + rate (write needs an event context) ── */
+const OSReviews = ({ venueName, eventId }: { venueName: string; eventId?: string | null }) => {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const [rating, setRating] = useState(0);
+  const [text, setText] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const { data: reviews = [] } = useQuery({
+    queryKey: ['os-venue-reviews', venueName],
+    queryFn: async () => {
+      const { data } = await db.from('event_reviews')
+        .select('id, rating, review_text, verified_visit, created_at')
+        .eq('venue_name', venueName).neq('moderation_status', 'flagged')
+        .order('created_at', { ascending: false }).limit(8);
+      return data || [];
+    },
+  });
+  const avg = reviews.length ? reviews.reduce((s: number, r: any) => s + (r.rating || 0), 0) / reviews.length : 0;
+
+  const submit = async () => {
+    if (!user || !eventId || !rating || busy) return;
+    setBusy(true);
+    const { error } = await db.from('event_reviews').insert({ user_id: user.id, event_id: eventId, rating, review_text: text.trim() || null });
+    setBusy(false);
+    if (error) { toast.error(error.message?.includes('duplicate') ? 'Već si ocenio ovaj događaj.' : 'Greška — pokušaj ponovo.'); return; }
+    incrementQuestProgress(user.id, 'review').catch(() => {});
+    track('review_submit', { venue: venueName, rating });
+    toast.success('Hvala na recenziji ✓');
+    setRating(0); setText('');
+    qc.invalidateQueries({ queryKey: ['os-venue-reviews', venueName] });
+  };
+
+  return (
+    <div style={{ margin: '16px 16px 0', padding: 16, borderRadius: 18, background: OS.surface, border: `1px solid ${OS.line}` }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6 }}>RECENZIJE · ZAJEDNICA</span>
+        {reviews.length > 0 && <span style={{ fontFamily: MONO, fontSize: 13, color: G.house }}>★ {avg.toFixed(1)} · {reviews.length}</span>}
+      </div>
+
+      {eventId && (
+        <div style={{ marginBottom: reviews.length ? 14 : 0 }}>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button key={n} onClick={() => setRating(n)} style={{ flex: 1, height: 34, borderRadius: 9, border: 0, cursor: 'pointer', fontSize: 16, background: n <= rating ? hexA(G.house, 0.2) : 'rgba(255,255,255,.05)', color: n <= rating ? G.house : OS.ink6 }}>★</button>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input value={text} onChange={(e) => setText(e.target.value.slice(0, 300))} placeholder="Tvoja recenzija (opciono)…" style={{ flex: 1, background: OS.bg, border: `1px solid ${OS.line2}`, borderRadius: 10, padding: '9px 12px', fontSize: 13, color: OS.ink, outline: 'none' }} />
+            <button onClick={submit} disabled={!rating || busy} style={{ flex: 'none', padding: '9px 14px', borderRadius: 10, border: 0, cursor: rating ? 'pointer' : 'default', fontWeight: 600, fontSize: 13, background: rating ? G.house : 'rgba(255,255,255,.05)', color: rating ? '#0B0B0D' : OS.ink7 }}>{busy ? '…' : 'Oceni'}</button>
+          </div>
+        </div>
+      )}
+
+      {reviews.length > 0 ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {reviews.map((r: any) => (
+            <div key={r.id} style={{ paddingBottom: 10, borderBottom: `1px solid ${OS.line}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                <span style={{ fontFamily: MONO, fontSize: 12, color: G.house }}>{'★'.repeat(r.rating)}{'☆'.repeat(Math.max(0, 5 - r.rating))}</span>
+                {r.verified_visit && <span style={{ fontFamily: MONO, fontSize: 8, color: G.festival, background: hexA(G.festival, 0.12), padding: '2px 6px', borderRadius: 999 }}>✓ POSEĆENO</span>}
+              </div>
+              {r.review_text && <div style={{ fontSize: 12.5, color: OS.ink3, lineHeight: 1.4 }}>{r.review_text}</div>}
+            </div>
+          ))}
+        </div>
+      ) : !eventId ? (
+        <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink5, textAlign: 'center', padding: '8px 0' }}>JOŠ NEMA RECENZIJA.</div>
+      ) : null}
+    </div>
+  );
+};
 
 export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () => void }) => {
   const { user } = useAuth();
@@ -184,6 +259,9 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
           <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.16em', color: G.community, marginBottom: 6 }}>AI · CULTURAL ANALYST</div>
           <div style={{ fontSize: 13, lineHeight: 1.5, color: OS.ink2 }}>{venue.name} privlači mlađu underground publiku — community trust raste 3 nedelje zaredom.</div>
         </div>
+
+        {/* reviews — list + rate */}
+        <OSReviews venueName={venue.name} eventId={venue.eventId} />
 
         {/* live presence — opt-in, who's here */}
         {venue.presenceId && (

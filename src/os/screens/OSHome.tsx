@@ -56,7 +56,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
 
   const openEvent = (e: Ev) => onOpenVenue({
     name: e.venue_name || e.title, genre: (e.music_genres?.[0] || e.venue_type || 'VENUE').toUpperCase(),
-    col: genreCol(e.music_genres?.[0] || e.venue_type), venueId: e.venue_id ?? null,
+    col: genreCol(e.music_genres?.[0] || e.venue_type), venueId: e.venue_id ?? null, eventId: e.id,
     heat: energyOf(e.id), neighborhood: (e.venue_type || '').toUpperCase(),
   });
 
