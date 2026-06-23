@@ -26,9 +26,11 @@ export const OS = {
   ink2: '#D4D7DE',
   ink3: '#C9CCD4',
   ink4: '#B6BAC4',
-  ink5: '#8A8E98',
-  ink6: '#6E727C',
-  ink7: '#54565E',
+  // lifted for contrast (was 8A8E98 / 6E727C / 54565E) — micro-labels must
+  // stay legible on the void in a dark club. Order ink5 > ink6 > ink7 kept.
+  ink5: '#9CA0AA',
+  ink6: '#868A94',
+  ink7: '#70747D',
 } as const;
 
 export const MONO = "'IBM Plex Mono', monospace";

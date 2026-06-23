@@ -5,6 +5,7 @@ import { Bell } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { OSLucky100Modal } from '../OSLucky100Modal';
 import { OSStories } from '../OSStories';
+import { OSEventRow } from '../OSEventRow';
 import { OS, G, hexA, MONO, HATCH, stripe, genreCol, CONIC } from '../osTheme';
 import type { OSVenue } from '../OSVenueSheet';
 
@@ -112,27 +113,10 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
         <span style={{ fontSize: 12.5, lineHeight: 1.35, color: OS.ink3 }}>Underground scena vodi grad večeras — energija raste u centru.</span>
       </div>
 
-      {/* lucky100 */}
-      <div style={{ padding: '14px 16px 0' }}>
-        <button onClick={() => setLucky(true)} style={{ display: 'block', width: '100%', textAlign: 'left', padding: 0, border: 0, background: 'transparent', cursor: 'pointer', position: 'relative', overflow: 'hidden', borderRadius: 18 }}>
-        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 18, background: OS.surface, border: `1px solid ${OS.line2}` }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg,#a64dff,#ff4d8d,#f5a623)' }} />
-          <div style={{ padding: 15 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-              <div><Mono fontSize={9} letterSpacing=".2em" color={OS.ink6}>SISTEM · INSTANT WIN</Mono><div style={{ fontWeight: 700, fontSize: 17, color: OS.ink, marginTop: 3 }}>Lucky 100</div></div>
-              <Mono fontSize={11} color={G.festival}>#500 NEXT</Mono>
-            </div>
-            <Mono fontSize={10} color={OS.ink5} style={{ display: 'flex', justifyContent: 'space-between', margin: '11px 0 6px' }}><span>477 / 500</span><span style={{ color: G.festival }}>23 AWAY</span></Mono>
-            <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,.08)', overflow: 'hidden' }}><div style={{ height: '100%', width: '95%', background: 'linear-gradient(90deg,#a64dff,#ff4d8d)', borderRadius: 3 }} /></div>
-          </div>
-        </div>
-        </button>
-      </div>
-
-      {/* best party */}
+      {/* best party — the single hero moment */}
       {best && (
         <div style={{ padding: '18px 16px 0' }}>
-          <SectionLabel>[ NAJBOLJA NEDELJE ]</SectionLabel>
+          <SectionLabel>NAJBOLJA NEDELJE</SectionLabel>
           <button onClick={() => openEvent(best)} style={{ width: '100%', textAlign: 'left', cursor: 'pointer', padding: 0, border: 0, background: 'transparent', borderRadius: 18, overflow: 'hidden' }}>
             <div style={{ position: 'relative', height: 150, borderRadius: 18, overflow: 'hidden', border: `1px solid ${OS.line2}`, background: best.image_url ? `center/cover url(${best.image_url})` : stripe(G.house) }}>
               <div style={{ position: 'absolute', inset: 0, background: HATCH }} />
@@ -150,7 +134,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       {/* trending */}
       {trending.length > 0 && (
         <div style={{ padding: '22px 0 0' }}>
-          <div style={{ padding: '0 16px' }}><SectionLabel right={`${trending.length} LIVE`}>[ TRENDING VEČERAS ]</SectionLabel></div>
+          <div style={{ padding: '0 16px' }}><SectionLabel right={`${trending.length} LIVE`}>TRENDING VEČERAS</SectionLabel></div>
           <div className="os-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 16px 4px' }}>
             {trending.map((t) => {
               const col = genreCol(t.music_genres?.[0] || t.venue_type);
@@ -159,7 +143,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
                   <div style={{ position: 'relative', height: 108, background: t.image_url ? `center/cover url(${t.image_url})` : stripe(col) }}>
                     <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,rgba(0,0,0,.78),transparent 70%)' }} />
                     <div style={{ position: 'absolute', top: 9, left: 9, display: 'flex', alignItems: 'center', gap: 6, padding: '4px 9px', borderRadius: 999, fontFamily: MONO, fontSize: 10, color: col, background: 'rgba(11,11,13,.66)', border: `1px solid ${hexA(col, 0.4)}` }}>
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: col, boxShadow: `0 0 8px ${col}` }} />{signals[t.id] || 0} GOING
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: col, boxShadow: `0 0 8px ${col}` }} />{signals[t.id] || 0} IDE
                     </div>
                   </div>
                   <div style={{ padding: 11 }}><div style={{ fontWeight: 600, fontSize: 14, color: OS.ink }}>{t.title}</div><Mono fontSize={10} color={OS.ink5} style={{ marginTop: 3 }}>{(t.venue_name || '').toUpperCase()}</Mono></div>
@@ -180,31 +164,11 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
         </div>
       </div>
 
-      {/* events */}
-      <div style={{ padding: '18px 16px 0' }}>
-        <SectionLabel right={`${filtered.length} LISTED`}>[ UPCOMING ]</SectionLabel>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {filtered.map((e) => {
-            const col = genreCol(e.music_genres?.[0] || e.venue_type);
-            const en = energyOf(e.id);
-            return (
-              <button key={e.id} onClick={() => openEvent(e)} style={{ textAlign: 'left', cursor: 'pointer', padding: 0, border: `1px solid ${OS.line2}`, borderRadius: 18, overflow: 'hidden', background: OS.surface }}>
-                <div style={{ position: 'relative', height: 128 }}>
-                  <div style={{ position: 'absolute', inset: 0, background: e.image_url ? `center/cover url(${e.image_url})` : stripe(col) }} />
-                  <div style={{ position: 'absolute', inset: 0, background: HATCH }} />
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,#131417 3%,transparent 62%)' }} />
-                  <div style={{ position: 'absolute', top: 12, right: 12, width: 46, height: 46, borderRadius: '50%', background: `conic-gradient(${col} ${Math.round(en / 100 * 360)}deg, rgba(255,255,255,.08) 0)`, padding: 3.5 }}>
-                    <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#0e0f12', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: MONO, fontWeight: 600, fontSize: 13, color: OS.ink }}>{en}</div>
-                  </div>
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 13 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: col, boxShadow: `0 0 8px ${col}` }} /><Mono fontSize={9} letterSpacing=".14em" color={col}>{(e.music_genres?.[0] || e.venue_type || '').toUpperCase()}</Mono></div>
-                    <div style={{ fontWeight: 700, fontSize: 18, color: OS.ink, marginTop: 5 }}>{e.title}</div>
-                    <Mono fontSize={10.5} color={OS.ink4} style={{ marginTop: 4 }}>{dayLabel(e.date)} {e.start_time?.slice(0, 5)} · {e.venue_name}</Mono>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
+      {/* events — RA-style happenings feed */}
+      <div style={{ padding: '20px 16px 0' }}>
+        <SectionLabel right={`${filtered.length} DOGAĐAJA`}>DOGAĐAJI</SectionLabel>
+        <div>
+          {filtered.map((e) => <OSEventRow key={e.id} e={e} onClick={() => openEvent(e)} />)}
           {filtered.length === 0 && <Mono fontSize={12} color={OS.ink5} style={{ textAlign: 'center', padding: '24px 0' }}>Nema događaja za ovaj filter.</Mono>}
         </div>
       </div>
@@ -212,6 +176,23 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       {/* discover places + community reviewed */}
       <OSDiscover navigate={navigate} />
       <OSCommunity navigate={navigate} />
+
+      {/* lucky100 — moved below the lead content */}
+      <div style={{ padding: '24px 16px 0' }}>
+        <button onClick={() => setLucky(true)} style={{ display: 'block', width: '100%', textAlign: 'left', padding: 0, border: 0, background: 'transparent', cursor: 'pointer', position: 'relative', overflow: 'hidden', borderRadius: 18 }}>
+        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 18, background: OS.surface, border: `1px solid ${OS.line2}` }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg,#a64dff,#ff4d8d,#f5a623)' }} />
+          <div style={{ padding: 15 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <div><Mono fontSize={10} letterSpacing=".2em" color={OS.ink5}>SISTEM · INSTANT WIN</Mono><div style={{ fontWeight: 700, fontSize: 17, color: OS.ink, marginTop: 3 }}>Lucky 100</div></div>
+              <Mono fontSize={11} color={G.festival}>#500 NEXT</Mono>
+            </div>
+            <Mono fontSize={10.5} color={OS.ink5} style={{ display: 'flex', justifyContent: 'space-between', margin: '11px 0 6px' }}><span>477 / 500</span><span style={{ color: G.festival }}>23 AWAY</span></Mono>
+            <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,.08)', overflow: 'hidden' }}><div style={{ height: '100%', width: '95%', background: 'linear-gradient(90deg,#a64dff,#ff4d8d)', borderRadius: 3 }} /></div>
+          </div>
+        </div>
+        </button>
+      </div>
 
       <OSLucky100Modal isOpen={lucky} onClose={() => setLucky(false)} />
     </div>
@@ -230,7 +211,7 @@ const OSDiscover = ({ navigate }: { navigate: (p: string) => void }) => {
   if (!venues.length) return null;
   return (
     <div style={{ padding: '24px 0 0' }}>
-      <div style={{ padding: '0 16px' }}><SectionLabel right={`${venues.length} VENUES`}>[ OTKRIJ MESTA ]</SectionLabel></div>
+      <div style={{ padding: '0 16px' }}><SectionLabel right={`${venues.length} MESTA`}>OTKRIJ MESTA</SectionLabel></div>
       <div className="os-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 16px 4px' }}>
         {venues.map((v: any) => {
           const meta = TYPE_META[v.venue_type || 'club'] || TYPE_META.club;
@@ -261,7 +242,7 @@ const OSCommunity = ({ navigate }: { navigate: (p: string) => void }) => {
   if (!reviews.length) return null;
   return (
     <div style={{ padding: '24px 0 0' }}>
-      <div style={{ padding: '0 16px' }}><SectionLabel>[ OCENILA ZAJEDNICA ]</SectionLabel></div>
+      <div style={{ padding: '0 16px' }}><SectionLabel>OCENILA ZAJEDNICA</SectionLabel></div>
       <div className="os-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 16px 4px' }}>
         {reviews.map((r: any) => (
           <button key={r.id} onClick={() => r.venue_name && navigate(`/venue/${encodeURIComponent(r.venue_name)}#reviews`)} style={{ minWidth: 240, maxWidth: 240, flex: 'none', borderRadius: 16, border: `1px solid ${OS.line2}`, background: OS.surface, padding: 13, textAlign: 'left', cursor: 'pointer' }}>

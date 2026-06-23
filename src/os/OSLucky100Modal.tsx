@@ -41,7 +41,7 @@ export const OSLucky100Modal = ({ isOpen, onClose }: { isOpen: boolean; onClose:
             <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg,#a64dff,#ff4d8d,#f5a623)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>🍀</div>
             <div>
               <div style={{ fontSize: 19, fontWeight: 700, color: OS.ink }}>Lucky 100</div>
-              <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.12em', color: OS.ink6 }}>INSTANT WIN RAFFLE</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.12em', color: OS.ink6 }}>INSTANT NAGRADA</div>
             </div>
           </div>
           <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,.06)', border: 0, cursor: 'pointer', color: OS.ink, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X className="w-5 h-5" /></button>
@@ -52,7 +52,7 @@ export const OSLucky100Modal = ({ isOpen, onClose }: { isOpen: boolean; onClose:
           <div style={{ padding: 16, borderRadius: 18, background: `linear-gradient(140deg,${hexA(G.underground, 0.12)},${hexA(G.house, 0.06)})`, border: `1px solid ${OS.line2}` }}>
             <div style={{ textAlign: 'center', marginBottom: 14 }}>
               <div style={{ fontFamily: MONO, fontSize: 38, fontWeight: 600, color: OS.ink }}>{stats.globalCount}</div>
-              <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.12em', color: OS.ink5 }}>GLOBAL CHECK-INS</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.12em', color: OS.ink5 }}>ČEKIRANJA · UKUPNO</div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 7 }}>
               <span style={{ color: OS.ink3 }}>Sledeći: #{stats.nextLuckyNumber}</span>

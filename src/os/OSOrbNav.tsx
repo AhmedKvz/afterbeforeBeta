@@ -22,8 +22,15 @@ const LABELS: Record<OSScreen, string> = {
 /** Orb radial navigation — a central core that fans out into the 5 screens. */
 export const OSOrbNav = ({ current, onGo }: { current: OSScreen; onGo: (s: OSScreen) => void }) => {
   const [open, setOpen] = useState(false);
+  const [hintSeen, setHintSeen] = useState(() => { try { return !!localStorage.getItem('os_orb_hint'); } catch { return true; } });
   const N = NAV.length;
   const radius = 120;
+  const activeColor = NAV.find((n) => n.screen === current)?.col || G.community;
+
+  const toggle = () => {
+    setOpen((o) => !o);
+    if (!hintSeen) { try { localStorage.setItem('os_orb_hint', '1'); } catch { /* ignore */ } setHintSeen(true); }
+  };
 
   return (
     <div style={{ position: 'fixed', left: 0, right: 0, bottom: 0, height: 170, zIndex: 70, pointerEvents: 'none' }}>
@@ -51,25 +58,32 @@ export const OSOrbNav = ({ current, onGo }: { current: OSScreen; onGo: (s: OSScr
               }}
             >
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: o.col, boxShadow: current === o.screen ? `0 0 10px ${o.col}` : 'none' }} />
-              <span style={{ fontFamily: MONO, fontSize: 8, letterSpacing: '.06em', color: current === o.screen ? OS.ink : OS.ink3 }}>{o.label}</span>
+              <span style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 600, letterSpacing: '.04em', color: current === o.screen ? OS.ink : OS.ink3 }}>{o.label}</span>
             </button>
           );
         })}
       </div>
-      {/* core */}
+      {/* first-run hint */}
+      {!hintSeen && !open && (
+        <div style={{ position: 'absolute', bottom: 122, left: '50%', transform: 'translateX(-50%)', padding: '6px 12px', borderRadius: 999, background: hexA(activeColor, 0.16), border: `1px solid ${hexA(activeColor, 0.5)}`, fontFamily: MONO, fontSize: 10, letterSpacing: '.08em', color: OS.ink, whiteSpace: 'nowrap', pointerEvents: 'none', animation: 'os-pulse 1.8s ease-in-out infinite' }}>
+          ↑ TAPNI ZA NAVIGACIJU
+        </div>
+      )}
+      {/* core — ring tints to the active screen so you know where you are */}
       <button
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggle}
         aria-label="Navigacija"
         style={{
           position: 'absolute', left: '50%', bottom: 50, transform: `translate(-50%,50%) ${open ? 'rotate(45deg)' : ''}`,
-          width: 66, height: 66, borderRadius: '50%', cursor: 'pointer', pointerEvents: 'auto', border: '1px solid rgba(255,255,255,.14)',
-          background: 'radial-gradient(circle at 38% 32%, #2a2c33, #0e0e11)', boxShadow: '0 0 0 1px rgba(255,255,255,.05), 0 14px 40px -8px rgba(0,0,0,.9), inset 0 0 18px rgba(86,214,230,.14)',
-          transition: 'transform .4s cubic-bezier(.34,1.56,.64,1)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          width: 66, height: 66, borderRadius: '50%', cursor: 'pointer', pointerEvents: 'auto', border: `1px solid ${hexA(activeColor, 0.4)}`,
+          background: 'radial-gradient(circle at 38% 32%, #2a2c33, #0e0e11)',
+          boxShadow: `0 0 0 1.5px ${hexA(activeColor, open ? 0.2 : 0.55)}, 0 0 22px ${hexA(activeColor, open ? 0.12 : 0.3)}, 0 14px 40px -8px rgba(0,0,0,.9), inset 0 0 18px ${hexA(activeColor, 0.18)}`,
+          transition: 'transform .4s cubic-bezier(.34,1.56,.64,1), box-shadow .4s, border-color .4s', display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}
       >
-        <span style={{ width: 26, height: 26, borderRadius: '50%', background: CONIC, transition: 'transform .4s', transform: open ? 'scale(.7) rotate(180deg)' : 'scale(1)', boxShadow: '0 0 16px rgba(86,214,230,.4)' }} />
+        <span style={{ width: 26, height: 26, borderRadius: '50%', background: CONIC, transition: 'transform .4s', transform: open ? 'scale(.7) rotate(180deg)' : 'scale(1)', boxShadow: `0 0 16px ${hexA(activeColor, 0.45)}` }} />
       </button>
-      <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, textAlign: 'center', fontFamily: MONO, fontSize: 9, letterSpacing: '.18em', color: OS.ink7, pointerEvents: 'none' }}>{LABELS[current] || ''}</div>
+      <div style={{ position: 'absolute', bottom: 15, left: 0, right: 0, textAlign: 'center', fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: hexA(activeColor, 0.9), pointerEvents: 'none' }}>{LABELS[current] || ''}</div>
     </div>
   );
 };

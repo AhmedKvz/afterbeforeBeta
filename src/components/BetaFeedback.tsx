@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { MessageSquarePlus, X, Star } from 'lucide-react';
+import { MessageSquarePlus, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { OS, G, hexA, MONO } from '@/os/osTheme';
 
 const db = supabase as any;
 
-/** Floating beta feedback button → modal → writes to public.feedback. */
+/** Floating beta feedback button → modal → writes to public.feedback. Nightlife OS styling. */
 export const BetaFeedback = () => {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
@@ -40,30 +40,27 @@ export const BetaFeedback = () => {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed right-4 bottom-24 z-[90] flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold text-white shadow-lg"
-        style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))', boxShadow: '0 10px 28px -8px hsl(var(--primary) / 0.6)' }}
+        style={{ position: 'fixed', right: 16, bottom: 188, zIndex: 65, display: 'flex', alignItems: 'center', gap: 7, borderRadius: 999, padding: '9px 14px', fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.06em', color: OS.ink2, background: 'rgba(19,20,23,.86)', backdropFilter: 'blur(14px)', border: `1px solid ${OS.line2}` }}
       >
-        <MessageSquarePlus className="w-4 h-4" /> Feedback
+        <MessageSquarePlus className="w-4 h-4" /> FEEDBACK
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-4">
-          <div onClick={() => setOpen(false)} className="absolute inset-0 bg-black/65 backdrop-blur-sm" />
-          <div className="relative z-10 w-full max-w-md bg-background rounded-3xl border border-border p-5">
-            <div className="flex items-start justify-between mb-1">
+        <div style={{ position: 'fixed', inset: 0, zIndex: 110, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+          <div onClick={() => setOpen(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(5,5,7,.66)', backdropFilter: 'blur(4px)', animation: 'os-scrim .25s ease' }} />
+          <div className="os-scroll" style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 480, background: OS.surface3, borderRadius: '26px 26px 0 0', border: '1px solid rgba(255,255,255,.08)', padding: '18px 18px calc(env(safe-area-inset-bottom) + 22px)', animation: 'os-sheet .35s cubic-bezier(.16,1,.3,1)' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 4 }}>
               <div>
-                <div className="text-[11px] font-bold tracking-wide text-accent">BETA</div>
-                <h3 className="text-xl font-extrabold">Tvoj utisak</h3>
+                <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.14em', color: G.community }}>BETA · FEEDBACK</div>
+                <h3 style={{ fontSize: 20, fontWeight: 700, color: OS.ink, marginTop: 3 }}>Tvoj utisak</h3>
               </div>
-              <button onClick={() => setOpen(false)} className="w-9 h-9 rounded-full bg-white/[0.06] grid place-items-center"><X className="w-4 h-4" /></button>
+              <button onClick={() => setOpen(false)} style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.06)', display: 'grid', placeItems: 'center', border: 0, cursor: 'pointer', color: OS.ink2 }}><X className="w-4 h-4" /></button>
             </div>
-            <p className="text-[13px] text-muted-foreground mb-3">Šta ti se sviđa, šta ne radi, šta bi dodao? Sve pomaže 🙏</p>
+            <p style={{ fontSize: 13, color: OS.ink5, marginBottom: 14 }}>Šta ti se sviđa, šta ne radi, šta bi dodao? Sve pomaže 🙏</p>
 
-            <div className="flex gap-1.5 mb-3">
+            <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
               {[1, 2, 3, 4, 5].map((n) => (
-                <button key={n} onClick={() => setRating(n)}>
-                  <Star className={cn('w-7 h-7', n <= rating ? 'fill-accent text-accent' : 'text-muted-foreground')} />
-                </button>
+                <button key={n} onClick={() => setRating(n)} style={{ flex: 1, height: 38, borderRadius: 10, border: 0, cursor: 'pointer', fontSize: 18, background: n <= rating ? hexA(G.house, 0.2) : 'rgba(255,255,255,.05)', color: n <= rating ? G.house : OS.ink6 }}>★</button>
               ))}
             </div>
 
@@ -72,14 +69,13 @@ export const BetaFeedback = () => {
               onChange={(e) => setMsg(e.target.value)}
               rows={4}
               placeholder="Napiši ovde…"
-              className="w-full bg-card border border-border-strong rounded-xl p-3 text-sm outline-none focus:border-primary resize-none"
+              style={{ width: '100%', background: OS.bg, border: `1px solid ${OS.line2}`, borderRadius: 12, padding: 12, fontSize: 14, color: OS.ink, outline: 'none', resize: 'none', fontFamily: 'inherit' }}
             />
 
             <button
               onClick={submit}
               disabled={sending || !msg.trim()}
-              className="mt-3 w-full py-3 rounded-xl text-white font-bold disabled:opacity-50"
-              style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)))' }}
+              style={{ marginTop: 12, width: '100%', padding: 14, borderRadius: 14, border: 0, fontWeight: 640, fontSize: 15, cursor: sending || !msg.trim() ? 'default' : 'pointer', background: msg.trim() ? G.community : 'rgba(255,255,255,.05)', color: msg.trim() ? '#0B0B0D' : OS.ink6 }}
             >
               {sending ? 'Šaljem…' : 'Pošalji feedback'}
             </button>

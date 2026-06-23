@@ -12,10 +12,15 @@ import { toast } from 'sonner';
 import { avatarGradient, hueFromString, initials } from '@/lib/gradients';
 import { shouldShowFeedback } from '@/components/FeedbackSheet';
 import { OSFeedbackSheet } from './OSFeedbackSheet';
+import { OSEventRow } from './OSEventRow';
 import { OS, G, hexA, MONO, HATCH } from './osTheme';
 
 const db = supabase as any;
 const DEV_SKIP_GEOFENCE = import.meta.env.VITE_OPEN_CHECKIN === 'true';
+
+// Stable pseudo follower count from venue name (no follow backend yet).
+const followersOf = (name: string) => { let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 9000; return 1200 + h; };
+const fmtK = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
 
 export interface OSVenue {
   name: string;
@@ -165,6 +170,21 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
   const spark = (pid: string) => { if (!venue.venueId) return; sendSpark.mutate({ to: pid, venue: venue.venueId }); setSparked((s) => new Set(s).add(pid)); };
   const idem = () => { if (venue.venueId) signalIntent.mutate({ venue: venue.venueId }); };
 
+  // RA-style: this venue's events (upcoming + past)
+  const { data: venueEvents = [] } = useQuery({
+    queryKey: ['os-venue-events', venue.name],
+    queryFn: async () => {
+      const { data } = await db.from('events').select('id, title, date, start_time, image_url, music_genres, venue_name')
+        .eq('venue_name', venue.name).order('date', { ascending: true });
+      return data || [];
+    },
+  });
+  const today = new Date().toISOString().split('T')[0];
+  const upcoming = venueEvents.filter((e: any) => e.date >= today);
+  const past = venueEvents.filter((e: any) => e.date < today).reverse();
+  const [following, setFollowing] = useState(false);
+  const followers = followersOf(venue.name) + (following ? 1 : 0);
+
   const stats = [
     { value: venue.rating ? venue.rating.toFixed(1) : '8.7', label: 'COMMUNITY', color: G.community },
     { value: '#3', label: 'CITY RANK', color: G.underground },
@@ -214,6 +234,27 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
             <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink4, marginTop: 7 }}>{venue.neighborhood || 'BEOGRAD'}{venue.rating ? ` · ★ ${venue.rating.toFixed(1)}` : ''}</div>
           </div>
         </div>
+
+        {/* action bar — RA-style follow + followers */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 0' }}>
+          <button onClick={() => setFollowing((f) => !f)} style={{ flex: 'none', padding: '10px 18px', borderRadius: 12, cursor: 'pointer', fontWeight: 600, fontSize: 14, border: following ? `1px solid ${OS.line2}` : 0, background: following ? 'transparent' : venue.col, color: following ? OS.ink2 : '#0B0B0D' }}>{following ? '✓ Pratiš' : '+ Prati'}</button>
+          <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink5 }}>{fmtK(followers)} prati</div>
+          <button onClick={checkIn} disabled={busy} style={{ marginLeft: 'auto', flex: 'none', padding: '10px 16px', borderRadius: 12, cursor: busy ? 'default' : 'pointer', fontWeight: 600, fontSize: 13, border: `1px solid ${hexA(G.festival, 0.4)}`, background: done ? hexA(G.festival, 0.15) : 'transparent', color: G.festival, opacity: busy ? 0.6 : 1 }}>{done ? '✓ Tu si' : '📍 Check-in'}</button>
+        </div>
+
+        {/* RA-style events at this venue */}
+        {upcoming.length > 0 && (
+          <div style={{ padding: '20px 16px 0' }}>
+            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6, marginBottom: 4 }}>DOGAĐAJI · {upcoming.length}</div>
+            {upcoming.map((e: any) => <OSEventRow key={e.id} e={e} />)}
+          </div>
+        )}
+        {past.length > 0 && (
+          <div style={{ padding: '18px 16px 0' }}>
+            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6, marginBottom: 4 }}>PROŠLI · {past.length}</div>
+            {past.slice(0, 4).map((e: any) => <OSEventRow key={e.id} e={e} past />)}
+          </div>
+        )}
 
         {/* live */}
         <div style={{ margin: '14px 16px 0', padding: 14, borderRadius: 16, background: `linear-gradient(140deg,${hexA(G.festival, 0.12)},transparent)`, border: `1px solid ${hexA(G.festival, 0.22)}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
