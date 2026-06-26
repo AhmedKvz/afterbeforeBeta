@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { isFounder } from '@/lib/founder';
 import { OS, G, hexA, MONO, ROLE } from '@/os/osTheme';
 
 const db = supabase as any;
@@ -36,18 +37,19 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 
 export default function WarRoom() {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { user } = useAuth();
+  const founder = isFounder(user);
   const [tab, setTab] = useState<Tab>('pulse');
 
   const { data: m, isLoading } = useQuery({
     queryKey: ['war-metrics'],
-    enabled: !!profile?.is_founding_raver,
+    enabled: founder,
     queryFn: async () => { const { data } = await db.rpc('get_beta_metrics'); return data; },
     retry: false,
   });
   const { data: dance } = useQuery({
     queryKey: ['war-dance'],
-    enabled: !!profile?.is_founding_raver,
+    enabled: founder,
     queryFn: async () => {
       const [{ count }, lb] = await Promise.all([
         db.from('dance_sessions').select('*', { count: 'exact', head: true }),
@@ -61,12 +63,12 @@ export default function WarRoom() {
   const [meetings, setMeetings] = useStore<Meeting[]>('wr_meetings', []);
   const [manifest, setManifest] = useStore('wr_manifest', DEFAULT_MANIFEST);
 
-  if (!profile?.is_founding_raver) {
+  if (!founder) {
     return (
       <div style={{ minHeight: '100vh', background: OS.bgDeep, display: 'flex', alignItems: 'center', justifyContent: 'center', color: OS.ink5 }}>
         <div style={{ textAlign: 'center', fontFamily: MONO }}>
           <div style={{ fontSize: 34, marginBottom: 8 }}>🔒</div>
-          <div>War Room je samo za foundere.</div>
+          <div>War Room — pristup samo za foundera.</div>
         </div>
       </div>
     );

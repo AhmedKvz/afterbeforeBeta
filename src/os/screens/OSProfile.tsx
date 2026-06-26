@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useStreak } from '@/hooks/useQuestSystem';
 import { useMyReferral } from '@/hooks/useReferral';
+import { isFounder } from '@/lib/founder';
 import { getXPProgress, ACHIEVEMENTS, getUserAchievements, MORNING_STAR_ACHIEVEMENT_ID } from '@/services/gamification';
 import { track } from '@/lib/analytics';
 import { toast } from 'sonner';
@@ -158,7 +159,7 @@ export const OSProfile = () => {
       {/* actions */}
       <div style={{ margin: '16px 16px 0', borderRadius: 16, overflow: 'hidden', background: OS.surface, border: `1px solid ${OS.line}` }}>
         {[
-          ...(profile.is_founding_raver ? [{ icon: '⚡', label: 'War Room (founder)', onClick: () => navigate('/warroom') }] : []),
+          ...(isFounder(user) ? [{ icon: '⚡', label: 'War Room (founder)', onClick: () => navigate('/warroom') }] : []),
           { icon: '✎', label: 'Izmeni profil', onClick: () => navigate('/onboarding') },
           { icon: '🔔', label: 'Notifikacije', onClick: () => navigate('/notifications') },
         ].map((r, i) => (
