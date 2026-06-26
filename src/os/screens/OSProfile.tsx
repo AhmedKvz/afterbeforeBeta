@@ -158,6 +158,7 @@ export const OSProfile = () => {
       {/* actions */}
       <div style={{ margin: '16px 16px 0', borderRadius: 16, overflow: 'hidden', background: OS.surface, border: `1px solid ${OS.line}` }}>
         {[
+          ...(profile.is_founding_raver ? [{ icon: '⚡', label: 'War Room (founder)', onClick: () => navigate('/warroom') }] : []),
           { icon: '✎', label: 'Izmeni profil', onClick: () => navigate('/onboarding') },
           { icon: '🔔', label: 'Notifikacije', onClick: () => navigate('/notifications') },
         ].map((r, i) => (

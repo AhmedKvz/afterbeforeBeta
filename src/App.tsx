@@ -20,6 +20,7 @@ import HeatMap from "./pages/HeatMap";
 import PublicProfile from "./pages/PublicProfile";
 import NotFound from "./pages/NotFound";
 import MetricsDashboard from "./pages/MetricsDashboard";
+import WarRoom from "./pages/WarRoom";
 import { OSApp } from "./os/OSApp";
 import { BetaFeedback } from "@/components/BetaFeedback";
 
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/quests" element={<Quests />} />
             <Route path="/auth/instagram/callback" element={<InstagramCallback />} />
             <Route path="/metrics" element={<MetricsDashboard />} />
+            <Route path="/warroom" element={<WarRoom />} />
             {/* Out-of-focus → redirect to the 5-screen core */}
             <Route path="/circle-swipe/:eventId" element={<Navigate to="/heatmap" replace />} />
             <Route path="/circle-swipe" element={<Navigate to="/heatmap" replace />} />
