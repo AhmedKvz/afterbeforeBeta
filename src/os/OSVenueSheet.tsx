@@ -13,6 +13,7 @@ import { avatarGradient, hueFromString, initials } from '@/lib/gradients';
 import { shouldShowFeedback } from '@/components/FeedbackSheet';
 import { OSFeedbackSheet } from './OSFeedbackSheet';
 import { OSEventRow } from './OSEventRow';
+import { OSDanceMode } from './OSDanceMode';
 import { OS, G, hexA, MONO, HATCH } from './osTheme';
 
 const db = supabase as any;
@@ -156,6 +157,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
   const [passed, setPassed] = useState<Set<string>>(new Set());
   const [pview, setPview] = useState<'list' | 'swipe'>('list');
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [danceOpen, setDanceOpen] = useState(false);
 
   // Live presence (opt-in) — only when opened from a heat-map venue.
   const { data: presence } = useVenuePresence(venue.presenceId || null);
@@ -242,6 +244,18 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
           <button onClick={() => setFollowing((f) => !f)} style={{ flex: 'none', padding: '10px 18px', borderRadius: 12, cursor: 'pointer', fontWeight: 600, fontSize: 14, border: following ? `1px solid ${OS.line2}` : 0, background: following ? 'transparent' : venue.col, color: following ? OS.ink2 : '#0B0B0D' }}>{following ? '✓ Pratiš' : '+ Prati'}</button>
           <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink5 }}>{fmtK(followers)} prati</div>
           <button onClick={checkIn} disabled={busy} style={{ marginLeft: 'auto', flex: 'none', padding: '10px 16px', borderRadius: 12, cursor: busy ? 'default' : 'pointer', fontWeight: 600, fontSize: 13, border: `1px solid ${hexA(G.festival, 0.4)}`, background: done ? hexA(G.festival, 0.15) : 'transparent', color: G.festival, opacity: busy ? 0.6 : 1 }}>{done ? '✓ Tu si' : '📍 Check-in'}</button>
+        </div>
+
+        {/* dance floor — the killer feature */}
+        <div style={{ padding: '12px 16px 0' }}>
+          <button onClick={() => setDanceOpen(true)} style={{ width: '100%', padding: 15, borderRadius: 16, border: `1px solid ${hexA(G.afterparty, 0.4)}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: `linear-gradient(135deg, ${hexA(G.afterparty, 0.14)}, ${hexA(G.underground, 0.06)})`, textAlign: 'left' }}>
+            <span style={{ fontSize: 26 }}>🕺</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, fontSize: 15, color: OS.ink }}>Dance Floor Mode</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 2 }}>PLEŠI · SKORUJ · LEADERBOARD NOĆI</div>
+            </div>
+            <span style={{ color: G.afterparty, fontSize: 18 }}>›</span>
+          </button>
         </div>
 
         {/* RA-style events at this venue */}
@@ -382,6 +396,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
         </div>
       </div>
       {feedback && <OSFeedbackSheet venueId={feedback} onDone={() => setFeedback(null)} />}
+      {danceOpen && <OSDanceMode venueId={venue.venueId} venueName={venue.name} onClose={() => setDanceOpen(false)} />}
     </>
   );
 };
