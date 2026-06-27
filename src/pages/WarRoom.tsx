@@ -18,12 +18,29 @@ function useStore<T>(key: string, initial: T): [T, (v: T | ((p: T) => T)) => voi
   return [v, setV];
 }
 
-type Tab = 'pulse' | 'goals' | 'meetings' | 'manifest' | 'docs';
-const TABS: [Tab, string][] = [['pulse', 'PULSE'], ['goals', 'CILJEVI'], ['meetings', 'MEETINGS'], ['manifest', 'MANIFEST'], ['docs', 'DOCS']];
+type Tab = 'pulse' | 'grant' | 'goals' | 'meetings' | 'manifest' | 'docs';
+const TABS: [Tab, string][] = [['pulse', 'PULSE'], ['grant', 'GRANT'], ['goals', 'CILJEVI'], ['meetings', 'MEETINGS'], ['manifest', 'MANIFEST'], ['docs', 'DOCS']];
 
 interface Goal { id: string; label: string; current: number | null; target: number; unit: string }
 interface Action { id: string; text: string; done: boolean }
 interface Meeting { id: string; date: string; title: string; notes: string; actions: Action[] }
+interface GrantItem { id: string; text: string; done: boolean; critical?: boolean }
+
+// Smart Start readiness checklist — seeded from SMART-START-READINESS.md.
+const DEFAULT_GRANT: GrantItem[] = [
+  { id: 'gr_beta', text: 'Radeća beta — svih 5 stubova rade', done: true },
+  { id: 'gr_ana', text: 'Analytics od dana 1 (analytics_events + track)', done: true },
+  { id: 'gr_ai', text: '"AI" naming → pošten "algoritam"', done: true },
+  { id: 'gr_deck', text: 'Pitch deck (SR, 14 slajdova)', done: true },
+  { id: 'gr_metrics', text: 'Metrics dashboard + War Room (live KPI)', done: true },
+  { id: 'gr_hero', text: 'Hero noć (Kult+DJ+OG) → realna W1→W2 retencija', done: false, critical: true },
+  { id: 'gr_clean', text: 'Test data cleanup + evaluator demo nalog', done: false, critical: true },
+  { id: 'gr_video', text: '3-min EN video sa SVIM članovima (obavezno)', done: false, critical: true },
+  { id: 'gr_elig', text: 'Eligibility pre-check svih članova (rezidentnost, udeli)', done: false, critical: true },
+  { id: 'gr_walk', text: 'EN demo walkthrough za evaluatore', done: false },
+  { id: 'gr_deck2', text: 'Deck dopune: safety slajd + realan tim/partneri', done: false },
+  { id: 'gr_call', text: 'Prati 2026 poziv (smartstart@inovacionifond.rs)', done: false },
+];
 
 const DEFAULT_MANIFEST = [
   { id: 'm1', t: 'VIZIJA', b: 'Nightlife Operating System — mapiramo, dokumentujemo i povezujemo rejv/klub kulturu Beograda, pa sveta.' },
@@ -62,6 +79,7 @@ export default function WarRoom() {
   const [customGoals, setCustomGoals] = useStore<Goal[]>('wr_goals', []);
   const [meetings, setMeetings] = useStore<Meeting[]>('wr_meetings', []);
   const [manifest, setManifest] = useStore('wr_manifest', DEFAULT_MANIFEST);
+  const [grant, setGrant] = useStore<GrantItem[]>('wr_grant', DEFAULT_GRANT);
 
   if (!founder) {
     return (
@@ -93,6 +111,11 @@ export default function WarRoom() {
     if (m.signups_7d === 0) alerts.push({ sev: 'hi', text: '0 novih korisnika ove nedelje — kanal akvizicije stoji.' });
   }
   if (!dance?.sessions) alerts.push({ sev: 'mid', text: 'Dance Floor još nema sesija — promoviši ga na lokaciji / kroz quest.' });
+  grant.filter((g) => !g.done && g.critical).forEach((g) => alerts.push({ sev: 'hi', text: `SMART START: ${g.text}` }));
+
+  // grant readiness
+  const grantDone = grant.filter((g) => g.done).length;
+  const grantPct = Math.round((grantDone / grant.length) * 100);
 
   return (
     <div className="os-scroll" style={{ minHeight: '100vh', background: OS.bgDeep, color: OS.ink, fontFamily: "'Inter',system-ui,sans-serif", overflowY: 'auto' }}>
@@ -164,6 +187,49 @@ export default function WarRoom() {
               </Section>
             </>
           )
+        )}
+
+        {/* ── GRANT (Smart Start readiness) ── */}
+        {tab === 'grant' && (
+          <>
+            <div style={{ borderRadius: 16, background: OS.surface, border: `1px solid ${OS.line}`, padding: 16, marginBottom: 16, textAlign: 'center' }}>
+              <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6, marginBottom: 6 }}>SMART START · SPREMNOST</div>
+              <div style={{ fontFamily: MONO, fontWeight: 600, fontSize: 44, lineHeight: 1, color: grantPct >= 75 ? ROLE.energy : G.house }}>{grantPct}%</div>
+              <div style={{ fontSize: 12, color: OS.ink5, marginTop: 6 }}>{grantDone}/{grant.length} stavki · prag za pitch je suštinski "sve kritično"</div>
+              <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,.08)', overflow: 'hidden', marginTop: 12 }}>
+                <div style={{ height: '100%', width: `${grantPct}%`, background: grantPct >= 75 ? ROLE.energy : `linear-gradient(90deg,${G.afterparty},${G.house})`, borderRadius: 3 }} />
+              </div>
+            </div>
+
+            <Section label="BODOVANJE /100">
+              <Grid>
+                <Stat n="40" l="TIM" sub="✅ jako (radeća beta)" color={ROLE.energy} />
+                <Stat n="30" l="KORIST / PREDNOST" sub="✅ jako (framuj moat)" color={ROLE.energy} />
+                <Stat n="30" l="TRŽIŠTE" sub={m && m.weekend_retention >= 30 ? '✅ validacija ide' : '⚠️ rupa → hero noć'} color={m && m.weekend_retention >= 30 ? ROLE.energy : G.house} />
+                <Stat n="75+" l="PRAG → PITCH" />
+              </Grid>
+            </Section>
+
+            <Section label="KLJUČNA METRIKA · TRŽIŠTE">
+              <Big value={m ? `${m.weekend_retention}%` : '…'} sub={`W1→W2 retencija${m ? ` · ${m.weekend_retained}/${m.weekend_cohort}` : ''} · cilj ≥30% (ovo otključava poene)`} color={m && m.weekend_retention >= 30 ? ROLE.energy : G.house} />
+            </Section>
+
+            <Section label="CHECKLIST" right={<AddBtn onClick={() => {
+              const text = prompt('Nova grant stavka?'); if (!text) return;
+              const crit = confirm('Kritična? (OK = da)');
+              setGrant((p) => [...p, { id: uid(), text, done: false, critical: crit }]);
+            }} />}>
+              {grant.map((g) => (
+                <div key={g.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '11px 12px', borderRadius: 12, background: OS.surface, border: `1px solid ${g.critical && !g.done ? hexA(G.afterparty, 0.3) : OS.line}`, marginBottom: 7 }}>
+                  <input type="checkbox" checked={g.done} onChange={() => setGrant((p) => p.map((x) => x.id === g.id ? { ...x, done: !x.done } : x))} style={{ marginTop: 2 }} />
+                  <span style={{ flex: 1, fontSize: 13, lineHeight: 1.4, color: g.done ? OS.ink6 : OS.ink2, textDecoration: g.done ? 'line-through' : 'none' }}>{g.text}</span>
+                  {g.critical && !g.done && <span style={{ flex: 'none', fontFamily: MONO, fontSize: 8, fontWeight: 700, letterSpacing: '.08em', color: G.afterparty, background: hexA(G.afterparty, 0.12), borderRadius: 5, padding: '2px 5px', marginTop: 1 }}>KRIT</span>}
+                  <button onClick={() => setGrant((p) => p.filter((x) => x.id !== g.id))} style={{ flex: 'none', background: 'transparent', border: 0, color: OS.ink7, cursor: 'pointer', fontSize: 13 }}>✕</button>
+                </div>
+              ))}
+              <a href={`${REPO}/SMART-START-READINESS.md`} target="_blank" rel="noreferrer" style={{ display: 'block', marginTop: 8, fontFamily: MONO, fontSize: 10, color: OS.ink5, textDecoration: 'none' }}>↗ Cela analiza: SMART-START-READINESS.md</a>
+            </Section>
+          </>
         )}
 
         {/* ── GOALS ── */}
