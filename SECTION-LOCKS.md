@@ -6,7 +6,7 @@
 | Sekcija | Status |
 |---|---|
 | 1 · HOME | 🔒 locked (2026-06-27) |
-| 2 · HEAT | ⬜ |
+| 2 · HEAT | 🔒 locked (2026-06-27) |
 | 3 · CHAT | ⬜ |
 | 4 · QUEST | ⬜ |
 | 5 · PROFILE | ⬜ |
@@ -45,3 +45,30 @@
 ### Build
 - ✅ **Wedge isporučen** (`68a67c7`): `Za tebe | Sve` leće + lifecycle stanja na event redovima (`LIVE SADA / SKUPLJA SE · N IDE / NAJAVLJEN`, izvedeno iz start-time + going-count). Za tebe = kurirana „ZA TEBE VEČERAS" lista; Sve = pun katalog (datum + žanr filteri). `OSEventRow` dobio opcioni `state` chip.
 - **Faza 2 (deferred):** real energy agregat (Dance Floor) → ubije mock; time-aware Home (Pon–Sre recap/vote, Pet–Sub live); „tvoja ekipa" rail; intel sloj (Reddit-killer + turist monetizacija); recap kao stalni sloj; `Zaviri` peek prečica na LIVE kartici.
+
+---
+
+## 2 · HEAT 🔒
+
+**Purpose (1 linija):** „Gde gori grad **SADA**" — živa mapa energije + prisustva. Osa = **prostor + sync** (live).
+
+### JESTE (in scope)
+- **Dva sloja:** (1) **always-on utility** — mapa mesta (šta/gde/žanr/udaljenost), radi i kad je prazno (zato vodi launch); (2) **live presence/energy** — pali se sa gustinom (partner klubovi, vikend).
+- **Vlasnik `Zaviri`/peek-a:** tap pin → laki 5s uvid (energija, ekipa, story). Home pozajmljuje peek samo za 1 promovisanu LIVE karticu.
+- City-Pulse mapa (apstraktni pulse SVG = brend, ne geo), TYPE + HOOD filteri, „VRUĆE U BLIZINI" rang lista (role-boje: ime crveno, žanr plavo, energija zeleno).
+
+### NIJE (boundaries)
+- **NIJE moat** — živu mapu imaju Snap/IG/Radiate → vodi se kao *utility* („dođi zbog alata"), ne kao adut. Diferencijacija = **realna energija (Dance Floor)**, ne sama mapa.
+- NIJE katalog događaja (Home; eventi tu samo pinovi). NIJE matching (Chat).
+
+### Pravila
+- **Ghost model (odlučeno):** **broj ljudi (`here`) = UVEK vidljiv** (anonimni agregat, nosi gustinu, nula privacy cost). **Tvoj profil lično = opt-in** (ghost default za identitet — skriva *ko si*, ne *da te broji*). Vidljiv = pojaviš se imenom u „ko je tu"/kao YOU na mapi. → privatnost-first za identitet (Z4) + gustina preživi.
+- **Ne fejkuj prisustvo ljudi** (ghost-presence ubija poverenje); seed evente/sadržaj na mapi je ok, lažne ljude NE.
+- **Walk-min:** ostaje reprezentativno → mora postati pravo sa geo (Faza 2). Konkretan broj je „falsifikabilan", drži ga mekim do geo.
+
+### Zakoni
+**Z9** (sync/live, ne meša se sa async) · **Z8** (LIVE) · **Z4** (safety — ghost/vidljivost identiteta) · **Z1** (peek prozor).
+
+### 🛠 Stanje / Build
+- Realno: venues (`useHeatVenues`), `here` prisustvo (venue_presence — *potvrditi*). **Mock:** energy/heat, x/y koordinate, walk-min.
+- **Faza 2 (deferred):** realna energija = Dance Floor agregat + check-in (⭐ jedini diferencirajući potez vs Snap/Radiate); **peek na tap** (5s glance, sad otvara pun sheet); time-aware (dan „grad se budi" / noć live); **ekipa na mapi** (zarađen graf); real geo (Mapbox) samo ako walk-min mora biti tačan.
