@@ -8,8 +8,9 @@ const GENRE_C = ROLE.genre;       // genre — always blue
 const NAME_C = ROLE.name;         // event/club name — always red
 const NEUTRAL_THUMB = 'linear-gradient(135deg,#1b1c20,#0e0f12)';
 
-/** Resident Advisor-style event row, OS-skinned. Shared by Home + venue profile. */
-export const OSEventRow = ({ e, past, onClick }: { e: any; past?: boolean; onClick?: () => void }) => {
+/** Resident Advisor-style event row, OS-skinned. Shared by Home + venue profile.
+ *  Optional `state` renders a lifecycle chip (LIVE / SKUPLJA SE / NAJAVLJEN). */
+export const OSEventRow = ({ e, past, onClick, state }: { e: any; past?: boolean; onClick?: () => void; state?: { label: string; color: string } | null }) => {
   const d = e.date ? new Date(e.date) : null;
   const genre = (e.music_genres || []).slice(0, 2).join(' · ') || 'TBA';
   const Tag = onClick ? 'button' : 'div';
@@ -35,6 +36,13 @@ export const OSEventRow = ({ e, past, onClick }: { e: any; past?: boolean; onCli
         <div style={{ fontSize: 15.5, fontWeight: 600, color: NAME_C, lineHeight: 1.2 }}>{e.title}</div>
         {/* time · venue — white */}
         <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink2, marginTop: 4 }}>{e.start_time?.slice(0, 5)}{e.venue_name ? ` · ${e.venue_name}` : ''}</div>
+        {/* lifecycle state chip (optional) */}
+        {state && (
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: MONO, fontSize: 9.5, letterSpacing: '.06em', color: state.color, marginTop: 6 }}>
+            {state.label === 'LIVE SADA' && <span style={{ width: 6, height: 6, borderRadius: '50%', background: state.color, animation: 'os-pulse 1.3s ease-in-out infinite' }} />}
+            {state.label}
+          </div>
+        )}
       </div>
       {/* thumbnail — neutral fallback (no per-genre tint) */}
       <div style={{ flex: 'none', width: 60, height: 60, borderRadius: 11, alignSelf: 'center', overflow: 'hidden', background: e.image_url ? `center/cover url(${e.image_url})` : NEUTRAL_THUMB, border: `1px solid ${OS.line2}` }} />

@@ -32,9 +32,13 @@ const SectionLabel = ({ children, right }: { children: string; right?: string })
   </div>
 );
 
+const LIVE_RED = '#ff3b46';
+
 export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) => void; goProfile: () => void }) => {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState('ALL');
+  const [lens, setLens] = useState<'foryou' | 'all'>('foryou');
+  const [dateF, setDateF] = useState<'SVE' | 'VEČERAS' | 'VIKEND'>('SVE');
+  const [genreF, setGenreF] = useState<string | null>(null);
   const [lucky, setLucky] = useState(false);
 
   const { data: events = [] } = useQuery<Ev[]>({
@@ -64,20 +68,42 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
   const todayStr = new Date().toISOString().split('T')[0];
   const tonightCount = events.filter((e) => e.date === todayStr && e.venue_type !== 'afterplace').length;
 
-  const filtered = useMemo(() => events.filter((e) => {
-    if (e.venue_type === 'afterplace') return false;
-    if (filter === 'ALL') return true;
-    if (filter === 'TONIGHT') return e.date === todayStr;
-    if (filter === 'WEEKEND') { const d = new Date(e.date).getDay(); return d === 5 || d === 6 || d === 0; }
-    if (filter === 'CLUBS') return e.venue_type === 'club';
-    if (filter === 'SPLAVS') return e.venue_type === 'splav';
-    if (filter === 'SECRET') return e.event_type === 'secret';
-    return true;
-  }), [events, filter, todayStr]);
+  // Lifecycle state from time + going-count. LIVE = tonight & started; else SKUPLJA SE / NAJAVLJEN.
+  const stateOf = (e: Ev): { label: string; color: string } => {
+    const going = signals[e.id] || 0;
+    const startMin = e.start_time ? parseInt(e.start_time.slice(0, 2), 10) * 60 + parseInt(e.start_time.slice(3, 5), 10) : null;
+    const now = new Date(); const nowMin = now.getHours() * 60 + now.getMinutes();
+    if (e.date === todayStr && startMin != null && nowMin >= startMin) return { label: 'LIVE SADA', color: LIVE_RED };
+    if (going > 0) return { label: `SKUPLJA SE · ${going} IDE`, color: G.house };
+    return { label: 'NAJAVLJEN', color: OS.ink6 };
+  };
 
   const trending = [...events].sort((a, b) => (signals[b.id] || 0) - (signals[a.id] || 0)).slice(0, 3);
   const best = trending[0];
-  const filters = ['ALL', 'TONIGHT', 'WEEKEND', 'CLUBS', 'SPLAVS', 'SECRET'];
+
+  // "Za tebe" curated slice — tonight first, ranked by going-count.
+  const forYou = useMemo(() => {
+    const base = events.filter((e) => e.venue_type !== 'afterplace');
+    const tonight = base.filter((e) => e.date === todayStr);
+    const pool = tonight.length ? tonight : base;
+    return [...pool].sort((a, b) => (signals[b.id] || 0) - (signals[a.id] || 0)).slice(0, 6);
+  }, [events, signals, todayStr]);
+
+  // "Sve" full catalog — date + genre filters.
+  const genres = useMemo(() => {
+    const s = new Set<string>();
+    events.forEach((e) => (e.music_genres || []).forEach((g) => g && s.add(g)));
+    return Array.from(s).slice(0, 8);
+  }, [events]);
+  const catalog = useMemo(() => events.filter((e) => {
+    if (e.venue_type === 'afterplace') return false;
+    if (dateF === 'VEČERAS' && e.date !== todayStr) return false;
+    if (dateF === 'VIKEND') { const d = new Date(e.date).getDay(); if (!(d === 5 || d === 6 || d === 0)) return false; }
+    if (genreF && !(e.music_genres || []).includes(genreF)) return false;
+    return true;
+  }), [events, dateF, genreF, todayStr]);
+
+  const gChip = (on: boolean) => ({ flex: 'none' as const, cursor: 'pointer', padding: '6px 11px', borderRadius: 8, fontFamily: MONO, fontSize: 11, letterSpacing: '.04em', whiteSpace: 'nowrap' as const, border: `1px solid ${on ? 'transparent' : 'rgba(255,255,255,.1)'}`, background: on ? hexA(G.techno, 0.18) : 'transparent', color: on ? '#7AA0E8' : OS.ink5 });
 
   return (
     <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', paddingTop: 'calc(env(safe-area-inset-top) + 8px)', paddingBottom: 150 }}>
@@ -95,6 +121,15 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
         </div>
       </div>
 
+      {/* lens tabs */}
+      <div style={{ display: 'flex', gap: 24, padding: '0 18px', borderBottom: `1px solid ${OS.line}` }}>
+        {([['foryou', 'Za tebe'], ['all', 'Sve']] as const).map(([k, l]) => {
+          const on = lens === k;
+          return <button key={k} onClick={() => setLens(k)} style={{ background: 'transparent', border: 0, cursor: 'pointer', padding: '12px 0', fontSize: 14, fontWeight: on ? 700 : 500, color: on ? OS.ink : OS.ink5, borderBottom: `2px solid ${on ? G.afterparty : 'transparent'}` }}>{l}</button>;
+        })}
+      </div>
+
+      {lens === 'foryou' && (<>
       {/* stories */}
       <OSStories />
 
@@ -154,22 +189,12 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
         </div>
       )}
 
-      {/* filters */}
+      {/* za tebe — curated slice (state chips, no type filters) */}
       <div style={{ padding: '22px 16px 0' }}>
-        <div className="os-scroll" style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
-          {filters.map((f) => {
-            const on = filter === f;
-            return <button key={f} onClick={() => setFilter(f)} style={{ flex: 'none', cursor: 'pointer', padding: '8px 14px', borderRadius: 999, fontFamily: MONO, fontSize: 11, letterSpacing: '.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', border: `1px solid ${on ? hexA(G.community, 0.4) : 'rgba(255,255,255,.07)'}`, background: on ? hexA(G.community, 0.16) : OS.surface, color: on ? OS.ink : OS.ink5 }}>{f}</button>;
-          })}
-        </div>
-      </div>
-
-      {/* events — RA-style happenings feed */}
-      <div style={{ padding: '20px 16px 0' }}>
-        <SectionLabel right={`${filtered.length} DOGAĐAJA`}>DOGAĐAJI</SectionLabel>
+        <SectionLabel right={`${forYou.length}`}>ZA TEBE VEČERAS</SectionLabel>
         <div>
-          {filtered.map((e) => <OSEventRow key={e.id} e={e} onClick={() => openEvent(e)} />)}
-          {filtered.length === 0 && <Mono fontSize={12} color={OS.ink5} style={{ textAlign: 'center', padding: '24px 0' }}>Nema događaja za ovaj filter.</Mono>}
+          {forYou.map((e) => <OSEventRow key={e.id} e={e} state={stateOf(e)} onClick={() => openEvent(e)} />)}
+          {forYou.length === 0 && <Mono fontSize={12} color={OS.ink5} style={{ textAlign: 'center', padding: '24px 0' }}>Još nema događaja.</Mono>}
         </div>
       </div>
 
@@ -193,6 +218,31 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
         </div>
         </button>
       </div>
+      </>)}
+
+      {lens === 'all' && (
+        <div style={{ padding: '14px 16px 0' }}>
+          {/* date pills */}
+          <div className="os-scroll" style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 10 }}>
+            {(['SVE', 'VEČERAS', 'VIKEND'] as const).map((dF) => {
+              const on = dateF === dF;
+              return <button key={dF} onClick={() => setDateF(dF)} style={{ flex: 'none', cursor: 'pointer', padding: '7px 13px', borderRadius: 999, fontFamily: MONO, fontSize: 11, letterSpacing: '.04em', border: `1px solid ${on ? hexA(G.afterparty, 0.4) : 'rgba(255,255,255,.08)'}`, background: on ? hexA(G.afterparty, 0.16) : OS.surface, color: on ? OS.ink : OS.ink5 }}>{dF}</button>;
+            })}
+          </div>
+          {/* genre chips */}
+          {genres.length > 0 && (
+            <div className="os-scroll" style={{ display: 'flex', gap: 7, overflowX: 'auto', marginBottom: 12 }}>
+              <button onClick={() => setGenreF(null)} style={gChip(!genreF)}>SVI</button>
+              {genres.map((g) => <button key={g} onClick={() => setGenreF(g)} style={gChip(genreF === g)}>{g.toUpperCase()}</button>)}
+            </div>
+          )}
+          <SectionLabel right={`${catalog.length} DOGAĐAJA`}>SVE</SectionLabel>
+          <div>
+            {catalog.map((e) => <OSEventRow key={e.id} e={e} state={stateOf(e)} onClick={() => openEvent(e)} />)}
+            {catalog.length === 0 && <Mono fontSize={12} color={OS.ink5} style={{ textAlign: 'center', padding: '24px 0' }}>Nema događaja za ovaj filter.</Mono>}
+          </div>
+        </div>
+      )}
 
       <OSLucky100Modal isOpen={lucky} onClose={() => setLucky(false)} />
     </div>
