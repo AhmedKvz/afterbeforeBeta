@@ -42,6 +42,6 @@
 ### Zakoni
 **Z8** (pobeda na LIVE — večeras prvo) · **Z10** (retencija — dnevni povratak) · **Z9** (async, ne meša se sa sync) · **Z1** (prozor — `Zaviri` prečica da deluješ odmah).
 
-### Build (vs trenutno stanje)
-- Trenutni OS Home je RA feed + railovi (realno) sa **mock energijom** — najjeftiniji wedge: `Za tebe | Sve` tabovi + **live stanje + realna energetska kartica** (koristi Dance Floor agregat = podatak koji već imamo i niko drugi nema).
-- **Faza 2 (deferred):** real energy agregat → ubije mock; time-aware Home (Pon–Sre recap/vote, Pet–Sub live); „tvoja ekipa" rail; intel sloj (Reddit-killer + turist monetizacija); recap kao stalni sloj.
+### Build
+- ✅ **Wedge isporučen** (`68a67c7`): `Za tebe | Sve` leće + lifecycle stanja na event redovima (`LIVE SADA / SKUPLJA SE · N IDE / NAJAVLJEN`, izvedeno iz start-time + going-count). Za tebe = kurirana „ZA TEBE VEČERAS" lista; Sve = pun katalog (datum + žanr filteri). `OSEventRow` dobio opcioni `state` chip.
+- **Faza 2 (deferred):** real energy agregat (Dance Floor) → ubije mock; time-aware Home (Pon–Sre recap/vote, Pet–Sub live); „tvoja ekipa" rail; intel sloj (Reddit-killer + turist monetizacija); recap kao stalni sloj; `Zaviri` peek prečica na LIVE kartici.
