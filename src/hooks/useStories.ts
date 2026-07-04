@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { incrementQuestProgress } from '@/services/questProgress';
 import { toast } from 'sonner';
 
 const db = supabase as any;
@@ -39,6 +40,8 @@ export const usePostStory = () => {
       const { data: pub } = db.storage.from('media').getPublicUrl(path);
       const { error } = await db.from('stories').insert({ user_id: user.id, media_url: pub.publicUrl, caption: caption || null, venue_name: venue || null });
       if (error) throw error;
+      // quest engine: "Trag od 24h" (story type)
+      await incrementQuestProgress(user.id, 'story');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['stories'] });

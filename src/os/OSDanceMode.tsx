@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDanceMeter } from '@/hooks/useDanceMeter';
 import { supabase } from '@/integrations/supabase/client';
 import { track } from '@/lib/analytics';
+import { incrementQuestProgress } from '@/services/questProgress';
 import { OS, G, hexA, MONO, ROLE } from './osTheme';
 
 const db = supabase as any;
@@ -24,6 +25,9 @@ export const OSDanceMode = ({ venueId, venueName, onClose }: Props) => {
     try {
       const { data } = await db.rpc('save_dance_session', { p_score: score, p_moves: moves, p_duration: dance.seconds, p_venue: venueId ?? null, p_venue_name: venueName ?? null });
       if (data?.rank) setResult((r) => ({ ...r, rank: data.rank }));
+      // quest engine: "Pomeri pod" (dance type)
+      const { data: auth } = await supabase.auth.getUser();
+      if (auth?.user) await incrementQuestProgress(auth.user.id, 'dance');
     } catch { /* table not migrated yet — score still shown */ }
   };
 
