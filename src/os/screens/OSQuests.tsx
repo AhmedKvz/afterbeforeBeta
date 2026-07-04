@@ -10,12 +10,22 @@ import { OS, G, hexA, MONO, ROLE } from '../osTheme';
 const TYPE_COL: Record<string, string> = {
   check_in: G.techno, explore: G.community, match: G.afterparty, social: G.afterparty,
   review: G.house, vibe: G.underground, signal: G.festival, vote_best_party: G.house,
+  dance: G.afterparty, story: G.community,
 };
 const TYPE_LABEL: Record<string, string> = {
   check_in: 'Check-in', explore: 'Explore', match: '1:1', social: 'Social',
-  review: 'Vibe', vibe: 'Vibe', signal: 'Signal', vote_best_party: 'Vote',
+  review: 'Recenzija', vibe: 'Vibe', signal: 'Signal', vote_best_party: 'Glas',
+  dance: 'Dance', story: 'Story',
+};
+// Quest = content brief (ECONOMY.md): every quest OUTPUTS something the scene uses.
+const TYPE_OUTPUT: Record<string, string> = {
+  review: 'VODIČ ZA SCENU', story: 'SCENA SE DOKUMENTUJE', vibe: 'MAPA GORI',
+  dance: 'ENERGIJA PODA', check_in: 'GUSTINA NOĆI', explore: 'GUSTINA NOĆI',
+  match: 'VEZE NA PODIJUMU', social: 'VEZE NA PODIJUMU', signal: 'EKIPA SE SKUPLJA',
+  vote_best_party: 'GLAS ZAJEDNICE',
 };
 const colOf = (t?: string) => TYPE_COL[(t || '').toLowerCase()] || G.community;
+const outputOf = (t?: string) => TYPE_OUTPUT[(t || '').toLowerCase()] || null;
 const DAYS = ['PON', 'UTO', 'SRE', 'ČET', 'PET', 'SUB', 'NED'];
 type Hub = 'quests' | 'rewards' | 'streak';
 
@@ -108,7 +118,8 @@ export const OSQuests = () => {
     <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', position: 'relative', paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
       <div style={{ padding: '8px 18px 0' }}>
         <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.22em', color: OS.ink6 }}>NEDELJNI · 🔥 {streak.current_streak} ZAREDOM</div>
-        <div style={{ fontWeight: 700, fontSize: 22, letterSpacing: '-.02em', color: OS.ink, marginTop: 2 }}>Weekly Quests</div>
+        <div style={{ fontWeight: 700, fontSize: 22, letterSpacing: '-.02em', color: OS.ink, marginTop: 2 }}>Questovi</div>
+        <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 4 }}>SVAKI QUEST GRADI SCENU — TVOJ DOPRINOS SE RAČUNA</div>
       </div>
 
       {/* hub toggle */}
@@ -180,6 +191,9 @@ export const OSQuests = () => {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 15, fontWeight: 600, color: OS.ink }}>{q.title}</div>
                       <div style={{ fontSize: 11.5, color: OS.ink5, marginTop: 3, lineHeight: 1.35 }}>{q.description}</div>
+                      {outputOf(q.quest_type) && (
+                        <div style={{ display: 'inline-block', fontFamily: MONO, fontSize: 8.5, letterSpacing: '.1em', color: hexA(col, 0.9), background: hexA(col, 0.1), border: `1px solid ${hexA(col, 0.22)}`, borderRadius: 6, padding: '2px 7px', marginTop: 7 }}>→ {outputOf(q.quest_type)}</div>
+                      )}
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12 }}>
