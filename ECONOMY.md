@@ -140,6 +140,38 @@ Nasleđuje ceo Dance Floor anti-cheat plan, plus:
 
 ---
 
+## 8c · QUEST ADS — dvostrana samouslužna pijaca reklama
+
+> Evolucija §8b: od „mi kuriramo kampanju" do pijace gde **brendovi sami postavljaju questove**, a **ekipe sa reputacijom učestvuju**.
+
+**Reframe:** klasična reklama prekida korisnika; quest-reklama **plaća korisnika nagradom za učešće** — pažnja se zarađuje, mi uzimamo fee. Jedini ad-format koji Gen Z ne doživljava kao reklamu. Flywheel: više brendova → bolje nagrade → više ekipa → veći reach → više brendova.
+
+**Brend strana — Quest Composer (šabloni, ne slobodan tekst):**
+| Šablon | Primer | Nagrada primer |
+|---|---|---|
+| CREW CONTENT (§8b format, after-kamera) | „najbolji jutarnji intermezzo crew" (Kafeterija) · „najbolji before/after story" (Heineken) | 4× VIP Lovefest · EXIT karte |
+| PRESENCE | „prvih 50 na vratima" · „morning regular" | shot/kafa/skip-line |
+| DENSITY | „dovedi ekipu 3+" | skip-line ×4 |
+
+Brend bira brief (open-frame), nagradu, prozor, **reputacioni tier učesnika**, i dobija dashboard (submissions/reach/glasovi/instalacije).
+
+**Korisnik/crew strana — reputation-gated (Z5 kao biznis-mehanika):** otvoreni questovi za sve; **premium kampanje traže tier** (npr. 3+) — reputacija zarađena nogama (check-in istorija, sadržaj, glasovi) = kvalifikacija koja plaća festivale. Merdevina: zabava → reputacija → reputacija nosi pravu vrednost.
+
+**Kontrole (obavezne):**
+1. **Moderacija svakog brend questa pre objave** — kultura-fit (open frame, after-kamera, Z9 separacija: mainstream brend ≠ underground noć), pravni check, 18+ flag. (`moderation_status` rail već postoji.)
+2. **Prize escrow** — brend deponuje nagradu pre objave; mi nikad ne avansiramo (gvozdeno pravilo).
+3. **Anti-spam obostrano** — brend nema DM pristup ni podatke učesnika; limit aktivnih kampanja; u fazi 3 i **brend dobija rating od zajednice** (Z11 ide u oba smera).
+4. **„Šta scena dobija" test važi i za brendove** — quest bez outputa za scenu ne prolazi.
+
+**Fazni put (ne gradi portal prvi):**
+- **F1 Concierge (sad):** mi sastavljamo quest sa brendom (Kult/Para/25 → Kafeterija/Guarana/Jungle).
+- **F2 Templated self-serve:** brend nalog (novi `account_type`) + Composer + obavezna moderacija. Ulaz: posle 2–3 uspešne concierge kampanje.
+- **F3 Otvorena pijaca:** tierovi na obe strane, cenovnik (listing fee + success fee), sezonski kalendar kampanja.
+
+**Build napomene:** `sponsored_quests` treba `tier_required` (custom questovi ga već imaju) + `brand_id`; brend nalog = proširenje postojećeg `account_type` (club_venue → + brand); escrow status na kampanji.
+
+---
+
 ## 9 · Šta fali da F1 krene (build lista)
 
 1. **`contribution_ledger` migracija** — jedna tabela (user, tip doprinosa, AFC, dokaz-ref, night) + RPC-jevi; objedini postojeće XP/quest/referral tokove umesto da ih menja.
