@@ -8,7 +8,7 @@
 | 1 · HOME | 🔒 locked (2026-06-27) |
 | 2 · HEAT | 🔒 locked (2026-06-27) |
 | 3 · CHAT | ⬜ |
-| 4 · QUEST | ⬜ |
+| 4 · QUEST | 🔒 locked (2026-07-05) |
 | 5 · PROFILE | ⬜ |
 | 6 · VENUE SHEET | ⬜ |
 | 7 · DANCE FLOOR | ⬜ |
@@ -72,3 +72,34 @@
 ### 🛠 Stanje / Build
 - Realno: venues (`useHeatVenues`), `here` prisustvo (venue_presence — *potvrditi*). **Mock:** energy/heat, x/y koordinate, walk-min.
 - **Faza 2 (deferred):** realna energija = Dance Floor agregat + check-in (⭐ jedini diferencirajući potez vs Snap/Radiate); **peek na tap** (5s glance, sad otvara pun sheet); time-aware (dan „grad se budi" / noć live); **ekipa na mapi** (zarađen graf); real geo (Mapbox) samo ako walk-min mora biti tačan.
+
+---
+
+## 4 · QUEST 🔒
+
+**Purpose (1 linija):** Mašina doprinosa — kako korisnik gradi scenu i kako se doprinos pretvara u nagrade (ECONOMY petlja: doprinos → AFC → nagrade od partnera).
+
+### JESTE (in scope)
+- **Quest = content brief** — svaki quest PROIZVODI nešto što app/scena koristi (recenzija→vodič za turiste, story→dokumentacija, dance→energija poda, check-in/explore→gustina, spark/social→graf, signal→najava, glas→Z11). Output chip vidljiv na kartici.
+- **3 huba:** QUESTOVI (weekly set + party-of-month glas + custom/crew maker) · NAGRADE (AFC balans + katalog, redemption) · STREAK (+ Weekend Shield).
+- **PARTNERI ČASTE** — sponsored questovi SAMO od realnih partnera (PARTNERS Prsten 1), open-frame (tema, ne skripta), nagrada se uzima na licu mesta (Z6).
+- Scene-voice srpski copy; role-boje (nagrada-chip zelen = vrednost, partner label amber).
+
+### NIJE (boundaries)
+- NIJE domaći zadatak (generički brojači bez outputa) — svaki quest mora da prođe „šta scena dobija?".
+- NIJE mesto za fejk sponzore — partner bez potpisa ne ulazi u PARTNERI ČASTE.
+- Lucky100 ostaje ODVOJEN od quest/AFC ekonomije (kockanje separacija, ECONOMY §5).
+
+### Pravila
+- **Svaki aktivni quest_type MORA imati OS akciju koja ga meri** — quest bez tracking-mesta u OS toku je mrtav UI i ne ulazi u set (zato je `vibe` izbačen iz v2 seta dok OS ne dobije vibe akciju).
+- Earn-gate: progres se računa iz realnih akcija (check-in geofence, verifikovana recenzija, dance sesija…) — ECONOMY §2/§3.
+- XP → AFC unifikacija = ECONOMY F1 ledger (deferred).
+
+### Zakoni
+**Z5** (poverenje→pristup) · **Z6** (nagrada lock na check-in/lokaciju) · **Z10** (ritual/streak retencija) · **Z11** (glas/party-of-month) + raver #4/#5 (open-frame, ne korporativni kavez).
+
+### 🛠 Stanje / Build
+- ✅ UI ujednačen (`f7efc6f`): PARTNERI ČASTE sekcija, ekonomska petlja vidljiva, output chipovi, srpski pass, UZMI claim.
+- ✅ **Tracking pokrivenost popravljena** (ovaj lock): OS spark→`match`, Idem→`signal`, check-in→`check_in`+`explore`, spark-respond→`social`, dance→`dance`, story→`story`, recenzija→`review`, glas→`vote_best_party`. `vibe` izbačen iz v2 seta (nema OS akciju).
+- ⏳ **`quest_content_v2` migracija čeka apply** (novi srpski set + Kult/Para/25 Bar sponsored) — blokirano na SBP_TOKEN.
+- **Deferred:** nedeljni ritual dropovi (ČET drop), AFC ledger (ECONOMY F1), Rezident questovi (PARTNERS), sezonski/festival serije.

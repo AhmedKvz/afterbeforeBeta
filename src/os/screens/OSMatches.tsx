@@ -5,6 +5,7 @@ import { useConversations, useChat, useBlockUser, Conversation } from '@/hooks/u
 import { useReportUser } from '@/hooks/useStories';
 import { useReceivedSparks, useSparkActions } from '@/hooks/useSparks';
 import { useAuth } from '@/contexts/AuthContext';
+import { incrementQuestProgress } from '@/services/questProgress';
 import { OS, G, hexA, MONO } from '../osTheme';
 
 const WHEEL = [G.techno, G.house, G.underground, G.festival, G.afterparty, G.community];
@@ -13,6 +14,7 @@ const rel = (d?: string) => { if (!d) return ''; try { return formatDistanceToNo
 const mk = (c: string) => `linear-gradient(135deg,${c},#15161b)`;
 
 export const OSMatches = () => {
+  const { user } = useAuth();
   const { data: conversations = [], isLoading } = useConversations();
   const { data: sparks = [] } = useReceivedSparks();
   const { respond } = useSparkActions();
@@ -54,7 +56,7 @@ export const OSMatches = () => {
                   <div style={{ fontSize: 14, fontWeight: 600, color: OS.ink }}>Tajna iskra</div>
                   <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 3 }}>{s.venue_emoji || '📍'} {(s.venue_name || 'BEOGRAD').toUpperCase()} · {rel(s.created_at)}</div>
                 </div>
-                <button onClick={() => respond.mutate(s.id, { onSuccess: (d: any) => d?.conversation_id && setOpenId(d.conversation_id) })} disabled={respond.isPending}
+                <button onClick={() => respond.mutate(s.id, { onSuccess: (d: any) => { if (user) incrementQuestProgress(user.id, 'social').catch(() => {}); d?.conversation_id && setOpenId(d.conversation_id); } })} disabled={respond.isPending}
                   style={{ flex: 'none', cursor: 'pointer', fontFamily: MONO, fontSize: 11, fontWeight: 600, padding: '8px 13px', borderRadius: 11, border: 0, background: G.afterparty, color: '#0B0B0D' }}>UZVRATI</button>
               </div>
             ))}

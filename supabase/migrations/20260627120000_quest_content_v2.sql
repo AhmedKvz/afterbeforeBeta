@@ -20,7 +20,6 @@ FROM (VALUES
   ('Vikend ritual',      'Dve noći ove nedelje. Grad pamti ko dolazi.',                                    'check_in', 2, 200, '📍'),
   ('Novi teren',         'Uđi u 2 mesta na kojima ove nedelje nisi bio. Scena je veća od tvog kraja.',     'explore',  2, 200, '🗺️'),
   ('Iz prve ruke',       'Napiši 2 recenzije sa noći na kojima si BIO. Turisti čitaju Reddit — neka čitaju tebe.', 'review', 2, 250, '✍️'),
-  ('Puls poda',          'Pošalji 3 vibe signala sa različitih žurki — mapa gori od tvojih podataka.',      'vibe',     3, 150, '🔥'),
   ('Najavi se',          'Reci „idem" za 3 događaja — ekipa se skuplja oko najave.',                        'signal',   3, 150, '🚀'),
   ('Iskra na podijumu',  '3 nova sparka ove nedelje. Prozor je večeras — ne sutra na IG-u.',               'match',    3, 300, '✨'),
   ('Prvi talas',         'Uzvrati wave dvoma — neka veza krene dok noć diše.',                              'social',   2, 100, '👋'),

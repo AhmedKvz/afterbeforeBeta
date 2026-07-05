@@ -70,8 +70,8 @@ export const incrementQuestProgress = async (
         await supabase.from('notifications').insert({
           user_id: userId,
           type: 'quest_complete',
-          title: 'Quest Complete! 🎯',
-          body: `You completed "${quest.title}" — claim your +${quest.xp_reward} XP!`,
+          title: 'Quest završen! 🎯',
+          body: `Završio si „${quest.title}" — uzmi +${quest.xp_reward} XP!`,
           data: { questId: quest.id },
         });
       }
