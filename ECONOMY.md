@@ -129,7 +129,7 @@ Nasleđuje ceo Dance Floor anti-cheat plan, plus:
 
 **Pravila mašine:**
 1. **Glasanje:** samo verifikovani nalozi sa istorijom prisustva (Z5 trust-weighted); **hibrid** — zajednica bira top 5, žiri/sponzor bira pobednika (ubija vote-farming i popularity-contest; pravno = konkurs veštine, ne igra na sreću).
-2. **Kultura (raver #7):** brief nagrađuje **BEFORE/AFTER sadržaj** (spremanje, pre-game, putovanje, afters, day-after recap) — NE snimanje tokom svetog prozora. Ime app-a = format.
+2. **Kultura (raver #7) — ŽURKA JE SVETA, KAMERA IZLAZI NA AFTERU:** video se snima **sa aftera** (+ before/pre-game/putovanje kao dopuna) — **nikad sa same žurke**. Podijum ostaje bez telefona; after je kulturno-prihvaćena zona kamere (ekipa, intima, svitanje). Brief eksplicitno: „snimi svoj after, ne set". Ime app-a = format.
 3. **Pravno pre prve kampanje:** template pravila (prava korišćenja UGC za sponzora+nas, GDPR saglasnost snimljenih, muzička prava, porez na nagradu, platform contest pravila). Konkurs kreativnosti sa žirijem — NE izvlačenje.
 4. **Alkohol brendovi:** tek posle čistog pilota; strogi 18+.
 5. **Jedna MEGA kampanja u isto vreme** (scarcity = event, ne inventar).
