@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuests } from '@/hooks/useQuests';
-import { useStreak, useRewards, useCustomQuests } from '@/hooks/useQuestSystem';
+import { useStreak, useRewards, useCustomQuests, useSponsoredQuests } from '@/hooks/useQuestSystem';
 import { usePartyOfMonth, usePartyCandidates, usePartyOfMonthVote } from '@/hooks/usePartyOfMonth';
 import { useAuth } from '@/contexts/AuthContext';
 import { track } from '@/lib/analytics';
@@ -72,6 +72,7 @@ export const OSQuests = () => {
   const { profile } = useAuth();
   const { streak, claimedToday, shieldAvailable, claimedDates, claim: claimStreak, isClaiming } = useStreak();
   const { rewards, redeem, isRedeeming } = useRewards();
+  const { sponsored, accept, isAccepting } = useSponsoredQuests() as any;
   const { customQuests, create } = useCustomQuests() as any;
 
   const [hub, setHub] = useState<Hub>('quests');
@@ -112,7 +113,7 @@ export const OSQuests = () => {
     return DAYS.map((_, i) => { const d = new Date(now); d.setDate(now.getDate() - dow + i); return d.toISOString().split('T')[0]; });
   }, []);
 
-  const HUBS: { id: Hub; label: string }[] = [{ id: 'quests', label: '🎯 QUESTS' }, { id: 'rewards', label: '🎁 REWARDS' }, { id: 'streak', label: '🔥 STREAK' }];
+  const HUBS: { id: Hub; label: string }[] = [{ id: 'quests', label: '🎯 QUESTOVI' }, { id: 'rewards', label: '🎁 NAGRADE' }, { id: 'streak', label: '🔥 STREAK' }];
 
   return (
     <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', position: 'relative', paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
@@ -134,10 +135,45 @@ export const OSQuests = () => {
       {hub === 'quests' && (
         <>
           <div style={{ margin: '14px 16px 0', padding: 16, borderRadius: 18, background: `linear-gradient(140deg,${hexA(G.underground, 0.16)},${hexA(G.afterparty, 0.06)})`, border: `1px solid ${hexA(G.underground, 0.25)}`, textAlign: 'center' }}>
-            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.14em', color: OS.ink4 }}>QUESTS COMPLETED</div>
+            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.14em', color: OS.ink4 }}>ZAVRŠENO OVE NEDELJE</div>
             <div style={{ fontFamily: MONO, fontWeight: 600, fontSize: 36, color: OS.ink, marginTop: 4 }}>{done}<span style={{ fontSize: 18, color: OS.ink6 }}>/{quests.length || 0}</span></div>
-            <div style={{ fontFamily: MONO, fontSize: 10, color: G.underground, marginTop: 2 }}>{earnedXP} / {totalXP} XP EARNED</div>
+            <div style={{ fontFamily: MONO, fontSize: 10, color: G.underground, marginTop: 2 }}>{earnedXP} / {totalXP} XP OSVOJENO</div>
+            <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.12em', color: OS.ink6, marginTop: 8, borderTop: `1px solid ${OS.line}`, paddingTop: 8 }}>DOPRINOS → AFC → NAGRADE OD PARTNERA</div>
           </div>
+
+          {/* sponsored — real partners fund the rewards (ECONOMY §1 / PARTNERS ring 1) */}
+          {(sponsored || []).length > 0 && (
+            <div style={{ padding: '18px 16px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: G.house }}>★ PARTNERI ČASTE</span>
+                <span style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6 }}>NAGRADA SE UZIMA NA LICU MESTA</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {sponsored.map((s: any) => {
+                  const doneS = s.accepted && s.progress >= s.target_count;
+                  return (
+                    <div key={s.id} style={{ padding: 14, borderRadius: 16, background: OS.surface, border: `1px solid ${hexA(G.house, doneS ? 0.5 : 0.28)}` }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                        <span style={{ flex: 'none', width: 40, height: 40, borderRadius: 11, background: hexA(G.house, 0.13), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>{s.logo || '⭐'}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.14em', color: G.house }}>PARTNER · {(s.venue_name || '').toUpperCase()}</div>
+                          <div style={{ fontSize: 15, fontWeight: 600, color: OS.ink, marginTop: 3 }}>{s.title}</div>
+                          <div style={{ fontSize: 11.5, color: OS.ink5, marginTop: 3, lineHeight: 1.35 }}>{s.description}</div>
+                          <div style={{ display: 'inline-block', fontFamily: MONO, fontSize: 8.5, letterSpacing: '.1em', color: ROLE.energy, background: hexA(ROLE.energy, 0.1), border: `1px solid ${hexA(ROLE.energy, 0.22)}`, borderRadius: 6, padding: '2px 7px', marginTop: 7 }}>→ {s.reward_label}</div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12 }}>
+                        <span style={{ flex: 1, fontFamily: MONO, fontSize: 9, color: OS.ink6 }}>{s.spots_label || ''}</span>
+                        {s.accepted
+                          ? <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, color: doneS ? ROLE.energy : OS.ink5 }}>{doneS ? '✓ ZAVRŠENO' : `${s.progress}/${s.target_count} · U TOKU`}</span>
+                          : <button onClick={() => accept(s.id)} disabled={isAccepting} style={{ flex: 'none', cursor: 'pointer', fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: '7px 13px', borderRadius: 9, border: 0, background: G.house, color: '#0B0B0D' }}>PRIHVATI</button>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* party of the month — vote */}
           <OSPartyOfMonth />
@@ -183,7 +219,7 @@ export const OSQuests = () => {
               const pct = Math.min(100, Math.round((q.progress / Math.max(q.target_count, 1)) * 100));
               let btnLabel = 'ZAKLJUČANO'; let btnBg = 'rgba(255,255,255,.05)'; let btnFg: string = OS.ink7; let cursor = 'default';
               if (claimed) { btnLabel = '✓'; btnBg = hexA(G.festival, 0.15); btnFg = G.festival; }
-              else if (completed) { btnLabel = 'CLAIM ' + q.xp_reward; btnBg = col; btnFg = '#0B0B0D'; cursor = 'pointer'; }
+              else if (completed) { btnLabel = 'UZMI ' + q.xp_reward; btnBg = col; btnFg = '#0B0B0D'; cursor = 'pointer'; }
               return (
                 <div key={q.id} style={{ padding: 14, borderRadius: 16, background: OS.surface, border: `1px solid ${completed ? hexA(col, 0.3) : OS.line}` }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
@@ -229,9 +265,12 @@ export const OSQuests = () => {
       {/* ── REWARDS ── */}
       {hub === 'rewards' && (
         <div style={{ padding: '14px 16px 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 14, borderRadius: 14, background: OS.surface, border: `1px solid ${OS.line}`, marginBottom: 14 }}>
-            <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6 }}>🪙 AFC BALANS</span>
-            <span style={{ fontFamily: MONO, fontSize: 20, fontWeight: 600, color: G.festival }}>{balance.toLocaleString()}</span>
+          <div style={{ padding: 14, borderRadius: 14, background: OS.surface, border: `1px solid ${OS.line}`, marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6 }}>🪙 AFC BALANS</span>
+              <span style={{ fontFamily: MONO, fontSize: 20, fontWeight: 600, color: G.festival }}>{balance.toLocaleString()}</span>
+            </div>
+            <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.1em', color: OS.ink6, marginTop: 8, borderTop: `1px solid ${OS.line}`, paddingTop: 8 }}>FOND PUNE PARTNERI · NAGRADE SU STVARNE · UZIMAŠ NA LICU MESTA</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {rewards.map((r: any) => {

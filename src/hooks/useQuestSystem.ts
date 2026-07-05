@@ -154,9 +154,9 @@ export const useSponsoredQuests = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sponsored-quests'] });
-      toast('Quest accepted ⭐', { description: 'Complete it in-venue to claim the perk.' });
+      toast('Quest prihvaćen ⭐', { description: 'Završi ga na lokaciji i uzmi nagradu.' });
     },
-    onError: (e: any) => toast('Could not accept', { description: e?.message ?? 'Try again.' }),
+    onError: (e: any) => toast('Nije uspelo', { description: e?.message ?? 'Pokušaj ponovo.' }),
   });
 
   return { sponsored, accept: accept.mutate, isAccepting: accept.isPending };
