@@ -90,6 +90,12 @@
 | **Wolt / Glovo** | after-food = bukvalno „After" u imenu app-a; vaučeri za afterparty klopu |
 | **Yettel / A1 / mts** | telco youth tarife — festivali ih već imaju kao sponzore; data-friendly app priča |
 
+### Youth travel (MEGA QUEST kandidati — ECONOMY §8b)
+| Brend | Angle |
+|---|---|
+| **Jungle Travel** | 🎯 **prvi MEGA QUEST pilot** — youth travel, ista publika 1:1, čist brend (grant-friendly), nagrada = njihov proizvod (put u Amsterdam; trošak marginalan, percipirana vrednost ogromna). Crew content kampanja → glasanje u appu |
+| ⚠️ ostale youth agencije (proveriti aktuelne) | isti model — „road to festival/city break" kampanje po sezoni |
+
 ### Festivali (domaći)
 | Festival | Fit | Šta razmenjujemo |
 |---|---|---|

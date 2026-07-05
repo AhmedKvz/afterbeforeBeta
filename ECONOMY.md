@@ -117,6 +117,29 @@ Nasleđuje ceo Dance Floor anti-cheat plan, plus:
 
 ---
 
+## 8b · MEGA QUEST — sponzorska content kampanja (marketing mašina)
+
+> Evolucija Tier 2 (sponsored challenges) u punu UGC mašinu. Ovo je i „Argentina prize" mehanika iz master plana — sada je sponzor plaća.
+
+**Petlja:** sponzor plati nagradu (svoj proizvod — npr. Jungle Travel: put u Amsterdam) → **crew quest**: ekipe prave sadržaj sa stvarnih noći → upload na **YouTube + IG (#afterbefore + #sponzor) + u app** → **glasanje SAMO u aplikaciji** → shortlist zajednice + žiri/sponzor finale → pobednik nosi nagradu, svi učesnici AFC.
+
+**Zašto radi (dva smera):** sadržaj izlazi napolje = akvizicija za app i reach za sponzora; glasanje unutra = spoljna publika mora da instalira app. *Content out → audience in.* Sponzoru prodajemo ono što influencer marketing nema: **N komada verifikovano-autentičnog UGC + merljiv engagement + instalacije**.
+
+**Unikatni gate (USP):** submission mora biti vezan za **verifikovano prisustvo** (check-in ± Dance signal sa te noći) — „authenticity, verified". Niko drugi to ne može da garantuje.
+
+**Pravila mašine:**
+1. **Glasanje:** samo verifikovani nalozi sa istorijom prisustva (Z5 trust-weighted); **hibrid** — zajednica bira top 5, žiri/sponzor bira pobednika (ubija vote-farming i popularity-contest; pravno = konkurs veštine, ne igra na sreću).
+2. **Kultura (raver #7):** brief nagrađuje **BEFORE/AFTER sadržaj** (spremanje, pre-game, putovanje, afters, day-after recap) — NE snimanje tokom svetog prozora. Ime app-a = format.
+3. **Pravno pre prve kampanje:** template pravila (prava korišćenja UGC za sponzora+nas, GDPR saglasnost snimljenih, muzička prava, porez na nagradu, platform contest pravila). Konkurs kreativnosti sa žirijem — NE izvlačenje.
+4. **Alkohol brendovi:** tek posle čistog pilota; strogi 18+.
+5. **Jedna MEGA kampanja u isto vreme** (scarcity = event, ne inventar).
+
+**Prvi pilot:** Jungle Travel (youth travel, ista publika, čist brend, nagrada = njihov proizvod). Sponsor report: submissions, reach, glasovi, unikatni glasači, instalacije tokom kampanje, cost-per-authentic-content vs influencer benchmark.
+
+**Data model:** `sponsor_campaign` (brief, sponzor, nagrada, prozor, pravila) → `campaign_submissions` (user/crew, in-app media + spoljni linkovi, night/check-in proof) → `campaign_votes` (glasač, težina) → rezultati. In-app: MEGA QUEST kartica u Quest hubu + galerija za glasanje (Z11).
+
+---
+
 ## 9 · Šta fali da F1 krene (build lista)
 
 1. **`contribution_ledger` migracija** — jedna tabela (user, tip doprinosa, AFC, dokaz-ref, night) + RPC-jevi; objedini postojeće XP/quest/referral tokove umesto da ih menja.
