@@ -36,15 +36,24 @@ export const useQuests = () => {
     enabled: !!user,
   });
 
-  // Auto-assign quests if none exist for this week
+  // Rows pointing to a still-active quest — rows left over from a retired
+  // content set don't count, otherwise a content swap leaves users questless
+  // until next Monday.
+  const activeProgress = userProgress.filter((up: any) => quests.some((q) => q.id === up.quest_id));
+
+  // Top-up to 5 active quests for the week. Assigns only quests the user
+  // doesn't already have a row for (no duplicates), so a content swap
+  // mid-week refills the set even if some old-set ids survived.
+  const WEEKLY_TARGET = 5;
   const { data: assigned } = useQuery({
-    queryKey: ['assign-quests', user?.id, weekStart, quests.length],
+    queryKey: ['assign-quests', user?.id, weekStart, quests.length, activeProgress.length],
     queryFn: async () => {
-      if (!user || quests.length === 0 || userProgress.length > 0) return false;
-      
-      // Pick 5 random quests
-      const shuffled = [...quests].sort(() => Math.random() - 0.5).slice(0, 5);
-      
+      if (!user || quests.length === 0 || activeProgress.length >= WEEKLY_TARGET) return false;
+
+      const unassigned = quests.filter((q) => !userProgress.some((up: any) => up.quest_id === q.id));
+      const shuffled = [...unassigned].sort(() => Math.random() - 0.5).slice(0, WEEKLY_TARGET - activeProgress.length);
+      if (shuffled.length === 0) return false;
+
       const inserts = shuffled.map((q) => ({
         user_id: user.id,
         quest_id: q.id,
@@ -58,7 +67,7 @@ export const useQuests = () => {
       queryClient.invalidateQueries({ queryKey: ['user-quests'] });
       return true;
     },
-    enabled: !!user && quests.length > 0 && userProgress.length === 0,
+    enabled: !!user && !progressLoading && quests.length > 0 && activeProgress.length < WEEKLY_TARGET,
   });
 
   const claimReward = useMutation({
