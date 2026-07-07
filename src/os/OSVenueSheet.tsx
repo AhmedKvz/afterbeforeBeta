@@ -15,6 +15,7 @@ import { OSFeedbackSheet } from './OSFeedbackSheet';
 import { OSEventRow } from './OSEventRow';
 import { OSDanceMode } from './OSDanceMode';
 import { OSSetTimes } from './OSSetTimes';
+import { OSCrew } from './OSCrew';
 import { OS, G, hexA, MONO, HATCH } from './osTheme';
 
 const db = supabase as any;
@@ -157,6 +158,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
   const [pview, setPview] = useState<'list' | 'swipe'>('list');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [danceOpen, setDanceOpen] = useState(false);
+  const [crewOpen, setCrewOpen] = useState(false);
 
   // Live presence (opt-in) — only when opened from a heat-map venue.
   const { data: presence } = useVenuePresence(venue.presenceId || null);
@@ -260,6 +262,18 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
               <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 2 }}>PLEŠI · SKORUJ · LEADERBOARD NOĆI</div>
             </div>
             <span style={{ color: G.afterparty, fontSize: 18 }}>›</span>
+          </button>
+        </div>
+
+        {/* Nađi ekipu — form a crew for tonight */}
+        <div style={{ padding: '10px 16px 0' }}>
+          <button onClick={() => setCrewOpen(true)} style={{ width: '100%', padding: 15, borderRadius: 16, border: `1px solid ${hexA(G.community, 0.4)}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: `linear-gradient(135deg, ${hexA(G.community, 0.14)}, ${hexA(G.techno, 0.06)})`, textAlign: 'left' }}>
+            <span style={{ fontSize: 26 }}>🧑‍🤝‍🧑</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, fontSize: 15, color: OS.ink }}>Nađi ekipu za večeras</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 2 }}>NIKAD NE IZLAZIŠ SAM · GRUPA OD ISTE NAMERE</div>
+            </div>
+            <span style={{ color: G.community, fontSize: 18 }}>›</span>
           </button>
         </div>
 
@@ -408,6 +422,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
       </div>
       {feedback && <OSFeedbackSheet venueId={feedback} onDone={() => setFeedback(null)} />}
       {danceOpen && <OSDanceMode venueId={venue.venueId} venueName={venue.name} onClose={() => setDanceOpen(false)} />}
+      {crewOpen && <OSCrew eventId={venue.eventId ?? null} venueId={venue.venueId ?? null} title={venue.name} onClose={() => setCrewOpen(false)} />}
     </>
   );
 };
