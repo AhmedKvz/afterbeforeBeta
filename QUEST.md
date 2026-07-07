@@ -33,8 +33,9 @@
 
 `vibe` izbačen — nema OS akciju koja ga meri (pravilo #3 iz srži).
 
-### Sponsored (živ u bazi) — samo realni partneri
-Kult „Prvih 50 na vratima" (welcome shot) · 25 Bar „Before ritual" (koktel) · Para „Dovedi ekipu" (skip-line ×4). Demo ne-partneri (Drugstore/Kafeterija) penzionisani.
+### Sponsored — dva tipa (`kind`)
+- **perk** — nagrada na licu mesta: Kult „Prvih 50", 25 Bar „Before ritual", Para „Dovedi ekipu".
+- **content** 🆕 — UGC kampanja (ECONOMY §8b): ljudi postave **foto/video sa aftera**, verifikovani članovi (≥1 check-in) glasaju, sponzor plaća nagradu (karte/putovanje/roba). Showcase u beti: Heineken „Najbolja after fotka" (foto), Jungle Travel „Najbolji before video" (video). Kroz `campaign_submissions` + `campaign_votes` + `OSCampaign` galeriju. **Ovo je pravac sponsored questova** — ne check-in mehanika (raniji #40 napušten). Founder pravi content kampanje sam u War Room-u (kind/media polja).
 
 ### Mehanika (kod)
 - **Tracking pokrivenost 100% u OS toku:** check-in→`check_in`+`explore` · spark→`match` · Idem→`signal` · uzvrati iskru→`social` · dance sesija→`dance` · story→`story` · recenzija→`review` · glas→`vote_best_party`. Engine: `src/services/questProgress.ts` (`incrementQuestProgress`).
