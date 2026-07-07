@@ -15,10 +15,12 @@
 
 ---
 
-## ✅ Zatvoreno (2026-07-05, commit bf789d1)
-- **F1** midnight LIVE bug → izdvojeno u `src/lib/nightState.ts` (night-aware) + testirano.
-- **F7** dead Instagram OAuth dugme → uklonjeno sa Auth.
-- **Testovi**: 24 nova (nightState lifecycle, geolocation geofence, getCurrentWeekStart) — 25/25 prolazi. *Ostaje:* SQL RPC-jevi (`process_secure_checkin`, `get_beta_metrics`) traže integracioni test sa test-DB (zaseban infra korak).
+## ✅ Zatvoreno (2026-07-05)
+- **F1** midnight LIVE bug → izdvojeno u `src/lib/nightState.ts` (night-aware) + testirano. (`bf789d1`)
+- **F7** dead Instagram OAuth dugme → uklonjeno sa Auth. (`bf789d1`)
+- **Testovi**: 31 nova (nightState lifecycle, geolocation geofence, getCurrentWeekStart, setTimes) — 39/39 prolazi. *Ostaje:* SQL RPC-jevi (`process_secure_checkin`, `get_beta_metrics`) traže integracioni test sa test-DB.
+- **#47 Set times** (satnica) isporučeno + testirano + verifikovano uživo. (`7425701`)
+- **#12** test nalozi obrisani iz prod-a (čiste metrike). **#37/#38** SR ulaz + iskren-broj pass.
 
 ---
 
