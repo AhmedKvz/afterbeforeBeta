@@ -7,6 +7,7 @@ import { usePartyOfMonth, usePartyCandidates, usePartyOfMonthVote } from '@/hook
 import { useAuth } from '@/contexts/AuthContext';
 import { track } from '@/lib/analytics';
 import { toast } from 'sonner';
+import { OSCampaign } from '../OSCampaign';
 import { OS, G, hexA, MONO, ROLE } from '../osTheme';
 
 const LEDGER_LABEL: Record<string, string> = { checkin: '📍 Check-in', quest: '🎯 Quest', set_times: '🕒 Satnica', early: '⚡ Rani dolazak' };
@@ -90,6 +91,7 @@ export const OSQuests = () => {
   const [cat, setCat] = useState('all');
   const [xp, setXp] = useState<{ show: boolean; val: number }>({ show: false, val: 0 });
   const [maker, setMaker] = useState(false);
+  const [campaign, setCampaign] = useState<string | null>(null);
   const [form, setForm] = useState({ title: '', target: 2, xp: 150, crew: false });
 
   const balance = (profile as any)?.spendable_xp ?? profile?.xp ?? 0;
@@ -174,8 +176,10 @@ export const OSQuests = () => {
                         </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12 }}>
-                        <span style={{ flex: 1, fontFamily: MONO, fontSize: 9, color: OS.ink6 }}>{s.spots_label || ''}</span>
-                        {s.accepted
+                        <span style={{ flex: 1, fontFamily: MONO, fontSize: 9, color: OS.ink6 }}>{s.kind === 'content' ? (s.media === 'video' ? '🎬 VIDEO · GLASA SCENA' : '📸 FOTO · GLASA SCENA') : (s.spots_label || '')}</span>
+                        {s.kind === 'content'
+                          ? <button onClick={() => setCampaign(s.id)} style={{ flex: 'none', cursor: 'pointer', fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: '7px 13px', borderRadius: 9, border: 0, background: G.house, color: '#0B0B0D' }}>UĐI · GLASAJ</button>
+                          : s.accepted
                           ? <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, color: doneS ? ROLE.energy : OS.ink5 }}>{doneS ? '✓ ZAVRŠENO' : `${s.progress}/${s.target_count} · U TOKU`}</span>
                           : <button onClick={() => accept(s.id)} disabled={isAccepting} style={{ flex: 'none', cursor: 'pointer', fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: '7px 13px', borderRadius: 9, border: 0, background: G.house, color: '#0B0B0D' }}>PRIHVATI</button>}
                       </div>
@@ -352,6 +356,7 @@ export const OSQuests = () => {
       )}
 
       {xp.show && <div style={{ position: 'fixed', left: '50%', bottom: 150, zIndex: 30, fontFamily: MONO, fontWeight: 600, fontSize: 18, color: G.underground, animation: 'os-xp 1.4s ease forwards', pointerEvents: 'none' }}>+{xp.val} XP</div>}
+      {campaign && <OSCampaign sponsoredId={campaign} onClose={() => setCampaign(null)} />}
     </div>
   );
 };
