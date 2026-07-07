@@ -46,7 +46,7 @@
 |---|---|---|---|
 | F1 | 🟠 | OSHome `stateOf` | `LIVE = date===today && now>=start` — posle ponoći datum se prevrne, noć u toku više ne piše LIVE. Treba „night" logika (pre-6h = prethodni dan), kao `_dance_night()`. |
 | F2 | 🟠 | Quest sponsored | „Prvih 50 / Before ritual / Dovedi ekipu" ne mere progres automatski — accept postoji, ali check-in ih ne inkrementira (#40 open). Korisnik ne može da završi sponsored quest. |
-| F3 | 🟠 | XP == AFC | Prikazuju se kao dve valute a isti su broj (`spendable_xp`). Konfuzija + blokira pravu ekonomiju (ECONOMY F1 ledger #39). |
+| F3 | ✅ | XP vs AFC | ~~Isti broj~~ — zapravo odvojeni (`xp`=reputacija, `spendable_xp`=AFC, `afc_ledger`=log). Pravi bag bio: quest claim je davao samo XP, ne AFC. Rešeno (`9374dc2`): `claim_quest` RPC kreditira XP+AFC+ledger server-side (sigurno), katalog SR, ledger peek u NAGRADE. |
 | F4 | 🟡 | OSVenueSheet reviews | Recenzija se piše samo uz `eventId`; venue otvoren bez event konteksta → ne može da oceni (ali quest „Iz prve ruke" traži recenziju). |
 | F5 | 🟡 | Quest tracking | Progres se broji samo unapred — nema retroaktivnog (postojeće akcije pre v2 se ne računaju). Po dizajnu, ali korisnik može biti zbunjen. |
 | F6 | 🟡 | `useQuests` | `const { data: assigned }` — rezultat se ne koristi (query se drži samo zbog side-efekta). Radi, ali miriše; lako se slučajno „očisti". |
