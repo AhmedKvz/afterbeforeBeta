@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useQuests } from '@/hooks/useQuests';
 import { useStreak, useRewards, useCustomQuests, useSponsoredQuests } from '@/hooks/useQuestSystem';
 import { usePartyOfMonth, usePartyCandidates, usePartyOfMonthVote } from '@/hooks/usePartyOfMonth';
@@ -6,6 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { track } from '@/lib/analytics';
 import { toast } from 'sonner';
 import { OS, G, hexA, MONO, ROLE } from '../osTheme';
+
+const LEDGER_LABEL: Record<string, string> = { checkin: '📍 Check-in', quest: '🎯 Quest', set_times: '🕒 Satnica', early: '⚡ Rani dolazak' };
 
 const TYPE_COL: Record<string, string> = {
   check_in: G.techno, explore: G.community, match: G.afterparty, social: G.afterparty,
@@ -74,6 +78,13 @@ export const OSQuests = () => {
   const { rewards, redeem, isRedeeming } = useRewards();
   const { sponsored, accept, isAccepting } = useSponsoredQuests() as any;
   const { customQuests, create } = useCustomQuests() as any;
+  const { data: ledger = [] } = useQuery({
+    queryKey: ['afc-ledger'],
+    queryFn: async () => {
+      const { data } = await (supabase as any).from('afc_ledger').select('delta, reason, created_at').order('created_at', { ascending: false }).limit(6);
+      return data || [];
+    },
+  });
 
   const [hub, setHub] = useState<Hub>('quests');
   const [cat, setCat] = useState('all');
@@ -272,6 +283,19 @@ export const OSQuests = () => {
             </div>
             <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.1em', color: OS.ink6, marginTop: 8, borderTop: `1px solid ${OS.line}`, paddingTop: 8 }}>FOND PUNE PARTNERI · NAGRADE SU STVARNE · UZIMAŠ NA LICU MESTA</div>
           </div>
+
+          {/* recent AFC — transparency (kako se zarađuje) */}
+          {ledger.length > 0 && (
+            <div style={{ padding: '10px 14px', borderRadius: 14, background: OS.surface, border: `1px solid ${OS.line}`, marginBottom: 14 }}>
+              <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.16em', color: OS.ink6, marginBottom: 8 }}>NEDAVNO ZARAĐENO</div>
+              {ledger.map((l: any, i: number) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0' }}>
+                  <span style={{ fontSize: 12, color: OS.ink3 }}>{LEDGER_LABEL[l.reason] || l.reason}</span>
+                  <span style={{ fontFamily: MONO, fontSize: 12, fontWeight: 600, color: l.delta >= 0 ? ROLE.energy : G.afterparty }}>{l.delta >= 0 ? '+' : ''}{l.delta}</span>
+                </div>
+              ))}
+            </div>
+          )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {rewards.map((r: any) => {
               const afford = balance >= r.cost_xp && !r.is_locked;

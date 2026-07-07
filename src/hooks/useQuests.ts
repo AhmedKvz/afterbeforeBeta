@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { awardXP } from '@/services/gamification';
 import { getCurrentWeekStart } from '@/services/questProgress';
 
 export const useQuests = () => {
@@ -71,20 +70,18 @@ export const useQuests = () => {
   });
 
   const claimReward = useMutation({
-    mutationFn: async ({ questId, xpReward }: { questId: string; xpReward: number }) => {
+    // Server-validated: credits XP (reputation) + AFC (currency) + afc_ledger
+    // atomically. Client can't mint — the RPC checks the quest is completed.
+    mutationFn: async ({ questId }: { questId: string; xpReward?: number }) => {
       if (!user) throw new Error('Not logged in');
-      
-      await awardXP(user.id, xpReward, 'Quest completed');
-      
-      await supabase
-        .from('user_quests')
-        .update({ xp_claimed: true })
-        .eq('user_id', user.id)
-        .eq('quest_id', questId)
-        .eq('week_start', weekStart);
+      const { data, error } = await (supabase as any).rpc('claim_quest', { p_quest_id: questId });
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-quests'] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['afc-ledger'] });
     },
   });
 
