@@ -7,6 +7,7 @@ import { OSLucky100Modal } from '../OSLucky100Modal';
 import { OSStories } from '../OSStories';
 import { OSEventRow } from '../OSEventRow';
 import { OS, G, hexA, MONO, HATCH, stripe, genreCol, CONIC } from '../osTheme';
+import { lifecycleKey } from '@/lib/nightState';
 import type { OSVenue } from '../OSVenueSheet';
 
 const TYPE_META: Record<string, { emoji: string; label: string }> = {
@@ -68,13 +69,12 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
   const todayStr = new Date().toISOString().split('T')[0];
   const tonightCount = events.filter((e) => e.date === todayStr && e.venue_type !== 'afterplace').length;
 
-  // Lifecycle state from time + going-count. LIVE = tonight & started; else SKUPLJA SE / NAJAVLJEN.
+  // Lifecycle state from time + going-count (night-aware: survives midnight roll).
   const stateOf = (e: Ev): { label: string; color: string } => {
     const going = signals[e.id] || 0;
-    const startMin = e.start_time ? parseInt(e.start_time.slice(0, 2), 10) * 60 + parseInt(e.start_time.slice(3, 5), 10) : null;
-    const now = new Date(); const nowMin = now.getHours() * 60 + now.getMinutes();
-    if (e.date === todayStr && startMin != null && nowMin >= startMin) return { label: 'LIVE SADA', color: LIVE_RED };
-    if (going > 0) return { label: `SKUPLJA SE · ${going} IDE`, color: G.house };
+    const k = lifecycleKey(e, going, new Date());
+    if (k === 'live') return { label: 'LIVE SADA', color: LIVE_RED };
+    if (k === 'gathering') return { label: `SKUPLJA SE · ${going} IDE`, color: G.house };
     return { label: 'NAJAVLJEN', color: OS.ink6 };
   };
 

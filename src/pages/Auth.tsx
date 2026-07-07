@@ -306,19 +306,6 @@ const Auth = () => {
                   )}
                 </button>
               </div>
-
-              {/* Divider */}
-              <div className="flex items-center gap-4 my-8">
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-muted-foreground text-sm">ili nastavi preko</span>
-                <div className="flex-1 h-px bg-border" />
-              </div>
-
-              {/* Social Login */}
-              <button className="w-full glass-card py-4 flex items-center justify-center gap-3 hover:border-primary/50">
-                <span className="text-xl">📷</span>
-                <span className="font-medium">Instagram</span>
-              </button>
             </motion.div>
           )}
         </AnimatePresence>
