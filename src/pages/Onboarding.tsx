@@ -86,22 +86,22 @@ const Onboarding = () => {
   const handleNext = () => {
     if (isVenue) {
       if (step === 1) {
-        if (!venueName.trim()) { toast.error('Please enter your venue name'); return; }
-        if (!venueAddress.trim()) { toast.error('Please enter your venue address'); return; }
-        if (!venueCity) { toast.error('Please select your city'); return; }
+        if (!venueName.trim()) { toast.error('Unesi ime svog mesta'); return; }
+        if (!venueAddress.trim()) { toast.error('Unesi adresu mesta'); return; }
+        if (!venueCity) { toast.error('Izaberi grad'); return; }
       }
       if (step === 2 && venueGenres.length < 1) {
-        toast.error('Please select at least 1 music genre');
+        toast.error('Izaberi bar 1 žanr');
         return;
       }
     } else {
       if (step === 1) {
-        if (!name.trim()) { toast.error('Please enter your name'); return; }
-        if (!age || parseInt(age) < 18 || parseInt(age) > 99) { toast.error('Please enter a valid age (18-99)'); return; }
-        if (!city) { toast.error('Please select your city'); return; }
+        if (!name.trim()) { toast.error('Unesi ime'); return; }
+        if (!age || parseInt(age) < 18 || parseInt(age) > 99) { toast.error('Unesi validne godine (18–99)'); return; }
+        if (!city) { toast.error('Izaberi grad'); return; }
       }
       if (step === 2 && selectedGenres.length < 3) {
-        toast.error('Please select at least 3 music genres');
+        toast.error('Izaberi bar 3 žanra');
         return;
       }
     }
@@ -179,28 +179,28 @@ const Onboarding = () => {
       return (
         <motion.div key="v-step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Venue Info</h1>
-            <p className="text-muted-foreground">Tell us about your venue</p>
+            <h1 className="text-3xl font-bold mb-2">O tvom mestu</h1>
+            <p className="text-muted-foreground">Reci nam osnovno o mestu</p>
           </div>
           <div className="space-y-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Venue Name *</label>
-              <input type="text" placeholder="e.g. Club Euphoria" value={venueName} onChange={(e) => setVenueName(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
+              <input type="text" placeholder="npr. Klub Kult" value={venueName} onChange={(e) => setVenueName(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Address *</label>
-              <input type="text" placeholder="Street address" value={venueAddress} onChange={(e) => setVenueAddress(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
+              <input type="text" placeholder="Ulica i broj" value={venueAddress} onChange={(e) => setVenueAddress(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">City *</label>
               <select value={venueCity} onChange={(e) => setVenueCity(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none">
-                <option value="">Select city</option>
+                <option value="">Izaberi grad</option>
                 {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Capacity</label>
-              <input type="number" placeholder="Max capacity" value={venueCapacity} onChange={(e) => setVenueCapacity(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
+              <input type="number" placeholder="Maks. kapacitet" value={venueCapacity} onChange={(e) => setVenueCapacity(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
             </div>
           </div>
         </motion.div>
@@ -210,8 +210,8 @@ const Onboarding = () => {
       return (
         <motion.div key="v-step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Your Vibe</h1>
-            <p className="text-muted-foreground">Select 1-5 music genres</p>
+            <h1 className="text-3xl font-bold mb-2">Tvoj zvuk</h1>
+            <p className="text-muted-foreground">Izaberi 1–5 žanrova</p>
           </div>
           <div className="flex flex-wrap gap-3">
             {MUSIC_GENRES.map((genre) => {
@@ -227,7 +227,7 @@ const Onboarding = () => {
           <div className="text-sm text-muted-foreground">Selected: {venueGenres.length}/5</div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Short Description</label>
-            <textarea placeholder="Describe your venue in a few words..." value={venueDescription} onChange={(e) => setVenueDescription(e.target.value.slice(0, 200))} maxLength={200} rows={3} className="w-full px-4 py-3 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none resize-none" />
+            <textarea placeholder="Opiši mesto u par reči…" value={venueDescription} onChange={(e) => setVenueDescription(e.target.value.slice(0, 200))} maxLength={200} rows={3} className="w-full px-4 py-3 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none resize-none" />
             <p className="text-xs text-muted-foreground text-right">{venueDescription.length}/200</p>
           </div>
         </motion.div>
@@ -237,8 +237,8 @@ const Onboarding = () => {
     return (
       <motion.div key="v-step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Branding</h1>
-          <p className="text-muted-foreground">Add your logo and socials</p>
+          <h1 className="text-3xl font-bold mb-2">Brending</h1>
+          <p className="text-muted-foreground">Dodaj logo i mreže</p>
         </div>
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
@@ -254,7 +254,7 @@ const Onboarding = () => {
             <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
             <span className="btn-gradient inline-flex items-center gap-2 px-6 py-3 rounded-xl">
               <Camera className="w-5 h-5" />
-              {venueLogoPreview ? 'Change Logo' : 'Upload Logo'}
+              {venueLogoPreview ? 'Promeni logo' : 'Dodaj logo'}
             </span>
           </label>
         </div>
@@ -281,22 +281,22 @@ const Onboarding = () => {
       return (
         <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Let's get started</h1>
-            <p className="text-muted-foreground">Tell us a bit about yourself</p>
+            <h1 className="text-3xl font-bold mb-2">Da počnemo</h1>
+            <p className="text-muted-foreground">Par stvari o tebi — da ti pokažemo tvoju noć</p>
           </div>
           <div className="space-y-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">What's your name?</label>
-              <input type="text" placeholder="First Name" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
+              <input type="text" placeholder="Ime ili nadimak" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">How old are you?</label>
-              <input type="number" placeholder="Age" value={age} onChange={(e) => setAge(e.target.value)} min={18} max={99} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
+              <input type="number" placeholder="Godine (18+)" value={age} onChange={(e) => setAge(e.target.value)} min={18} max={99} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Your city?</label>
               <select value={city} onChange={(e) => setCity(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none">
-                <option value="">Select city</option>
+                <option value="">Izaberi grad</option>
                 {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
@@ -308,8 +308,8 @@ const Onboarding = () => {
       return (
         <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
           <div>
-            <h1 className="text-3xl font-bold mb-2">What music do you love?</h1>
-            <p className="text-muted-foreground">Select 3-5 genres</p>
+            <h1 className="text-3xl font-bold mb-2">Šta puštaš kad ti je važno?</h1>
+            <p className="text-muted-foreground">Izaberi 3–5 žanrova</p>
           </div>
           <div className="flex flex-wrap gap-3">
             {MUSIC_GENRES.map((genre) => {
@@ -330,8 +330,8 @@ const Onboarding = () => {
     return (
       <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Add your best photo</h1>
-          <p className="text-muted-foreground">This will be your profile picture</p>
+          <h1 className="text-3xl font-bold mb-2">Dodaj najbolju fotku</h1>
+          <p className="text-muted-foreground">Ovo je tvoja profilna</p>
         </div>
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
@@ -347,7 +347,7 @@ const Onboarding = () => {
             <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
             <span className="btn-gradient inline-flex items-center gap-2 px-6 py-3 rounded-xl">
               <Camera className="w-5 h-5" />
-              {avatarPreview ? 'Change Photo' : 'Upload Photo'}
+              {avatarPreview ? 'Promeni fotku' : 'Dodaj fotku'}
             </span>
           </label>
         </div>
@@ -426,11 +426,11 @@ const Onboarding = () => {
       <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background to-transparent">
         {step < 3 ? (
           <button onClick={handleNext} className="w-full btn-gradient py-4 rounded-xl flex items-center justify-center gap-2">
-            Next <ChevronRight className="w-5 h-5" />
+            Dalje <ChevronRight className="w-5 h-5" />
           </button>
         ) : (
           <button onClick={handleFinish} disabled={loading} className="w-full btn-gradient py-4 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
-            {loading ? 'Saving...' : 'Finish Setup ✓'}
+            {loading ? 'Čuvam…' : 'Uđi u scenu ✓'}
           </button>
         )}
       </div>

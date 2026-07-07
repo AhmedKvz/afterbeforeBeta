@@ -90,6 +90,17 @@ export const OSExplore = ({ onOpenVenue }: { onOpenVenue: (v: OSVenue) => void }
         <div style={{ position: 'absolute', bottom: 10, left: 12, fontFamily: MONO, fontSize: 10, color: OS.ink5 }}>{filtered.length} MESTA · {liveTotal} LIVE</div>
       </div>
 
+      {/* empty-state: quiet city → point to the weekend, don't showcase the void */}
+      {liveTotal === 0 && (
+        <div style={{ margin: '12px 16px 0', padding: '12px 14px', borderRadius: 14, background: `linear-gradient(140deg,${hexA(G.afterparty, 0.1)},transparent)`, border: `1px solid ${hexA(G.afterparty, 0.25)}`, display: 'flex', alignItems: 'center', gap: 11 }}>
+          <span style={{ fontSize: 20 }}>🌙</span>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: OS.ink }}>Tišina pre bure.</div>
+            <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 2 }}>GRAD SE PALI VIKENDOM — POGLEDAJ ŠTA SE SPREMA NA HOME.</div>
+          </div>
+        </div>
+      )}
+
       {/* ranked venue list — RA/OS rows */}
       <div style={{ padding: '20px 16px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -117,7 +128,7 @@ const VenueRow = ({ v, onClick }: { v: any; onClick: () => void }) => {
           <span style={{ color: ROLE.genre }}>{(v.genreLabel || v.type || '').toUpperCase()}</span>
           <span style={{ color: OS.ink6 }}> · {(v.neighborhood || 'BEOGRAD').toUpperCase()}</span>
         </div>
-        <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink2, marginTop: 3 }}>{here} ovde · {v.walk ?? '—'} min</div>
+        <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink2, marginTop: 3 }}>{here > 0 ? `${here} ovde` : 'mirno'} · {v.walk ?? '—'} min</div>
       </div>
       <div style={{ flex: 'none', textAlign: 'right' }}>
         <div style={{ fontFamily: MONO, fontSize: 19, fontWeight: 600, color: ROLE.energy }}>{v.heat ?? 0}</div>

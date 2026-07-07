@@ -8,8 +8,8 @@ import { z } from 'zod';
 import { cn } from '@/lib/utils';
 
 const authSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email('Unesi ispravnu email adresu'),
+  password: z.string().min(6, 'Lozinka mora imati bar 6 karaktera'),
 });
 
 type AccountType = 'party_goer' | 'club_venue';
@@ -46,7 +46,7 @@ const Auth = () => {
 
   const handleContinue = () => {
     if (!accountType) {
-      toast.error('Please select an account type');
+      toast.error('Izaberi tip naloga');
       return;
     }
     setAuthStep(1);
@@ -67,18 +67,18 @@ const Auth = () => {
         const { error } = await signUp(email, password, accountType || 'party_goer');
         if (error) {
           if (error.message.includes('already registered')) {
-            toast.error('This email is already registered. Please sign in instead.');
+            toast.error('Ovaj email je već registrovan — prijavi se.');
           } else {
             toast.error(error.message);
           }
         } else {
-          toast.success('Check your email to confirm your account!');
+          toast.success('Proveri email da potvrdiš nalog!');
         }
       } else {
         const { error } = await signIn(email, password);
         if (error) {
           if (error.message.includes('Invalid login')) {
-            toast.error('Invalid email or password');
+            toast.error('Pogrešan email ili lozinka');
           } else {
             toast.error(error.message);
           }
@@ -87,7 +87,7 @@ const Auth = () => {
         }
       }
     } catch (error) {
-      toast.error('An unexpected error occurred');
+      toast.error('Nešto je pošlo po zlu — pokušaj ponovo');
     } finally {
       setLoading(false);
     }
@@ -111,7 +111,7 @@ const Auth = () => {
             🌙
           </motion.div>
           <h1 className="text-4xl font-bold gradient-text mb-2">AfterBefore</h1>
-          <p className="text-muted-foreground">Where the night begins</p>
+          <p className="text-muted-foreground">Tvoja noć počinje ovde</p>
         </div>
 
         <AnimatePresence mode="wait">
@@ -124,7 +124,7 @@ const Auth = () => {
               exit={{ opacity: 0, y: -20 }}
               className="space-y-6"
             >
-              <p className="text-center text-muted-foreground text-sm">Choose your experience</p>
+              <p className="text-center text-muted-foreground text-sm">Ko si u sceni?</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Party Goer Card */}
@@ -149,8 +149,8 @@ const Auth = () => {
                     </motion.div>
                   )}
                   <div className="text-4xl mb-3">🎶</div>
-                  <h3 className="text-lg font-bold mb-1">Party Goer</h3>
-                  <p className="text-sm text-muted-foreground">Find events, match with people, earn rewards</p>
+                  <h3 className="text-lg font-bold mb-1">Klaber</h3>
+                  <p className="text-sm text-muted-foreground">Nađi žurke, poveži se, zaradi nagrade</p>
                 </motion.button>
 
                 {/* Club / Venue Card */}
@@ -175,8 +175,8 @@ const Auth = () => {
                     </motion.div>
                   )}
                   <div className="text-4xl mb-3">🏢</div>
-                  <h3 className="text-lg font-bold mb-1">Club / Venue</h3>
-                  <p className="text-sm text-muted-foreground">Post events, grow your audience, track engagement</p>
+                  <h3 className="text-lg font-bold mb-1">Klub / Mesto</h3>
+                  <p className="text-sm text-muted-foreground">Objavljuj događaje i prati svoju publiku</p>
                 </motion.button>
               </div>
 
@@ -192,7 +192,7 @@ const Auth = () => {
                       onClick={handleContinue}
                       className="w-full btn-gradient py-4 rounded-xl font-medium"
                     >
-                      Continue
+                      Nastavi
                     </button>
                   </motion.div>
                 )}
@@ -204,7 +204,7 @@ const Auth = () => {
                   onClick={handleSignInClick}
                   className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
-                  Already have an account? <span className="text-primary">Sign In</span>
+                  Već imaš nalog? <span className="text-primary">Prijavi se</span>
                 </button>
               </div>
             </motion.div>
@@ -226,7 +226,7 @@ const Auth = () => {
                   className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors text-sm mb-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  Back
+                  Nazad
                 </button>
               )}
 
@@ -254,7 +254,7 @@ const Auth = () => {
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Password"
+                      placeholder="Lozinka"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full pl-12 pr-12 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none"
@@ -281,7 +281,7 @@ const Auth = () => {
                   {loading ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
-                    <>{isSignUp ? 'Create Account' : 'Sign In'}</>
+                    <>{isSignUp ? 'Napravi nalog' : 'Prijavi se'}</>
                   )}
                 </button>
               </form>
@@ -300,9 +300,9 @@ const Auth = () => {
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {isSignUp ? (
-                    <>Already have an account? <span className="text-primary">Sign In</span></>
+                    <>Već imaš nalog? <span className="text-primary">Prijavi se</span></>
                   ) : (
-                    <>Don't have an account? <span className="text-primary">Sign Up</span></>
+                    <>Nemaš nalog? <span className="text-primary">Registruj se</span></>
                   )}
                 </button>
               </div>
@@ -310,7 +310,7 @@ const Auth = () => {
               {/* Divider */}
               <div className="flex items-center gap-4 my-8">
                 <div className="flex-1 h-px bg-border" />
-                <span className="text-muted-foreground text-sm">or continue with</span>
+                <span className="text-muted-foreground text-sm">ili nastavi preko</span>
                 <div className="flex-1 h-px bg-border" />
               </div>
 
