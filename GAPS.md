@@ -15,7 +15,14 @@
 
 ---
 
-## 1 · 🔵 Missing tests (najveći deficit)
+## ✅ Zatvoreno (2026-07-05, commit bf789d1)
+- **F1** midnight LIVE bug → izdvojeno u `src/lib/nightState.ts` (night-aware) + testirano.
+- **F7** dead Instagram OAuth dugme → uklonjeno sa Auth.
+- **Testovi**: 24 nova (nightState lifecycle, geolocation geofence, getCurrentWeekStart) — 25/25 prolazi. *Ostaje:* SQL RPC-jevi (`process_secure_checkin`, `get_beta_metrics`) traže integracioni test sa test-DB (zaseban infra korak).
+
+---
+
+## 1 · 🔵 Missing tests (deficit — delimično zatvoren)
 
 | Šta | Rizik bez testa |
 |---|---|
