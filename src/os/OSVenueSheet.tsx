@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,6 +17,7 @@ import { OSEventRow } from './OSEventRow';
 import { OSDanceMode } from './OSDanceMode';
 import { OSSetTimes } from './OSSetTimes';
 import { OSCrew } from './OSCrew';
+import { OSMatchCelebration } from './OSMatchCelebration';
 import { OS, G, hexA, MONO, HATCH } from './osTheme';
 
 const db = supabase as any;
@@ -150,7 +152,9 @@ const OSReviews = ({ venueName, eventId }: { venueName: string; eventId?: string
 
 export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () => void }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const qc = useQueryClient();
+  const [match, setMatch] = useState<{ name?: string; avatar?: string } | null>(null);
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
   const [sparked, setSparked] = useState<Set<string>>(new Set());
@@ -174,7 +178,10 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
   const toggleVisible = () => { if (venue.presenceId) setPresence.mutate({ venue: venue.presenceId, visible: !meVisible }); };
   const spark = (pid: string) => {
     if (!venue.venueId) return;
-    sendSpark.mutate({ to: pid, venue: venue.venueId });
+    const person = people.find((p) => p.user_id === pid);
+    sendSpark.mutate({ to: pid, venue: venue.venueId }, {
+      onSuccess: (res: any) => { if (res?.mutual) setMatch({ name: person?.name, avatar: person?.avatar }); },
+    });
     setSparked((s) => new Set(s).add(pid));
     if (user) incrementQuestProgress(user.id, 'match').catch(() => {});
   };
@@ -423,6 +430,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
       {feedback && <OSFeedbackSheet venueId={feedback} onDone={() => setFeedback(null)} />}
       {danceOpen && <OSDanceMode venueId={venue.venueId} venueName={venue.name} onClose={() => setDanceOpen(false)} />}
       {crewOpen && <OSCrew eventId={venue.eventId ?? null} venueId={venue.venueId ?? null} title={venue.name} onClose={() => setCrewOpen(false)} />}
+      {match && <OSMatchCelebration otherName={match.name} otherAvatar={match.avatar} onClose={() => setMatch(null)} onOpenChat={() => { setMatch(null); navigate('/matches'); }} />}
     </>
   );
 };
