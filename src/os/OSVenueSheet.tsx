@@ -14,6 +14,7 @@ import { shouldShowFeedback } from '@/components/FeedbackSheet';
 import { OSFeedbackSheet } from './OSFeedbackSheet';
 import { OSEventRow } from './OSEventRow';
 import { OSDanceMode } from './OSDanceMode';
+import { OSSetTimes } from './OSSetTimes';
 import { OS, G, hexA, MONO, HATCH } from './osTheme';
 
 const db = supabase as any;
@@ -148,6 +149,7 @@ const OSReviews = ({ venueName, eventId }: { venueName: string; eventId?: string
 
 export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () => void }) => {
   const { user } = useAuth();
+  const qc = useQueryClient();
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
   const [sparked, setSparked] = useState<Set<string>>(new Set());
@@ -184,7 +186,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
   const { data: venueEvents = [] } = useQuery({
     queryKey: ['os-venue-events', venue.name],
     queryFn: async () => {
-      const { data } = await db.from('events').select('id, title, date, start_time, image_url, music_genres, venue_name')
+      const { data } = await db.from('events').select('id, title, date, start_time, image_url, music_genres, venue_name, lineup, set_times')
         .eq('venue_name', venue.name).order('date', { ascending: true });
       return data || [];
     },
@@ -260,6 +262,12 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
             <span style={{ color: G.afterparty, fontSize: 18 }}>›</span>
           </button>
         </div>
+
+        {/* Satnica — set times for tonight / the opened event */}
+        {(() => {
+          const ste = venueEvents.find((e: any) => e.id === venue.eventId) || upcoming[0];
+          return ste ? <OSSetTimes event={ste} onSaved={() => qc.invalidateQueries({ queryKey: ['os-venue-events', venue.name] })} /> : null;
+        })()}
 
         {/* RA-style events at this venue */}
         {upcoming.length > 0 && (
