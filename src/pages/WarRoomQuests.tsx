@@ -68,7 +68,7 @@ const SponsoredForm = ({ item, onDone }: { item: any; onDone: () => void }) => {
   const [f, setF] = useState({
     venue_name: item?.venue_name || '', logo: item?.logo || '⭐', title: item?.title || '', description: item?.description || '',
     reward_label: item?.reward_label || '', target_count: item?.target_count || 1, xp_reward: item?.xp_reward ?? 100, spots_label: item?.spots_label || '', is_active: item?.is_active ?? true,
-    kind: item?.kind || 'perk', media: item?.media || 'photo',
+    kind: item?.kind || 'perk', media: item?.media || 'photo', rule: item?.rule || 'checkin',
   });
   const [busy, setBusy] = useState(false);
   const save = async () => {
@@ -77,7 +77,7 @@ const SponsoredForm = ({ item, onDone }: { item: any; onDone: () => void }) => {
     const { error } = await db.rpc('admin_save_sponsored', {
       p_id: item?.id ?? null, p_venue_name: f.venue_name, p_logo: f.logo, p_title: f.title, p_description: f.description,
       p_reward_label: f.reward_label, p_target: Number(f.target_count), p_xp: Number(f.xp_reward), p_spots_label: f.spots_label, p_active: f.is_active,
-      p_kind: f.kind, p_media: f.media,
+      p_kind: f.kind, p_media: f.media, p_rule: f.rule,
     });
     setBusy(false);
     if (error) { toast.error(error.message || 'Greška'); return; }
@@ -94,6 +94,7 @@ const SponsoredForm = ({ item, onDone }: { item: any; onDone: () => void }) => {
       <div style={{ display: 'flex', gap: 8 }}>
         <div style={{ flex: 1 }}><Field label="TIP"><select value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value })} style={inp}><option value="perk">Perk (nagrada na licu mesta)</option><option value="content">Content (foto/video + glasanje)</option></select></Field></div>
         {f.kind === 'content' && <div style={{ flex: 1 }}><Field label="FORMAT"><select value={f.media} onChange={(e) => setF({ ...f, media: e.target.value })} style={inp}><option value="photo">Foto</option><option value="video">Video</option><option value="both">Foto + video</option></select></Field></div>}
+        {f.kind === 'perk' && <div style={{ flex: 1 }}><Field label="ZAVRŠAVA SE"><select value={f.rule} onChange={(e) => setF({ ...f, rule: e.target.value })} style={inp}><option value="checkin">Check-in (broji dolaske)</option><option value="checkin_early">Rani dolazak</option><option value="checkin_crew">Dovedeš ekipu</option></select></Field></div>}
       </div>
       <Field label="NAGRADA"><input value={f.reward_label} onChange={(e) => setF({ ...f, reward_label: e.target.value })} style={inp} placeholder="Karte / putovanje / roba / gajba" /></Field>
       <div style={{ display: 'flex', gap: 8 }}>

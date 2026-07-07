@@ -33,9 +33,10 @@
 
 `vibe` izbačen — nema OS akciju koja ga meri (pravilo #3 iz srži).
 
-### Sponsored — dva tipa (`kind`)
-- **perk** — nagrada na licu mesta: Kult „Prvih 50", 25 Bar „Before ritual", Para „Dovedi ekipu".
-- **content** 🆕 — UGC kampanja (ECONOMY §8b): ljudi postave **foto/video sa aftera**, verifikovani članovi (≥1 check-in) glasaju, sponzor plaća nagradu (karte/putovanje/roba). Showcase u beti: Heineken „Najbolja after fotka" (foto), Jungle Travel „Najbolji before video" (video). Kroz `campaign_submissions` + `campaign_votes` + `OSCampaign` galeriju. **Ovo je pravac sponsored questova** — ne check-in mehanika (raniji #40 napušten). Founder pravi content kampanje sam u War Room-u (kind/media polja).
+### Sponsored — dva tipa (`kind`), OBA žive (cirkularna ekonomija)
+- **perk** (check-in) = **klub↔klaber petlja** — klaber se čekira → nagrada u klubu → **klub dobija footfall** → finansira još → klaber se vraća. Zato je **klubu bitno**. Progres se **automatski meri na check-in** (trigger `advance_sponsored_on_checkin`), po pravilu (`rule`): `checkin` (broji dolaske) · `checkin_early` (rani dolazak) · `checkin_crew` (dovedeš ekipu = crew_size). Kult „Prvih 50" (rani), 25 Bar „Before ritual" (dolasci), Para „Dovedi ekipu" (crew). *(Ovo je bio bug #40 — accept-ovan perk quest nije mrdao; rešeno triggerom.)*
+- **content** (UGC, ECONOMY §8b) = **brend↔scena petlja** — ljudi postave **foto/video sa aftera**, verifikovani članovi (≥1 check-in) glasaju, sponzor plaća nagradu (karte/putovanje/roba). Showcase: Heineken „Najbolja after fotka", Jungle Travel „Najbolji before video". Kroz `campaign_submissions` + `campaign_votes` + `OSCampaign`.
+- **Founder pravi oba sam** u War Room-u (TIP perk/content, FORMAT foto/video, ZAVRŠAVA-SE pravilo za perk).
 
 ### Mehanika (kod)
 - **Tracking pokrivenost 100% u OS toku:** check-in→`check_in`+`explore` · spark→`match` · Idem→`signal` · uzvrati iskru→`social` · dance sesija→`dance` · story→`story` · recenzija→`review` · glas→`vote_best_party`. Engine: `src/services/questProgress.ts` (`incrementQuestProgress`).
