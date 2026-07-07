@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { isFounder } from '@/lib/founder';
+import { WarRoomQuests } from './WarRoomQuests';
 import { OS, G, hexA, MONO, ROLE } from '@/os/osTheme';
 
 const db = supabase as any;
@@ -18,8 +19,8 @@ function useStore<T>(key: string, initial: T): [T, (v: T | ((p: T) => T)) => voi
   return [v, setV];
 }
 
-type Tab = 'pulse' | 'grant' | 'goals' | 'meetings' | 'manifest' | 'docs';
-const TABS: [Tab, string][] = [['pulse', 'PULSE'], ['grant', 'GRANT'], ['goals', 'CILJEVI'], ['meetings', 'MEETINGS'], ['manifest', 'MANIFEST'], ['docs', 'DOCS']];
+type Tab = 'pulse' | 'grant' | 'quests' | 'goals' | 'meetings' | 'manifest' | 'docs';
+const TABS: [Tab, string][] = [['pulse', 'PULSE'], ['grant', 'GRANT'], ['quests', 'QUESTOVI'], ['goals', 'CILJEVI'], ['meetings', 'MEETINGS'], ['manifest', 'MANIFEST'], ['docs', 'DOCS']];
 
 interface Goal { id: string; label: string; current: number | null; target: number; unit: string }
 interface Action { id: string; text: string; done: boolean }
@@ -229,6 +230,14 @@ export default function WarRoom() {
               ))}
               <a href={`${REPO}/SMART-START-READINESS.md`} target="_blank" rel="noreferrer" style={{ display: 'block', marginTop: 8, fontFamily: MONO, fontSize: 10, color: OS.ink5, textDecoration: 'none' }}>↗ Cela analiza: SMART-START-READINESS.md</a>
             </Section>
+          </>
+        )}
+
+        {/* ── QUESTS (founder authoring) ── */}
+        {tab === 'quests' && (
+          <>
+            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.12em', color: OS.ink6, marginBottom: 14, lineHeight: 1.5 }}>TI PIŠEŠ QUESTOVE — SCENE-VOICE, NE DOMAĆI ZADATAK. TIP MORA IMATI AKCIJU U APPU DA BI SE MERIO.</div>
+            <WarRoomQuests />
           </>
         )}
 
