@@ -105,7 +105,7 @@ export const OSExplore = ({ onOpenVenue }: { onOpenVenue: (v: OSVenue) => void }
       <div style={{ padding: '20px 16px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
           <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6 }}>VRUĆE U BLIZINI</span>
-          <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>DO 25 MIN</span>
+          <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>PO ENERGIJI ≈</span>
         </div>
         <div>
           {ranked.map((v: any) => <VenueRow key={v.id} v={v} onClick={() => open(v)} />)}
@@ -128,10 +128,10 @@ const VenueRow = ({ v, onClick }: { v: any; onClick: () => void }) => {
           <span style={{ color: ROLE.genre }}>{(v.genreLabel || v.type || '').toUpperCase()}</span>
           <span style={{ color: OS.ink6 }}> · {(v.neighborhood || 'BEOGRAD').toUpperCase()}</span>
         </div>
-        <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink2, marginTop: 3 }}>{here > 0 ? `${here} ovde` : 'mirno'} · {v.walk ?? '—'} min</div>
+        <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink2, marginTop: 3 }}>{here > 0 ? `${here} ovde` : 'mirno'}</div>
       </div>
       <div style={{ flex: 'none', textAlign: 'right' }}>
-        <div style={{ fontFamily: MONO, fontSize: 19, fontWeight: 600, color: ROLE.energy }}>{v.heat ?? 0}</div>
+        <div style={{ fontFamily: MONO, fontSize: 19, fontWeight: 600, color: ROLE.energy }}>≈{v.heat ?? 0}</div>
         <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: '.1em', color: OS.ink6, marginTop: 1 }}>ENERGY</div>
       </div>
     </button>

@@ -19,9 +19,6 @@ import { OS, G, hexA, MONO, HATCH } from './osTheme';
 const db = supabase as any;
 const DEV_SKIP_GEOFENCE = import.meta.env.VITE_OPEN_CHECKIN === 'true';
 
-// Stable pseudo follower count from venue name (no follow backend yet).
-const followersOf = (name: string) => { let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 9000; return 1200 + h; };
-const fmtK = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
 
 export interface OSVenue {
   name: string;
@@ -196,15 +193,12 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
   const upcoming = venueEvents.filter((e: any) => e.date >= today);
   const past = venueEvents.filter((e: any) => e.date < today).reverse();
   const [following, setFollowing] = useState(false);
-  const followers = followersOf(venue.name) + (following ? 1 : 0);
 
+  // Real numbers only — no invented heritage/rank/influence (honest-numbers rule).
   const stats = [
-    { value: venue.rating ? venue.rating.toFixed(1) : '8.7', label: 'COMMUNITY', color: G.community },
-    { value: '#3', label: 'CITY RANK', color: G.underground },
-    { value: '16y', label: 'HERITAGE', color: G.house },
     { value: String(here), label: 'OVDE SADA', color: G.festival },
-    { value: '01–06', label: 'PEAK', color: G.techno },
-    { value: 'High', label: 'INFLUENCE', color: G.afterparty },
+    { value: String(upcoming.length), label: 'DOLAZI', color: G.techno },
+    { value: String(past.length), label: 'ARHIVA NOĆI', color: G.house },
   ];
 
   const checkIn = async () => {
@@ -251,7 +245,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
         {/* action bar — RA-style follow + followers */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 0' }}>
           <button onClick={() => setFollowing((f) => !f)} style={{ flex: 'none', padding: '10px 18px', borderRadius: 12, cursor: 'pointer', fontWeight: 600, fontSize: 14, border: following ? `1px solid ${OS.line2}` : 0, background: following ? 'transparent' : venue.col, color: following ? OS.ink2 : '#0B0B0D' }}>{following ? '✓ Pratiš' : '+ Prati'}</button>
-          <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink5 }}>{fmtK(followers)} prati</div>
+          
           <button onClick={checkIn} disabled={busy} style={{ marginLeft: 'auto', flex: 'none', padding: '10px 16px', borderRadius: 12, cursor: busy ? 'default' : 'pointer', fontWeight: 600, fontSize: 13, border: `1px solid ${hexA(G.festival, 0.4)}`, background: done ? hexA(G.festival, 0.15) : 'transparent', color: G.festival, opacity: busy ? 0.6 : 1 }}>{done ? '✓ Tu si' : '📍 Check-in'}</button>
         </div>
 
@@ -287,7 +281,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: G.festival, boxShadow: `0 0 10px ${G.festival}`, animation: 'os-pulse 1.8s ease-in-out infinite' }} />
             <span style={{ fontSize: 13, color: OS.ink }}>{here} ovde sada</span>
           </div>
-          <span style={{ fontFamily: MONO, fontSize: 18, fontWeight: 600, color: G.festival }}>ENERGY {energy}</span>
+          <span style={{ fontFamily: MONO, fontSize: 18, fontWeight: 600, color: G.festival }}>ENERGY ≈{energy}</span>
         </div>
 
         {/* stats */}
@@ -302,7 +296,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
 
         {/* crowd DNA */}
         <div style={{ margin: '16px 16px 0', padding: 16, borderRadius: 18, background: OS.surface, border: `1px solid ${OS.line}` }}>
-          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: '#7E828C', marginBottom: 6 }}>CROWD DNA · COMMUNITY INTELLIGENCE</div>
+          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: '#7E828C', marginBottom: 6 }}>CROWD DNA · PREVIEW — PUNI SE SA RECENZIJAMA</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <Radar />
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>

@@ -144,8 +144,8 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
 
       {/* AI strip */}
       <div style={{ margin: '14px 16px 0', display: 'flex', alignItems: 'center', gap: 10, padding: '11px 13px', borderRadius: 14, background: OS.surface, border: `1px solid ${OS.line}` }}>
-        <span style={{ flex: 'none', width: 24, height: 24, borderRadius: 8, background: hexA(G.community, 0.14), display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: MONO, fontSize: 10, color: G.community }}>AI</span>
-        <span style={{ fontSize: 12.5, lineHeight: 1.35, color: OS.ink3 }}>Underground scena vodi grad večeras — energija raste u centru.</span>
+        <span style={{ flex: 'none', width: 24, height: 24, borderRadius: 8, background: hexA(G.community, 0.14), display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: MONO, fontSize: 10, color: G.community }}>⚡</span>
+        <span style={{ fontSize: 12.5, lineHeight: 1.35, color: OS.ink3 }}>{tonightCount > 0 ? `Večeras ${tonightCount} ${tonightCount === 1 ? 'događaj' : tonightCount < 5 ? 'događaja' : 'događaja'} — grad se budi.` : 'Mirno veče — vikend se sprema. Pogledaj šta dolazi.'}</span>
       </div>
 
       {/* best party — the single hero moment */}
@@ -156,7 +156,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
             <div style={{ position: 'relative', height: 150, borderRadius: 18, overflow: 'hidden', border: `1px solid ${OS.line2}`, background: best.image_url ? `center/cover url(${best.image_url})` : stripe(G.house) }}>
               <div style={{ position: 'absolute', inset: 0, background: HATCH }} />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,#101013 4%,transparent 70%)' }} />
-              <Mono style={{ position: 'absolute', top: 12, left: 14 }} fontSize={9} letterSpacing=".16em" color="#f5c97a">★ TOP RATED · {(8 + (energyOf(best.id) % 10) / 10).toFixed(1)}</Mono>
+              <Mono style={{ position: 'absolute', top: 12, left: 14 }} fontSize={9} letterSpacing=".16em" color="#f5c97a">★ NAJVIŠE NAJAVA · {signals[best.id] || 0} IDE</Mono>
               <div style={{ position: 'absolute', bottom: 13, left: 14, right: 14 }}>
                 <div style={{ fontWeight: 700, fontSize: 19, color: OS.ink }}>{best.title}</div>
                 <Mono fontSize={11} color={OS.ink4} style={{ marginTop: 6 }}>{dayLabel(best.date)} · {best.start_time?.slice(0, 5)} · {best.venue_name}</Mono>
@@ -210,10 +210,9 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
           <div style={{ padding: 15 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
               <div><Mono fontSize={10} letterSpacing=".2em" color={OS.ink5}>SISTEM · INSTANT WIN</Mono><div style={{ fontWeight: 700, fontSize: 17, color: OS.ink, marginTop: 3 }}>Lucky 100</div></div>
-              <Mono fontSize={11} color={G.festival}>#500 NEXT</Mono>
+              <Mono fontSize={11} color={G.festival}>OTVORI →</Mono>
             </div>
-            <Mono fontSize={10.5} color={OS.ink5} style={{ display: 'flex', justifyContent: 'space-between', margin: '11px 0 6px' }}><span>477 / 500</span><span style={{ color: G.festival }}>23 AWAY</span></Mono>
-            <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,.08)', overflow: 'hidden' }}><div style={{ height: '100%', width: '95%', background: 'linear-gradient(90deg,#a64dff,#ff4d8d)', borderRadius: 3 }} /></div>
+            <Mono fontSize={10.5} color={OS.ink5} style={{ margin: '11px 0 0' }}>Svaki 100. check-in nosi nagradu — vidi svoj broj unutra.</Mono>
           </div>
         </div>
         </button>
