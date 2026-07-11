@@ -29,6 +29,14 @@ jobs:
 
       - run: npm ci
 
+      # Quality gate — a broken build/typecheck/test must not reach users.
+      # (eslint intentionally not gated yet: 296 legacy errors; add after cleanup.)
+      - name: Typecheck
+        run: npx tsc --noEmit -p tsconfig.app.json
+
+      - name: Tests
+        run: npx vitest run
+
       - name: Build beta (geofence off, subpath base)
         run: npx vite build --base=/afterbeforeBeta/app/
         env:
