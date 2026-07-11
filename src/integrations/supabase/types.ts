@@ -2930,6 +2930,7 @@ export type Database = {
         Args: { request_id: string }
         Returns: Json
       }
+      assign_weekly_quests: { Args: never; Returns: Json }
       block_user: { Args: { p_target: string }; Returns: Json }
       both_at_venue: {
         Args: { p_a: string; p_b: string; p_venue: string }

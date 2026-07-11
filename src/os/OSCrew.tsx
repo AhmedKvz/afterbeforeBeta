@@ -35,9 +35,20 @@ export const OSCrew = ({ eventId, venueId, title, onClose }: Props) => {
   const { data: crew } = useQuery({
     queryKey: ['crew', crewId],
     enabled: !!crewId,
-    refetchInterval: 5000,
+    refetchInterval: 60_000, // fallback only — realtime channel below drives updates
     queryFn: async () => { const { data } = await db.rpc('get_crew', { p_crew: crewId }); return data; },
   });
+
+  // Realtime: new messages/members invalidate instantly (was a 5s poll = 720 RPC/h).
+  useEffect(() => {
+    if (!crewId) return;
+    const ch = supabase
+      .channel(`crew-${crewId}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'crew_messages', filter: `crew_id=eq.${crewId}` }, () => qc.invalidateQueries({ queryKey: ['crew', crewId] }))
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'crew_members', filter: `crew_id=eq.${crewId}` }, () => qc.invalidateQueries({ queryKey: ['crew', crewId] }))
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [crewId, qc]);
 
   const send = async () => {
     if (!crewId || !text.trim() || sending) return;

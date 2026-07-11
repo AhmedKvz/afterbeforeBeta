@@ -18,7 +18,7 @@ export const OSCampaign = ({ sponsoredId, onClose }: { sponsoredId: string; onCl
   const { data } = useQuery({
     queryKey: ['campaign', sponsoredId],
     queryFn: async () => { const { data } = await db.rpc('get_campaign', { p_sponsored: sponsoredId }); return data; },
-    refetchInterval: 6000,
+    refetchInterval: 60_000, // votes/uploads invalidate immediately; poll is just a fallback
   });
   const c = data?.campaign;
   const subs: any[] = data?.submissions || [];

@@ -40,30 +40,15 @@ export const useQuests = () => {
   // until next Monday.
   const activeProgress = userProgress.filter((up: any) => quests.some((q) => q.id === up.quest_id));
 
-  // Top-up to 5 active quests for the week. Assigns only quests the user
-  // doesn't already have a row for (no duplicates), so a content swap
-  // mid-week refills the set even if some old-set ids survived.
+  // Top-up to 5 active quests for the week — server-side, idempotent and
+  // race-safe (assign_weekly_quests RPC; was a client insert inside useQuery).
   const WEEKLY_TARGET = 5;
   const { data: assigned } = useQuery({
     queryKey: ['assign-quests', user?.id, weekStart, quests.length, activeProgress.length],
     queryFn: async () => {
-      if (!user || quests.length === 0 || activeProgress.length >= WEEKLY_TARGET) return false;
-
-      const unassigned = quests.filter((q) => !userProgress.some((up: any) => up.quest_id === q.id));
-      const shuffled = [...unassigned].sort(() => Math.random() - 0.5).slice(0, WEEKLY_TARGET - activeProgress.length);
-      if (shuffled.length === 0) return false;
-
-      const inserts = shuffled.map((q) => ({
-        user_id: user.id,
-        quest_id: q.id,
-        week_start: weekStart,
-        progress: 0,
-        is_completed: false,
-        xp_claimed: false,
-      }));
-
-      await supabase.from('user_quests').insert(inserts);
-      queryClient.invalidateQueries({ queryKey: ['user-quests'] });
+      const { data, error } = await (supabase as any).rpc('assign_weekly_quests');
+      if (error) return false;
+      if (data?.added > 0) queryClient.invalidateQueries({ queryKey: ['user-quests'] });
       return true;
     },
     enabled: !!user && !progressLoading && quests.length > 0 && activeProgress.length < WEEKLY_TARGET,

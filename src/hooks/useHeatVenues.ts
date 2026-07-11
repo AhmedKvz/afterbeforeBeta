@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { hueFromString } from '@/lib/gradients';
@@ -131,25 +132,41 @@ export interface HeatVenue {
  * placed onto the stylized Belgrade map via neighborhood coordinates.
  */
 export const useHeatVenues = () => {
-  return useQuery<HeatVenue[]>({
-    queryKey: ['heat-venues'],
-    refetchInterval: 60_000,
+  // Static directory: venues + geofence radii change ~never — fetch once per
+  // session (was re-downloaded every 60s incl. an all-events scan; ultra-review C3).
+  const dir = useQuery({
+    queryKey: ['venue-directory'],
+    staleTime: Infinity,
+    gcTime: 24 * 60 * 60_000,
     queryFn: async () => {
-      // `venues` is now the canonical source of truth (Phase 1 of venue unification).
-      const [{ data: dirVenues }, { data: heat }, { data: evCoords }] = await Promise.all([
-        db.from('venues').select('*'),
-        db.rpc('get_venue_heat', { days_back: 7 }),
+      const [{ data: dirVenues }, { data: evCoords }] = await Promise.all([
+        db.from('venues').select('id, name, type, neighborhood, emoji, hue, latitude, longitude'),
         db.from('events').select('venue_name, geofence_radius').not('latitude', 'is', null),
       ]);
-
-      const heatMap = new Map<string, any>();
-      (heat || []).forEach((h: any) => heatMap.set(h.venue_name, h));
-
-      // geofence radius per venue (from events; venues coords come from the directory)
       const radiusMap = new Map<string, number>();
       (evCoords || []).forEach((e: any) => { if (!radiusMap.has(e.venue_name)) radiusMap.set(e.venue_name, e.geofence_radius || 100); });
+      return { venues: dirVenues || [], radiusMap };
+    },
+  });
 
-      return (dirVenues || []).map((v: any) => {
+  // Live layer: only the heat RPC repeats (120s is plenty for a heat map).
+  const heatQ = useQuery({
+    queryKey: ['venue-heat'],
+    refetchInterval: 120_000,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data } = await db.rpc('get_venue_heat', { days_back: 7 });
+      return data || [];
+    },
+  });
+
+  const data = useMemo<HeatVenue[]>(() => {
+    if (!dir.data) return [];
+    const heatMap = new Map<string, any>();
+    (heatQ.data || []).forEach((h: any) => heatMap.set(h.venue_name, h));
+    const radiusMap = dir.data.radiusMap;
+
+    return (dir.data.venues || []).map((v: any) => {
         const h = heatMap.get(v.name);
         const type = v.type || 'club';
         const { x, y } = coordFor(v.neighborhood, v.name);
@@ -176,8 +193,9 @@ export const useHeatVenues = () => {
           radius: radiusMap.get(v.name) ?? 100,
         } as HeatVenue;
       });
-    },
-  });
+  }, [dir.data, heatQ.data]);
+
+  return { data, isLoading: dir.isLoading, refetch: heatQ.refetch };
 };
 
 /**
@@ -188,7 +206,7 @@ export const useVenuePresence = (venueName: string | null) => {
   return useQuery({
     queryKey: ['venue-presence', venueName],
     enabled: !!venueName,
-    refetchInterval: 30_000,
+    refetchInterval: 60_000,
     queryFn: async () => {
       const { data, error } = await db.rpc('get_venue_presence', { p_venue: venueName });
       if (error) throw error;
