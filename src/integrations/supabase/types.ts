@@ -2885,6 +2885,21 @@ export type Database = {
       _is_founder: { Args: never; Returns: boolean }
       _is_verified: { Args: { p_user: string }; Returns: boolean }
       accept_sponsored_quest: { Args: { p_id: string }; Returns: Json }
+      admin_delete_event: { Args: { p_id: string }; Returns: undefined }
+      admin_save_event: {
+        Args: {
+          p_date: string
+          p_end: string
+          p_genres: string[]
+          p_id: string
+          p_image_url: string
+          p_lineup: string[]
+          p_start: string
+          p_title: string
+          p_venue_id: string
+        }
+        Returns: string
+      }
       admin_save_quest: {
         Args: {
           p_active: boolean

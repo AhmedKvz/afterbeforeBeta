@@ -18,7 +18,7 @@ const TYPE_META: Record<string, { emoji: string; label: string }> = {
 
 interface Ev {
   id: string; title: string; date: string; start_time: string; venue_name: string;
-  image_url: string; music_genres: string[]; venue_type: string; event_type: string; venue_id?: string | null;
+  image_url: string; music_genres: string[]; venue_type: string; event_type: string;
 }
 
 // Stable pseudo "energy" 60–93 from id (no real energy metric yet).
@@ -45,7 +45,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
   const { data: events = [] } = useQuery<Ev[]>({
     queryKey: ['os-events'],
     queryFn: async () => {
-      const { data } = await supabase.from('events').select('id, title, date, start_time, venue_name, image_url, music_genres, venue_type, event_type, venue_id').order('date', { ascending: true });
+      const { data } = await supabase.from('events').select('id, title, date, start_time, venue_name, image_url, music_genres, venue_type, event_type').order('date', { ascending: true });
       return (data as any) || [];
     },
   });
@@ -62,7 +62,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
 
   const openEvent = (e: Ev) => onOpenVenue({
     name: e.venue_name || e.title, genre: (e.music_genres?.[0] || e.venue_type || 'VENUE').toUpperCase(),
-    col: genreCol(e.music_genres?.[0] || e.venue_type), venueId: e.venue_id ?? null, eventId: e.id,
+    col: genreCol(e.music_genres?.[0] || e.venue_type), venueId: null, eventId: e.id,
     heat: energyOf(e.id), neighborhood: (e.venue_type || '').toUpperCase(),
   });
 
