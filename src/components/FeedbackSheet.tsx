@@ -97,9 +97,4 @@ export const FeedbackSheet = ({ venueId, onDone }: Props) => {
 };
 
 // Returns true if user hasn't answered in the last COOLDOWN_DAYS days
-export function shouldShowFeedback(): boolean {
-  const last = localStorage.getItem(COOLDOWN_KEY);
-  if (!last) return true;
-  const daysSince = (Date.now() - new Date(last).getTime()) / (1000 * 60 * 60 * 24);
-  return daysSince >= COOLDOWN_DAYS;
-}
+export { shouldShowFeedback } from '@/lib/feedbackCadence';

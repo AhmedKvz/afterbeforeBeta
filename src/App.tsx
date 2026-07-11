@@ -23,8 +23,16 @@ import MetricsDashboard from "./pages/MetricsDashboard";
 import WarRoom from "./pages/WarRoom";
 import { OSApp } from "./os/OSApp";
 import { BetaFeedback } from "@/components/BetaFeedback";
+import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 
-const queryClient = new QueryClient();
+// Ultra-review perf #3: sane cache defaults — without staleTime every orb-tab
+// switch and window refocus refires every query on the screen (Supabase free
+// tier = 50k reads/day). 60s staleness is fine for nightlife data.
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { staleTime: 60_000, gcTime: 10 * 60_000, retry: 1 },
+  },
+});
 
 // Capture ?founder=CODE before HashRouter rewrites the URL.
 // Persists through auth flow so onboarding can claim it.
@@ -32,6 +40,7 @@ const founderCode = new URLSearchParams(window.location.search).get('founder');
 if (founderCode) localStorage.setItem('ab_founder_code', founderCode.toUpperCase());
 
 const App = () => (
+  <AppErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -73,6 +82,7 @@ const App = () => (
       </HashRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </AppErrorBoundary>
 );
 
 export default App;

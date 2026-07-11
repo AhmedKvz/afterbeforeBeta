@@ -11,7 +11,7 @@ import { getCurrentPosition, calculateDistance, formatDistance } from '@/service
 import { track } from '@/lib/analytics';
 import { toast } from 'sonner';
 import { avatarGradient, hueFromString, initials } from '@/lib/gradients';
-import { shouldShowFeedback } from '@/components/FeedbackSheet';
+import { shouldShowFeedback } from '@/lib/feedbackCadence';
 import { OSFeedbackSheet } from './OSFeedbackSheet';
 import { OSEventRow } from './OSEventRow';
 import { OSDanceMode } from './OSDanceMode';
@@ -226,10 +226,15 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
       const lat = pos?.coords.latitude ?? venue.lat ?? 0;
       const lon = pos?.coords.longitude ?? venue.lng ?? 0;
       const { data, error } = await db.rpc('process_secure_checkin', { p_venue: venue.venueId, p_lat: lat, p_lon: lon });
+      if (error) {
+        const msg = String(error.message || '');
+        toast.error(msg.includes('12 hours') || msg.includes('duplicate') ? 'Već si se prijavio ovde večeras.' : 'Check-in nije prošao — pokušaj ponovo.');
+        return;
+      }
       if (user) { incrementQuestProgress(user.id, 'check_in').catch(() => {}); incrementQuestProgress(user.id, 'explore').catch(() => {}); }
       track('check_in', { venue: venue.name, venue_id: venue.venueId, secure: true, awarded_xp: data?.awarded_xp });
       setDone(true);
-      toast.success(!error && data ? `Prijavljen ✓ · +${data.awarded_xp} XP · +${data.awarded_afc} AFC` : 'Prijavljen ✓');
+      toast.success(data ? `Prijavljen ✓ · +${data.awarded_xp} XP · +${data.awarded_afc} AFC` : 'Prijavljen ✓');
       if (venue.venueId && shouldShowFeedback()) setTimeout(() => setFeedback(venue.venueId!), 1400);
     } finally {
       setBusy(false);
