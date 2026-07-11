@@ -143,9 +143,11 @@ export const useHeatVenues = () => {
         db.from('venues').select('id, name, type, neighborhood, emoji, hue, latitude, longitude'),
         db.from('events').select('venue_name, geofence_radius').not('latitude', 'is', null),
       ]);
-      const radiusMap = new Map<string, number>();
-      (evCoords || []).forEach((e: any) => { if (!radiusMap.has(e.venue_name)) radiusMap.set(e.venue_name, e.geofence_radius || 100); });
-      return { venues: dirVenues || [], radiusMap };
+      // Plain object, NOT a Map — query data is JSON-persisted (Wave E) and a
+      // Map rehydrates as {} → .get() crashes the whole Heat screen.
+      const radius: Record<string, number> = {};
+      (evCoords || []).forEach((e: any) => { if (radius[e.venue_name] == null) radius[e.venue_name] = e.geofence_radius || 100; });
+      return { venues: dirVenues || [], radius };
     },
   });
 
@@ -164,7 +166,7 @@ export const useHeatVenues = () => {
     if (!dir.data) return [];
     const heatMap = new Map<string, any>();
     (heatQ.data || []).forEach((h: any) => heatMap.set(h.venue_name, h));
-    const radiusMap = dir.data.radiusMap;
+    const radius = dir.data.radius || {};
 
     return (dir.data.venues || []).map((v: any) => {
         const h = heatMap.get(v.name);
@@ -190,7 +192,7 @@ export const useHeatVenues = () => {
           topEventId: h?.top_event_id || null,
           lat: v.latitude != null ? Number(v.latitude) : null,
           lng: v.longitude != null ? Number(v.longitude) : null,
-          radius: radiusMap.get(v.name) ?? 100,
+          radius: radius[v.name] ?? 100,
         } as HeatVenue;
       });
   }, [dir.data, heatQ.data]);

@@ -54,7 +54,7 @@ const RouteFallback = () => (
 
 const App = () => (
   <AppErrorBoundary>
-  <PersistQueryClientProvider client={queryClient} persistOptions={{ persister, maxAge: 12 * 60 * 60_000, buster: "v1" }}>
+  <PersistQueryClientProvider client={queryClient} persistOptions={{ persister, maxAge: 12 * 60 * 60_000, buster: "v2" }}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
