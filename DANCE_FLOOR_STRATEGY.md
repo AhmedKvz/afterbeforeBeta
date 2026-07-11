@@ -127,3 +127,27 @@ A leaderboard is empty until enough people use it → seed with venue-all-time +
 - Launcher on the venue profile (`OSVenueSheet`).
 - `supabase/migrations/20260626120000_dance_floor.sql` — `dance_sessions` + `save_dance_session` + `get_dance_leaderboard` (a "night" clamps pre-6am to the previous day). Applied to prod.
 - Decision: this is **Option B** (live accelerometer). **Option A = HealthKit/Health Connect** via a Capacitor health plugin is the precise v2 once native apps publish. Note: Google Fit REST API is deprecated (dead by end-2026) — do not use it.
+
+---
+
+## 6. ODLUKA (founder, 2026-07-11) — web pokazno · native merilo
+
+**Web/PWA beta:** Dance Mode ostaje kakav je — ručno pokretanje sa venue sheet-a,
+**pokazna** vrednost (demo za evaluatore, klubove i sponzore: "ovako to izgleda").
+Ne gradimo auto-start / pasivno merenje na webu — browser ionako ne meri sa
+zaključanim ekranom, pa bi "merilo" na webu bilo nepošten broj (Z-zakon).
+
+**Native (Capacitor, grant faza):** dance meter postaje **pravo merilo** i brand rail:
+- iOS/Android native čitaju akcelerometar **bez permission dijaloga** i **u pozadini**
+  → auto-start na check-in, telefon u džepu, nula tapova. Dizajn: check-in = okidač,
+  chip indikator + profil toggle (poverenje), auto-save na izlazu/06:00.
+- Tek native brojevi ulaze u nagrade — web sesije se flaguju `demo` i ne kvalifikuju
+  se za sponzorske nagrade (anti-cheat: native signal je bitno teži za spoof + geofence ON).
+- **Brand mehanika (Tier 1 iz §2):** nedeljni sponzorisani leaderboard
+  ("REEBOK NEDELJA ENERGIJE"), top N → pokloni (patike/merch/karte), sponzor plaća
+  nagrade + vidljivost, isplate idu kroz postojeći AFC/redemption rail
+  (poštuje gvozdeno pravilo: isplate ≤ prihod fonda).
+
+**Šta ovo pojednostavljuje:** ① anti-cheat (samo native se računa), ② battery/pocket
+problem (native background API), ④ privacy (jedan jasan native onboarding ekran) —
+sva tri iz §3 prestaju da budu web-blokeri i postaju native-faza posao.
