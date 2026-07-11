@@ -138,7 +138,8 @@ const OSChat = ({ conv, onBack }: { conv: Conversation; onBack: () => void }) =>
           <span style={{ width: 36, height: 36, borderRadius: '50%', flex: 'none', background: conv.avatar ? `center/cover url(${conv.avatar})` : mk(col) }} />
           <div style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 700, fontSize: 15, color: OS.ink }}>{conv.name}</div>
-            <div style={{ fontFamily: MONO, fontSize: 9, color: G.festival }}>● AKTIVAN/NA</div>
+            {/* iskren-broj: bez lažnog "AKTIVAN" statusa — pravo prisustvo tek kad postoji signal */}
+            {conv.last_at && <div style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6 }}>{rel(conv.last_at).toUpperCase()}</div>}
           </div>
         </div>
         <div style={{ position: 'relative' }}>

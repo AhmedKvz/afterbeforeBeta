@@ -26,7 +26,8 @@ export const useCheckIn = (venue: OSVenue, onFeedback: (venueId: string) => void
     if (busy || done) return;
     setBusy(true);
     try {
-      if (!venue.venueId) { setDone(true); toast.success('Prijavljen ✓ · +40 XP'); return; }
+      // iskren-broj: bez venue uuid-a nema pravog awarda — ne foliraj uspeh
+      if (!venue.venueId) { toast('Check-in radi sa Heat mape — nađi ovo mesto na pinu.'); return; }
       let pos: GeolocationPosition | null = null;
       try { pos = await getCurrentPosition(); } catch { if (!DEV_SKIP_GEOFENCE) { toast.error('Uključi lokaciju za check-in.'); return; } }
       if (!DEV_SKIP_GEOFENCE && pos && venue.lat != null && venue.lng != null) {

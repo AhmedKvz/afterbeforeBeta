@@ -7,13 +7,13 @@
 |---|---|
 | 1 · HOME | 🔒 locked (2026-06-27) |
 | 2 · HEAT | 🔒 locked (2026-06-27) |
-| 3 · CHAT | ⬜ |
+| 3 · CHAT | 🔒 locked (2026-07-11) |
 | 4 · QUEST | 🔒 locked (2026-07-05) |
-| 5 · PROFILE | ⬜ |
-| 6 · VENUE SHEET | ⬜ |
-| 7 · DANCE FLOOR | ⬜ |
-| 8 · ONBOARDING | 🟡 dizajn gotov, čeka build |
-| 9 · SAFETY (cross-cut) | ⬜ |
+| 5 · PROFILE | 🔒 locked (2026-07-11) |
+| 6 · VENUE SHEET | 🔒 locked (2026-07-11) |
+| 7 · DANCE FLOOR | 🔒 locked (2026-07-11) |
+| 8 · ONBOARDING | 🟡 build isporučen (073e462: 5 koraka, muzika→crew→vikend), lock posle prvih korisnika |
+| 9 · SAFETY (cross-cut) | 🔒 locked (2026-07-11) |
 
 ---
 
@@ -75,6 +75,35 @@
 
 ---
 
+## 3 · CHAT 🔒
+
+**Purpose (1 linija):** Veze nastale **na podijumu, ne u feed-u** — iskra sa žurke → uzvraćanje → razgovor. Osa = **co-presence → 1:1**.
+
+### JESTE (in scope)
+- **Iskra (spark) model:** anonimna dok se ne uzvrati („Tajna iskra · KLUB · pre 2h" → UZVRATI). Poreklo iskre je UVEK mesto/žurka — kontekst se prikazuje.
+- **Wave → chat:** pozdrav otvara pun chat tek kad druga strana odgovori (obostrani pristanak na razgovor).
+- **1:1 razgovori** sa realtime porukama; **🚩 Prijavi + 🚫 Blokiraj u svakom thread-u** (server RPC `report_user`/`block_user`).
+- Quest hookovi: iskra→`match`, uzvrati→`social`.
+
+### NIJE (boundaries)
+- **NIJE cold-DM aplikacija** — nema slanja poruka bez co-presence porekla (iskra sa mesta). Nema pretrage ljudi, nema browse profila stranaca.
+- **NIJE swipe/dating feed** — odbačeno svesno (circle-swipe legacy ugašen).
+- **NIJE vlasnik grupnog chata** — crew chat (Nađi ekipu) živi na VENUE sheet-u, vezan za mesto/veče. CHAT je 1:1 posle iskre; proslava matcha vodi ovamo (os-go bus).
+
+### Pravila
+- **Bez lažnog prisustva:** „● AKTIVAN/NA" status je bio hardkodovan → uklonjen u ovom lock-u (iskren-broj). Pravi online status tek kad postoji realan signal.
+- Identitet pošiljaoca iskre se otkriva TEK uzvraćanjem (Z4 — kontrola identiteta).
+- Blokada je jednostrana i tiha (blokirani ne dobija obaveštenje).
+
+### Zakoni
+**Z2** (veze sa podijuma) · **Z4** (safety/identitet) · **Z9** (sync — iskra živi u noći).
+
+### 🛠 Stanje / Build
+- ✅ Realno: sparks + waves + 1:1 realtime + report/block (Faza 3+4). Fake „AKTIVAN" uklonjen (ovaj lock).
+- **Deferred:** pravi online/last-seen signal; „You both went OFF at Drugstore" icebreaker (Dance kontekst, native faza); crew-v2 ulazi (#50).
+
+---
+
 ## 4 · QUEST 🔒
 
 **Purpose (1 linija):** Mašina doprinosa — kako korisnik gradi scenu i kako se doprinos pretvara u nagrade (ECONOMY petlja: doprinos → AFC → nagrade od partnera).
@@ -103,3 +132,106 @@
 - ✅ **Tracking pokrivenost popravljena** (ovaj lock): OS spark→`match`, Idem→`signal`, check-in→`check_in`+`explore`, spark-respond→`social`, dance→`dance`, story→`story`, recenzija→`review`, glas→`vote_best_party`. `vibe` izbačen iz v2 seta (nema OS akciju).
 - ⏳ **`quest_content_v2` migracija čeka apply** (novi srpski set + Kult/Para/25 Bar sponsored) — blokirano na SBP_TOKEN.
 - **Deferred:** nedeljni ritual dropovi (ČET drop), AFC ledger (ECONOMY F1), Rezident questovi (PARTNERS), sezonski/festival serije.
+
+---
+
+## 5 · PROFILE 🔒
+
+**Purpose (1 linija):** Reputacioni pasoš scene — ko si, šta si doprineo, šta ti je otključano. Identitet + flex, ne podešavanja.
+
+### JESTE (in scope)
+- Identitet (avatar + ime + rank + 🏴 Founding # + grad), **rank bar** (XP→sledeći nivo), **6 statova** (MESTA · VEZE · STREAK · RECENZIJE · RANK · GRAD) — svi iz realnih izvora.
+- Music DNA (žanr čipovi iz onboardinga), achievements (prva 4), invite/referral share, meni: Izmeni profil (→ onboarding), Notifikacije, War Room (samo founder), odjava.
+
+### NIJE (boundaries)
+- NIJE javni profil stranca (to je `/u/:id` PublicProfile — minimalan); NIJE settings stranica (nema šume toggle-ova); NIJE feed.
+- Statistika NIKAD ručno upisiva — sve izvedeno iz akcija (ekonomija je server-authoritative posle lockdowna).
+
+### Pravila
+- **MESTA broji `venue_checkins`** (secure RPC tabela) — bio je legacy `event_checkins` → popravljeno u ovom lock-u (pogrešan broj = iskren-broj kršenje).
+- **Jezik reputacije (usvojeno iz ChatGPT analize, deferred):** UI još piše „XP" — planiran REP/AFC jezički pass (baza već razdvaja `xp`=reputacija od `spendable_xp`=AFC).
+- `crew_intent`/`fav_venues` (onboarding v2) — prikaz/izmena na profilu = deferred.
+
+### Zakoni
+**Z5** (doprinos→status→pristup) · **Z10** (streak vidljiv = ritual) · Z3 (ekonomija poštena — brojevi se ne kuju).
+
+### 🛠 Stanje / Build
+- ✅ Realno sve; MESTA izvor popravljen (ovaj lock).
+- **Deferred:** REP/AFC copy pass; Dance archetype + Wrapped (native); prefs edit sekcija.
+
+---
+
+## 6 · VENUE SHEET 🔒
+
+**Purpose (1 linija):** **Sync čvorište noći** — jedno mesto gde se noć DEŠAVA: check-in (money path), ko je tu, iskra, Idem, satnica, ekipa, recenzije, dance. Z1 prozor u živo mesto.
+
+### JESTE (in scope)
+- Hero (žanr boja + heat), statovi (OVDE SADA · DOLAZI · ARHIVA), **GPS check-in** (izdvojen `useCheckIn` hook — Capacitor hotspot; XP+AFC+questovi+feedback), prisustvo („ko je tu" — recipročni opt-in), iskra, **Idem** najava, **satnica** (crowdsource set-times sa vlasništvom), **Nađi ekipu** (crew + realtime grupni chat), recenzije (verified + moderisane), Dance Mode ulaz, match proslava, NPS feedback posle check-ina.
+- Crowd-DNA radar = **označen preview** („PUNI SE SA RECENZIJAMA") — pošteno dok ne postane real.
+
+### NIJE (boundaries)
+- NIJE katalog (Home) ni mapa (Heat) — sheet se OTVARA sa njih; NIJE 1:1 chat (CHAT); NIJE event admin (War Room).
+- **Check-in award ISKLJUČIVO kroz `process_secure_checkin`** — bez venue uuid-a nema awarda: fejk „+40 XP" success za venueId=null **uklonjen u ovom lock-u**; sad pošteno uputi na Heat pin.
+
+### Pravila
+- Sve akcije vezane za KONKRETNO mesto u KONKRETNO vreme (Z6 — vrednost se uzima na licu mesta).
+- Prisustvo: broj uvek, identitet opt-in (HEAT ghost model važi i ovde).
+- Geofence pravila = PRE-LAUNCH task #57 (server radius + klijent poravnanje + poruka).
+
+### Zakoni
+**Z1** (prozor u živo) · **Z6** (lokacija lock) · **Z2** (iskra sa mesta) · **Z4** (opt-in identitet).
+
+### 🛠 Stanje / Build
+- ✅ Sve gore realno; D1 dekompozicija check-ina gotova (`977365d`); fejk check-in put uklonjen (ovaj lock).
+- **Deferred:** ostatak dekompozicije (reviews/presence/actions moduli); radar → real (recenzije+dance agregat); peek 5s varijanta (HEAT).
+
+---
+
+## 7 · DANCE FLOOR 🔒
+
+**Purpose (1 linija):** Jedini real-time ground-truth signal koji niko drugi nema (verifikovan fizički napor × mesto × vreme) — „Strava za noćni život".
+
+### JESTE (in scope)
+- **Web = POKAZNO** (odluka 2026-07-11, DANCE_FLOOR_STRATEGY §6): ručni start sa venue sheet-a, intro→live→done→board, `save_dance_session`, leaderboard (noć/nedelja/sve), quest `dance`. **SIM oznaka** kad nema senzora (pošteno).
+- **Native = MERILO** (#51): auto-start na check-in, background, bez permission dijaloga; SAMO native sesije se kvalifikuju za sponzorske nagrade (Reebok nedeljni leaderboard kroz AFC/redemption rail).
+
+### NIJE (boundaries)
+- Web sesije NISU kvalifikacija za nagrade (spoofable + ekran mora biti upaljen = nepošten broj).
+- NIJE fitness app — merenje služi sceni (heat real-energy, MVP noći, leaderboard), ne kalorijama per se.
+- NIJE always-on tracking bez signala korisniku — chip indikator + toggle obavezni i na native-u.
+
+### Pravila
+- Dance score plausibility cap = poznat dug (kozmetički dok je web pokazno; obavezan pre native nagrada).
+- Sesija se vezuje za venue (sponsor leaderboard po klubu) — bez venue konteksta score ide u lični zbir.
+
+### Zakoni
+**Z3** (pošten broj — SIM/demo označeno) · **Z6** (nagrada = mesto) · **Z8** (LIVE energija).
+
+### 🛠 Stanje / Build
+- ✅ Web demo kompletan; leaderboard živ; War Room prati sesije.
+- **Native (#51):** auto-start dizajn spreman (check-in = okidač); score cap pre prvih nagrada.
+
+---
+
+## 9 · SAFETY (cross-cut) 🔒
+
+**Purpose (1 linija):** Uslov postojanja nightlife proizvoda — poverenje se gradi u svaku sekciju, ne kao poseban ekran.
+
+### JESTE (postoji danas)
+- **Prijava + blokada** u svakom 1:1 thread-u (`report_user`/`block_user` RPC, `reports` tabela); recenzije kroz **moderaciju** (`moderation_status`, flagged se ne prikazuje).
+- **Identitet opt-in svuda** (ghost model: broj vidljiv, ime tek uz pristanak); iskra anonimna do uzvraćanja; **crew = grupni chat** (bezbedniji od 1:1 sa strancem); 18+ gate u onboardingu.
+- **Server-authoritative sve osetljivo:** ekonomija (column grants), check-in (RPC + anti-spoof speed flag), quest claim (normalize trigger), founder admin (`_is_founder`).
+
+### Pravila / granice
+- Nijedan AI/algoritam ne odlučuje o bezbednosti ili pristupu (AI brief §8 — usvojeno kao kanon).
+- Safety mehanizam mora biti NA MESTU interakcije (u thread-u, na recenziji), ne zakopan u settings.
+
+### 🔴 PRE-LAUNCH dug (poimenice, ne sme se zaboraviti)
+1. **`venue_intent` world-readable `user_id`** (SELECT qual=true) → zameniti agregatnim RPC-jem (privacy leak: ko planira gde da ide).
+2. **Crew chat nema 🚩 Prijavi** — grupni chat sa strancima mora dobiti report (jedini interakcioni prostor bez njega).
+3. **Media bucket bez size/mime capa** (kampanje/story upload).
+4. **`account_type` eskalacija** — `set_account_type` RPC + verify_redemption fallback fix.
+5. Geofence fix (#57) — deo anti-spoof priče.
+
+### Zakoni
+**Z4** (bezbednost pre rasta) · **Z11/Z12** (moderacija + glas zajednice) · Z3 (bez lažnih signala — poverenje).

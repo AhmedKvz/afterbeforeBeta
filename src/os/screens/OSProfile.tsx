@@ -44,7 +44,7 @@ export const OSProfile = () => {
     enabled: !!user,
     queryFn: async () => {
       const [ci, rv] = await Promise.all([
-        supabase.from('event_checkins').select('*', { count: 'exact', head: true }).eq('user_id', user!.id),
+        supabase.from('venue_checkins').select('*', { count: 'exact', head: true }).eq('user_id', user!.id),
         supabase.from('event_reviews').select('*', { count: 'exact', head: true }).eq('user_id', user!.id),
       ]);
       return { checkins: ci.count ?? 0, reviews: rv.count ?? 0 };
