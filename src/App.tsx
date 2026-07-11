@@ -2,7 +2,9 @@ import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { OSApp } from "./os/OSApp";
@@ -15,14 +17,10 @@ import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 const Auth = lazy(() => import("./pages/Auth"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const EventDetail = lazy(() => import("./pages/EventDetail"));
-const Matches = lazy(() => import("./pages/Matches"));
-const Profile = lazy(() => import("./pages/Profile"));
 const VenueDashboard = lazy(() => import("./pages/VenueDashboard"));
 const Notifications = lazy(() => import("./pages/Notifications"));
-const Quests = lazy(() => import("./pages/Quests"));
 const InstagramCallback = lazy(() => import("./pages/InstagramCallback"));
 const VenueDetail = lazy(() => import("./pages/VenueDetail"));
-const HeatMap = lazy(() => import("./pages/HeatMap"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const MetricsDashboard = lazy(() => import("./pages/MetricsDashboard"));
@@ -33,9 +31,14 @@ const WarRoom = lazy(() => import("./pages/WarRoom"));
 // tier = 50k reads/day). 60s staleness is fine for nightlife data.
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { staleTime: 60_000, gcTime: 10 * 60_000, retry: 1 },
+    // offlineFirst + persisted cache (ultra-review E2): screens render
+    // stale-first instantly on club wifi; queries retry when the network
+    // comes back instead of failing.
+    queries: { staleTime: 60_000, gcTime: 30 * 60_000, retry: 1, networkMode: "offlineFirst" },
+    mutations: { networkMode: "offlineFirst" },
   },
 });
+const persister = createSyncStoragePersister({ storage: window.localStorage, key: "ab-query-cache" });
 
 // Capture ?founder=CODE before HashRouter rewrites the URL.
 // Persists through auth flow so onboarding can claim it.
@@ -51,7 +54,7 @@ const RouteFallback = () => (
 
 const App = () => (
   <AppErrorBoundary>
-  <QueryClientProvider client={queryClient}>
+  <PersistQueryClientProvider client={queryClient} persistOptions={{ persister, maxAge: 12 * 60 * 60_000, buster: "v1" }}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -66,20 +69,20 @@ const App = () => (
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/event/:id" element={<EventDetail />} />
             <Route path="/venue/:venueName" element={<VenueDetail />} />
-            <Route path="/matches" element={<Matches />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/matches" element={<Navigate to="/" replace />} />
+            <Route path="/profile" element={<Navigate to="/" replace />} />
             <Route path="/venue-dashboard" element={<VenueDashboard />} />
             <Route path="/notifications" element={<Notifications />} />
-            <Route path="/heatmap" element={<HeatMap />} />
+            <Route path="/heatmap" element={<Navigate to="/" replace />} />
             <Route path="/u/:userId" element={<PublicProfile />} />
-            <Route path="/quests" element={<Quests />} />
+            <Route path="/quests" element={<Navigate to="/" replace />} />
             <Route path="/auth/instagram/callback" element={<InstagramCallback />} />
             <Route path="/metrics" element={<MetricsDashboard />} />
             <Route path="/warroom" element={<WarRoom />} />
             {/* Out-of-focus → redirect to the 5-screen core */}
-            <Route path="/circle-swipe/:eventId" element={<Navigate to="/heatmap" replace />} />
-            <Route path="/circle-swipe" element={<Navigate to="/heatmap" replace />} />
-            <Route path="/gamification" element={<Navigate to="/quests" replace />} />
+            <Route path="/circle-swipe/:eventId" element={<Navigate to="/" replace />} />
+            <Route path="/circle-swipe" element={<Navigate to="/" replace />} />
+            <Route path="/gamification" element={<Navigate to="/" replace />} />
             <Route path="/my-events" element={<Navigate to="/" replace />} />
             <Route path="/leaderboard" element={<Navigate to="/" replace />} />
             <Route path="/lucky100" element={<Navigate to="/" replace />} />
@@ -93,7 +96,7 @@ const App = () => (
         </AuthProvider>
       </HashRouter>
     </TooltipProvider>
-  </QueryClientProvider>
+  </PersistQueryClientProvider>
   </AppErrorBoundary>
 );
 

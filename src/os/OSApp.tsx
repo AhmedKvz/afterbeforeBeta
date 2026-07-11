@@ -21,6 +21,14 @@ export const OSApp = () => {
   const [screen, setScreen] = useState<OSScreen>('home');
   const [venue, setVenue] = useState<OSVenue | null>(null);
 
+  // Event bus: deep components (venue sheet, celebrations) switch the orb
+  // screen without routing to legacy pages (D2 — Capacitor wraps ONE app).
+  useEffect(() => {
+    const go = (e: Event) => { setScreen((e as CustomEvent).detail as OSScreen); setVenue(null); };
+    window.addEventListener('os-go', go);
+    return () => window.removeEventListener('os-go', go);
+  }, []);
+
   // Same auth/onboarding guards the legacy Home enforced.
   useEffect(() => {
     if (loading) return;

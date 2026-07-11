@@ -18,6 +18,7 @@ import { OSDanceMode } from './OSDanceMode';
 import { OSSetTimes } from './OSSetTimes';
 import { OSCrew } from './OSCrew';
 import { OSMatchCelebration } from './OSMatchCelebration';
+import { useCheckIn } from './venue/useCheckIn';
 import { OS, G, hexA, MONO, HATCH } from './osTheme';
 
 const db = supabase as any;
@@ -155,8 +156,6 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [match, setMatch] = useState<{ name?: string; avatar?: string } | null>(null);
-  const [done, setDone] = useState(false);
-  const [busy, setBusy] = useState(false);
   const [sparked, setSparked] = useState<Set<string>>(new Set());
   const [passed, setPassed] = useState<Set<string>>(new Set());
   const [pview, setPview] = useState<'list' | 'swipe'>('list');
@@ -212,34 +211,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
     { value: String(past.length), label: 'ARHIVA NOĆI', color: G.house },
   ];
 
-  const checkIn = async () => {
-    if (busy || done) return;
-    setBusy(true);
-    try {
-      if (!venue.venueId) { setDone(true); toast.success('Prijavljen ✓ · +40 XP'); return; }
-      let pos: GeolocationPosition | null = null;
-      try { pos = await getCurrentPosition(); } catch { if (!DEV_SKIP_GEOFENCE) { toast.error('Uključi lokaciju za check-in.'); return; } }
-      if (!DEV_SKIP_GEOFENCE && pos && venue.lat != null && venue.lng != null) {
-        const d = calculateDistance(pos.coords.latitude, pos.coords.longitude, venue.lat, venue.lng);
-        if (d > Math.max(venue.radius || 100, 120)) { toast.error(`${formatDistance(d)} od ${venue.name} — priđi bliže.`); return; }
-      }
-      const lat = pos?.coords.latitude ?? venue.lat ?? 0;
-      const lon = pos?.coords.longitude ?? venue.lng ?? 0;
-      const { data, error } = await db.rpc('process_secure_checkin', { p_venue: venue.venueId, p_lat: lat, p_lon: lon });
-      if (error) {
-        const msg = String(error.message || '');
-        toast.error(msg.includes('12 hours') || msg.includes('duplicate') ? 'Već si se prijavio ovde večeras.' : 'Check-in nije prošao — pokušaj ponovo.');
-        return;
-      }
-      if (user) { incrementQuestProgress(user.id, 'check_in').catch(() => {}); incrementQuestProgress(user.id, 'explore').catch(() => {}); }
-      track('check_in', { venue: venue.name, venue_id: venue.venueId, secure: true, awarded_xp: data?.awarded_xp });
-      setDone(true);
-      toast.success(data ? `Prijavljen ✓ · +${data.awarded_xp} XP · +${data.awarded_afc} AFC` : 'Prijavljen ✓');
-      if (venue.venueId && shouldShowFeedback()) setTimeout(() => setFeedback(venue.venueId!), 1400);
-    } finally {
-      setBusy(false);
-    }
-  };
+  const { checkIn, done, busy } = useCheckIn(venue, (vid) => setFeedback(vid));
 
   return (
     <>
@@ -435,7 +407,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
       {feedback && <OSFeedbackSheet venueId={feedback} onDone={() => setFeedback(null)} />}
       {danceOpen && <OSDanceMode venueId={venue.venueId} venueName={venue.name} onClose={() => setDanceOpen(false)} />}
       {crewOpen && <OSCrew eventId={venue.eventId ?? null} venueId={venue.venueId ?? null} title={venue.name} onClose={() => setCrewOpen(false)} />}
-      {match && <OSMatchCelebration otherName={match.name} otherAvatar={match.avatar} onClose={() => setMatch(null)} onOpenChat={() => { setMatch(null); navigate('/matches'); }} />}
+      {match && <OSMatchCelebration otherName={match.name} otherAvatar={match.avatar} onClose={() => setMatch(null)} onOpenChat={() => { setMatch(null); onClose(); window.dispatchEvent(new CustomEvent('os-go', { detail: 'matches' })); }} />}
     </>
   );
 };

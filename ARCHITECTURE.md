@@ -2,7 +2,7 @@
 
 > Sinteza 3-agentnog review-a (performanse · stabilnost · arhitektura), 2026-07-08.
 > Sve brojke su IZMERENE (build, sourcemap atribucija, živi row-count-ovi), ne procene.
-> Status: ✅ = popravljeno u `lockdown+hardening` commitu · ⬜ = plan (prioritizovano dole).
+> Status 2026-07-11: **svi talasi A–E isporučeni** (A `58f078a`, B `61e42e2`, C `3bab38d`, D+E ovaj commit). E3 outbox = delimično (offlineFirst pauzira mutacije u sesiji; pun persisted outbox → native faza). E4 = RQ reconnect/focus defaults + SW.
 
 ---
 
