@@ -45,7 +45,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
   const { data: events = [] } = useQuery<Ev[]>({
     queryKey: ['os-events'],
     queryFn: async () => {
-      const { data } = await supabase.from('events').select('*').order('date', { ascending: true });
+      const { data } = await supabase.from('events').select('id, title, date, start_time, venue_name, image_url, music_genres, venue_type, event_type, venue_id').order('date', { ascending: true });
       return (data as any) || [];
     },
   });

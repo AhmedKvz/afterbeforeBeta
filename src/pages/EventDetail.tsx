@@ -19,7 +19,6 @@ import { awardXP, XP_AWARDS } from '@/services/gamification';
 import { incrementQuestProgress } from '@/services/questProgress';
 import { logTrainingEvent } from '@/services/aiTracker';
 import { toast } from 'sonner';
-import { AreaChart, Area, XAxis, ResponsiveContainer } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import { VenueReviewsSection } from '@/components/reviews/VenueReviewsSection';
 import { VenueTypeBadge } from '@/components/VenueTypeBadge';
@@ -654,18 +653,28 @@ const CrowdPredictionCard = ({ prediction, event }: { prediction: any; event: an
       </div>
       
       <div className="h-16">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={curveData}>
-            <defs>
-              <linearGradient id="crowdGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
-                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-              </linearGradient>
-            </defs>
-            <XAxis dataKey="time" tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-            <Area type="monotone" dataKey="crowd" stroke="hsl(var(--primary))" fill="url(#crowdGrad)" strokeWidth={2} />
-          </AreaChart>
-        </ResponsiveContainer>
+        {/* inline SVG sparkline — replaced recharts (345 kB of bundle for this one chart) */}
+        {(() => {
+          const W = 300, H = 48, max = Math.max(...curveData.map((d) => d.crowd), 1);
+          const px = (i: number) => (i / Math.max(curveData.length - 1, 1)) * W;
+          const py = (v: number) => H - (v / max) * (H - 4) - 2;
+          const line = curveData.map((d, i) => `${i ? 'L' : 'M'}${px(i).toFixed(1)} ${py(d.crowd).toFixed(1)}`).join(' ');
+          return (
+            <svg viewBox={`0 0 ${W} ${H + 12}`} width="100%" height="100%" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="crowdGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <path d={`${line} L${W} ${H} L0 ${H} Z`} fill="url(#crowdGrad)" />
+              <path d={line} fill="none" stroke="hsl(var(--primary))" strokeWidth={2} />
+              {curveData.map((d, i) => (
+                <text key={i} x={px(i)} y={H + 10} fontSize={9} fill="hsl(var(--muted-foreground))" textAnchor={i === 0 ? 'start' : i === curveData.length - 1 ? 'end' : 'middle'}>{d.time}</text>
+              ))}
+            </svg>
+          );
+        })()}
       </div>
     </motion.div>
   );
