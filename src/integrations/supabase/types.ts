@@ -1519,8 +1519,10 @@ export type Database = {
           bio: string | null
           city: string | null
           created_at: string | null
+          crew_intent: string | null
           display_name: string
           events_attended: number | null
+          fav_venues: string[] | null
           founding_raver_number: number | null
           id: string
           instagram_avatar_url: string | null
@@ -1559,8 +1561,10 @@ export type Database = {
           bio?: string | null
           city?: string | null
           created_at?: string | null
+          crew_intent?: string | null
           display_name: string
           events_attended?: number | null
+          fav_venues?: string[] | null
           founding_raver_number?: number | null
           id?: string
           instagram_avatar_url?: string | null
@@ -1599,8 +1603,10 @@ export type Database = {
           bio?: string | null
           city?: string | null
           created_at?: string | null
+          crew_intent?: string | null
           display_name?: string
           events_attended?: number | null
+          fav_venues?: string[] | null
           founding_raver_number?: number | null
           id?: string
           instagram_avatar_url?: string | null

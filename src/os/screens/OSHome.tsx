@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Bell } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { OSLucky100Modal } from '../OSLucky100Modal';
 import { OSStories } from '../OSStories';
 import { OSEventRow } from '../OSEventRow';
@@ -37,6 +38,7 @@ const LIVE_RED = '#ff3b46';
 
 export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) => void; goProfile: () => void }) => {
   const navigate = useNavigate();
+  const { profile } = useAuth();
   const [lens, setLens] = useState<'foryou' | 'all'>('foryou');
   const [dateF, setDateF] = useState<'SVE' | 'VEČERAS' | 'VIKEND'>('SVE');
   const [genreF, setGenreF] = useState<string | null>(null);
@@ -81,13 +83,23 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
   const trending = [...events].sort((a, b) => (signals[b.id] || 0) - (signals[a.id] || 0)).slice(0, 3);
   const best = trending[0];
 
-  // "Za tebe" curated slice — tonight first, ranked by going-count.
+  // "Za tebe" curated slice — tonight first, ranked by going-count + stated
+  // preferences from onboarding (genres + fav venues). Stated → learned later.
+  const prefGenres = ((profile as any)?.music_preferences || []).map((g: string) => g.toLowerCase());
+  const favVenues = new Set((((profile as any)?.fav_venues || []) as string[]).map((v) => v.toLowerCase()));
   const forYou = useMemo(() => {
     const base = events.filter((e) => e.venue_type !== 'afterplace');
     const tonight = base.filter((e) => e.date === todayStr);
     const pool = tonight.length ? tonight : base;
-    return [...pool].sort((a, b) => (signals[b.id] || 0) - (signals[a.id] || 0)).slice(0, 6);
-  }, [events, signals, todayStr]);
+    const score = (e: Ev) => {
+      let sc = (signals[e.id] || 0) * 2;
+      if (e.venue_name && favVenues.has(e.venue_name.toLowerCase())) sc += 3;
+      sc += (e.music_genres || []).filter((g) => prefGenres.some((p: string) => g.toLowerCase().includes(p) || p.includes(g.toLowerCase()))).length;
+      return sc;
+    };
+    return [...pool].sort((a, b) => score(b) - score(a)).slice(0, 6);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events, signals, todayStr, profile]);
 
   // "Sve" full catalog — date + genre filters.
   const genres = useMemo(() => {

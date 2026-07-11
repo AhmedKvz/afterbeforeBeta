@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, Camera, Check } from 'lucide-react';
@@ -37,6 +37,32 @@ const Onboarding = () => {
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+  // Onboarding v2: stated preferences that seed "Za tebe" (and later the
+  // intelligence layer). crew intent + weekend picks.
+  const [crewIntent, setCrewIntent] = useState<string>('');
+  const [pickedEvents, setPickedEvents] = useState<string[]>([]);
+  const [pickedVenues, setPickedVenues] = useState<string[]>([]);
+  const [weekendEvents, setWeekendEvents] = useState<any[]>([]);
+  const [venueOptions, setVenueOptions] = useState<any[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const { data: evs } = await db.from('events')
+        .select('id, title, date, start_time, venue_name, music_genres')
+        .gte('date', today).order('date', { ascending: true }).limit(8);
+      setWeekendEvents(evs || []);
+      // few/no upcoming events → offer venues instead (honest fallback)
+      if (!evs || evs.length < 3) {
+        const { data: vens } = await db.from('venues')
+          .select('id, name, type, emoji').order('sort', { ascending: false }).order('name').limit(12);
+        setVenueOptions(vens || []);
+      }
+    })();
+  }, []);
+
+  const TOTAL_STEPS = isVenue ? 3 : 5;
 
   // Venue state
   const [venueName, setVenueName] = useState('');
@@ -104,6 +130,10 @@ const Onboarding = () => {
         toast.error('Izaberi bar 3 žanra');
         return;
       }
+      if (step === 3 && !crewIntent) {
+        toast.error('Izaberi kako izlaziš');
+        return;
+      }
     }
     setStep(step + 1);
   };
@@ -132,6 +162,10 @@ const Onboarding = () => {
           .eq('user_id', user.id);
         if (error) throw error;
       } else {
+        // fav_venues = explicit venue picks + venues of picked events
+        const favSet = new Set(pickedVenues);
+        weekendEvents.filter((e) => pickedEvents.includes(e.id)).forEach((e) => { if (e.venue_name) favSet.add(e.venue_name); });
+
         const { error } = await supabase
           .from('profiles')
           .update({
@@ -140,10 +174,18 @@ const Onboarding = () => {
             city,
             music_preferences: selectedGenres,
             avatar_url: avatarPreview,
+            crew_intent: crewIntent || null,
+            fav_venues: Array.from(favSet),
             onboarding_completed: true,
-          })
+          } as any)
           .eq('user_id', user.id);
         if (error) throw error;
+
+        // picked events → real "Idem" signals (same shape as EventDetail toggle)
+        if (pickedEvents.length) {
+          await db.from('event_signals')
+            .upsert(pickedEvents.map((id) => ({ event_id: id, user_id: user.id, signal_type: 'going' })), { onConflict: 'event_id,user_id', ignoreDuplicates: true });
+        }
       }
 
       await awardXP(user.id, XP_AWARDS.completeOnboarding, 'Completed onboarding');
@@ -326,9 +368,91 @@ const Onboarding = () => {
         </motion.div>
       );
     }
-    // step 3
+    if (step === 3) {
+      const OPTIONS = [
+        { id: 'nadji-mi-ekipu', emoji: '🧑\u200d🤝\u200d🧑', title: 'Nađi mi ekipu', desc: 'Često izlazim solo — poveži me sa ljudima koji idu na isto mesto' },
+        { id: 'imam-ekipu', emoji: '🍻', title: 'Imam svoju ekipu', desc: 'Izlazim sa svojima — zanima me samo gde je dobro' },
+        { id: 'zavisi', emoji: '🌙', title: 'Zavisi od večeri', desc: 'Nekad solo, nekad sa ekipom — neka mi obe opcije budu otvorene' },
+      ];
+      return (
+        <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Kako izlaziš?</h1>
+            <p className="text-muted-foreground">Da znamo da li da ti nudimo ekipu za večeras</p>
+          </div>
+          <div className="space-y-3">
+            {OPTIONS.map((o) => {
+              const sel = crewIntent === o.id;
+              return (
+                <button key={o.id} onClick={() => setCrewIntent(o.id)} className={cn('w-full text-left p-4 rounded-2xl border transition-all', sel ? 'border-primary bg-primary/10' : 'border-border bg-card')}>
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{o.emoji}</span>
+                    <div className="flex-1">
+                      <div className="font-bold">{o.title}</div>
+                      <div className="text-sm text-muted-foreground mt-0.5">{o.desc}</div>
+                    </div>
+                    {sel && <Check className="w-5 h-5 text-primary flex-none" />}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+      );
+    }
+    if (step === 4) {
+      const toggleEvent = (id: string) => setPickedEvents((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]);
+      const toggleVenue = (n: string) => setPickedVenues((p) => p.includes(n) ? p.filter((x) => x !== n) : [...p, n]);
+      return (
+        <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Šta bi posetio ovog vikenda?</h1>
+            <p className="text-muted-foreground">Označi šta te privlači — od toga krećemo (možeš i da preskočiš)</p>
+          </div>
+          {weekendEvents.length > 0 && (
+            <div className="space-y-3">
+              {weekendEvents.map((e) => {
+                const sel = pickedEvents.includes(e.id);
+                const d = (e.date || '').slice(8, 10) + '.' + (e.date || '').slice(5, 7) + '.';
+                return (
+                  <button key={e.id} onClick={() => toggleEvent(e.id)} className={cn('w-full text-left p-4 rounded-2xl border transition-all', sel ? 'border-primary bg-primary/10' : 'border-border bg-card')}>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold truncate">{e.title}</div>
+                        <div className="text-sm text-muted-foreground mt-0.5">{e.venue_name} · {d} {(e.start_time || '').slice(0, 5)}</div>
+                      </div>
+                      {sel && <Check className="w-5 h-5 text-primary flex-none" />}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {venueOptions.length > 0 && (
+            <div>
+              {weekendEvents.length > 0 && <p className="text-sm text-muted-foreground mb-3">…ili mesta koja te zanimaju:</p>}
+              <div className="flex flex-wrap gap-3">
+                {venueOptions.map((v) => {
+                  const sel = pickedVenues.includes(v.name);
+                  return (
+                    <button key={v.id} onClick={() => toggleVenue(v.name)} className={cn('genre-chip', sel && 'selected')}>
+                      {sel && <Check className="w-4 h-4 inline mr-1" />}
+                      {v.emoji ? `${v.emoji} ` : ''}{v.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          {weekendEvents.length === 0 && venueOptions.length === 0 && (
+            <p className="text-sm text-muted-foreground">Program se puni — preskoči ovaj korak.</p>
+          )}
+        </motion.div>
+      );
+    }
+    // step 5 — photo
     return (
-      <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+      <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Dodaj najbolju fotku</h1>
           <p className="text-muted-foreground">Ovo je tvoja profilna</p>
@@ -413,7 +537,7 @@ const Onboarding = () => {
     <div className="min-h-screen bg-background p-6">
       {/* Progress */}
       <div className="flex items-center gap-2 mb-8">
-        {[1, 2, 3].map((i) => (
+        {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map((i) => (
           <div key={i} className={cn('h-1 flex-1 rounded-full transition-colors', i <= step ? 'bg-primary' : 'bg-muted')} />
         ))}
       </div>
@@ -424,7 +548,7 @@ const Onboarding = () => {
 
       {/* Navigation */}
       <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background to-transparent">
-        {step < 3 ? (
+        {step < TOTAL_STEPS ? (
           <button onClick={handleNext} className="w-full btn-gradient py-4 rounded-xl flex items-center justify-center gap-2">
             Dalje <ChevronRight className="w-5 h-5" />
           </button>
