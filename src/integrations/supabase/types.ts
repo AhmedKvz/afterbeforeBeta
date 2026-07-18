@@ -2892,6 +2892,7 @@ export type Database = {
       _is_verified: { Args: { p_user: string }; Returns: boolean }
       accept_sponsored_quest: { Args: { p_id: string }; Returns: Json }
       admin_delete_event: { Args: { p_id: string }; Returns: undefined }
+      admin_delete_venue: { Args: { p_id: string }; Returns: undefined }
       admin_save_event: {
         Args: {
           p_date: string
@@ -2934,6 +2935,19 @@ export type Database = {
           p_title: string
           p_venue_name: string
           p_xp: number
+        }
+        Returns: string
+      }
+      admin_save_venue: {
+        Args: {
+          p_emoji: string
+          p_id: string
+          p_lat: number
+          p_lng: number
+          p_name: string
+          p_neighborhood: string
+          p_partner: boolean
+          p_type: string
         }
         Returns: string
       }

@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { isFounder } from '@/lib/founder';
 import { WarRoomQuests } from './WarRoomQuests';
 import { WarRoomEvents } from './WarRoomEvents';
+import { WarRoomVenues } from './WarRoomVenues';
 import { OS, G, hexA, MONO, ROLE } from '@/os/osTheme';
 
 const db = supabase as any;
@@ -20,8 +21,8 @@ function useStore<T>(key: string, initial: T): [T, (v: T | ((p: T) => T)) => voi
   return [v, setV];
 }
 
-type Tab = 'pulse' | 'grant' | 'events' | 'quests' | 'goals' | 'meetings' | 'manifest' | 'docs';
-const TABS: [Tab, string][] = [['pulse', 'PULSE'], ['grant', 'GRANT'], ['events', 'DOGAĐAJI'], ['quests', 'QUESTOVI'], ['goals', 'CILJEVI'], ['meetings', 'MEETINGS'], ['manifest', 'MANIFEST'], ['docs', 'DOCS']];
+type Tab = 'pulse' | 'grant' | 'events' | 'venues' | 'quests' | 'goals' | 'meetings' | 'manifest' | 'docs';
+const TABS: [Tab, string][] = [['pulse', 'PULSE'], ['grant', 'GRANT'], ['events', 'DOGAĐAJI'], ['venues', 'MESTA'], ['quests', 'QUESTOVI'], ['goals', 'CILJEVI'], ['meetings', 'MEETINGS'], ['manifest', 'MANIFEST'], ['docs', 'DOCS']];
 
 interface Goal { id: string; label: string; current: number | null; target: number; unit: string }
 interface Action { id: string; text: string; done: boolean }
@@ -241,6 +242,9 @@ export default function WarRoom() {
             <WarRoomEvents />
           </>
         )}
+
+        {/* ── VENUES (imenik mesta — odvojeno od događaja) ── */}
+        {tab === 'venues' && <WarRoomVenues />}
 
         {/* ── QUESTS (founder authoring) ── */}
         {tab === 'quests' && (

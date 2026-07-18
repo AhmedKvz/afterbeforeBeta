@@ -71,6 +71,18 @@ const SponsoredForm = ({ item, onDone }: { item: any; onDone: () => void }) => {
     kind: item?.kind || 'perk', media: item?.media || 'photo', rule: item?.rule || 'checkin',
   });
   const [busy, setBusy] = useState(false);
+  // Šablon „Make us famous" — open content quest za klubove/restorane/kafiće:
+  // snimi reklamu za mesto, pobednički video postaje zvanična reklama, nagrada
+  // = večera za tebe i ekipu iz tvog videa. Prefill — founder bira partnera i
+  // aktivira TEK sa pravim dogovorom (QUEST lock: nema fake sponzora).
+  const famousPreset = () => setF({
+    ...f,
+    title: 'Make us famous',
+    description: 'Snimi reklamu za ovo mesto — tvojim telefonom, tvoja režija. Pobednički video postaje zvanična reklama mesta.',
+    kind: 'content', media: 'video',
+    reward_label: 'Večera za tebe i ekipu iz tvog videa',
+    spots_label: 'GLASA SCENA', xp_reward: 200, target_count: 1, is_active: false,
+  });
   const save = async () => {
     if (!f.title.trim()) { toast('Naziv je obavezan.'); return; }
     setBusy(true);
@@ -90,6 +102,7 @@ const SponsoredForm = ({ item, onDone }: { item: any; onDone: () => void }) => {
         <div style={{ flex: 1 }}><Field label="PARTNER"><input value={f.venue_name} onChange={(e) => setF({ ...f, venue_name: e.target.value })} style={inp} placeholder="Kult" /></Field></div>
       </div>
       <Field label="NAZIV"><input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} style={inp} placeholder="Open frame — tema, ne skripta" /></Field>
+      <button onClick={famousPreset} style={{ marginBottom: 9, minHeight: 36, padding: '7px 12px', borderRadius: 9, cursor: 'pointer', fontFamily: MONO, fontSize: 10, fontWeight: 600, border: `1px dashed ${hexA(G.festival, 0.5)}`, background: hexA(G.festival, 0.08), color: G.festival }}>🎬 ŠABLON: MAKE US FAMOUS (klub · restoran · kafić)</button>
       <Field label="OPIS"><textarea value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} rows={2} style={{ ...inp, resize: 'vertical' }} /></Field>
       <div style={{ display: 'flex', gap: 8 }}>
         <div style={{ flex: 1 }}><Field label="TIP"><select value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value })} style={inp}><option value="perk">Perk (nagrada na licu mesta)</option><option value="content">Content (foto/video + glasanje)</option></select></Field></div>

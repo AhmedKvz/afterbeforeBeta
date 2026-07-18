@@ -5,7 +5,7 @@ import type { OSVenue } from '../OSVenueSheet';
 
 const HOODS = ['All', 'Savamala', 'Dorćol', 'Vračar', 'Stari Grad', 'Novi Beograd'];
 const TYPES: [string, string][] = [
-  ['all', 'Sve'], ['club', 'Klubovi'], ['bar', 'Barovi'], ['splav', 'Splavovi'], ['cafe', 'Kafići'], ['afterplace', 'After'],
+  ['all', 'Sve'], ['club', 'Klubovi'], ['bar', 'Barovi'], ['splav', 'Splavovi'], ['cafe', 'Kafići'], ['festival', 'Festivali'], ['afterplace', 'After'],
 ];
 const typeMatch = (vt: string, t: string) => t === 'all' || (t === 'cafe' ? /cafe/.test(vt) : vt === t);
 

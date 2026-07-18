@@ -31,7 +31,7 @@ export const BELGRADE_HOODS = [
 
 const TYPE_EMOJI: Record<string, string> = {
   club: '🎵', splav: '🚢', cafe: '☕', cafe_bar: '☕', bar: '🍸',
-  restaurant: '🍽', gallery: '🎨', afterplace: '🍔',
+  restaurant: '🍽', gallery: '🎨', afterplace: '🍔', festival: '🎪',
 };
 
 // Design system: genre drives color. Each music scene has its own hue.
@@ -90,6 +90,7 @@ function genreHue(genres: string[] | null | undefined, type: string): number {
 const TYPE_MODE: Record<string, 'day' | 'night' | 'both'> = {
   club: 'night', splav: 'night', bar: 'both', afterplace: 'night',
   cafe: 'day', cafe_bar: 'day', restaurant: 'day', gallery: 'day',
+  festival: 'night',
 };
 
 function coordFor(neighborhood: string | null, key: string) {
