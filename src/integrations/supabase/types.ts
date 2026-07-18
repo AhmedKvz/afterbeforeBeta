@@ -802,6 +802,78 @@ export type Database = {
         }
         Relationships: []
       }
+      dare_pairs: {
+        Row: {
+          a_confirmed: boolean
+          b_confirmed: boolean
+          code_a: string
+          code_b: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          mission: string
+          night: string
+          user_a: string
+          user_b: string
+          venue_id: string
+          venue_name: string
+        }
+        Insert: {
+          a_confirmed?: boolean
+          b_confirmed?: boolean
+          code_a: string
+          code_b: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          mission: string
+          night: string
+          user_a: string
+          user_b: string
+          venue_id: string
+          venue_name: string
+        }
+        Update: {
+          a_confirmed?: boolean
+          b_confirmed?: boolean
+          code_a?: string
+          code_b?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          mission?: string
+          night?: string
+          user_a?: string
+          user_b?: string
+          venue_id?: string
+          venue_name?: string
+        }
+        Relationships: []
+      }
+      dare_pool: {
+        Row: {
+          created_at: string
+          night: string
+          user_id: string
+          venue_id: string
+          venue_name: string
+        }
+        Insert: {
+          created_at?: string
+          night: string
+          user_id: string
+          venue_id: string
+          venue_name: string
+        }
+        Update: {
+          created_at?: string
+          night?: string
+          user_id?: string
+          venue_id?: string
+          venue_name?: string
+        }
+        Relationships: []
+      }
       event_checkins: {
         Row: {
           checked_in_at: string | null
@@ -3077,6 +3149,10 @@ export type Database = {
         Returns: Json
       }
       creator_tier_for: { Args: { p_user: string }; Returns: number }
+      dare_confirm: { Args: { p_pair: string }; Returns: Json }
+      dare_join: { Args: never; Returns: Json }
+      dare_leave: { Args: never; Returns: undefined }
+      dare_status: { Args: never; Returns: Json }
       delete_my_event: { Args: { p_id: string }; Returns: undefined }
       draw_lucky_100_winners: {
         Args: { num_winners?: number }

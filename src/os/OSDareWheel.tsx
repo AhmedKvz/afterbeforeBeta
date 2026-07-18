@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { incrementQuestProgress } from '@/services/questProgress';
 import { track } from '@/lib/analytics';
@@ -27,8 +28,94 @@ const DARES: { text: string; type: string; emoji: string; col: string }[] = [
   { text: 'Zamoli DJ-a za JEDNU pesmu za nekog drugog — i reci mu za koga.', type: 'social', emoji: '🎁', col: G.underground },
 ];
 
+const db = supabase as any;
+
+/* ── ŠIFRA — uparivanje sa nekim iz mesta, identitet tek posle obe potvrde ── */
+const SifraTab = ({ onClose }: { onClose: () => void }) => {
+  const { user } = useAuth();
+  const [st, setSt] = useState<any>({ status: 'loading' });
+  const [busy, setBusy] = useState(false);
+
+  const refresh = async () => {
+    const { data } = await db.rpc('dare_status');
+    if (data) setSt(data);
+  };
+  useEffect(() => {
+    refresh();
+    const t = setInterval(refresh, 8000);
+    return () => clearInterval(t);
+  }, []);
+
+  const join = async () => {
+    setBusy(true);
+    const { data, error } = await db.rpc('dare_join');
+    setBusy(false);
+    if (error) { toast.error(error.message || 'Ne može sad.'); return; }
+    if (data?.status === 'no_checkin') { toast('Prvo se čekiraj gde si — igra se igra u mestu. 📍'); return; }
+    track('sifra_join', { matched: data?.status === 'matched' });
+    refresh();
+  };
+  const confirm = async () => {
+    setBusy(true);
+    const { data, error } = await db.rpc('dare_confirm', { p_pair: st.pair_id });
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    if (data?.completed && user) {
+      track('sifra_completed', {});
+      incrementQuestProgress(user.id, 'social').catch(() => {});
+      incrementQuestProgress(user.id, 'match').catch(() => {});
+    }
+    refresh();
+  };
+
+  const card = (children: any, col: string) => (
+    <div style={{ borderRadius: 20, border: `1px solid ${hexA(col, 0.5)}`, background: `radial-gradient(120% 100% at 50% 0%, ${hexA(col, 0.13)}, transparent 60%), ${OS.surface}`, padding: '28px 22px' }}>{children}</div>
+  );
+
+  if (st.status === 'loading') return <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink5, padding: '40px 0' }}>UČITAVAM…</div>;
+
+  if (st.status === 'idle') return card(<>
+    <div style={{ fontSize: 40, marginBottom: 10 }}>🔐</div>
+    <div style={{ fontSize: 20, fontWeight: 800, color: OS.ink }}>Igra velikih</div>
+    <div style={{ fontSize: 13.5, color: OS.ink4, marginTop: 10, lineHeight: 1.6 }}>
+      Uđeš u igru → algoritam te upari sa nekim iz <strong style={{ color: OS.ink2 }}>istog mesta, večeras</strong>, po ukusu.
+      Oboje dobijete po <strong style={{ color: OS.ink2 }}>pola šifre</strong>. Chill zona. Sastavite je.
+      Ime saznaš tek kad se <strong style={{ color: OS.ink2 }}>oboje potvrdite</strong>. Izlaz — kad god hoćeš.
+    </div>
+    <button onClick={join} disabled={busy} style={{ marginTop: 20, width: '100%', minHeight: 50, borderRadius: 14, border: 0, cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#fff', background: `linear-gradient(135deg,${G.underground},${G.techno})` }}>{busy ? '…' : 'UĐI U IGRU VEČERAS'}</button>
+  </>, G.underground);
+
+  if (st.status === 'waiting') return card(<>
+    <div style={{ fontSize: 40, marginBottom: 10, animation: 'os-pulse 2s ease-in-out infinite' }}>🔐</div>
+    <div style={{ fontSize: 19, fontWeight: 800, color: OS.ink }}>U igri si.</div>
+    <div style={{ fontSize: 13.5, color: OS.ink4, marginTop: 8, lineHeight: 1.55 }}>Čekaš polovinu — čim još neko iz mesta uđe u igru, šifra stiže. Drži app blizu.</div>
+    <button onClick={async () => { await db.rpc('dare_leave'); refresh(); }} style={{ marginTop: 16, background: 'transparent', border: 0, cursor: 'pointer', fontFamily: MONO, fontSize: 10.5, color: OS.ink5 }}>IZAĐI IZ IGRE</button>
+  </>, G.underground);
+
+  // matched
+  if (st.completed) return card(<>
+    <div style={{ fontSize: 40, marginBottom: 10 }}>🖤</div>
+    <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: G.festival }}>ŠIFRA SASTAVLJENA</div>
+    <div style={{ fontSize: 21, fontWeight: 800, color: OS.ink, marginTop: 8 }}>{st.other_name || 'Tvoja polovina'}</div>
+    <div style={{ fontSize: 13.5, color: OS.ink4, marginTop: 8 }}>Upoznali ste se kako se u ovom gradu upoznaje — uživo. Quest progres upisan.</div>
+    <button onClick={onClose} style={{ marginTop: 18, width: '100%', minHeight: 46, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 700, fontSize: 14, background: G.festival, color: '#0B0B0D' }}>Nazad u noć →</button>
+  </>, G.festival);
+
+  return card(<>
+    <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.18em', color: OS.ink5 }}>{st.venue?.toUpperCase()} · MISIJA</div>
+    <div style={{ fontSize: 14, color: OS.ink3, marginTop: 8, lineHeight: 1.5 }}>{st.mission}</div>
+    <div style={{ margin: '18px 0 6px', fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: G.underground }}>TVOJA POLOVINA ŠIFRE</div>
+    <div style={{ fontFamily: MONO, fontSize: 30, fontWeight: 600, letterSpacing: '.06em', color: OS.ink, textShadow: `0 0 30px ${hexA(G.underground, 0.6)}` }}>„{st.my_code}"</div>
+    {st.me_confirmed
+      ? <div style={{ fontFamily: MONO, fontSize: 11, color: G.house, marginTop: 18 }}>ČEKA SE POTVRDA DRUGE STRANE…</div>
+      : <button onClick={confirm} disabled={busy} style={{ marginTop: 18, width: '100%', minHeight: 48, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 800, fontSize: 14.5, background: G.underground, color: '#fff' }}>{busy ? '…' : 'NAŠLI SMO SE — POTVRDI ✓'}</button>}
+    <div style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6, marginTop: 12 }}>JAVNA ZONA · IZLAZ KAD GOD HOĆEŠ · 🚩 PRIJAVA U CHATU RADI I OVDE</div>
+  </>, G.underground);
+};
+
 export const OSDareWheel = ({ onClose }: { onClose: () => void }) => {
   const { user } = useAuth();
+  const [mode, setMode] = useState<'tocak' | 'sifra'>('tocak');
   const [phase, setPhase] = useState<'idle' | 'spin' | 'landed'>('idle');
   const [idx, setIdx] = useState(0);
   const [respins, setRespins] = useState(2);
@@ -64,9 +151,15 @@ export const OSDareWheel = ({ onClose }: { onClose: () => void }) => {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 160, background: 'rgba(5,5,7,.88)', backdropFilter: 'blur(10px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={phase !== 'spin' ? onClose : undefined}>
       <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, textAlign: 'center' }}>
-        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.26em', color: G.afterparty, marginBottom: 10 }}>🎲 ZAVRTI NOĆ</div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
+          {([['tocak', '🎲 TOČAK'], ['sifra', '🔐 ŠIFRA']] as const).map(([v, l]) => (
+            <button key={v} onClick={() => setMode(v)} style={{ minHeight: 36, cursor: 'pointer', padding: '7px 16px', borderRadius: 999, fontFamily: MONO, fontSize: 10.5, fontWeight: 700, letterSpacing: '.1em', border: `1px solid ${mode === v ? 'transparent' : OS.line2}`, background: mode === v ? hexA(G.afterparty, 0.18) : 'transparent', color: mode === v ? G.afterparty : OS.ink5 }}>{l}</button>
+          ))}
+        </div>
 
-        {phase === 'idle' && (
+        {mode === 'sifra' && <SifraTab onClose={onClose} />}
+
+        {mode === 'tocak' && phase === 'idle' && (
           <>
             <div style={{ fontSize: 46, marginBottom: 10 }}>🎲</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: OS.ink, letterSpacing: '-.02em' }}>Smeš li?</div>
@@ -75,7 +168,7 @@ export const OSDareWheel = ({ onClose }: { onClose: () => void }) => {
           </>
         )}
 
-        {phase !== 'idle' && (
+        {mode === 'tocak' && phase !== 'idle' && (
           <div style={{ borderRadius: 20, border: `1px solid ${hexA(d.col, phase === 'landed' ? 0.55 : 0.25)}`, background: `radial-gradient(120% 100% at 50% 0%, ${hexA(d.col, 0.14)}, transparent 60%), ${OS.surface}`, padding: '30px 22px', transition: 'border-color .2s', boxShadow: phase === 'landed' ? `0 0 60px -20px ${hexA(d.col, 0.7)}` : 'none' }}>
             <div style={{ fontSize: 40, marginBottom: 12, filter: phase === 'spin' ? 'blur(1px)' : 'none' }}>{d.emoji}</div>
             <div style={{ fontSize: 17.5, fontWeight: 700, color: OS.ink, lineHeight: 1.45, minHeight: 76, opacity: phase === 'spin' ? 0.55 : 1 }}>{d.text}</div>
