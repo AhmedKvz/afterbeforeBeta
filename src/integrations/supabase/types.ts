@@ -553,6 +553,69 @@ export type Database = {
         }
         Relationships: []
       }
+      crew_dare_optins: {
+        Row: {
+          created_at: string
+          crew_id: string
+          night: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          crew_id: string
+          night: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          crew_id?: string
+          night?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      crew_dare_pairs: {
+        Row: {
+          a_confirmed: boolean
+          b_confirmed: boolean
+          completed_at: string | null
+          created_at: string
+          crew_a: string
+          crew_b: string
+          id: string
+          night: string
+          phrase_a: string
+          phrase_b: string
+          venue_id: string | null
+        }
+        Insert: {
+          a_confirmed?: boolean
+          b_confirmed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          crew_a: string
+          crew_b: string
+          id?: string
+          night: string
+          phrase_a: string
+          phrase_b: string
+          venue_id?: string | null
+        }
+        Update: {
+          a_confirmed?: boolean
+          b_confirmed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          crew_a?: string
+          crew_b?: string
+          id?: string
+          night?: string
+          phrase_a?: string
+          phrase_b?: string
+          venue_id?: string | null
+        }
+        Relationships: []
+      }
       crew_members: {
         Row: {
           crew_id: string
@@ -3149,6 +3212,10 @@ export type Database = {
         Returns: Json
       }
       creator_tier_for: { Args: { p_user: string }; Returns: number }
+      crew_dare_confirm: { Args: { p_pair: string }; Returns: Json }
+      crew_dare_join: { Args: never; Returns: Json }
+      crew_dare_leave: { Args: never; Returns: undefined }
+      crew_dare_status: { Args: never; Returns: Json }
       dare_confirm: { Args: { p_pair: string }; Returns: Json }
       dare_join: { Args: never; Returns: Json }
       dare_leave: { Args: never; Returns: undefined }

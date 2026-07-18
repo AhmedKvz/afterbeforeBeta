@@ -21,7 +21,7 @@ Noć kao igra uživo — app izaziva, grad je tabla, ljudi su potezi. Temelj pos
 🎲 Točak (smele misije) + 🔐 ŠIFRA (upareni susreti, co-presence + obostrani pristanak).
 **Sledeći potezi ovog pravca (redom):**
 1. ŠIFRA QA sa 2 uređaja → pa ŠIFRA na B1 kao Q7 „Meet the Scene"
-2. Crew šifre (ekipa vs ekipa — 4 polovine, dve ekipe se traže)
+2. ✅ Crew šifra ŽIVA (dva čina: reči po članovima → ekipa traži ekipu; obavezno u B1 QA sa 2 uređaja)
 3. LLM personalizovane misije (grant faza, Quest Copilot pattern + moderacija)
 4. Venue „chill zona" oznaka u MESTA tabu (gde se igra sastavlja)
 
@@ -69,4 +69,4 @@ Noć kao igra uživo — app izaziva, grad je tabla, ljudi su potezi. Temelj pos
 
 ## ✅ Nedavno završeno (kontekst — puna istorija u git logu)
 
-ECONOMY §11 Economic Engine + §11.8 Fond scene · 🔐 ŠIFRA (igra uparivanja: opt-in → algoritam → pola šifre svakom → chill zona → obostrana potvrda; B1 Q7 kandidat) · 🎲 Zavrti noć (dare wheel — venue sheet + quest hub) · Landing „poziv sceni“ (hero + PRILIKA manifest, SR+EN) · Ultra-review talasi A–E (perf/čišćenje/realtime/PWA) · economy lockdown · War Room DOGAĐAJI + MESTA admini · imenik 44 mesta · onboarding v2 (muzika→crew→vikend) · LOCK audit svih 9 sekcija · dizajn polish + responsive + „Pun ulaz" Home pass · legacy /venue penzionisan · Make-us-famous šablon · Festivali tip.
+ECONOMY §11 Economic Engine + §11.8 Fond scene · 🔐🔐 Crew Šifra (ekipa traži ekipu) · 🔐 ŠIFRA (igra uparivanja: opt-in → algoritam → pola šifre svakom → chill zona → obostrana potvrda; B1 Q7 kandidat) · 🎲 Zavrti noć (dare wheel — venue sheet + quest hub) · Landing „poziv sceni“ (hero + PRILIKA manifest, SR+EN) · Ultra-review talasi A–E (perf/čišćenje/realtime/PWA) · economy lockdown · War Room DOGAĐAJI + MESTA admini · imenik 44 mesta · onboarding v2 (muzika→crew→vikend) · LOCK audit svih 9 sekcija · dizajn polish + responsive + „Pun ulaz" Home pass · legacy /venue penzionisan · Make-us-famous šablon · Festivali tip.

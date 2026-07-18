@@ -113,9 +113,94 @@ const SifraTab = ({ onClose }: { onClose: () => void }) => {
   </>, G.underground);
 };
 
+/* ── CREW ŠIFRA — ekipa traži ekipu (dva čina: sastavi se, pa nađi drugu) ── */
+const CrewSifraTab = ({ onClose }: { onClose: () => void }) => {
+  const [st, setSt] = useState<any>({ status: 'loading' });
+  const [busy, setBusy] = useState(false);
+
+  const refresh = async () => {
+    const { data } = await db.rpc('crew_dare_status');
+    if (data) setSt(data);
+  };
+  useEffect(() => {
+    refresh();
+    const t = setInterval(refresh, 8000);
+    return () => clearInterval(t);
+  }, []);
+
+  const join = async () => {
+    setBusy(true);
+    const { data, error } = await db.rpc('crew_dare_join');
+    setBusy(false);
+    if (error) { toast.error(error.message || 'Ne može sad.'); return; }
+    if (data?.status === 'no_checkin') { toast('Prvo se čekiraj gde si. 📍'); return; }
+    if (data?.status === 'no_crew') { toast('Prvo ti treba ekipa — „Nađi ekipu" na kartici mesta. 🧑\u200d🤝\u200d🧑'); return; }
+    track('crew_sifra_join', { status: data?.status });
+    refresh();
+  };
+  const confirm = async () => {
+    setBusy(true);
+    const { data, error } = await db.rpc('crew_dare_confirm', { p_pair: st.pair_id });
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    if (data?.completed) track('crew_sifra_completed', {});
+    refresh();
+  };
+
+  const card = (children: any, col: string) => (
+    <div style={{ borderRadius: 20, border: `1px solid ${hexA(col, 0.5)}`, background: `radial-gradient(120% 100% at 50% 0%, ${hexA(col, 0.13)}, transparent 60%), ${OS.surface}`, padding: '28px 22px' }}>{children}</div>
+  );
+
+  if (st.status === 'loading') return <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink5, padding: '40px 0' }}>UČITAVAM…</div>;
+
+  if (st.status === 'no_crew') return card(<>
+    <div style={{ fontSize: 40, marginBottom: 10 }}>🧑‍🤝‍🧑</div>
+    <div style={{ fontSize: 19, fontWeight: 800, color: OS.ink }}>Prvo ekipa, pa igra.</div>
+    <div style={{ fontSize: 13.5, color: OS.ink4, marginTop: 8, lineHeight: 1.55 }}>Crew Šifru igraju EKIPE. Otvori mesto na kom si → „Nađi ekipu za večeras" → pa se vrati ovde.</div>
+  </>, G.community);
+
+  if (st.status === 'idle' || st.status === 'need_more') return card(<>
+    <div style={{ fontSize: 40, marginBottom: 10 }}>🔐🔐</div>
+    <div style={{ fontSize: 20, fontWeight: 800, color: OS.ink }}>Ekipa traži ekipu</div>
+    <div style={{ fontSize: 13.5, color: OS.ink4, marginTop: 10, lineHeight: 1.6 }}>
+      <strong style={{ color: OS.ink2 }}>Čin 1:</strong> svako iz ekipe dobija PO REČ vaše polovine — skupite se i složite je uživo.{' '}
+      <strong style={{ color: OS.ink2 }}>Čin 2:</strong> negde u mestu je ekipa sa drugom polovinom. Nađite ih.
+      Imena tek kad obe ekipe potvrde.
+    </div>
+    {st.status === 'need_more' && <div style={{ fontFamily: MONO, fontSize: 11, color: G.house, marginTop: 12 }}>U IGRI: {st.opted} — TREBA JOŠ {Math.max(0, 2 - (st.opted || 0))} IZ EKIPE DA UĐE</div>}
+    <button onClick={join} disabled={busy} style={{ marginTop: 18, width: '100%', minHeight: 50, borderRadius: 14, border: 0, cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#0B0B0D', background: `linear-gradient(135deg,${G.community},${G.festival})` }}>{busy ? '…' : st.status === 'need_more' ? 'U IGRI SI — ZOVI OSTALE' : 'ULAZIM SA EKIPOM'}</button>
+  </>, G.community);
+
+  if (st.status === 'waiting') return card(<>
+    <div style={{ fontSize: 40, marginBottom: 10, animation: 'os-pulse 2s ease-in-out infinite' }}>🔐🔐</div>
+    <div style={{ fontSize: 19, fontWeight: 800, color: OS.ink }}>Ekipa je u igri.</div>
+    <div style={{ fontSize: 13.5, color: OS.ink4, marginTop: 8, lineHeight: 1.55 }}>Čekate protivničku polovinu — čim još jedna ekipa iz mesta uđe, reči stižu svima.</div>
+    <button onClick={async () => { await db.rpc('crew_dare_leave'); refresh(); }} style={{ marginTop: 16, background: 'transparent', border: 0, cursor: 'pointer', fontFamily: MONO, fontSize: 10.5, color: OS.ink5 }}>IZAĐI IZ IGRE</button>
+  </>, G.community);
+
+  if (st.completed) return card(<>
+    <div style={{ fontSize: 40, marginBottom: 10 }}>🖤🖤</div>
+    <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: G.festival }}>ŠIFRA SASTAVLJENA · EKIPE SPOJENE</div>
+    <div style={{ fontSize: 16, fontWeight: 700, color: OS.ink, marginTop: 10, lineHeight: 1.5 }}>{st.other_members || 'Druga ekipa'}</div>
+    <div style={{ fontSize: 13.5, color: OS.ink4, marginTop: 8 }}>Večeras ste jedna scena. Poruka je u oba crew chata.</div>
+    <button onClick={onClose} style={{ marginTop: 18, width: '100%', minHeight: 46, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 700, fontSize: 14, background: G.festival, color: '#0B0B0D' }}>Nazad u noć →</button>
+  </>, G.festival);
+
+  // matched — moje reči
+  return card(<>
+    <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.18em', color: OS.ink5 }}>ČIN 1 · SLOŽITE POLOVINU ({st.word_count} REČI, {st.crew_size} VAS) — PA NAĐITE DRUGU EKIPU</div>
+    <div style={{ margin: '18px 0 6px', fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: G.community }}>TVOJE REČI</div>
+    <div style={{ fontFamily: MONO, fontSize: 28, fontWeight: 600, letterSpacing: '.05em', color: OS.ink, textShadow: `0 0 30px ${hexA(G.community, 0.6)}` }}>„{st.my_words}"</div>
+    {st.me_confirmed
+      ? <div style={{ fontFamily: MONO, fontSize: 11, color: G.house, marginTop: 18 }}>ČEKA SE POTVRDA DRUGE EKIPE…</div>
+      : <button onClick={confirm} disabled={busy} style={{ marginTop: 18, width: '100%', minHeight: 48, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 800, fontSize: 14.5, background: G.community, color: '#0B0B0D' }}>{busy ? '…' : 'NAŠLI SMO IH — POTVRDI ✓'}</button>}
+    <div style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6, marginTop: 12 }}>PO JEDNA POTVRDA IZ SVAKE EKIPE · JAVNA ZONA · IZLAZ KAD GOD</div>
+  </>, G.community);
+};
+
 export const OSDareWheel = ({ onClose }: { onClose: () => void }) => {
   const { user } = useAuth();
-  const [mode, setMode] = useState<'tocak' | 'sifra'>('tocak');
+  const [mode, setMode] = useState<'tocak' | 'sifra' | 'ekipe'>('tocak');
   const [phase, setPhase] = useState<'idle' | 'spin' | 'landed'>('idle');
   const [idx, setIdx] = useState(0);
   const [respins, setRespins] = useState(2);
@@ -152,12 +237,13 @@ export const OSDareWheel = ({ onClose }: { onClose: () => void }) => {
     <div style={{ position: 'fixed', inset: 0, zIndex: 160, background: 'rgba(5,5,7,.88)', backdropFilter: 'blur(10px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={phase !== 'spin' ? onClose : undefined}>
       <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
-          {([['tocak', '🎲 TOČAK'], ['sifra', '🔐 ŠIFRA']] as const).map(([v, l]) => (
+          {([['tocak', '🎲 TOČAK'], ['sifra', '🔐 ŠIFRA'], ['ekipe', '🔐🔐 EKIPE']] as const).map(([v, l]) => (
             <button key={v} onClick={() => setMode(v)} style={{ minHeight: 36, cursor: 'pointer', padding: '7px 16px', borderRadius: 999, fontFamily: MONO, fontSize: 10.5, fontWeight: 700, letterSpacing: '.1em', border: `1px solid ${mode === v ? 'transparent' : OS.line2}`, background: mode === v ? hexA(G.afterparty, 0.18) : 'transparent', color: mode === v ? G.afterparty : OS.ink5 }}>{l}</button>
           ))}
         </div>
 
         {mode === 'sifra' && <SifraTab onClose={onClose} />}
+        {mode === 'ekipe' && <CrewSifraTab onClose={onClose} />}
 
         {mode === 'tocak' && phase === 'idle' && (
           <>
