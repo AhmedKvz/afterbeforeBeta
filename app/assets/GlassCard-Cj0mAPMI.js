@@ -1,0 +1,1 @@
+import{j as t}from"./query-BlmY-pkM.js";import{a as e}from"./index-D6rAXN_-.js";const c=({children:r,className:s,hoverable:a=!0,onClick:o})=>t.jsx("div",{className:e("glass-card p-6",a&&"cursor-pointer",s),onClick:o,children:r});export{c as G};
