@@ -7,7 +7,7 @@
 
 ## 🔥 SLEDEĆE — akcije koje otključavaju sve ostalo
 
-0. **[FOUNDER] B1 pilot odluke** — datum · scope presuda za 3 feature rupe (vibe tags / artist vote / badge — graditi ili seći PRE freeze-a) · mapiranje nagrada na REP/AFC · PM engagement model · OnlyClubbing ponuda. Board: War Room → PLAN (588 taskova čeka).
+0. **[FOUNDER] B1 pilot odluke** — ✅ DATUM: **18.08.2026** (⚠️ utorak — potvrdi da li namerno) · scope presuda za 3 feature rupe (vibe tags / artist vote / badge — graditi ili seći PRE freeze-a) · mapiranje nagrada na REP/AFC · PM engagement model · OnlyClubbing ponuda. Board: War Room → PLAN (588 taskova čeka).
 
 1. **[FOUNDER] Unesi vikend program** — War Room → DOGAĐAJI (forma ili „⚡ Zalepi vikend").
    Sve je spremno i čeka sadržaj: Home kartice → pun sheet (check-in/Idem/ekipa rade),
