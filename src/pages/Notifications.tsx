@@ -36,7 +36,7 @@ const Notifications = () => {
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="font-bold text-xl">Notifications</h1>
+            <h1 className="font-bold text-xl">Notifikacije</h1>
           </div>
           {unreadCount > 0 && (
             <button
@@ -44,7 +44,7 @@ const Notifications = () => {
               className="flex items-center gap-1 text-sm text-primary"
             >
               <CheckCheck className="w-4 h-4" />
-              Mark all read
+              Označi sve
             </button>
           )}
         </div>
@@ -66,9 +66,9 @@ const Notifications = () => {
             className="text-center py-16"
           >
             <div className="text-5xl mb-4">🔔</div>
-            <h3 className="text-lg font-bold mb-2">No notifications yet</h3>
+            <h3 className="text-lg font-bold mb-2">Još nema notifikacija</h3>
             <p className="text-muted-foreground text-sm">
-              You'll see matches, XP milestones, and more here
+              Ovde stižu veze, REP koraci i pozivi — čim krene noć.
             </p>
           </motion.div>
         ) : (

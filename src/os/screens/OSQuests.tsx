@@ -178,10 +178,10 @@ export const OSQuests = () => {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12 }}>
                         <span style={{ flex: 1, fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>{s.kind === 'content' ? (s.media === 'video' ? '🎬 VIDEO · GLASA SCENA' : '📸 FOTO · GLASA SCENA') : (s.spots_label || '')}</span>
                         {s.kind === 'content'
-                          ? <button onClick={() => setCampaign(s.id)} style={{ flex: 'none', cursor: 'pointer', fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: '7px 13px', borderRadius: 9, border: 0, background: G.house, color: '#0B0B0D' }}>UĐI · GLASAJ</button>
+                          ? <button onClick={() => setCampaign(s.id)} style={{ flex: 'none', cursor: 'pointer', fontFamily: MONO, fontSize: 11, fontWeight: 600, minHeight: 40, padding: '10px 16px', borderRadius: 11, border: 0, background: G.house, color: '#0B0B0D' }}>UĐI · GLASAJ</button>
                           : s.accepted
                           ? <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, color: doneS ? ROLE.energy : OS.ink5 }}>{doneS ? '✓ ZAVRŠENO' : `${s.progress}/${s.target_count} · U TOKU`}</span>
-                          : <button onClick={() => accept(s.id)} disabled={isAccepting} style={{ flex: 'none', cursor: 'pointer', fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: '7px 13px', borderRadius: 9, border: 0, background: G.house, color: '#0B0B0D' }}>PRIHVATI</button>}
+                          : <button onClick={() => accept(s.id)} disabled={isAccepting} style={{ flex: 'none', cursor: 'pointer', fontFamily: MONO, fontSize: 11, fontWeight: 600, minHeight: 40, padding: '10px 16px', borderRadius: 11, border: 0, background: G.house, color: '#0B0B0D' }}>PRIHVATI</button>}
                       </div>
                     </div>
                   );
@@ -250,7 +250,7 @@ export const OSQuests = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12 }}>
                     <div style={{ flex: 1, height: 5, borderRadius: 3, background: 'rgba(255,255,255,.08)', overflow: 'hidden' }}><div style={{ height: '100%', width: `${pct}%`, background: col, borderRadius: 3 }} /></div>
                     <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5 }}>{q.progress}/{q.target_count}</span>
-                    <button onClick={() => claim(q)} style={{ flex: 'none', cursor, fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: '6px 11px', borderRadius: 9, border: 0, background: btnBg, color: btnFg }}>{btnLabel}</button>
+                    <button onClick={() => claim(q)} style={{ flex: 'none', cursor, fontFamily: MONO, fontSize: 11, fontWeight: 600, minHeight: 40, padding: '10px 14px', borderRadius: 11, border: 0, background: btnBg, color: btnFg }}>{btnLabel}</button>
                   </div>
                 </div>
               );

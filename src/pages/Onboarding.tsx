@@ -226,22 +226,22 @@ const Onboarding = () => {
           </div>
           <div className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Venue Name *</label>
+              <label className="text-sm font-medium">Ime mesta *</label>
               <input type="text" placeholder="npr. Klub Kult" value={venueName} onChange={(e) => setVenueName(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Address *</label>
+              <label className="text-sm font-medium">Adresa *</label>
               <input type="text" placeholder="Ulica i broj" value={venueAddress} onChange={(e) => setVenueAddress(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">City *</label>
+              <label className="text-sm font-medium">Grad *</label>
               <select value={venueCity} onChange={(e) => setVenueCity(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none">
                 <option value="">Izaberi grad</option>
                 {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Capacity</label>
+              <label className="text-sm font-medium">Kapacitet</label>
               <input type="number" placeholder="Maks. kapacitet" value={venueCapacity} onChange={(e) => setVenueCapacity(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
             </div>
           </div>
@@ -266,9 +266,9 @@ const Onboarding = () => {
               );
             })}
           </div>
-          <div className="text-sm text-muted-foreground">Selected: {venueGenres.length}/5</div>
+          <div className="text-sm text-muted-foreground">Izabrano: {venueGenres.length}/5</div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Short Description</label>
+            <label className="text-sm font-medium">Kratak opis</label>
             <textarea placeholder="Opiši mesto u par reči…" value={venueDescription} onChange={(e) => setVenueDescription(e.target.value.slice(0, 200))} maxLength={200} rows={3} className="w-full px-4 py-3 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none resize-none" />
             <p className="text-xs text-muted-foreground text-right">{venueDescription.length}/200</p>
           </div>
@@ -302,14 +302,14 @@ const Onboarding = () => {
         </div>
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Instagram Handle</label>
+            <label className="text-sm font-medium">Instagram</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">@</span>
               <input type="text" placeholder="yourclub" value={venueInstagram} onChange={(e) => setVenueInstagram(e.target.value)} className="w-full pl-10 pr-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Contact Phone (optional)</label>
+            <label className="text-sm font-medium">Kontakt telefon (opciono)</label>
             <input type="tel" placeholder="+381 ..." value={venuePhone} onChange={(e) => setVenuePhone(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
           </div>
         </div>
@@ -328,15 +328,15 @@ const Onboarding = () => {
           </div>
           <div className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium">What's your name?</label>
+              <label className="text-sm font-medium">Kako se zoveš?</label>
               <input type="text" placeholder="Ime ili nadimak" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">How old are you?</label>
+              <label className="text-sm font-medium">Koliko imaš godina?</label>
               <input type="number" placeholder="Godine (18+)" value={age} onChange={(e) => setAge(e.target.value)} min={18} max={99} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Your city?</label>
+              <label className="text-sm font-medium">Tvoj grad?</label>
               <select value={city} onChange={(e) => setCity(e.target.value)} className="w-full px-4 py-4 rounded-xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all outline-none">
                 <option value="">Izaberi grad</option>
                 {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -364,7 +364,7 @@ const Onboarding = () => {
               );
             })}
           </div>
-          <div className="text-sm text-muted-foreground">Selected: {selectedGenres.length}/5</div>
+          <div className="text-sm text-muted-foreground">Izabrano: {selectedGenres.length}/5</div>
         </motion.div>
       );
     }
@@ -535,6 +535,7 @@ const Onboarding = () => {
 
   return (
     <div className="min-h-screen bg-background p-6">
+      <div className="max-w-md mx-auto">
       {/* Progress */}
       <div className="flex items-center gap-2 mb-8">
         {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map((i) => (
@@ -545,9 +546,11 @@ const Onboarding = () => {
       <AnimatePresence mode="wait">
         {isVenue ? renderVenueStep() : renderPartyGoerStep()}
       </AnimatePresence>
+      </div>
 
       {/* Navigation */}
       <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background to-transparent">
+        <div className="max-w-md mx-auto">
         {step < TOTAL_STEPS ? (
           <button onClick={handleNext} className="w-full btn-gradient py-4 rounded-xl flex items-center justify-center gap-2">
             Dalje <ChevronRight className="w-5 h-5" />
@@ -557,6 +560,7 @@ const Onboarding = () => {
             {loading ? 'Čuvam…' : 'Uđi u scenu ✓'}
           </button>
         )}
+        </div>
       </div>
     </div>
   );
