@@ -1,7 +1,7 @@
 # AfterBefore — TODO (živi backlog)
 
 > **Pravilo:** ovaj fajl se ažurira uz svaki radni blok — šta je urađeno izlazi, šta je odlučeno ulazi.
-> Otvara se iz War Room → DOCS. Poslednje ažuriranje: **2026-07-12**.
+> Otvara se iz War Room → DOCS. Poslednje ažuriranje: **2026-07-13**.
 
 ---
 
@@ -21,6 +21,7 @@
 - **#50 · Nađi ekipu v2** — safety (ženski crew), auto-match po Idem/check-in, Quest-hub ulaz.
 - **Scout rola** — reputation-gated najavljivanje evenata (klaberi sa statusom pune program umesto tebe; founder approve queue). Dugoročno rešenje content pipeline-a.
 - **REP/AFC pun jezički pass** — ostatak „XP" stringova u UI (quest hub brojevi itd.).
+- **ECONOMY §11 „Economic Engine“** — kanonizuj jezik monetizacione analize: Value Pyramid, imenovani zamajac, odgovor na „šta ako klubovi ne plate god. dana“, Diagnostics SaaS kao stub (Arrival Curve · Venue DNA · Community Health), tvrda ograda šta se NIKAD ne prodaje (privatnost/ghost, pristup, status). Isti jezik → grant prijava.
 - **#43 · Pravni template kampanja + Jungle pitch.**
 - **#20 · Feature-voting board** (Z11/Z12).
 
@@ -53,4 +54,4 @@
 
 ## ✅ Nedavno završeno (kontekst — puna istorija u git logu)
 
-Ultra-review talasi A–E (perf/čišćenje/realtime/PWA) · economy lockdown · War Room DOGAĐAJI + MESTA admini · imenik 44 mesta · onboarding v2 (muzika→crew→vikend) · LOCK audit svih 9 sekcija · dizajn polish + responsive + „Pun ulaz" Home pass · legacy /venue penzionisan · Make-us-famous šablon · Festivali tip.
+Landing „poziv sceni“ (hero + PRILIKA manifest, SR+EN) · Ultra-review talasi A–E (perf/čišćenje/realtime/PWA) · economy lockdown · War Room DOGAĐAJI + MESTA admini · imenik 44 mesta · onboarding v2 (muzika→crew→vikend) · LOCK audit svih 9 sekcija · dizajn polish + responsive + „Pun ulaz" Home pass · legacy /venue penzionisan · Make-us-famous šablon · Festivali tip.
