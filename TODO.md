@@ -29,6 +29,7 @@
 
 ## 🔴 PRE-LAUNCH DUG (mora pre paljenja geofence-a / javnog launcha)
 
+- **ŠIFRA QA pre B1** — test sa DVA prava uređaja (ceo tok: join→match→potvrde→reveal); u simulaciji viđen fantomski dare_confirm (verovatno artefakt automatizovanog testiranja, ali potvrditi ručno pre pilota).
 - **#57 · Geofence fix** — server čita venue radius (ne hardkodovanih 50m), klijent prag = server prag, poruka „priđi bliže — Xm".
 - **`venue_intent` privacy** — world-readable user_id → agregat RPC.
 - **Crew chat 🚩 Prijavi** — jedini interakcioni prostor bez report-a.
