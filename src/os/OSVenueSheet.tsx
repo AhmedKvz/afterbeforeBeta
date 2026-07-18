@@ -20,6 +20,7 @@ import { OSCrew } from './OSCrew';
 import { OSMatchCelebration } from './OSMatchCelebration';
 import { useCheckIn } from './venue/useCheckIn';
 import { OSClaimCard } from './venue/OSClaimCard';
+import { OSDareWheel } from './OSDareWheel';
 import { OS, G, hexA, MONO, HATCH } from './osTheme';
 
 const db = supabase as any;
@@ -162,6 +163,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
   const [pview, setPview] = useState<'list' | 'swipe'>('list');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [danceOpen, setDanceOpen] = useState(false);
+  const [dareOpen, setDareOpen] = useState(false);
   const [crewOpen, setCrewOpen] = useState(false);
 
   // Live presence (opt-in) — only when opened from a heat-map venue.
@@ -355,6 +357,15 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
           </button>
         </div>
 
+        {/* Zavrti noć — smela misija */}
+        <div style={{ padding: '10px 16px 0' }}>
+          <button onClick={() => setDareOpen(true)} style={{ width: '100%', minHeight: 46, padding: '12px 15px', borderRadius: 16, border: `1px dashed ${hexA(G.afterparty, 0.45)}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 11, background: 'transparent', textAlign: 'left' }}>
+            <span style={{ fontSize: 20 }}>🎲</span>
+            <span style={{ flex: 1, fontWeight: 600, fontSize: 14, color: OS.ink2 }}>Zavrti noć</span>
+            <span style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: '.1em', color: G.afterparty }}>SMEŠ LI?</span>
+          </button>
+        </div>
+
         {/* Satnica — set times for tonight / the opened event */}
         {(() => {
           const ste = venueEvents.find((e: any) => e.id === venue.eventId) || upcoming[0];
@@ -431,6 +442,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
         </div>
       </div>
       {feedback && <OSFeedbackSheet venueId={feedback} onDone={() => setFeedback(null)} />}
+      {dareOpen && <OSDareWheel onClose={() => setDareOpen(false)} />}
       {danceOpen && <OSDanceMode venueId={venue.venueId} venueName={venue.name} onClose={() => setDanceOpen(false)} />}
       {crewOpen && <OSCrew eventId={venue.eventId ?? null} venueId={venue.venueId ?? null} title={venue.name} onClose={() => setCrewOpen(false)} />}
       {match && <OSMatchCelebration otherName={match.name} otherAvatar={match.avatar} onClose={() => setMatch(null)} onOpenChat={() => { setMatch(null); onClose(); window.dispatchEvent(new CustomEvent('os-go', { detail: 'matches' })); }} />}

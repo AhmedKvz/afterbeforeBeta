@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { track } from '@/lib/analytics';
 import { toast } from 'sonner';
 import { OSCampaign } from '../OSCampaign';
+import { OSDareWheel } from '../OSDareWheel';
 import { OS, G, hexA, MONO, ROLE } from '../osTheme';
 
 const LEDGER_LABEL: Record<string, string> = { checkin: '📍 Check-in', quest: '🎯 Quest', set_times: '🕒 Satnica', early: '⚡ Rani dolazak' };
@@ -92,6 +93,7 @@ export const OSQuests = () => {
   const [xp, setXp] = useState<{ show: boolean; val: number }>({ show: false, val: 0 });
   const [maker, setMaker] = useState(false);
   const [campaign, setCampaign] = useState<string | null>(null);
+  const [dare, setDare] = useState(false);
   const [form, setForm] = useState({ title: '', target: 2, xp: 150, crew: false });
 
   const balance = (profile as any)?.spendable_xp ?? profile?.xp ?? 0;
@@ -134,6 +136,15 @@ export const OSQuests = () => {
         <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.22em', color: OS.ink6 }}>NEDELJNI · 🔥 {streak.current_streak} ZAREDOM</div>
         <div style={{ fontWeight: 700, fontSize: 22, letterSpacing: '-.02em', color: OS.ink, marginTop: 2 }}>Questovi</div>
         <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 4 }}>SVAKI QUEST GRADI SCENU — TVOJ DOPRINOS SE RAČUNA</div>
+
+      {/* Zavrti noć — smela misija za večeras */}
+      <div style={{ padding: '12px 16px 0' }}>
+        <button onClick={() => setDare(true)} style={{ width: '100%', minHeight: 46, padding: '12px 15px', borderRadius: 14, border: `1px dashed ${hexA(G.afterparty, 0.45)}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 11, background: hexA(G.afterparty, 0.05), textAlign: 'left' }}>
+          <span style={{ fontSize: 20 }}>🎲</span>
+          <span style={{ flex: 1, fontWeight: 600, fontSize: 14, color: OS.ink2 }}>Zavrti noć — smela misija</span>
+          <span style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: '.1em', color: G.afterparty }}>SMEŠ LI?</span>
+        </button>
+      </div>
       </div>
 
       {/* hub toggle */}
@@ -356,6 +367,7 @@ export const OSQuests = () => {
       )}
 
       {xp.show && <div style={{ position: 'fixed', left: '50%', bottom: 150, zIndex: 30, fontFamily: MONO, fontWeight: 600, fontSize: 18, color: G.underground, animation: 'os-xp 1.4s ease forwards', pointerEvents: 'none' }}>+{xp.val} XP</div>}
+      {dare && <OSDareWheel onClose={() => setDare(false)} />}
       {campaign && <OSCampaign sponsoredId={campaign} onClose={() => setCampaign(null)} />}
     </div>
   );
