@@ -7,6 +7,8 @@
 
 ## 🔥 SLEDEĆE — akcije koje otključavaju sve ostalo
 
+0. **[FOUNDER] B1 pilot odluke** — datum · scope presuda za 3 feature rupe (vibe tags / artist vote / badge — graditi ili seći PRE freeze-a) · mapiranje nagrada na REP/AFC · PM engagement model · OnlyClubbing ponuda. Board: War Room → PLAN (588 taskova čeka).
+
 1. **[FOUNDER] Unesi vikend program** — War Room → DOGAĐAJI (forma ili „⚡ Zalepi vikend").
    Sve je spremno i čeka sadržaj: Home kartice → pun sheet (check-in/Idem/ekipa rade),
    onboarding korak 4 nudi prave evente, „ko ide" brojevi kreću. **Bez ovoga je app pozornica bez predstave.**
@@ -43,6 +45,7 @@
 - **Reebok nedeljni dance leaderboard** — dizajn spreman (DANCE_FLOOR_STRATEGY §6); čeka native fazu + sponzora.
 - **Festivali na Heat-u** — tip + filter postoje; dodaješ mesta kroz MESTA tab.
 - **Klejm mesta** — kartica živa na svakom venue sheet-u; klubovi se sami prijavljuju, ti verifikuješ (claim_status u MESTA tabu).
+- **War Room v2 ŽIV** — PLAN tab: timski task board u bazi (588 B1 taskova, statusi/vlasnici/pretraga), war_members pristup za PM/mentora (+ ČLAN po email-u), START-OVDE onboarding. Sledeća faza: migracija CILJEVI/MEETINGS/GRANT iz localStorage u bazu.
 - **Venue self-serve ŽIV** — svako registrovano mesto objavljuje događaje iz dashboarda (auto-upis u imenik), postavlja IG + cover + lokaciju; ti zadržavaš edit/delete u War Room. Verifikacija (✓) ostaje tvoja odluka po mestu.
 - **Home date-filter** (HANDOFF §4.4) — uključiti kad prvi pravi vikend bude unet (sad bi ispraznio Home).
 - **AI Intelligence Layer** (Night Guide, Quest Copilot, Scene Summary) — kanon: `AfterBefore_AI_Intelligence_Layer_Claude_Brief.md`; podaci se već skupljaju (onboarding prefs). Grant faza.

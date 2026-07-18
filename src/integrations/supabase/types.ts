@@ -2744,6 +2744,66 @@ export type Database = {
         }
         Relationships: []
       }
+      war_members: {
+        Row: {
+          added_at: string
+          email: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          email: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          email?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      war_tasks: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          owner: string | null
+          section: string
+          sort: number
+          source: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          owner?: string | null
+          section: string
+          sort?: number
+          source?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          owner?: string | null
+          section?: string
+          sort?: number
+          source?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       waves: {
         Row: {
           created_at: string | null
@@ -3251,6 +3311,12 @@ export type Database = {
         Returns: Json
       }
       vote_campaign: { Args: { p_submission: string }; Returns: Json }
+      war_add_member: {
+        Args: { p_email: string; p_role: string }
+        Returns: Json
+      }
+      war_is_member: { Args: never; Returns: boolean }
+      war_remove_member: { Args: { p_user: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"

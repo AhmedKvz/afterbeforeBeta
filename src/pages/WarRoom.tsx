@@ -7,6 +7,7 @@ import { isFounder } from '@/lib/founder';
 import { WarRoomQuests } from './WarRoomQuests';
 import { WarRoomEvents } from './WarRoomEvents';
 import { WarRoomVenues } from './WarRoomVenues';
+import { WarRoomPlan } from './WarRoomPlan';
 import { OS, G, hexA, MONO, ROLE } from '@/os/osTheme';
 
 const db = supabase as any;
@@ -21,8 +22,8 @@ function useStore<T>(key: string, initial: T): [T, (v: T | ((p: T) => T)) => voi
   return [v, setV];
 }
 
-type Tab = 'pulse' | 'grant' | 'events' | 'venues' | 'quests' | 'goals' | 'meetings' | 'manifest' | 'docs';
-const TABS: [Tab, string][] = [['pulse', 'PULSE'], ['grant', 'GRANT'], ['events', 'DOGAĐAJI'], ['venues', 'MESTA'], ['quests', 'QUESTOVI'], ['goals', 'CILJEVI'], ['meetings', 'MEETINGS'], ['manifest', 'MANIFEST'], ['docs', 'DOCS']];
+type Tab = 'pulse' | 'plan' | 'grant' | 'events' | 'venues' | 'quests' | 'goals' | 'meetings' | 'manifest' | 'docs';
+const TABS: [Tab, string][] = [['pulse', 'PULSE'], ['plan', 'PLAN'], ['grant', 'GRANT'], ['events', 'DOGAĐAJI'], ['venues', 'MESTA'], ['quests', 'QUESTOVI'], ['goals', 'CILJEVI'], ['meetings', 'MEETINGS'], ['manifest', 'MANIFEST'], ['docs', 'DOCS']];
 
 interface Goal { id: string; label: string; current: number | null; target: number; unit: string }
 interface Action { id: string; text: string; done: boolean }
@@ -61,15 +62,23 @@ export default function WarRoom() {
   const founder = isFounder(user);
   const [tab, setTab] = useState<Tab>('pulse');
 
+  // War Room v2: pristup ima founder + članovi tima (war_members — PM/mentor).
+  const { data: isMember, isLoading: memberLoading } = useQuery({
+    queryKey: ['war-member', user?.id],
+    enabled: !!user && !founder,
+    queryFn: async () => { const { data } = await db.rpc('war_is_member'); return data === true; },
+  });
+  const allowed = founder || isMember === true;
+
   const { data: m, isLoading } = useQuery({
     queryKey: ['war-metrics'],
-    enabled: founder,
+    enabled: allowed,
     queryFn: async () => { const { data } = await db.rpc('get_beta_metrics'); return data; },
     retry: false,
   });
   const { data: dance } = useQuery({
     queryKey: ['war-dance'],
-    enabled: founder,
+    enabled: allowed,
     queryFn: async () => {
       const [{ count }, lb] = await Promise.all([
         db.from('dance_sessions').select('*', { count: 'exact', head: true }),
@@ -84,7 +93,10 @@ export default function WarRoom() {
   const [manifest, setManifest] = useStore('wr_manifest', DEFAULT_MANIFEST);
   const [grant, setGrant] = useStore<GrantItem[]>('wr_grant', DEFAULT_GRANT);
 
-  if (!founder) {
+  if (!allowed) {
+    if (!founder && memberLoading) {
+      return <div style={{ minHeight: '100vh', background: OS.bgDeep, display: 'flex', alignItems: 'center', justifyContent: 'center', color: OS.ink5, fontFamily: MONO }}>PROVERA PRISTUPA…</div>;
+    }
     return (
       <div style={{ minHeight: '100vh', background: OS.bgDeep, display: 'flex', alignItems: 'center', justifyContent: 'center', color: OS.ink5 }}>
         <div style={{ textAlign: 'center', fontFamily: MONO }}>
@@ -242,6 +254,9 @@ export default function WarRoom() {
             <WarRoomEvents />
           </>
         )}
+
+        {/* ── PLAN — timski task board (B1 pilot + backlog) ── */}
+        {tab === 'plan' && <WarRoomPlan />}
 
         {/* ── VENUES (imenik mesta — odvojeno od događaja) ── */}
         {tab === 'venues' && <WarRoomVenues />}
