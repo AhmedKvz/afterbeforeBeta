@@ -19,6 +19,7 @@ import { OSSetTimes } from './OSSetTimes';
 import { OSCrew } from './OSCrew';
 import { OSMatchCelebration } from './OSMatchCelebration';
 import { useCheckIn } from './venue/useCheckIn';
+import { OSClaimCard } from './venue/OSClaimCard';
 import { OS, G, hexA, MONO, HATCH } from './osTheme';
 
 const db = supabase as any;
@@ -320,14 +321,11 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
           </div>
         </div>
 
-        {/* AI analyst */}
-        <div style={{ margin: '14px 16px 0', padding: 15, borderRadius: 16, background: `linear-gradient(140deg,${hexA(G.community, 0.08)},transparent)`, border: `1px solid ${hexA(G.community, 0.18)}` }}>
-          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: G.community, marginBottom: 6 }}>AI · CULTURAL ANALYST</div>
-          <div style={{ fontSize: 13, lineHeight: 1.5, color: OS.ink2 }}>{venue.name} privlači mlađu underground publiku — community trust raste 3 nedelje zaredom.</div>
-        </div>
-
         {/* reviews — list + rate */}
         <OSReviews venueName={venue.name} eventId={venue.eventId} />
+
+        {/* claim funnel — akvizicija klubova (portovano sa legacy /venue) */}
+        <OSClaimCard venueName={venue.name} />
 
         {/* live presence — opt-in, who's here */}
         {venue.presenceId && (
@@ -400,7 +398,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
             <button onClick={idem} disabled={signalIntent.isPending} style={{ flex: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: G.underground, background: hexA(G.underground, 0.12), border: `1px solid ${hexA(G.underground, 0.4)}`, borderRadius: 15, padding: '16px 18px' }}>✋ Idem</button>
           )}
           <button onClick={checkIn} disabled={busy} style={{ flex: 1, cursor: busy ? 'default' : 'pointer', fontSize: 15, fontWeight: 640, color: '#0B0B0D', background: done ? G.festival : venue.col, border: 0, borderRadius: 15, padding: 16, opacity: busy ? 0.7 : 1 }}>
-            {done ? 'Prijavljen ✓ · +40 XP' : busy ? '…' : 'Check-in · +40 XP'}
+            {done ? 'Prijavljen ✓' : busy ? '…' : 'Check-in'}
           </button>
         </div>
       </div>

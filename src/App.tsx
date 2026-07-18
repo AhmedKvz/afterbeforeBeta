@@ -20,7 +20,6 @@ const EventDetail = lazy(() => import("./pages/EventDetail"));
 const VenueDashboard = lazy(() => import("./pages/VenueDashboard"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const InstagramCallback = lazy(() => import("./pages/InstagramCallback"));
-const VenueDetail = lazy(() => import("./pages/VenueDetail"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const MetricsDashboard = lazy(() => import("./pages/MetricsDashboard"));
@@ -68,7 +67,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/event/:id" element={<EventDetail />} />
-            <Route path="/venue/:venueName" element={<VenueDetail />} />
+            <Route path="/venue/:venueName" element={<OSApp />} />
             <Route path="/matches" element={<Navigate to="/" replace />} />
             <Route path="/profile" element={<Navigate to="/" replace />} />
             <Route path="/venue-dashboard" element={<VenueDashboard />} />

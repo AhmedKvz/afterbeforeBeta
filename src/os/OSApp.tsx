@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { OS } from './osTheme';
 import { OSOrbNav, OSScreen } from './OSOrbNav';
@@ -9,6 +9,8 @@ import { OSMatches } from './screens/OSMatches';
 import { OSQuests } from './screens/OSQuests';
 import { OSProfile } from './screens/OSProfile';
 import { OSVenueSheet, OSVenue } from './OSVenueSheet';
+import { genreCol } from './osTheme';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Nightlife OS — the full app shell. Orb-driven screen switching (no bottom
@@ -20,6 +22,28 @@ export const OSApp = () => {
   const navigate = useNavigate();
   const [screen, setScreen] = useState<OSScreen>('home');
   const [venue, setVenue] = useState<OSVenue | null>(null);
+
+  // Deep link /venue/:venueName → otvori OS venue sheet (zamena za legacy
+  // VenueDetail stranicu — jedan dizajn svuda). URL se resetuje na zatvaranje.
+  const { venueName: deepVenue } = useParams<{ venueName: string }>();
+  useEffect(() => {
+    if (!deepVenue) return;
+    (async () => {
+      const { data: v } = await (supabase as any).from('venues')
+        .select('id, name, type, neighborhood, latitude, longitude')
+        .eq('name', decodeURIComponent(deepVenue)).maybeSingle();
+      if (!v) { navigate('/', { replace: true }); return; }
+      setVenue({
+        name: v.name, genre: (v.type || 'club').toUpperCase(), col: genreCol(v.type || 'club'),
+        venueId: v.id, presenceId: v.name,
+        lat: v.latitude != null ? Number(v.latitude) : null, lng: v.longitude != null ? Number(v.longitude) : null,
+        radius: 100, neighborhood: (v.neighborhood || '').toUpperCase(),
+      });
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deepVenue]);
+
+  const closeVenue = () => { setVenue(null); if (deepVenue) navigate('/', { replace: true }); };
 
   // Event bus: deep components (venue sheet, celebrations) switch the orb
   // screen without routing to legacy pages (D2 — Capacitor wraps ONE app).
@@ -58,7 +82,7 @@ export const OSApp = () => {
 
       <OSOrbNav current={screen} onGo={(s) => { setScreen(s); setVenue(null); }} />
 
-      {venue && <OSVenueSheet venue={venue} onClose={() => setVenue(null)} />}
+      {venue && <OSVenueSheet venue={venue} onClose={closeVenue} />}
     </div>
   );
 };
