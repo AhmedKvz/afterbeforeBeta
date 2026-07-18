@@ -172,7 +172,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
   const meVisible = !!presence?.me_visible;
   const people: any[] = presence?.people || [];
 
-  const energy = venue.heat ?? 78;
+  const energy = venue.heat; // bez podatka = bez broja (iskren-broj)
   const here = presence?.headcount ?? venue.here ?? 0;
 
   const toggleVisible = () => { if (venue.presenceId) setPresence.mutate({ venue: venue.presenceId, visible: !meVisible }); };
@@ -353,7 +353,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: G.festival, boxShadow: `0 0 10px ${G.festival}`, animation: 'os-pulse 1.8s ease-in-out infinite' }} />
             <span style={{ fontSize: 13, color: OS.ink }}>{here} ovde sada</span>
           </div>
-          <span style={{ fontFamily: MONO, fontSize: 18, fontWeight: 600, color: G.festival }}>ENERGY ≈{energy}</span>
+          <span style={{ fontFamily: MONO, fontSize: 18, fontWeight: 600, color: energy != null ? G.festival : OS.ink6 }}>{energy != null ? `ENERGY ≈${energy}` : 'ENERGY —'}</span>
         </div>
 
         {/* stats */}

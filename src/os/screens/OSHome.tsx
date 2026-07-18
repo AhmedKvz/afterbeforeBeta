@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Bell } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useVenueDirectory } from '@/hooks/useHeatVenues';
 import { OSLucky100Modal } from '../OSLucky100Modal';
 import { OSStories } from '../OSStories';
 import { OSEventRow } from '../OSEventRow';
@@ -22,8 +23,6 @@ interface Ev {
   image_url: string; music_genres: string[]; venue_type: string; event_type: string;
 }
 
-// Stable pseudo "energy" 60–93 from id (no real energy metric yet).
-const energyOf = (id: string) => { let h = 0; for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 34; return 60 + h; };
 const dayLabel = (d: string) => { try { return ['NED', 'PON', 'UTO', 'SRE', 'ČET', 'PET', 'SUB'][new Date(d).getDay()]; } catch { return ''; } };
 
 const Mono = ({ children, style, ...s }: any) => <div style={{ fontFamily: MONO, ...s, ...(style || {}) }}>{children}</div>;
@@ -62,21 +61,31 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
     },
   });
 
-  const openEvent = (e: Ev) => onOpenVenue({
-    name: e.venue_name || e.title, genre: (e.music_genres?.[0] || e.venue_type || 'VENUE').toUpperCase(),
-    col: genreCol(e.music_genres?.[0] || e.venue_type), venueId: null, eventId: e.id,
-    heat: energyOf(e.id), neighborhood: (e.venue_type || '').toUpperCase(),
-  });
+  // Event kartica → PUN sheet: venue se razrešava iz imenika po imenu, pa
+  // check-in/prisustvo/iskra rade i sa Home-a (ne samo sa Heat pina).
+  const { data: dir } = useVenueDirectory();
+  const openEvent = (e: Ev) => {
+    const v = (dir?.venues || []).find((x: any) => (x.name || '').toLowerCase() === (e.venue_name || '').toLowerCase());
+    onOpenVenue({
+      name: e.venue_name || e.title, genre: (e.music_genres?.[0] || e.venue_type || 'VENUE').toUpperCase(),
+      col: genreCol(e.music_genres?.[0] || e.venue_type), venueId: v?.id ?? null, presenceId: v?.name ?? null, eventId: e.id,
+      lat: v?.latitude != null ? Number(v.latitude) : null, lng: v?.longitude != null ? Number(v.longitude) : null,
+      radius: v ? (dir?.radius?.[v.name] ?? 100) : undefined,
+      neighborhood: (v?.neighborhood || e.venue_type || '').toUpperCase(),
+    });
+  };
 
   const todayStr = new Date().toISOString().split('T')[0];
   const tonightCount = events.filter((e) => e.date === todayStr && e.venue_type !== 'afterplace').length;
 
   // Lifecycle state from time + going-count (night-aware: survives midnight roll).
-  const stateOf = (e: Ev): { label: string; color: string } => {
+  const stateOf = (e: Ev): { label: string; color: string } | null => {
+    if ((e.date || '') < todayStr) return null; // prošli eventi ne "najavljuju" ništa
     const going = signals[e.id] || 0;
     const k = lifecycleKey(e, going, new Date());
     if (k === 'live') return { label: 'LIVE SADA', color: LIVE_RED };
     if (k === 'gathering') return { label: `SKUPLJA SE · ${going} IDE`, color: G.house };
+    if (going > 0) return { label: `${going} IDE`, color: G.techno };
     return { label: 'NAJAVLJEN', color: OS.ink6 };
   };
 
@@ -266,11 +275,21 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
 
 /* ── Discover places (venue cards) ── */
 const OSDiscover = ({ navigate }: { navigate: (p: string) => void }) => {
+  // Imenik (44 mesta) umesto club-naloga: partneri uvek prvi, ostatak se
+  // ROTIRA dnevno (seed = dan) — rail je svaki dan drugačiji, ceo imenik
+  // vremenom prodefiluje kroz Home.
   const { data: venues = [] } = useQuery({
-    queryKey: ['os-discover'],
+    queryKey: ['os-discover', new Date().toISOString().slice(0, 10)],
     queryFn: async () => {
-      const { data } = await supabase.from('profiles').select('venue_name, venue_type, venue_logo_url, neighborhood').eq('account_type', 'club_venue').not('venue_name', 'is', null).limit(12);
-      return data || [];
+      const { data } = await supabase.from('venues')
+        .select('name, type, emoji, neighborhood, is_partner');
+      const all = (data || []).map((v: any) => ({ venue_name: v.name, venue_type: v.type, venue_logo_url: null, neighborhood: v.neighborhood, emoji: v.emoji, is_partner: v.is_partner }));
+      const partners = all.filter((v: any) => v.is_partner);
+      const rest = all.filter((v: any) => !v.is_partner);
+      // deterministički dnevni shuffle (bez Math.random — stabilno unutar dana)
+      const day = Math.floor(Date.now() / 86400000);
+      const keyed = rest.map((v: any, i: number) => ({ v, k: ((i + 1) * 2654435761 + day * 97) % 1000 })).sort((a: any, b: any) => a.k - b.k);
+      return [...partners, ...keyed.map((x: any) => x.v)].slice(0, 12);
     },
   });
   if (!venues.length) return null;
@@ -283,7 +302,8 @@ const OSDiscover = ({ navigate }: { navigate: (p: string) => void }) => {
           const col = genreCol(v.venue_type);
           return (
             <button key={v.venue_name} onClick={() => navigate(`/venue/${encodeURIComponent(v.venue_name)}`)} style={{ minWidth: 160, maxWidth: 160, flex: 'none', borderRadius: 16, overflow: 'hidden', border: `1px solid ${OS.line2}`, background: OS.surface, textAlign: 'left', cursor: 'pointer', padding: 0 }}>
-              <div style={{ position: 'relative', height: 82, background: v.venue_logo_url ? `center/cover url(${v.venue_logo_url})` : stripe(col), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30 }}>{!v.venue_logo_url && meta.emoji}
+              <div style={{ position: 'relative', height: 82, background: stripe(col), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30 }}>{v.emoji || meta.emoji}
+                {v.is_partner && <div style={{ position: 'absolute', top: 8, right: 8, fontFamily: MONO, fontSize: 9, color: G.house }}>★</div>}
                 <div style={{ position: 'absolute', top: 8, left: 8, fontFamily: MONO, fontSize: 10, color: col, background: 'rgba(11,11,13,.66)', border: `1px solid ${hexA(col, 0.4)}`, padding: '2px 7px', borderRadius: 999 }}>{meta.label}</div>
               </div>
               <div style={{ padding: 11 }}><div style={{ fontWeight: 600, fontSize: 13, color: OS.ink }}>{v.venue_name}</div>{v.neighborhood && <Mono fontSize={10} color={OS.ink6} style={{ marginTop: 3 }}>{v.neighborhood.toUpperCase()}</Mono>}</div>

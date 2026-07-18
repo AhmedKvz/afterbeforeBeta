@@ -138,10 +138,10 @@ export interface HeatVenue {
  * Real venues (club_venue profiles) merged with live heat (get_venue_heat RPC),
  * placed onto the stylized Belgrade map via neighborhood coordinates.
  */
-export const useHeatVenues = () => {
-  // Static directory: venues + geofence radii change ~never — fetch once per
-  // session (was re-downloaded every 60s incl. an all-events scan; ultra-review C3).
-  const dir = useQuery({
+/** Static venue directory — shared, cached once per session (staleTime ∞).
+ *  Used by Heat, and by Home to resolve event cards to full venue sheets. */
+export const useVenueDirectory = () => {
+  return useQuery({
     queryKey: ['venue-directory'],
     staleTime: Infinity,
     gcTime: 24 * 60 * 60_000,
@@ -157,6 +157,10 @@ export const useHeatVenues = () => {
       return { venues: dirVenues || [], radius };
     },
   });
+};
+
+export const useHeatVenues = () => {
+  const dir = useVenueDirectory();
 
   // Live layer: only the heat RPC repeats (120s is plenty for a heat map).
   const heatQ = useQuery({
