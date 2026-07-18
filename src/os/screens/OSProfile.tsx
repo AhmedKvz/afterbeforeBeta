@@ -100,7 +100,7 @@ export const OSProfile = () => {
       <div style={{ margin: '18px 16px 0', padding: 15, borderRadius: 16, background: OS.surface, border: `1px solid ${OS.line}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: 11, marginBottom: 9 }}>
           <span style={{ color: OS.ink4 }}>RANK {roman(level)} → {roman(level + 1)}</span>
-          <span style={{ color: G.underground }}>{xpProg.current} / {xpProg.required} XP</span>
+          <span style={{ color: G.underground }}>{xpProg.current} / {xpProg.required} REP</span>
         </div>
         <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,.08)', overflow: 'hidden' }}><div style={{ height: '100%', width: `${xpProg.percentage}%`, background: 'linear-gradient(90deg,#a64dff,#56d6e6)', borderRadius: 4 }} /></div>
       </div>
@@ -110,7 +110,7 @@ export const OSProfile = () => {
         {stats.map((p) => (
           <div key={p.label} style={{ padding: 13, borderRadius: 14, background: OS.surface, border: `1px solid ${OS.line}`, textAlign: 'center' }}>
             <div style={{ fontFamily: MONO, fontWeight: 600, fontSize: 20, color: p.color }}>{p.value}</div>
-            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: '.08em', color: OS.ink6, marginTop: 4 }}>{p.label}</div>
+            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.08em', color: OS.ink6, marginTop: 4 }}>{p.label}</div>
           </div>
         ))}
       </div>
@@ -136,7 +136,7 @@ export const OSProfile = () => {
                 <div style={{ fontSize: 14, fontWeight: 560, color: a.titleCol }}>{a.title}</div>
                 <div style={{ fontSize: 11, color: OS.ink5, marginTop: 2 }}>{a.desc}</div>
               </div>
-              {a.locked && <span style={{ fontFamily: MONO, fontSize: 9, color: OS.ink7 }}>🔒</span>}
+              {a.locked && <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink7 }}>🔒</span>}
             </div>
           ))}
         </div>

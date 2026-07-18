@@ -81,7 +81,7 @@ export const OSCrew = ({ eventId, venueId, title, onClose }: Props) => {
               {m.avatar
                 ? <img src={m.avatar} style={{ width: 38, height: 38, borderRadius: '50%', objectFit: 'cover' }} />
                 : <div style={{ width: 38, height: 38, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#fff', fontSize: 13, background: avatarGradient(hueFromString(m.name || m.user_id)) }}>{initials(m.name || '·')}</div>}
-              <span style={{ fontSize: 9, color: OS.ink5, maxWidth: 46, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.user_id === me ? 'Ti' : (m.name || '·')}</span>
+              <span style={{ fontSize: 10, color: OS.ink5, maxWidth: 46, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.user_id === me ? 'Ti' : (m.name || '·')}</span>
             </div>
           ))}
           <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6, marginLeft: 4 }}>{members.length}/6</div>
@@ -101,7 +101,7 @@ export const OSCrew = ({ eventId, venueId, title, onClose }: Props) => {
           const mine = msg.user_id === me;
           return (
             <div key={msg.id} style={{ alignSelf: mine ? 'flex-end' : 'flex-start', maxWidth: '78%' }}>
-              {!mine && <div style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6, marginBottom: 3, marginLeft: 4 }}>{msg.name}</div>}
+              {!mine && <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6, marginBottom: 3, marginLeft: 4 }}>{msg.name}</div>}
               <div style={{ padding: '9px 13px', borderRadius: 15, fontSize: 14, lineHeight: 1.35, background: mine ? G.afterparty : OS.surface, color: mine ? '#0B0B0D' : OS.ink, border: mine ? 0 : `1px solid ${OS.line}` }}>{msg.body}</div>
             </div>
           );

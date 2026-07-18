@@ -30,7 +30,7 @@ export const OSMatches = () => {
   return (
     <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
       <div style={{ padding: '8px 18px 0' }}>
-        <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.22em', color: OS.ink6 }}>PORUKE · MESSAGES</div>
+        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.22em', color: OS.ink6 }}>PORUKE · MESSAGES</div>
         <div style={{ fontWeight: 700, fontSize: 22, letterSpacing: '-.02em', color: OS.ink, marginTop: 2 }}>Chat</div>
       </div>
 
@@ -95,7 +95,7 @@ export const OSMatches = () => {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span style={{ fontSize: 15, fontWeight: 600, color: OS.ink }}>{c.name}</span>
-                      <span style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6 }}>{rel(c.last_at)}</span>
+                      <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>{rel(c.last_at)}</span>
                     </div>
                     <div style={{ fontSize: 12.5, color: c.unread ? OS.ink : OS.ink5, marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {c.last_message || (c.status === 'wave' ? 'Pozdrav poslat 👋' : 'Recite ćao 👋')}
@@ -139,7 +139,7 @@ const OSChat = ({ conv, onBack }: { conv: Conversation; onBack: () => void }) =>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 700, fontSize: 15, color: OS.ink }}>{conv.name}</div>
             {/* iskren-broj: bez lažnog "AKTIVAN" statusa — pravo prisustvo tek kad postoji signal */}
-            {conv.last_at && <div style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6 }}>{rel(conv.last_at).toUpperCase()}</div>}
+            {conv.last_at && <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>{rel(conv.last_at).toUpperCase()}</div>}
           </div>
         </div>
         <div style={{ position: 'relative' }}>

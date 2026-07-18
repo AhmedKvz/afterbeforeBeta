@@ -45,7 +45,7 @@ export const useCheckIn = (venue: OSVenue, onFeedback: (venueId: string) => void
       if (user) { incrementQuestProgress(user.id, 'check_in').catch(() => {}); incrementQuestProgress(user.id, 'explore').catch(() => {}); }
       track('check_in', { venue: venue.name, venue_id: venue.venueId, secure: true, awarded_xp: data?.awarded_xp });
       setDone(true);
-      toast.success(data ? `Prijavljen ✓ · +${data.awarded_xp} XP · +${data.awarded_afc} AFC` : 'Prijavljen ✓');
+      toast.success(data ? `Prijavljen ✓ · +${data.awarded_xp} REP · +${data.awarded_afc} AFC` : 'Prijavljen ✓');
       if (venue.venueId && shouldShowFeedback()) setTimeout(() => onFeedback(venue.venueId!), 1400);
     } finally {
       setBusy(false);

@@ -57,7 +57,7 @@ export const OSCampaign = ({ sponsoredId, onClose }: { sponsoredId: string; onCl
           <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
             <span style={{ fontSize: 26 }}>{c?.logo || '⭐'}</span>
             <div>
-              <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.16em', color: G.house }}>SPONSOR · {(c?.venue || '').toUpperCase()}</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: G.house }}>SPONSOR · {(c?.venue || '').toUpperCase()}</div>
               <div style={{ fontSize: 17, fontWeight: 700, color: OS.ink }}>{c?.title || 'Kampanja'}</div>
             </div>
           </div>
@@ -96,7 +96,7 @@ export const OSCampaign = ({ sponsoredId, onClose }: { sponsoredId: string; onCl
                 {s.media_type === 'video'
                   ? <video src={s.media_url} controls playsInline preload="metadata" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   : <img src={s.media_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
-                {i === 0 && s.votes > 0 && <span style={{ position: 'absolute', top: 8, left: 8, fontFamily: MONO, fontSize: 9, fontWeight: 700, color: '#3a2a05', background: G.festival, borderRadius: 6, padding: '2px 7px' }}>👑 VODI</span>}
+                {i === 0 && s.votes > 0 && <span style={{ position: 'absolute', top: 8, left: 8, fontFamily: MONO, fontSize: 10, fontWeight: 700, color: '#3a2a05', background: G.festival, borderRadius: 6, padding: '2px 7px' }}>👑 VODI</span>}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 11px' }}>
                 <span style={{ fontSize: 12, color: OS.ink3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name || '·'}</span>

@@ -295,7 +295,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
           {stats.map((s) => (
             <div key={s.label} style={{ padding: 12, borderRadius: 14, background: OS.surface, border: `1px solid ${OS.line}` }}>
               <div style={{ fontFamily: MONO, fontSize: 18, fontWeight: 600, color: s.color }}>{s.value}</div>
-              <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: '.08em', color: OS.ink6, marginTop: 4 }}>{s.label}</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.08em', color: OS.ink6, marginTop: 4 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -322,7 +322,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
 
         {/* AI analyst */}
         <div style={{ margin: '14px 16px 0', padding: 15, borderRadius: 16, background: `linear-gradient(140deg,${hexA(G.community, 0.08)},transparent)`, border: `1px solid ${hexA(G.community, 0.18)}` }}>
-          <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.16em', color: G.community, marginBottom: 6 }}>AI · CULTURAL ANALYST</div>
+          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: G.community, marginBottom: 6 }}>AI · CULTURAL ANALYST</div>
           <div style={{ fontSize: 13, lineHeight: 1.5, color: OS.ink2 }}>{venue.name} privlači mlađu underground publiku — community trust raste 3 nedelje zaredom.</div>
         </div>
 
@@ -335,7 +335,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6 }}>KO JE TU · {here}</span>
               <button onClick={toggleVisible} disabled={setPresence.isPending} style={{ display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer', background: 'transparent', border: 0, padding: 0 }}>
-                <span style={{ fontFamily: MONO, fontSize: 9, color: meVisible ? G.festival : OS.ink5 }}>{meVisible ? 'VISIBLE' : 'GHOST'}</span>
+                <span style={{ fontFamily: MONO, fontSize: 10, color: meVisible ? G.festival : OS.ink5 }}>{meVisible ? 'VISIBLE' : 'GHOST'}</span>
                 <span style={{ width: 38, height: 22, borderRadius: 999, border: '1px solid rgba(255,255,255,.12)', background: meVisible ? hexA(G.festival, 0.3) : 'rgba(255,255,255,.06)', position: 'relative', display: 'inline-block' }}>
                   <span style={{ position: 'absolute', top: 2, left: meVisible ? 18 : 2, width: 16, height: 16, borderRadius: '50%', background: OS.ink, transition: 'left .2s' }} />
                 </span>
@@ -362,7 +362,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
                           <PAvatar p={p} />
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 13.5, fontWeight: 600, color: OS.ink }}>{p.name}{p.age ? `, ${p.age}` : ''}</div>
-                            <div style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6 }}>OVDE SADA</div>
+                            <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>OVDE SADA</div>
                           </div>
                           <button onClick={() => spark(p.user_id)} disabled={sparked.has(p.user_id)} style={{ flex: 'none', cursor: sparked.has(p.user_id) ? 'default' : 'pointer', fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: '7px 12px', borderRadius: 10, border: 0, background: sparked.has(p.user_id) ? hexA(G.afterparty, 0.15) : G.afterparty, color: sparked.has(p.user_id) ? G.afterparty : '#0B0B0D' }}>{sparked.has(p.user_id) ? '✨ ✓' : '✨ ISKRA'}</button>
                         </div>
@@ -381,7 +381,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
                         <button onClick={() => pass(featured.user_id)} style={{ flex: 'none', width: 48, height: 48, borderRadius: '50%', cursor: 'pointer', border: `1px solid ${OS.line2}`, background: OS.surface, color: OS.ink5, fontSize: 18 }}>✕</button>
                         <button onClick={() => spark(featured.user_id)} style={{ flex: 1, maxWidth: 220, padding: '14px 0', borderRadius: 16, cursor: 'pointer', border: 0, background: `linear-gradient(135deg,${G.afterparty},${G.underground})`, color: '#fff', fontWeight: 700, fontSize: 14, boxShadow: `0 10px 28px -10px ${hexA(G.afterparty, 0.6)}` }}>✨ Pošalji iskru</button>
                       </div>
-                      <div style={{ textAlign: 'center', fontFamily: MONO, fontSize: 9, color: OS.ink6, marginTop: 10 }}>ANONIMNO · javimo ti ako uzvrati · ✕ da preskočiš</div>
+                      <div style={{ textAlign: 'center', fontFamily: MONO, fontSize: 10, color: OS.ink6, marginTop: 10 }}>ANONIMNO · javimo ti ako uzvrati · ✕ da preskočiš</div>
                     </div>
                   ) : (
                     <div style={{ fontSize: 12, color: OS.ink5, textAlign: 'center', padding: '18px 0' }}>To je sve — prošao/la si sve koji su tu ✨</div>

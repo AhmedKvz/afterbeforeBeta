@@ -46,7 +46,7 @@ const OSPartyOfMonth = () => {
     <div style={{ margin: '14px 16px 0', borderRadius: 18, overflow: 'hidden', background: OS.surface, border: `1px solid ${hexA(G.house, 0.3)}` }}>
       <div style={{ position: 'relative', height: 122, background: leader?.image_url ? `center/cover url(${leader.image_url})` : 'linear-gradient(135deg,#2a1c00,#0e0f12)' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,#131417 4%,transparent 70%)' }} />
-        <div style={{ position: 'absolute', top: 11, left: 13, fontFamily: MONO, fontSize: 9, letterSpacing: '.16em', color: '#f5c97a' }}>👑 ŽURKA MESECA</div>
+        <div style={{ position: 'absolute', top: 11, left: 13, fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: '#f5c97a' }}>👑 ŽURKA MESECA</div>
         <div style={{ position: 'absolute', bottom: 12, left: 13, right: 13 }}>
           <div style={{ fontSize: 17, fontWeight: 700, color: OS.ink }}>{leader?.title || 'Glasanje u toku'}</div>
           <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink4, marginTop: 3 }}>{(leader?.venue_name || 'BEOGRAD')} · {pom?.vote_count ?? 0} glasova{pom?.avg_rating ? ` · ★ ${pom.avg_rating.toFixed(1)}` : ''}</div>
@@ -131,7 +131,7 @@ export const OSQuests = () => {
   return (
     <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', position: 'relative', paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
       <div style={{ padding: '8px 18px 0' }}>
-        <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.22em', color: OS.ink6 }}>NEDELJNI · 🔥 {streak.current_streak} ZAREDOM</div>
+        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.22em', color: OS.ink6 }}>NEDELJNI · 🔥 {streak.current_streak} ZAREDOM</div>
         <div style={{ fontWeight: 700, fontSize: 22, letterSpacing: '-.02em', color: OS.ink, marginTop: 2 }}>Questovi</div>
         <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 4 }}>SVAKI QUEST GRADI SCENU — TVOJ DOPRINOS SE RAČUNA</div>
       </div>
@@ -151,7 +151,7 @@ export const OSQuests = () => {
             <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.14em', color: OS.ink4 }}>ZAVRŠENO OVE NEDELJE</div>
             <div style={{ fontFamily: MONO, fontWeight: 600, fontSize: 36, color: OS.ink, marginTop: 4 }}>{done}<span style={{ fontSize: 18, color: OS.ink6 }}>/{quests.length || 0}</span></div>
             <div style={{ fontFamily: MONO, fontSize: 10, color: G.underground, marginTop: 2 }}>{earnedXP} / {totalXP} XP OSVOJENO</div>
-            <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.12em', color: OS.ink6, marginTop: 8, borderTop: `1px solid ${OS.line}`, paddingTop: 8 }}>DOPRINOS → AFC → NAGRADE OD PARTNERA</div>
+            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.12em', color: OS.ink6, marginTop: 8, borderTop: `1px solid ${OS.line}`, paddingTop: 8 }}>DOPRINOS → AFC → NAGRADE OD PARTNERA</div>
           </div>
 
           {/* sponsored — real partners fund the rewards (ECONOMY §1 / PARTNERS ring 1) */}
@@ -159,7 +159,7 @@ export const OSQuests = () => {
             <div style={{ padding: '18px 16px 0' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                 <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: G.house }}>★ PARTNERI ČASTE</span>
-                <span style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6 }}>NAGRADA SE UZIMA NA LICU MESTA</span>
+                <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>NAGRADA SE UZIMA NA LICU MESTA</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {sponsored.map((s: any) => {
@@ -169,14 +169,14 @@ export const OSQuests = () => {
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                         <span style={{ flex: 'none', width: 40, height: 40, borderRadius: 11, background: hexA(G.house, 0.13), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>{s.logo || '⭐'}</span>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.14em', color: G.house }}>PARTNER · {(s.venue_name || '').toUpperCase()}</div>
+                          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.14em', color: G.house }}>PARTNER · {(s.venue_name || '').toUpperCase()}</div>
                           <div style={{ fontSize: 15, fontWeight: 600, color: OS.ink, marginTop: 3 }}>{s.title}</div>
                           <div style={{ fontSize: 11.5, color: OS.ink5, marginTop: 3, lineHeight: 1.35 }}>{s.description}</div>
-                          <div style={{ display: 'inline-block', fontFamily: MONO, fontSize: 8.5, letterSpacing: '.1em', color: ROLE.energy, background: hexA(ROLE.energy, 0.1), border: `1px solid ${hexA(ROLE.energy, 0.22)}`, borderRadius: 6, padding: '2px 7px', marginTop: 7 }}>→ {s.reward_label}</div>
+                          <div style={{ display: 'inline-block', fontFamily: MONO, fontSize: 10, letterSpacing: '.1em', color: ROLE.energy, background: hexA(ROLE.energy, 0.1), border: `1px solid ${hexA(ROLE.energy, 0.22)}`, borderRadius: 6, padding: '2px 7px', marginTop: 7 }}>→ {s.reward_label}</div>
                         </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12 }}>
-                        <span style={{ flex: 1, fontFamily: MONO, fontSize: 9, color: OS.ink6 }}>{s.kind === 'content' ? (s.media === 'video' ? '🎬 VIDEO · GLASA SCENA' : '📸 FOTO · GLASA SCENA') : (s.spots_label || '')}</span>
+                        <span style={{ flex: 1, fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>{s.kind === 'content' ? (s.media === 'video' ? '🎬 VIDEO · GLASA SCENA' : '📸 FOTO · GLASA SCENA') : (s.spots_label || '')}</span>
                         {s.kind === 'content'
                           ? <button onClick={() => setCampaign(s.id)} style={{ flex: 'none', cursor: 'pointer', fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: '7px 13px', borderRadius: 9, border: 0, background: G.house, color: '#0B0B0D' }}>UĐI · GLASAJ</button>
                           : s.accepted
@@ -243,7 +243,7 @@ export const OSQuests = () => {
                       <div style={{ fontSize: 15, fontWeight: 600, color: OS.ink }}>{q.title}</div>
                       <div style={{ fontSize: 11.5, color: OS.ink5, marginTop: 3, lineHeight: 1.35 }}>{q.description}</div>
                       {outputOf(q.quest_type) && (
-                        <div style={{ display: 'inline-block', fontFamily: MONO, fontSize: 8.5, letterSpacing: '.1em', color: hexA(col, 0.9), background: hexA(col, 0.1), border: `1px solid ${hexA(col, 0.22)}`, borderRadius: 6, padding: '2px 7px', marginTop: 7 }}>→ {outputOf(q.quest_type)}</div>
+                        <div style={{ display: 'inline-block', fontFamily: MONO, fontSize: 10, letterSpacing: '.1em', color: hexA(col, 0.9), background: hexA(col, 0.1), border: `1px solid ${hexA(col, 0.22)}`, borderRadius: 6, padding: '2px 7px', marginTop: 7 }}>→ {outputOf(q.quest_type)}</div>
                       )}
                     </div>
                   </div>
@@ -267,7 +267,7 @@ export const OSQuests = () => {
                         <div style={{ fontSize: 15, fontWeight: 600, color: OS.ink }}>{q.title}</div>
                         <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 3 }}>{q.is_crew ? `CREW · ${q.memberCount} ČLANOVA` : 'SOLO'} · {q.xp} XP</div>
                       </div>
-                      {q.moderation_status === 'pending' && <span style={{ fontFamily: MONO, fontSize: 9, color: G.house }}>🕓</span>}
+                      {q.moderation_status === 'pending' && <span style={{ fontFamily: MONO, fontSize: 10, color: G.house }}>🕓</span>}
                     </div>
                   </div>
                 ))}
@@ -285,13 +285,13 @@ export const OSQuests = () => {
               <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6 }}>🪙 AFC BALANS</span>
               <span style={{ fontFamily: MONO, fontSize: 20, fontWeight: 600, color: G.festival }}>{balance.toLocaleString()}</span>
             </div>
-            <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.1em', color: OS.ink6, marginTop: 8, borderTop: `1px solid ${OS.line}`, paddingTop: 8 }}>FOND PUNE PARTNERI · NAGRADE SU STVARNE · UZIMAŠ NA LICU MESTA</div>
+            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.1em', color: OS.ink6, marginTop: 8, borderTop: `1px solid ${OS.line}`, paddingTop: 8 }}>FOND PUNE PARTNERI · NAGRADE SU STVARNE · UZIMAŠ NA LICU MESTA</div>
           </div>
 
           {/* recent AFC — transparency (kako se zarađuje) */}
           {ledger.length > 0 && (
             <div style={{ padding: '10px 14px', borderRadius: 14, background: OS.surface, border: `1px solid ${OS.line}`, marginBottom: 14 }}>
-              <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.16em', color: OS.ink6, marginBottom: 8 }}>NEDAVNO ZARAĐENO</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6, marginBottom: 8 }}>NEDAVNO ZARAĐENO</div>
               {ledger.map((l: any, i: number) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0' }}>
                   <span style={{ fontSize: 12, color: OS.ink3 }}>{LEDGER_LABEL[l.reason] || l.reason}</span>

@@ -58,7 +58,7 @@ export const OSOrbNav = ({ current, onGo }: { current: OSScreen; onGo: (s: OSScr
               }}
             >
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: o.col, boxShadow: current === o.screen ? `0 0 10px ${o.col}` : 'none' }} />
-              <span style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 600, letterSpacing: '.04em', color: current === o.screen ? OS.ink : OS.ink3 }}>{o.label}</span>
+              <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.04em', color: current === o.screen ? OS.ink : OS.ink3 }}>{o.label}</span>
             </button>
           );
         })}

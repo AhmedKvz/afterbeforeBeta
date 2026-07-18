@@ -80,8 +80,12 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
     return { label: 'NAJAVLJEN', color: OS.ink6 };
   };
 
-  const trending = [...events].sort((a, b) => (signals[b.id] || 0) - (signals[a.id] || 0)).slice(0, 3);
+  // Truth pass: trending/hero pokazuju samo nadolazeće — prošli eventi ne mogu
+  // biti "večeras" (kritika: 3 kontradiktorna broja na jednom ekranu).
+  const upcoming = events.filter((e) => e.date >= todayStr && e.venue_type !== 'afterplace');
+  const trending = [...upcoming].sort((a, b) => (signals[b.id] || 0) - (signals[a.id] || 0)).slice(0, 3);
   const best = trending[0];
+  const liveNow = trending.filter((t) => lifecycleKey(t, signals[t.id] || 0, new Date()) === 'live').length;
 
   // "Za tebe" curated slice — tonight first, ranked by going-count + stated
   // preferences from onboarding (genres + fav venues). Stated → learned later.
@@ -123,7 +127,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       <div style={{ position: 'sticky', top: 0, zIndex: 40, background: 'rgba(11,11,13,.92)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${OS.line}`, padding: '11px 18px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <Mono fontSize={9} letterSpacing=".24em" color={OS.ink6}>NIGHTLIFE OS</Mono>
+            <Mono fontSize={10} letterSpacing=".24em" color={OS.ink6}>NIGHTLIFE OS</Mono>
             <div style={{ fontWeight: 700, fontSize: 19, letterSpacing: '-.02em', color: OS.ink, lineHeight: 1, marginTop: 2 }}>AfterBefore</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -149,7 +153,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       <div style={{ padding: '14px 18px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: G.festival, boxShadow: `0 0 10px ${G.festival}`, animation: 'os-pulse 1.8s ease-in-out infinite' }} />
-          <Mono fontSize={11} color={OS.ink4}>BEOGRAD · {events.length} OTVORENO</Mono>
+          <Mono fontSize={11} color={OS.ink4}>BEOGRAD · {upcoming.length} NAJAVLJENO</Mono>
         </div>
         <Mono fontSize={11} color={OS.ink6}>VEČERAS {tonightCount} ↗</Mono>
       </div>
@@ -163,12 +167,12 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       {/* best party — the single hero moment */}
       {best && (
         <div style={{ padding: '18px 16px 0' }}>
-          <SectionLabel>NAJBOLJA NEDELJE</SectionLabel>
+          <SectionLabel>IZDVOJENO OVE NEDELJE</SectionLabel>
           <button onClick={() => openEvent(best)} style={{ width: '100%', textAlign: 'left', cursor: 'pointer', padding: 0, border: 0, background: 'transparent', borderRadius: 18, overflow: 'hidden' }}>
             <div style={{ position: 'relative', height: 150, borderRadius: 18, overflow: 'hidden', border: `1px solid ${OS.line2}`, background: best.image_url ? `center/cover url(${best.image_url})` : stripe(G.house) }}>
               <div style={{ position: 'absolute', inset: 0, background: HATCH }} />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,#101013 4%,transparent 70%)' }} />
-              <Mono style={{ position: 'absolute', top: 12, left: 14 }} fontSize={9} letterSpacing=".16em" color="#f5c97a">★ NAJVIŠE NAJAVA · {signals[best.id] || 0} IDE</Mono>
+              <Mono style={{ position: 'absolute', top: 12, left: 14 }} fontSize={10} letterSpacing=".16em" color="#f5c97a">{(signals[best.id] || 0) >= 3 ? `★ NAJVIŠE NAJAVA · ${signals[best.id]} IDE` : '★ IZDVOJENO'}</Mono>
               <div style={{ position: 'absolute', bottom: 13, left: 14, right: 14 }}>
                 <div style={{ fontWeight: 700, fontSize: 19, color: OS.ink }}>{best.title}</div>
                 <Mono fontSize={11} color={OS.ink4} style={{ marginTop: 6 }}>{dayLabel(best.date)} · {best.start_time?.slice(0, 5)} · {best.venue_name}</Mono>
@@ -181,7 +185,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       {/* trending */}
       {trending.length > 0 && (
         <div style={{ padding: '22px 0 0' }}>
-          <div style={{ padding: '0 16px' }}><SectionLabel right={`${trending.length} LIVE`}>TRENDING VEČERAS</SectionLabel></div>
+          <div style={{ padding: '0 16px' }}><SectionLabel right={liveNow > 0 ? `${liveNow} LIVE` : 'PO NAJAVAMA'}>TRENDING VEČERAS</SectionLabel></div>
           <div className="os-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 16px 4px' }}>
             {trending.map((t) => {
               const col = genreCol(t.music_genres?.[0] || t.venue_type);
@@ -203,7 +207,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
 
       {/* za tebe — curated slice (state chips, no type filters) */}
       <div style={{ padding: '22px 16px 0' }}>
-        <SectionLabel right={`${forYou.length}`}>ZA TEBE VEČERAS</SectionLabel>
+        {tonightCount > 0 ? <SectionLabel right={`${forYou.length}`}>ZA TEBE VEČERAS</SectionLabel> : <SectionLabel right={`${forYou.length}`}>IZ ARHIVE SCENE · DOK SE GRAD NE UPALI</SectionLabel>}
         <div>
           {forYou.map((e) => <OSEventRow key={e.id} e={e} state={stateOf(e)} onClick={() => openEvent(e)} />)}
           {forYou.length === 0 && <Mono fontSize={12} color={OS.ink5} style={{ textAlign: 'center', padding: '24px 0' }}>Još nema događaja.</Mono>}
@@ -280,9 +284,9 @@ const OSDiscover = ({ navigate }: { navigate: (p: string) => void }) => {
           return (
             <button key={v.venue_name} onClick={() => navigate(`/venue/${encodeURIComponent(v.venue_name)}`)} style={{ minWidth: 160, maxWidth: 160, flex: 'none', borderRadius: 16, overflow: 'hidden', border: `1px solid ${OS.line2}`, background: OS.surface, textAlign: 'left', cursor: 'pointer', padding: 0 }}>
               <div style={{ position: 'relative', height: 82, background: v.venue_logo_url ? `center/cover url(${v.venue_logo_url})` : stripe(col), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30 }}>{!v.venue_logo_url && meta.emoji}
-                <div style={{ position: 'absolute', top: 8, left: 8, fontFamily: MONO, fontSize: 9, color: col, background: 'rgba(11,11,13,.66)', border: `1px solid ${hexA(col, 0.4)}`, padding: '2px 7px', borderRadius: 999 }}>{meta.label}</div>
+                <div style={{ position: 'absolute', top: 8, left: 8, fontFamily: MONO, fontSize: 10, color: col, background: 'rgba(11,11,13,.66)', border: `1px solid ${hexA(col, 0.4)}`, padding: '2px 7px', borderRadius: 999 }}>{meta.label}</div>
               </div>
-              <div style={{ padding: 11 }}><div style={{ fontWeight: 600, fontSize: 13, color: OS.ink }}>{v.venue_name}</div>{v.neighborhood && <Mono fontSize={9} color={OS.ink6} style={{ marginTop: 3 }}>{v.neighborhood.toUpperCase()}</Mono>}</div>
+              <div style={{ padding: 11 }}><div style={{ fontWeight: 600, fontSize: 13, color: OS.ink }}>{v.venue_name}</div>{v.neighborhood && <Mono fontSize={10} color={OS.ink6} style={{ marginTop: 3 }}>{v.neighborhood.toUpperCase()}</Mono>}</div>
             </button>
           );
         })}
@@ -312,7 +316,7 @@ const OSCommunity = ({ navigate }: { navigate: (p: string) => void }) => {
               <span style={{ fontFamily: MONO, fontSize: 11, color: G.house }}>★ {r.rating}</span>
             </div>
             {r.review_text && <div style={{ fontSize: 11.5, fontStyle: 'italic', color: OS.ink4, lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>"{r.review_text}"</div>}
-            {r.verified_visit && <span style={{ display: 'inline-block', marginTop: 8, fontFamily: MONO, fontSize: 9, color: G.festival, background: hexA(G.festival, 0.12), padding: '2px 7px', borderRadius: 999 }}>✓ POSEĆENO</span>}
+            {r.verified_visit && <span style={{ display: 'inline-block', marginTop: 8, fontFamily: MONO, fontSize: 10, color: G.festival, background: hexA(G.festival, 0.12), padding: '2px 7px', borderRadius: 999 }}>✓ POSEĆENO</span>}
           </button>
         ))}
       </div>

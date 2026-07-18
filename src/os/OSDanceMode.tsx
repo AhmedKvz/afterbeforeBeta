@@ -70,7 +70,7 @@ export const OSDanceMode = ({ venueId, venueName, onClose }: Props) => {
             <span>🔥 {dance.moves} POKRETA</span>
             <span>⏱ {dance.seconds}s</span>
           </div>
-          {dance.simulated && <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.1em', color: OS.ink6, marginTop: 4 }}>SIM · NEMA SENZORA NA OVOM UREĐAJU</div>}
+          {dance.simulated && <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.1em', color: OS.ink6, marginTop: 4 }}>SIM · NEMA SENZORA NA OVOM UREĐAJU</div>}
           <button onClick={finish} style={{ marginTop: 20, padding: '14px 40px', borderRadius: 999, border: `1px solid ${OS.line2}`, cursor: 'pointer', fontSize: 15, fontWeight: 700, color: OS.ink, background: OS.surface }}>STOP</button>
         </div>
       )}

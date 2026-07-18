@@ -94,7 +94,13 @@ const TYPE_MODE: Record<string, 'day' | 'night' | 'both'> = {
 
 function coordFor(neighborhood: string | null, key: string) {
   const n = (neighborhood || '').trim().toLowerCase();
-  if (HOOD_COORDS[n]) return HOOD_COORDS[n];
+  if (HOOD_COORDS[n]) {
+    // 8 mesta u istom kvartu = ista tačka → nečitljiva gomila pinova.
+    // Deterministički jitter po imenu raširi klaster, mapa ostaje apstraktna.
+    const h = hueFromString(key);
+    const c = HOOD_COORDS[n];
+    return { x: Math.min(90, Math.max(6, c.x + (h % 15) - 7)), y: Math.min(88, Math.max(10, c.y + ((h * 7) % 13) - 6)) };
+  }
   // stable pseudo-position from the venue name
   const h = hueFromString(key);
   return { x: 20 + (h % 60), y: 28 + ((h * 7) % 44) };

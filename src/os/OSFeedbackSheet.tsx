@@ -31,7 +31,7 @@ export const OSFeedbackSheet = ({ venueId, onDone }: { venueId: string | null; o
       <div style={{ padding: '16px 18px 18px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
           <div>
-            <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.2em', color: OS.ink6, marginBottom: 4 }}>BRZO PITANJE</div>
+            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: OS.ink6, marginBottom: 4 }}>BRZO PITANJE</div>
             <div style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.35, color: OS.ink }}>Da li bi preporučio AfterBefore prijatelju?</div>
           </div>
           <button onClick={onDone} style={{ flex: 'none', width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,.06)', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: OS.ink5 }}><X className="w-3.5 h-3.5" /></button>
@@ -42,7 +42,7 @@ export const OSFeedbackSheet = ({ venueId, onDone }: { venueId: string | null; o
             {OPTIONS.map((opt) => (
               <button key={opt.score} onClick={() => submit(opt)} style={{ flex: 1, padding: '13px 0', borderRadius: 14, border: `1px solid ${OS.line2}`, background: OS.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
                 <span style={{ fontSize: 22 }}>{opt.emoji}</span>
-                <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, color: OS.ink5, textAlign: 'center', lineHeight: 1.2 }}>{opt.label}</span>
+                <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, color: OS.ink5, textAlign: 'center', lineHeight: 1.2 }}>{opt.label}</span>
               </button>
             ))}
           </div>

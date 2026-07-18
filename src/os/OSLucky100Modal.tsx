@@ -99,7 +99,7 @@ export const OSLucky100Modal = ({ isOpen, onClose }: { isOpen: boolean; onClose:
                       <div style={{ fontSize: 13, fontWeight: 500, color: OS.ink }}>{w.display_name}</div>
                       <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>CHECK-IN #{w.check_in_number}</div>
                     </div>
-                    <span style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6 }}>{formatDistanceToNow(new Date(w.won_at), { addSuffix: true })}</span>
+                    <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>{formatDistanceToNow(new Date(w.won_at), { addSuffix: true })}</span>
                   </div>
                 ))}
               </div>
@@ -110,11 +110,11 @@ export const OSLucky100Modal = ({ isOpen, onClose }: { isOpen: boolean; onClose:
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <div style={{ padding: 14, borderRadius: 14, background: OS.surface, border: `1px solid ${OS.line}`, textAlign: 'center' }}>
               <div style={{ fontFamily: MONO, fontSize: 22, fontWeight: 600, color: G.house }}>{totalWins}</div>
-              <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.08em', color: OS.ink6, marginTop: 4 }}>POBEDA</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.08em', color: OS.ink6, marginTop: 4 }}>POBEDA</div>
             </div>
             <div style={{ padding: 14, borderRadius: 14, background: OS.surface, border: `1px solid ${OS.line}`, textAlign: 'center' }}>
               <div style={{ fontFamily: MONO, fontSize: 22, fontWeight: 600, color: G.festival }}>{winHistory.filter((w: any) => w.prize_claimed).length}</div>
-              <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '.08em', color: OS.ink6, marginTop: 4 }}>UZETO</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.08em', color: OS.ink6, marginTop: 4 }}>UZETO</div>
             </div>
           </div>
 

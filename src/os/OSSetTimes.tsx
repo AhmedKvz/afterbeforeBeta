@@ -48,7 +48,7 @@ export const OSSetTimes = ({ event, onSaved }: Props) => {
     <div style={{ margin: '16px 16px 0', padding: 16, borderRadius: 18, background: OS.surface, border: `1px solid ${OS.line}` }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
         <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6 }}>SATNICA</span>
-        {times.length > 0 && !editing && <span style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6 }}>OD ZAJEDNICE</span>}
+        {times.length > 0 && !editing && <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>OD ZAJEDNICE</span>}
       </div>
 
       {/* has times → timetable */}
@@ -60,7 +60,7 @@ export const OSSetTimes = ({ event, onSaved }: Props) => {
               <div key={`${s.artist}-${s.time}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 10px', borderRadius: 10, background: live ? hexA(G.afterparty, 0.12) : 'transparent', border: `1px solid ${live ? hexA(G.afterparty, 0.35) : 'transparent'}` }}>
                 <span style={{ fontFamily: MONO, fontSize: 13, fontWeight: 600, color: live ? G.afterparty : OS.ink2, width: 46 }}>{s.time}</span>
                 <span style={{ flex: 1, fontSize: 14, fontWeight: live ? 700 : 500, color: live ? OS.ink : OS.ink2 }}>{s.artist}</span>
-                {live && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: MONO, fontSize: 9, fontWeight: 600, color: G.afterparty }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: G.afterparty, animation: 'os-pulse 1.3s ease-in-out infinite' }} />SADA</span>}
+                {live && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: MONO, fontSize: 10, fontWeight: 600, color: G.afterparty }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: G.afterparty, animation: 'os-pulse 1.3s ease-in-out infinite' }} />SADA</span>}
               </div>
             );
           })}

@@ -80,7 +80,7 @@ export const OSExplore = ({ onOpenVenue }: { onOpenVenue: (v: OSVenue) => void }
             <span style={{ position: 'absolute', inset: 0, margin: 'auto', width: 14, height: 14, borderRadius: '50%', background: col, animation: 'os-ping 2.4s ease-out infinite' }} />
             <span style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span style={{ width: 14, height: 14, borderRadius: '50%', background: col, border: '2px solid #101013', boxShadow: `0 0 12px ${col}` }} />
-              <span style={{ fontFamily: MONO, fontSize: 9, color: OS.ink, background: 'rgba(11,11,13,.6)', padding: '1px 5px', borderRadius: 4, whiteSpace: 'nowrap' }}>{v.name} · {count}</span>
+              <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink, background: 'rgba(11,11,13,.6)', padding: '1px 5px', borderRadius: 4, whiteSpace: 'nowrap' }}>{v.name}{count > 0 ? ` · ${count}` : ''}</span>
             </span>
           </button>
         ))}
@@ -132,7 +132,7 @@ const VenueRow = ({ v, onClick }: { v: any; onClick: () => void }) => {
       </div>
       <div style={{ flex: 'none', textAlign: 'right' }}>
         <div style={{ fontFamily: MONO, fontSize: 19, fontWeight: 600, color: ROLE.energy }}>≈{v.heat ?? 0}</div>
-        <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: '.1em', color: OS.ink6, marginTop: 1 }}>ENERGY</div>
+        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.1em', color: OS.ink6, marginTop: 1 }}>ENERGY</div>
       </div>
     </button>
   );

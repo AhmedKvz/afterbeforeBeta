@@ -40,7 +40,7 @@ export const BetaFeedback = () => {
     <>
       <button
         onClick={() => setOpen(true)}
-        style={{ position: 'fixed', right: 16, bottom: 188, zIndex: 65, display: 'flex', alignItems: 'center', gap: 7, borderRadius: 999, padding: '9px 14px', fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.06em', color: OS.ink2, background: 'rgba(19,20,23,.86)', backdropFilter: 'blur(14px)', border: `1px solid ${OS.line2}` }}
+        style={{ position: 'fixed', left: 14, bottom: 'calc(env(safe-area-inset-bottom) + 24px)', zIndex: 45, display: 'flex', alignItems: 'center', gap: 7, borderRadius: 999, padding: '9px 14px', fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.06em', color: OS.ink2, background: 'rgba(19,20,23,.86)', backdropFilter: 'blur(14px)', border: `1px solid ${OS.line2}` }}
       >
         <MessageSquarePlus className="w-4 h-4" /> FEEDBACK
       </button>

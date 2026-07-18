@@ -35,7 +35,7 @@ export const OSStories = () => {
             </span>
             <input type="file" accept="image/*" onChange={onFile} style={{ display: 'none' }} />
           </div>
-          <span style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6 }}>TVOJ STORY</span>
+          <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>TVOJ STORY</span>
         </label>
 
         {groups.map((g) => (

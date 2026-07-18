@@ -35,7 +35,7 @@ export const ACHIEVEMENTS = [
   {
     id: MORNING_STAR_ACHIEVEMENT_ID,
     name: 'MorningStar',
-    description: 'Apex Vibe Archetype: Level 10, 25+ check-ins, 50+ matches and 10+ reviews.',
+    description: 'Apex arhetip scene: nivo 10, 25+ check-ina, 50+ veza i 10+ recenzija.',
     icon: '🌅',
     checkCondition: (stats: UserStats) =>
       stats.level >= 10 &&
@@ -45,22 +45,22 @@ export const ACHIEVEMENTS = [
   },
   {
     id: 'party_animal',
-    name: 'Party Animal',
-    description: 'Attended 10+ events',
+    name: 'Zver žurke',
+    description: '10+ izlazaka',
     icon: '🎉',
     checkCondition: (stats: UserStats) => stats.eventsAttended >= 10,
   },
   {
     id: 'social_butterfly',
-    name: 'Social Butterfly',
-    description: '50+ matches',
+    name: 'Socijalni leptir',
+    description: '50+ veza',
     icon: '💜',
     checkCondition: (stats: UserStats) => stats.totalMatches >= 50,
   },
   {
     id: 'night_owl',
-    name: 'Night Owl',
-    description: 'Active after 3AM',
+    name: 'Noćna ptica',
+    description: 'Aktivan/na posle 3 ujutru',
     icon: '🦉',
     checkCondition: (_stats: UserStats) => {
       const hour = new Date().getHours();
@@ -69,22 +69,22 @@ export const ACHIEVEMENTS = [
   },
   {
     id: 'first_match',
-    name: 'First Connection',
-    description: 'Got your first match',
+    name: 'Prva veza',
+    description: 'Prva ostvarena veza na podijumu',
     icon: '💫',
     checkCondition: (stats: UserStats) => stats.totalMatches >= 1,
   },
   {
     id: 'regular',
-    name: 'Regular',
-    description: 'Attended 5+ events',
+    name: 'Stalna mušterija',
+    description: '5+ izlazaka',
     icon: '🎵',
     checkCondition: (stats: UserStats) => stats.eventsAttended >= 5,
   },
   {
     id: 'newcomer',
-    name: 'Newcomer',
-    description: 'Checked in to first event',
+    name: 'Novo lice',
+    description: 'Prvi check-in — dobrodošao/la u scenu',
     icon: '🌟',
     checkCondition: (stats: UserStats) => stats.eventsAttended >= 1,
   },

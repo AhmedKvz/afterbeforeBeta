@@ -38,7 +38,7 @@ export const OSEventRow = ({ e, past, onClick, state }: { e: any; past?: boolean
         <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink2, marginTop: 4 }}>{e.start_time?.slice(0, 5)}{e.venue_name ? ` · ${e.venue_name}` : ''}</div>
         {/* lifecycle state chip (optional) */}
         {state && (
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: MONO, fontSize: 9.5, letterSpacing: '.06em', color: state.color, marginTop: 6 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontFamily: MONO, fontSize: 10, letterSpacing: '.06em', color: state.color, marginTop: 6 }}>
             {state.label === 'LIVE SADA' && <span style={{ width: 6, height: 6, borderRadius: '50%', background: state.color, animation: 'os-pulse 1.3s ease-in-out infinite' }} />}
             {state.label}
           </div>
