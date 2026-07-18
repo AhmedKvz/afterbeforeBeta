@@ -325,6 +325,7 @@ export default function WarRoom() {
         {tab === 'docs' && (
           <Section label="DOKUMENTI · RESURSI">
             {[
+              { t: '📋 TODO — šta je sledeće', u: `${REPO}/TODO.md`, d: 'Živi backlog: sledeće · opcije · pre-launch dug' },
               { t: '🎨 Design System', u: `${REPO}/AFTERBEFORE_DESIGN.md`, d: 'Vizuelni jezik, tokeni, komponente' },
               { t: '🕺 Dance Floor Strategy', u: `${REPO}/DANCE_FLOOR_STRATEGY.md`, d: 'System design + komercijalizacija' },
               { t: '📊 Live Metrics', u: '#/metrics', d: 'Beta metrics dashboard (grant)' },
