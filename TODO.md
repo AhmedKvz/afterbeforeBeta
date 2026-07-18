@@ -15,6 +15,16 @@
 2. **[FOUNDER] Prođi MESTA tab** — proveri/dotegni koordinate novih 14 mesta; dodaj festivale ako želiš (tip 🎪 postoji).
 3. **[DEV] #46 · Grant paket** — evaluator demo nalog + EN walkthrough. App je vizuelno spreman; ovo je poslednji korak ka Smart Start prijavi.
 
+## 🎮 PRAVAC: IGRA VELIKIH (founder odluka 2026-07-13 — „definitivno idemo u ovom pravcu")
+
+Noć kao igra uživo — app izaziva, grad je tabla, ljudi su potezi. Temelj postavljen:
+🎲 Točak (smele misije) + 🔐 ŠIFRA (upareni susreti, co-presence + obostrani pristanak).
+**Sledeći potezi ovog pravca (redom):**
+1. ŠIFRA QA sa 2 uređaja → pa ŠIFRA na B1 kao Q7 „Meet the Scene"
+2. Crew šifre (ekipa vs ekipa — 4 polovine, dve ekipe se traže)
+3. LLM personalizovane misije (grant faza, Quest Copilot pattern + moderacija)
+4. Venue „chill zona" oznaka u MESTA tabu (gde se igra sastavlja)
+
 ## 🛠 DEV BACKLOG (po prioritetu)
 
 - **#49 · „Ko ide" crew signal** — Idem → vidiš ko još ide → ekipa se formira (nadovezuje se na people-first sheet).
