@@ -85,3 +85,11 @@ Priča: „beta dokazuje petlju na jednoj noći; grant skalira na native + 3–5
 **Bottom line:** Tim (40) + Korist (30) su jaki **već danas** zahvaljujući radećoj beti (~50–60+ poena). **Tržište (30) je jedina rupa**, puni se **jednom hero noći**. Ostatak (cleanup, EN video, evaluator nalog) je 1–2 dana. **App te ne koči — gustina te koči.**
 
 *Reference: pitch deck `AfterBefore-Pitch-Deck.html`, `AfterBefore-Smart-Start-Analiza.md`, `AfterBefore-Analiza-Aplikacije.md`, Ustav `AfterBefore-Istina-i-Zakoni.md`.*
+
+---
+
+## Economic Engine — pasus za prijavu (ECONOMY §11, 2026-07-13)
+
+**SR:** AfterBefore ne naplaćuje funkcije — gradi ekonomiju doprinosa. Korisnici verifikovanim prisustvom i sadržajem stvaraju vrednost (živa mapa, recenzije, satnice); klubovi umesto oglasa kupuju aktivaciju zajednice (raniji dolasci, recenzije, nove posete); brendovi finansiraju autentične kampanje sa merljivim dometom; platforma uzima mali deo svake uspešno stvorene vrednosti. Isplate nikad ne prelaze prihod fonda — model ne može da „štampa" nagrade. Kada motor postane održiv, deo platformskog prihoda se kroz **Fond scene** vraća zajednici: oprema, edukacija i kreativni grantovi o kojima glasa sama scena. Ne izvlačimo vrednost iz noćnog života — kružimo je unutar njega.
+
+**EN:** AfterBefore doesn't charge for features — it builds a contribution economy. Users create value through verified presence and content (live map, reviews, set times); venues buy community activation instead of ads (earlier arrivals, reviews, new visits); brands fund authentic campaigns with measurable reach; the platform takes a small share of every successfully created value. Payouts never exceed fund revenue — the model cannot "print" rewards. Once the engine is sustainable, part of platform revenue returns to the community through the **Scene Fund**: gear, education and creative grants voted on by the scene itself. We don't extract value from nightlife — we circulate it inside nightlife.

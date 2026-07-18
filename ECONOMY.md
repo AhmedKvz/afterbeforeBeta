@@ -101,6 +101,7 @@ Nasleđuje ceo Dance Floor anti-cheat plan, plus:
 - **Kockanje:** Lucky100 + bilo šta token-oliko = miris igara na sreću (poseban zakon, licence). → Lucky100 ostaje odvojen od AFC ekonomije; nikad „uloži poene da dobiješ više poena".
 - **MiCA (EU):** čim širimo van Srbije (Budimpešta/Berlin iz vizije) — token pada pod MiCA. F3 dizajn mora biti MiCA-aware od prvog dana.
 - **Porez:** kreatorske isplate u dinarima (F2+) = poreski tretman honorara — računovođa pre prve isplate.
+- **Fond scene (§11.8):** reinvesticije se knjiže kao **community grants / marketing trošak programa**, nikad kao raspodela dobiti ili dividenda — nema obećanja procenta prihoda, nema vlasničkog potraživanja korisnika prema platformi.
 
 ## 6 · Platformska ograda (App Store / Play)
 - Apple/Google ograničavaju kripto-nagrade i in-app vrednosti: **poeni + fizičke nagrade = bezbedno**; token u native appu = minsko polje (review rizik za Capacitor build koji je grant cilj).
@@ -188,6 +189,97 @@ Brend bira brief (open-frame), nagradu, prozor, **reputacioni tier učesnika**, 
 - Uticaj earn-petlje na **W1→W2 retenciju** (A/B gde može — retencija je jedini sudija, Z10)
 - Prosečna vrednost isplate po aktivnom kreatoru (F2+)
 - Fraud rate (flagged / ukupno isplata)
+
+
+---
+
+## 11 · AFTERBEFORE ECONOMIC ENGINE
+
+> Ne naplaćujemo funkcije. Gradimo **ekonomiju doprinosa** u kojoj platforma uzima mali deo svake uspešno stvorene vrednosti — i deo toga vraća sceni. Interna zabrana rečnika: ne „monetizacija", nego **ekonomski motor**.
+
+### 11.1 · Value Pyramid — vrednost se pravi dole, novac ulazi odozgo
+
+| Sloj | ŠTA DAJE | ŠTA DOBIJA | KO MU PLAĆA |
+|---|---|---|---|
+| **Gradovi/turizam** (kasnije) | budžete za kulturu/turizam | agregirani uvid u živu scenu | — (oni plaćaju platformi) |
+| **Brendovi** | nagradne fondove, kampanje | verifikovano-autentičan UGC + merljiv reach (§8b/8c) | — (plaćaju platformi) |
+| **Klubovi/mesta** | perkove, guest-liste, prostor | dolaske, recenzije, crew posete, dijagnostiku | — (plaćaju aktivaciju, ne oglase) |
+| **Kreatori** | sadržaj, satnicu, intel, vodiče | AFC + kreatorske isplate + prilike (§8c tierovi) | fond ← klubovi/brendovi/turisti |
+| **Korisnici** | prisustvo, recenzije, ples, glas | nagrade, status, uticaj, bolju scenu | fond ← sve iznad |
+
+### 11.2 · Zamajac (jedan dijagram, svuda isti — pitch, landing, README)
+
+```
+korisnici → doprinos → bolji Heat/intel → više partnera → više nagrada → retencija → više korisnika
+```
+
+| Korak zamajca | Već postoji u proizvodu |
+|---|---|
+| doprinos | check-in RPC, recenzije (verified_visit), satnica, dance, glas |
+| bolji Heat/intel | get_venue_heat, Crowd DNA rail, community recenzije |
+| više partnera | PARTNERI ČASTE + sponsored форма + Make-us-famous šablon |
+| više nagrada | AFC ledger + redemption rail + katalog v0 (§9) |
+| retencija | streak + Weekend Shield + „ko ide" signali |
+
+### 11.3 · Izvori vrednosti — redosled aktivacije (ne „revenue streams")
+
+1. **Community Activation Campaigns** (≈ §8b/8c, preimenovano): klub/brend ne kupuje reklamu — kupuje **raniji dolazak, recenzije, nove goste, crew posete**. Živo (concierge faza).
+2. **Diagnostics SaaS**: *Arrival Curve · Venue DNA · Community Health · Campaign ROI* — mesečna pretplata; podatak nastaje besplatno iz upotrebe (Dance strategija Tier 3 unapređena u stub).
+3. **Reward Economy fee**: brend puni nagradni fond → platforma uzima % od uspešno isporučene kampanje (escrow, §8c).
+4. **Premium**: SAMO kozmetika i convenience (teme, passport) — v. 11.5.
+5. *Kasnije:* kreatorski fee · white-label (festivali) · tourism intel · city agregati.
+
+### 11.4 · Evaluator FAQ (teška pitanja, spremni odgovori)
+
+**„Šta ako klubovi ne plate prvih 12 meseci?"**
+(1) Brend-kampanje ≠ klubovi — Jungle/Reebok tip kupca već diverzifikuje prihod; (2) **gvozdeno pravilo = nula troška bez prihoda** — fond isplaćuje samo uplaćeno, ne krvarimo čekajući; (3) diagnostics se prodaje sam: kad klub prvi put vidi svoju arrival curve, razgovor o pretplati je počeo.
+
+**„Kokoška-jaje?"** — Utility radi i prazan (imenik, satnica, mapa); ekonomija se pali postepeno na postojeću upotrebu.
+
+**„Zašto ne klasični oglasi?"** — Oglasi troše poverenje, a poverenje je sirovina celog modela (recenzije od prisutnih = vrednost koju prodajemo). Quest-format je jedina reklama koju Gen Z ne doživljava kao reklamu (§8c).
+
+### 11.5 · TVRDE OGRADE — šta se NIKAD ne prodaje (ustavni član)
+
+- **Privatnost/ghost** — bezbednost nije premium (Z4)
+- **Pristup** — zarađuje se doprinosom, ne kupuje (Z5)
+- **Status/reputacija** — pay-to-win ubija smisao reputacione ekonomije
+- **Lični podaci** — samo agregati, nikad pojedinac
+- Iznad svega i dalje: **isplate ≤ prihod fonda** (§0)
+
+### 11.6 · Rečnik (obavezan u svim dokumentima od sada)
+
+| Staro | Novo |
+|---|---|
+| monetizacija | ekonomski motor |
+| sponsored quest | community activation campaign |
+| revenue model | sustainable value creation model |
+| revenue streams | izvori vrednosti |
+
+### 11.7 · KPI motora
+
+Promet fonda · platformski % · broj aktivnih partnera · payout/prihod racio (≤1.0) · **ponovljene kampanje** (retencija partnera = pravi signal proizvoda-tržišta).
+
+---
+
+## 11.8 · FOND SCENE — Community Reinvestment Engine (founder odluka, 2026-07-13)
+
+> **Ne izvlačimo vrednost iz noćnog života. Kružimo je unutar njega.** — brend rečenica, dugoročna filozofija.
+
+**Drugi zamajac** (nadovezuje se na 11.2): korisnici stvaraju vrednost → zajednica stvara poverenje → partneri stvaraju prihod → platforma zarađuje → **deo platformskog prihoda se vraća zajednici** → scena jača → više vrednosti → platforma raste.
+
+**Šta OVO NIJE:** charity · filantropija · marketing kampanja · profit-sharing/dividenda. **Šta jeste:** retention motor i mehanizam izgradnje zajednice — platforma deli uspeh sa onima koji ga prave.
+
+**Aktivacija (definisan okidač, ne magla):** Fond scene se pali tek kad je nagradni fond **N uzastopnih meseci pokriven ≥ 1.0** (N se fiksira pre launcha; predlog N=3). Visinu za ciklus platforma objavljuje **unapred po ciklusu** — nikad kao procenat prihoda, nikad retroaktivno obećanje. Gvozdeno pravilo važi i ovde.
+
+**Upravljanje (Z11, ne paternalizam):** šta se finansira **bira scena glasanjem** iz kuriranog kataloga — verifikovani nalozi sa istorijom prisustva (isti trust-weighted model kao §8b glasanje). Platforma kurira listu, zajednica bira redosled.
+
+**Šta fond podržava (scene-kreativno jezgro — pravi VIŠE scene):** DJ kontroleri i produkcijska oprema · kamere · laptopovi za kreativce · kursevi i edukacija · kreativni grantovi · festival karte · putovanja vezana za scenu · art materijal. *Lifestyle stavke (oprema za sport i sl.) samo kao povremeni „izbor zajednice" wildcard — nikad kao izlog fonda.*
+
+**UI copy pravilo (Z3):** rečenice tipa „svaki doprinos puni Fond scene" ulaze u APLIKACIJU **tek kad fond postoji i isplaćuje**. Do tada živi samo u dokumentaciji i pitchu kao model. Quest-narativ posle aktivacije: „scena ulaže nazad u svoje ljude" umesto „reši quest, uzmi nagradu".
+
+**Pravno:** knjiži se kao community grants / marketing program (§5) — bez procenta, bez vlasničkog potraživanja.
+
+**Investitorski zaključak koji ciljamo:** *„Ovo nije još jedna nightlife aplikacija — ovo je održiva ekonomska infrastruktura za lokalne noćne scene."*
 
 ---
 

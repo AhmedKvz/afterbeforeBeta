@@ -120,3 +120,12 @@ SLOJ 3 · QUEST ADS PIJACA (self-serve)
 - `campaign_votes` (submission_id, voter, weight — iz trust/tier)
 - `sponsored_quests` +`tier_required`, +`brand_id` (postojeća tabela, proširenje)
 - brend nalog = proširenje `profiles.account_type`
+
+---
+
+## Fond scene veza (ECONOMY §11.8 — doc-level, 2026-07-13)
+
+Kad se Fond scene aktivira (okidač u §11.8), quest narativ se pomera:
+- sa „reši quest → uzmi nagradu" na **„svaki doprinos gradi zajednicu — a scena ulaže nazad u svoje ljude"**.
+- Nagrade iz fonda = izbor zajednice glasanjem (Z11), scene-kreativno jezgro (oprema, kursevi, grantovi, festivali).
+- **Z3 ograda:** ovaj copy NE ulazi u UI pre aktivacije fonda — do tada je model u dokumentaciji/pitchu.
