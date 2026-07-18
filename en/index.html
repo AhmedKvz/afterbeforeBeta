@@ -16,7 +16,7 @@
 <link rel="alternate" hreflang="en" href="https://ahmedkvz.github.io/afterbeforeBeta/en/" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 <style>
   :root{
     --bg:#0a0a0b; --surface:#141417; --surface2:#1a1a1e; --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.15);
@@ -44,9 +44,26 @@
   @media(max-width:720px){section{padding:52px 0}}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
   .dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 1.8s ease-in-out infinite}
+
+  /* ── POSTER LAYER ── */
+  .display{font-family:'Anton',Impact,sans-serif;text-transform:uppercase;letter-spacing:.01em;line-height:.95;font-weight:400}
+  .grain{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.055;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")}
+  .heroglow{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;animation:breathe 7s ease-in-out infinite}
+  @keyframes breathe{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.9;transform:scale(1.12)}}
+  .flyer{font-family:'IBM Plex Mono',monospace;letter-spacing:.18em;font-size:11.5px;color:var(--ink4);display:flex;flex-wrap:wrap;gap:8px 22px}
+  .slot{display:grid;grid-template-columns:76px 1fr;gap:18px;padding:17px 0;border-bottom:1px solid var(--line);align-items:baseline}
+  .slot .t{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;letter-spacing:.08em}
+  .slot .n{font-weight:800;font-size:15px;letter-spacing:.02em}
+  .slot .d{color:var(--ink4);font-size:14px;margin-top:3px;line-height:1.55;max-width:560px}
+  .stub{position:relative;border:1px dashed rgba(245,166,35,.5);border-radius:18px;padding:30px 26px;background:linear-gradient(140deg,rgba(245,166,35,.07),transparent 60%)}
+  .stub:before,.stub:after{content:'';position:absolute;top:50%;width:22px;height:22px;border-radius:50%;background:var(--bg);border:1px dashed rgba(245,166,35,.5);transform:translateY(-50%)}
+  .stub:before{left:-12px;border-left-color:transparent}
+  .stub:after{right:-12px;border-right-color:transparent}
+  @media(prefers-reduced-motion:reduce){.heroglow,.dot{animation:none}}
 </style>
 </head>
 <body>
+<div class="grain"></div>
 
 <!-- ══ NAV ══ -->
 <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;padding-top:20px;padding-bottom:20px">
@@ -60,29 +77,56 @@
 </div>
 
 <!-- ══ HERO ══ -->
-<div class="wrap" style="padding-top:44px;padding-bottom:70px">
-  <div class="mono" style="font-size:11px;color:var(--blue);letter-spacing:.24em;margin-bottom:18px">BELGRADE · NIGHTLIFE OS</div>
-  <h1 style="font-size:clamp(38px,6.4vw,64px);font-weight:900;letter-spacing:-.03em;line-height:1.06;max-width:840px">
-    This is not another nightlife app.<br/>
-    <span style="background:linear-gradient(90deg,var(--hot),var(--uv));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">This is a call to the scene.</span>
-  </h1>
-  <p style="color:var(--ink4);font-size:clamp(16px,2.3vw,19px);margin-top:22px;max-width:680px;line-height:1.6">
-    A chance to <strong style="color:var(--ink)">participate and shape the scene</strong>, to change how going out works —
-    and to have the energy you pour into the night <strong style="color:var(--ink)">finally come back to you</strong>: as rewards, status and a real say.
-  </p>
-  <div style="display:flex;gap:12px;margin-top:30px;flex-wrap:wrap">
-    <a class="btn btn-hot" href="https://ahmedkvz.github.io/afterbeforeBeta/app/">Enter the beta →</a>
-    <a class="btn btn-ghost" href="#how">How it works</a>
+<div class="wrap" style="position:relative;padding-top:56px;padding-bottom:78px;overflow:visible">
+  <div class="heroglow" style="width:520px;height:520px;top:-160px;right:-120px;background:radial-gradient(closest-side,rgba(255,77,141,.28),transparent)"></div>
+  <div class="heroglow" style="width:420px;height:420px;bottom:-180px;left:-140px;background:radial-gradient(closest-side,rgba(166,77,255,.22),transparent);animation-delay:3.5s"></div>
+
+  <div class="flyer" style="margin-bottom:26px">
+    <span>BELGRADE</span><span>44.81°N · 20.46°E</span><span>FRI–SAT · 23:00 → 06:00</span><span style="color:var(--green)">ENTRY: YOUR PRESENCE</span>
   </div>
-  <div style="display:flex;gap:9px;margin-top:34px;flex-wrap:wrap">
-    <span class="tag">📍 VERIFIED CHECK-IN</span>
-    <span class="tag">🕒 SET TIMES BY THE CROWD</span>
-    <span class="tag">🕺 DANCE FLOOR SCORE</span>
-    <span class="tag">🧑‍🤝‍🧑 FIND YOUR CREW</span>
-    <span class="tag">🎯 QUESTS → REAL REWARDS</span>
+
+  <h1 class="display" style="position:relative;font-size:clamp(58px,11vw,124px);max-width:960px">
+    THE NIGHT IS<br/><span style="background:linear-gradient(90deg,var(--hot),var(--uv) 70%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">WAITING.</span>
+  </h1>
+
+  <p style="position:relative;color:var(--ink2);font-size:clamp(16px,2.3vw,19px);margin-top:26px;max-width:660px;line-height:1.6">
+    This is not another nightlife app — <strong>this is a call to the scene.</strong>
+    The energy you pour into the night finally comes back: <strong>rewards, status, a real say.</strong>
+  </p>
+  <div style="position:relative;display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;align-items:center">
+    <a class="btn btn-hot" style="font-size:17px;padding:17px 34px" href="https://ahmedkvz.github.io/afterbeforeBeta/app/">ENTER →</a>
+    <a class="btn btn-ghost" href="#how">One night through the app</a>
   </div>
 </div>
 
+
+<!-- ══ ONE NIGHT — SET TIMES ══ -->
+<section id="how"><div class="wrap">
+  <div class="kicker">RUNNING ORDER · ONE NIGHT THROUGH THE APP</div>
+  <h2 class="display" style="font-size:clamp(30px,5vw,46px)">Before. Party. After.</h2>
+  <div style="margin-top:26px">
+    <div class="slot"><span class="t" style="color:var(--cyan)">21:40</span><div><div class="n">THE CITY BREATHES</div><div class="d">You open the map. Dorćol is warming up, Savamala smolders. Three places pulse with exactly your sound.</div></div></div>
+    <div class="slot"><span class="t" style="color:var(--blue)">22:15</span><div><div class="n">CREW</div><div class="d">"Going." You see seven others — two you know from last weekend. The crew formed itself.</div></div></div>
+    <div class="slot"><span class="t" style="color:var(--hot)">23:47</span><div><div class="n">PEAK</div><div class="d">Bass in your chest. Phone in the pocket — here you don't record, here you <strong style="color:var(--ink)">are</strong>. Check-in already wrote you into the night.</div></div></div>
+    <div class="slot"><span class="t" style="color:var(--amber)">01:10</span><div><div class="n">SET TIMES</div><div class="d">Headliner at two — you know because the community entered the running order. Whoever added it first already got rewarded.</div></div></div>
+    <div class="slot"><span class="t" style="color:var(--uv)">02:30</span><div><div class="n">SPARK</div><div class="d">Someone you noticed by the speakers. Anonymous until you both say yes.</div></div></div>
+    <div class="slot"><span class="t" style="color:var(--green)">05:50</span><div><div class="n">AFTER — CAMERA COMES OUT</div><div class="d">Only now. Your sunrise clip is watched by the whole city tomorrow — and voted on. The best video becomes the venue's official ad.</div></div></div>
+    <div class="slot" style="border-bottom:0"><span class="t" style="color:var(--ink5)">MON</span><div><div class="n">RECAP</div><div class="d">What the night gave back: points, people, status. Next weekend is already waiting.</div></div></div>
+  </div>
+</div></section>
+
+<!-- ══ FOUNDING 100 ══ -->
+<section><div class="wrap">
+  <div class="stub">
+    <div class="mono" style="font-size:10px;color:var(--amber);letter-spacing:.24em;margin-bottom:14px">A TICKET THAT WILL NEVER BE PRINTED AGAIN</div>
+    <div class="display" style="font-size:clamp(30px,5vw,48px)">🏴 FOUNDING RAVER</div>
+    <p style="color:var(--ink2);margin-top:14px;max-width:620px;line-height:1.65;font-size:15.5px">
+      Forever <strong>only one hundred numbers</strong> for the first generation building the scene.
+      The number stays yours — on your profile, on leaderboards, in the scene's history. <strong>Numbers are never reissued.</strong>
+    </p>
+    <a class="btn btn-ghost" style="margin-top:20px;border-color:rgba(245,166,35,.5);color:var(--amber)" href="https://ahmedkvz.github.io/afterbeforeBeta/app/">Claim your number →</a>
+  </div>
+</div></section>
 
 <!-- ══ OPPORTUNITY · MANIFESTO ══ -->
 <section><div class="wrap">
@@ -108,41 +152,6 @@
   </div>
 </div></section>
 
-<!-- ══ HOW IT WORKS ══ -->
-<section id="how"><div class="wrap">
-  <div class="kicker">HOW IT WORKS · ONE NIGHT THROUGH THE APP</div>
-  <h2>Before. Party. After.<br/>The whole cycle — that's why the name.</h2>
-
-  <div style="margin-top:36px;display:flex;flex-direction:column;gap:14px">
-    <div class="card" style="border-left:3px solid var(--blue);border-radius:0 16px 16px 0">
-      <div class="mono" style="font-size:11px;color:var(--blue);margin-bottom:12px">01 · BEFORE — YOU PLAN</div>
-      <div class="grid g2">
-        <div><strong>"Going out tonight?"</strong><div style="color:var(--ink4);font-size:14px;margin-top:4px">Home doesn't dump 50 cards on you — it suggests your night by taste and crew.</div></div>
-        <div><strong>Set times — finally.</strong><div style="color:var(--ink4);font-size:14px;margin-top:4px">When the headliner actually plays. Entered by the crowd; the first contributor earns AFC.</div></div>
-        <div><strong>Find your crew.</strong><div style="color:var(--ink4);font-size:14px;margin-top:4px">Nobody to go with? The app groups you with people heading to the same place — a group, not random 1:1.</div></div>
-        <div><strong>Before quests.</strong><div style="color:var(--ink4);font-size:14px;margin-top:4px">A "before ritual" at a partner bar — cocktail on the house before the club.</div></div>
-      </div>
-    </div>
-    <div class="card" style="border-left:3px solid var(--hot);border-radius:0 16px 16px 0">
-      <div class="mono" style="font-size:11px;color:var(--hot);margin-bottom:12px">02 · PARTY — THE FLOOR IS SACRED</div>
-      <div class="grid g2">
-        <div><strong>Check in at the door.</strong><div style="color:var(--ink4);font-size:14px;margin-top:4px">GPS-verified arrival = proof of presence. Earns XP and AFC, unlocks everything else.</div></div>
-        <div><strong>Spark → Match.</strong><div style="color:var(--ink4);font-size:14px;margin-top:4px">See who's here (with their consent), send a spark — mutual opens a chat. The window lasts as long as the night does.</div></div>
-        <div><strong>Dance Floor score.</strong><div style="color:var(--ink4);font-size:14px;margin-top:4px">Your phone measures how hard you go — from your pocket. Nightly leaderboard. Dancing gets measured, not filmed.</div></div>
-        <div><strong>Phone stays down.</strong><div style="color:var(--ink4);font-size:14px;margin-top:4px">No filming on the floor. Everything the app does during the party, it does from your pocket.</div></div>
-      </div>
-    </div>
-    <div class="card" style="border-left:3px solid var(--uv);border-radius:0 16px 16px 0">
-      <div class="mono" style="font-size:11px;color:var(--uv);margin-bottom:12px">03 · AFTER — CAMERAS OUT, VALUE COMES BACK</div>
-      <div class="grid g2">
-        <div><strong>The after is camera territory.</strong><div style="color:var(--ink4);font-size:14px;margin-top:4px">Content campaigns: best after photo, best before video — the scene votes, the sponsor pays the prize.</div></div>
-        <div><strong>First-hand reviews.</strong><div style="color:var(--ink4);font-size:14px;margin-top:4px">Your take becomes the guide for the next crowd — and for tourists who'd otherwise be reading Reddit.</div></div>
-        <div><strong>AFC lands in your balance.</strong><div style="color:var(--ink4);font-size:14px;margin-top:4px">Everything you contributed that night — check-in, set times, dancing, a review — turns into points.</div></div>
-        <div><strong>Real-world rewards.</strong><div style="color:var(--ink4);font-size:14px;margin-top:4px">Drinks, skip-the-line, tickets, trips — claimed in person, at partner venues.</div></div>
-      </div>
-    </div>
-  </div>
-</div></section>
 
 <!-- ══ CIRCULAR ECONOMY ══ -->
 <section id="economy"><div class="wrap">
