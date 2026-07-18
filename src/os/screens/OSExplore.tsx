@@ -19,7 +19,12 @@ export const OSExplore = ({ onOpenVenue }: { onOpenVenue: (v: OSVenue) => void }
     .filter((v: any) => typeMatch(v.type || '', type))
     .filter((v: any) => hood === 'All' || (v.neighborhood || '').toLowerCase().includes(hood.toLowerCase())),
     [venues, type, hood]);
-  const pins = filtered.slice(0, 12).map((v: any) => ({ v, col: genreCol(v.genreLabel || v.type), left: `${v.x}%`, top: `${v.y}%`, count: v.here ?? 0 }));
+  // Deterministički: pin dobija top-15 po (prisustvo, heat) — ne prvih 12 iz
+  // baze; labelu nosi samo top-10, naizmenično iznad/ispod (declutter).
+  const pins = [...filtered]
+    .sort((a: any, b: any) => ((b.here ?? 0) - (a.here ?? 0)) || ((b.heat ?? 0) - (a.heat ?? 0)))
+    .slice(0, 15)
+    .map((v: any, i: number) => ({ v, col: genreCol(v.genreLabel || v.type), left: `${v.x}%`, top: `${v.y}%`, count: v.here ?? 0, labeled: i < 10, above: i % 2 === 1 }));
   const ranked = useMemo(() => [...filtered].sort((a: any, b: any) => (b.heat ?? 0) - (a.heat ?? 0)).slice(0, 12), [filtered]);
   const liveTotal = venues.reduce((s: number, v: any) => s + (v.here ?? 0), 0);
 
@@ -66,7 +71,7 @@ export const OSExplore = ({ onOpenVenue }: { onOpenVenue: (v: OSVenue) => void }
       </div>
 
       {/* pulse map */}
-      <div style={{ position: 'relative', margin: '14px 16px 0', height: 360, borderRadius: 20, overflow: 'hidden', background: `radial-gradient(70% 50% at 40% 30%, ${hexA(G.techno, 0.1)}, transparent 70%), #101013`, border: `1px solid ${OS.line}` }}>
+      <div style={{ position: 'relative', margin: '14px 16px 0', height: 'min(360px, 42vh)', borderRadius: 20, overflow: 'hidden', background: `radial-gradient(70% 50% at 40% 30%, ${hexA(G.techno, 0.1)}, transparent 70%), #101013`, border: `1px solid ${OS.line}` }}>
         <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }} viewBox="0 0 380 360" preserveAspectRatio="xMidYMid slice">
           <line x1="0" y1="120" x2="380" y2="100" stroke="#1f1f22" strokeWidth="1" />
           <line x1="0" y1="240" x2="380" y2="260" stroke="#1f1f22" strokeWidth="1" />
@@ -75,12 +80,12 @@ export const OSExplore = ({ onOpenVenue }: { onOpenVenue: (v: OSVenue) => void }
           <path d="M -20 300 Q 120 280 220 310 T 420 320 L 420 400 L -20 400 Z" fill="#0e1a1f" stroke="#16323a" strokeWidth="1" />
           <text x="34" y="335" fill="#2f4a52" fontFamily="'IBM Plex Mono',monospace" fontSize="10" letterSpacing="3">SAVA</text>
         </svg>
-        {pins.map(({ v, col, left, top, count }) => (
+        {pins.map(({ v, col, left, top, count, labeled, above }) => (
           <button key={v.id} onClick={() => open(v)} style={{ position: 'absolute', left, top, transform: 'translate(-50%,-50%)', cursor: 'pointer', background: 'transparent', border: 0, padding: 0 }}>
             <span style={{ position: 'absolute', inset: 0, margin: 'auto', width: 14, height: 14, borderRadius: '50%', background: col, animation: 'os-ping 2.4s ease-out infinite' }} />
-            <span style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+            <span style={{ position: 'relative', display: 'flex', flexDirection: above ? 'column-reverse' : 'column', alignItems: 'center', gap: 3 }}>
               <span style={{ width: 14, height: 14, borderRadius: '50%', background: col, border: '2px solid #101013', boxShadow: `0 0 12px ${col}` }} />
-              <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink, background: 'rgba(11,11,13,.6)', padding: '1px 5px', borderRadius: 4, whiteSpace: 'nowrap' }}>{v.name}{count > 0 ? ` · ${count}` : ''}</span>
+              {labeled && <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink, background: 'rgba(11,11,13,.6)', padding: '1px 5px', borderRadius: 4, whiteSpace: 'nowrap' }}>{v.name}{count > 0 ? ` · ${count}` : ''}</span>}
             </span>
           </button>
         ))}

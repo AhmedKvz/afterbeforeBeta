@@ -47,7 +47,7 @@ export const OSApp = () => {
 
   return (
     <div
-      className="os-scroll"
+      className="os-scroll os-phone-frame"
       style={{ minHeight: '100vh', background: OS.bg, color: OS.ink, fontFamily: "'Inter',system-ui,sans-serif", position: 'relative', overflowX: 'hidden' }}
     >
       {screen === 'home' && <OSHome onOpenVenue={setVenue} goProfile={() => setScreen('profile')} />}

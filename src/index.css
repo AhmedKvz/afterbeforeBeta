@@ -371,3 +371,16 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Desktop/tablet: OS je telefon-first — na širokim ekranima frame-uj shell kao
+   telefon (grant evaluatori otvaraju beta na laptopu). Fixed elementi (orb,
+   sheet) su već centrirani/maxWidth pa prate frame. */
+@media (min-width: 600px) {
+  .os-phone-frame {
+    max-width: 470px;
+    margin: 0 auto;
+    border-left: 1px solid rgba(255, 255, 255, 0.07);
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.55);
+  }
+}
