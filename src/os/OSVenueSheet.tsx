@@ -238,17 +238,70 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
           <button onClick={checkIn} disabled={busy} style={{ marginLeft: 'auto', flex: 'none', padding: '10px 16px', borderRadius: 12, cursor: busy ? 'default' : 'pointer', fontWeight: 600, fontSize: 13, border: `1px solid ${hexA(G.festival, 0.4)}`, background: done ? hexA(G.festival, 0.15) : 'transparent', color: G.festival, opacity: busy ? 0.6 : 1 }}>{done ? '✓ Tu si' : '📍 Check-in'}</button>
         </div>
 
-        {/* dance floor — the killer feature */}
-        <div style={{ padding: '12px 16px 0' }}>
-          <button onClick={() => setDanceOpen(true)} style={{ width: '100%', padding: 15, borderRadius: 16, border: `1px solid ${hexA(G.afterparty, 0.4)}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: `linear-gradient(135deg, ${hexA(G.afterparty, 0.14)}, ${hexA(G.underground, 0.06)})`, textAlign: 'left' }}>
-            <span style={{ fontSize: 26 }}>🕺</span>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 700, fontSize: 15, color: OS.ink }}>Dance Floor Mode</div>
-              <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 2 }}>PLEŠI · SKORUJ · LEADERBOARD NOĆI</div>
+        {/* live presence — opt-in, who's here */}
+        {venue.presenceId && (
+          <div style={{ margin: '16px 16px 0', padding: 16, borderRadius: 18, background: OS.surface, border: `1px solid ${OS.line}` }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6 }}>KO JE TU · {here}</span>
+              <button onClick={toggleVisible} disabled={setPresence.isPending} style={{ display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer', background: 'transparent', border: 0, padding: 0 }}>
+                <span style={{ fontFamily: MONO, fontSize: 10, color: meVisible ? G.festival : OS.ink5 }}>{meVisible ? 'VISIBLE' : 'GHOST'}</span>
+                <span style={{ width: 38, height: 22, borderRadius: 999, border: '1px solid rgba(255,255,255,.12)', background: meVisible ? hexA(G.festival, 0.3) : 'rgba(255,255,255,.06)', position: 'relative', display: 'inline-block' }}>
+                  <span style={{ position: 'absolute', top: 2, left: meVisible ? 18 : 2, width: 16, height: 16, borderRadius: '50%', background: OS.ink, transition: 'left .2s' }} />
+                </span>
+              </button>
             </div>
-            <span style={{ color: G.afterparty, fontSize: 18 }}>›</span>
-          </button>
-        </div>
+            {meVisible ? (() => {
+              const crowd = people.filter((p) => p.user_id && p.user_id !== user?.id);
+              if (!crowd.length) return <div style={{ fontSize: 12, color: OS.ink5, textAlign: 'center', padding: '8px 0' }}>Niko vidljiv još — budi prvi 👋</div>;
+              const featured = crowd.find((p) => !sparked.has(p.user_id) && !passed.has(p.user_id)) || null;
+              const pass = (pid: string) => setPassed((s) => new Set(s).add(pid));
+              return (
+                <>
+                  {/* list / swipe toggle */}
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+                    {(['list', 'swipe'] as const).map((v) => (
+                      <button key={v} onClick={() => setPview(v)} style={{ flex: 1, padding: '7px 0', borderRadius: 9, cursor: 'pointer', fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.06em', border: 0, background: pview === v ? hexA(G.afterparty, 0.18) : 'rgba(255,255,255,.05)', color: pview === v ? G.afterparty : OS.ink5 }}>{v === 'list' ? '☰ LISTA' : '❤ SWIPE'}</button>
+                    ))}
+                  </div>
+
+                  {pview === 'list' ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                      {crowd.map((p) => (
+                        <div key={p.user_id} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+                          <PAvatar p={p} />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 13.5, fontWeight: 600, color: OS.ink }}>{p.name}{p.age ? `, ${p.age}` : ''}</div>
+                            <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>OVDE SADA</div>
+                          </div>
+                          <button onClick={() => spark(p.user_id)} disabled={sparked.has(p.user_id)} style={{ flex: 'none', cursor: sparked.has(p.user_id) ? 'default' : 'pointer', fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: '7px 12px', borderRadius: 10, border: 0, background: sparked.has(p.user_id) ? hexA(G.afterparty, 0.15) : G.afterparty, color: sparked.has(p.user_id) ? G.afterparty : '#0B0B0D' }}>{sparked.has(p.user_id) ? '✨ ✓' : '✨ ISKRA'}</button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : featured ? (
+                    <div>
+                      <div style={{ position: 'relative', borderRadius: 18, overflow: 'hidden', height: 240, background: featured.avatar ? `center/cover url(${featured.avatar})` : avatarGradient(hueFromString(featured.name || featured.user_id)) }}>
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,rgba(0,0,0,.82),transparent 55%)' }} />
+                        <div style={{ position: 'absolute', left: 14, bottom: 14 }}>
+                          <div style={{ fontSize: 21, fontWeight: 700, color: '#fff' }}>{featured.name}{featured.age ? <span style={{ fontWeight: 500 }}>, {featured.age}</span> : ''}</div>
+                          <div style={{ fontFamily: MONO, fontSize: 10, color: 'rgba(255,255,255,.85)', marginTop: 4 }}>📍 OVDE · {venue.name.toUpperCase()}</div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 12 }}>
+                        <button onClick={() => pass(featured.user_id)} style={{ flex: 'none', width: 48, height: 48, borderRadius: '50%', cursor: 'pointer', border: `1px solid ${OS.line2}`, background: OS.surface, color: OS.ink5, fontSize: 18 }}>✕</button>
+                        <button onClick={() => spark(featured.user_id)} style={{ flex: 1, maxWidth: 220, padding: '14px 0', borderRadius: 16, cursor: 'pointer', border: 0, background: `linear-gradient(135deg,${G.afterparty},${G.underground})`, color: '#fff', fontWeight: 700, fontSize: 14, boxShadow: `0 10px 28px -10px ${hexA(G.afterparty, 0.6)}` }}>✨ Pošalji iskru</button>
+                      </div>
+                      <div style={{ textAlign: 'center', fontFamily: MONO, fontSize: 10, color: OS.ink6, marginTop: 10 }}>ANONIMNO · javimo ti ako uzvrati · ✕ da preskočiš</div>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12, color: OS.ink5, textAlign: 'center', padding: '18px 0' }}>To je sve — prošao/la si sve koji su tu ✨</div>
+                  )}
+                </>
+              );
+            })() : (
+              <div style={{ fontSize: 12, color: OS.ink5, textAlign: 'center', padding: '6px 0 2px' }}>{here} {here === 1 ? 'osoba je' : 'ljudi je'} ovde. Uključi VISIBLE da vidiš ko — i da oni vide tebe. 🤝</div>
+            )}
+          </div>
+        )}
 
         {/* Nađi ekipu — form a crew for tonight */}
         <div style={{ padding: '10px 16px 0' }}>
@@ -259,6 +312,18 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
               <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 2 }}>NIKAD NE IZLAZIŠ SAM · GRUPA OD ISTE NAMERE</div>
             </div>
             <span style={{ color: G.community, fontSize: 18 }}>›</span>
+          </button>
+        </div>
+
+        {/* dance floor — the killer feature */}
+        <div style={{ padding: '12px 16px 0' }}>
+          <button onClick={() => setDanceOpen(true)} style={{ width: '100%', padding: 15, borderRadius: 16, border: `1px solid ${hexA(G.afterparty, 0.4)}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: `linear-gradient(135deg, ${hexA(G.afterparty, 0.14)}, ${hexA(G.underground, 0.06)})`, textAlign: 'left' }}>
+            <span style={{ fontSize: 26 }}>🕺</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, fontSize: 15, color: OS.ink }}>Dance Floor Mode</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 2 }}>PLEŠI · SKORUJ · LEADERBOARD NOĆI</div>
+            </div>
+            <span style={{ color: G.afterparty, fontSize: 18 }}>›</span>
           </button>
         </div>
 
@@ -326,71 +391,6 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
 
         {/* claim funnel — akvizicija klubova (portovano sa legacy /venue) */}
         <OSClaimCard venueName={venue.name} />
-
-        {/* live presence — opt-in, who's here */}
-        {venue.presenceId && (
-          <div style={{ margin: '16px 16px 0', padding: 16, borderRadius: 18, background: OS.surface, border: `1px solid ${OS.line}` }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6 }}>KO JE TU · {here}</span>
-              <button onClick={toggleVisible} disabled={setPresence.isPending} style={{ display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer', background: 'transparent', border: 0, padding: 0 }}>
-                <span style={{ fontFamily: MONO, fontSize: 10, color: meVisible ? G.festival : OS.ink5 }}>{meVisible ? 'VISIBLE' : 'GHOST'}</span>
-                <span style={{ width: 38, height: 22, borderRadius: 999, border: '1px solid rgba(255,255,255,.12)', background: meVisible ? hexA(G.festival, 0.3) : 'rgba(255,255,255,.06)', position: 'relative', display: 'inline-block' }}>
-                  <span style={{ position: 'absolute', top: 2, left: meVisible ? 18 : 2, width: 16, height: 16, borderRadius: '50%', background: OS.ink, transition: 'left .2s' }} />
-                </span>
-              </button>
-            </div>
-            {meVisible ? (() => {
-              const crowd = people.filter((p) => p.user_id && p.user_id !== user?.id);
-              if (!crowd.length) return <div style={{ fontSize: 12, color: OS.ink5, textAlign: 'center', padding: '8px 0' }}>Niko vidljiv još — budi prvi 👋</div>;
-              const featured = crowd.find((p) => !sparked.has(p.user_id) && !passed.has(p.user_id)) || null;
-              const pass = (pid: string) => setPassed((s) => new Set(s).add(pid));
-              return (
-                <>
-                  {/* list / swipe toggle */}
-                  <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-                    {(['list', 'swipe'] as const).map((v) => (
-                      <button key={v} onClick={() => setPview(v)} style={{ flex: 1, padding: '7px 0', borderRadius: 9, cursor: 'pointer', fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.06em', border: 0, background: pview === v ? hexA(G.afterparty, 0.18) : 'rgba(255,255,255,.05)', color: pview === v ? G.afterparty : OS.ink5 }}>{v === 'list' ? '☰ LISTA' : '❤ SWIPE'}</button>
-                    ))}
-                  </div>
-
-                  {pview === 'list' ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-                      {crowd.map((p) => (
-                        <div key={p.user_id} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-                          <PAvatar p={p} />
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: 13.5, fontWeight: 600, color: OS.ink }}>{p.name}{p.age ? `, ${p.age}` : ''}</div>
-                            <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>OVDE SADA</div>
-                          </div>
-                          <button onClick={() => spark(p.user_id)} disabled={sparked.has(p.user_id)} style={{ flex: 'none', cursor: sparked.has(p.user_id) ? 'default' : 'pointer', fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: '7px 12px', borderRadius: 10, border: 0, background: sparked.has(p.user_id) ? hexA(G.afterparty, 0.15) : G.afterparty, color: sparked.has(p.user_id) ? G.afterparty : '#0B0B0D' }}>{sparked.has(p.user_id) ? '✨ ✓' : '✨ ISKRA'}</button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : featured ? (
-                    <div>
-                      <div style={{ position: 'relative', borderRadius: 18, overflow: 'hidden', height: 240, background: featured.avatar ? `center/cover url(${featured.avatar})` : avatarGradient(hueFromString(featured.name || featured.user_id)) }}>
-                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,rgba(0,0,0,.82),transparent 55%)' }} />
-                        <div style={{ position: 'absolute', left: 14, bottom: 14 }}>
-                          <div style={{ fontSize: 21, fontWeight: 700, color: '#fff' }}>{featured.name}{featured.age ? <span style={{ fontWeight: 500 }}>, {featured.age}</span> : ''}</div>
-                          <div style={{ fontFamily: MONO, fontSize: 10, color: 'rgba(255,255,255,.85)', marginTop: 4 }}>📍 OVDE · {venue.name.toUpperCase()}</div>
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 12 }}>
-                        <button onClick={() => pass(featured.user_id)} style={{ flex: 'none', width: 48, height: 48, borderRadius: '50%', cursor: 'pointer', border: `1px solid ${OS.line2}`, background: OS.surface, color: OS.ink5, fontSize: 18 }}>✕</button>
-                        <button onClick={() => spark(featured.user_id)} style={{ flex: 1, maxWidth: 220, padding: '14px 0', borderRadius: 16, cursor: 'pointer', border: 0, background: `linear-gradient(135deg,${G.afterparty},${G.underground})`, color: '#fff', fontWeight: 700, fontSize: 14, boxShadow: `0 10px 28px -10px ${hexA(G.afterparty, 0.6)}` }}>✨ Pošalji iskru</button>
-                      </div>
-                      <div style={{ textAlign: 'center', fontFamily: MONO, fontSize: 10, color: OS.ink6, marginTop: 10 }}>ANONIMNO · javimo ti ako uzvrati · ✕ da preskočiš</div>
-                    </div>
-                  ) : (
-                    <div style={{ fontSize: 12, color: OS.ink5, textAlign: 'center', padding: '18px 0' }}>To je sve — prošao/la si sve koji su tu ✨</div>
-                  )}
-                </>
-              );
-            })() : (
-              <div style={{ fontSize: 12, color: OS.ink5, textAlign: 'center', padding: '6px 0 2px' }}>{here} {here === 1 ? 'osoba je' : 'ljudi je'} ovde. Uključi VISIBLE da vidiš ko — i da oni vide tebe. 🤝</div>
-            )}
-          </div>
-        )}
 
         {/* actions */}
         <div style={{ padding: 16, display: 'flex', gap: 10 }}>

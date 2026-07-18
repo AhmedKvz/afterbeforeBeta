@@ -174,6 +174,7 @@
 - **Check-in award ISKLJUČIVO kroz `process_secure_checkin`** — bez venue uuid-a nema awarda: fejk „+40 XP" success za venueId=null **uklonjen u ovom lock-u**; sad pošteno uputi na Heat pin.
 
 ### Pravila
+- **Redosled sekcija (founder, 2026-07-12): KO JE TU → Nađi ekipu → sve ostalo.** Ljudi su prvi sadržaj sync čvorišta — prisustvo i ekipa iznad dance/eventi/statistika.
 - Sve akcije vezane za KONKRETNO mesto u KONKRETNO vreme (Z6 — vrednost se uzima na licu mesta).
 - Prisustvo: broj uvek, identitet opt-in (HEAT ghost model važi i ovde).
 - Geofence pravila = PRE-LAUNCH task #57 (server radius + klijent poravnanje + poruka).
