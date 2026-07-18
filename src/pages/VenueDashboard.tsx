@@ -1,3 +1,4 @@
+import { VenueEventForm, VenueProfileCard } from '@/components/VenueSelfServe';
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus, CalendarDays, Users, Star, Home, Ticket, BarChart3, User, Lock, Check, X } from 'lucide-react';
@@ -44,6 +45,7 @@ const venueNavItems = [
 ];
 
 const VenueDashboard = () => {
+  const [showCreate, setShowCreate] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, profile, loading: authLoading } = useAuth();
@@ -257,6 +259,10 @@ const VenueDashboard = () => {
           <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 py-6 space-y-6">
             {/* Quick Stats */}
             <section>
+              <VenueProfileCard />
+            </section>
+
+            <section>
               <h2 className="font-semibold text-lg mb-3">Quick Stats</h2>
               <div className="grid grid-cols-3 gap-3">
                 <GlassCard className="p-4 text-center" hoverable={false}>
@@ -285,12 +291,14 @@ const VenueDashboard = () => {
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-semibold text-lg">Your Events</h2>
                 <button
-                  onClick={() => toast.info('Create Event coming soon!')}
+                  onClick={() => setShowCreate((v) => !v)}
                   className="btn-gradient px-4 py-2 rounded-xl text-sm flex items-center gap-1"
                 >
-                  <Plus className="w-4 h-4" /> Create
+                  <Plus className="w-4 h-4" /> {showCreate ? 'Zatvori' : 'Objavi događaj'}
                 </button>
               </div>
+
+              {showCreate && <div className="mb-4"><VenueEventForm onDone={() => { setShowCreate(false); fetchEvents(); }} /></div>}
 
               {events.length === 0 ? (
                 <GlassCard hoverable={false} className="text-center py-8">

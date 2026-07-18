@@ -214,13 +214,25 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
 
   const { checkIn, done, busy } = useCheckIn(venue, (vid) => setFeedback(vid));
 
+  // Meta iz imenika: cover slika, instagram, koordinate (za "kako stići").
+  const { data: vmeta } = useQuery({
+    queryKey: ['venue-meta', venue.name],
+    queryFn: async () => {
+      const { data } = await db.from('venues').select('cover_url, instagram, latitude, longitude').eq('name', venue.name).maybeSingle();
+      return data;
+    },
+  });
+  const mapsHref = (vmeta?.latitude != null && vmeta?.longitude != null)
+    ? `https://www.google.com/maps/dir/?api=1&destination=${vmeta.latitude},${vmeta.longitude}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue.name + ' Beograd')}`;
+
   return (
     <>
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(5,5,7,.66)', animation: 'os-scrim .25s ease' }} />
       <div className="os-scroll" style={{ position: 'fixed', left: 0, right: 0, bottom: 0, top: 24, zIndex: 61, borderRadius: '26px 26px 0 0', overflowY: 'auto', background: OS.surface3, border: '1px solid rgba(255,255,255,.08)', animation: 'os-sheet .4s cubic-bezier(.16,1,.3,1)', paddingBottom: 24, maxWidth: 520, margin: '0 auto' }}>
         {/* hero */}
-        <div style={{ position: 'relative', height: 240, background: `linear-gradient(160deg,${hexA(venue.col, 0.4)},#0e0f12 78%)` }}>
-          <div style={{ position: 'absolute', inset: 0, background: HATCH }} />
+        <div style={{ position: 'relative', height: 240, background: vmeta?.cover_url ? `linear-gradient(180deg,rgba(7,7,8,.15),rgba(7,7,8,.82)), center/cover url(${vmeta.cover_url})` : `linear-gradient(160deg,${hexA(venue.col, 0.4)},#0e0f12 78%)` }}>
+          {!vmeta?.cover_url && <div style={{ position: 'absolute', inset: 0, background: HATCH }} />}
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,#0E0E11 3%,transparent 60%)' }} />
           <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,.3)' }} />
           <button onClick={onClose} style={{ position: 'absolute', top: 18, right: 16, width: 34, height: 34, borderRadius: '50%', border: 0, cursor: 'pointer', background: 'rgba(10,10,12,.6)', color: OS.ink, fontSize: 15, backdropFilter: 'blur(8px)' }}>✕</button>
@@ -237,6 +249,22 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
           
           <button onClick={checkIn} disabled={busy} style={{ marginLeft: 'auto', flex: 'none', padding: '10px 16px', borderRadius: 12, cursor: busy ? 'default' : 'pointer', fontWeight: 600, fontSize: 13, border: `1px solid ${hexA(G.festival, 0.4)}`, background: done ? hexA(G.festival, 0.15) : 'transparent', color: G.festival, opacity: busy ? 0.6 : 1 }}>{done ? '✓ Tu si' : '📍 Check-in'}</button>
         </div>
+
+        {/* IG + kako stići */}
+        {(vmeta?.instagram || true) && (
+          <div style={{ display: 'flex', gap: 8, padding: '10px 16px 0', flexWrap: 'wrap' }}>
+            {vmeta?.instagram && (
+              <a href={`https://instagram.com/${String(vmeta.instagram).replace('@','')}`} target="_blank" rel="noreferrer"
+                 style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: MONO, fontSize: 11, color: OS.ink3, border: `1px solid ${OS.line2}`, borderRadius: 999, padding: '8px 14px' }}>
+                📸 @{String(vmeta.instagram).replace('@','')}
+              </a>
+            )}
+            <a href={mapsHref} target="_blank" rel="noreferrer"
+               style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: MONO, fontSize: 11, color: OS.ink3, border: `1px solid ${OS.line2}`, borderRadius: 999, padding: '8px 14px' }}>
+              🧭 KAKO DA STIGNEM
+            </a>
+          </div>
+        )}
 
         {/* live presence — opt-in, who's here */}
         {venue.presenceId && (

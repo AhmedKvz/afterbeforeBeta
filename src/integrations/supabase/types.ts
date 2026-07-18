@@ -2626,6 +2626,7 @@ export type Database = {
         Row: {
           claim_status: string
           claimed_by: string | null
+          cover_url: string | null
           created_at: string
           description: string | null
           emoji: string | null
@@ -2645,6 +2646,7 @@ export type Database = {
         Insert: {
           claim_status?: string
           claimed_by?: string | null
+          cover_url?: string | null
           created_at?: string
           description?: string | null
           emoji?: string | null
@@ -2664,6 +2666,7 @@ export type Database = {
         Update: {
           claim_status?: string
           claimed_by?: string | null
+          cover_url?: string | null
           created_at?: string
           description?: string | null
           emoji?: string | null
@@ -2890,6 +2893,7 @@ export type Database = {
       _in_crew: { Args: { p_crew: string; p_user: string }; Returns: boolean }
       _is_founder: { Args: never; Returns: boolean }
       _is_verified: { Args: { p_user: string }; Returns: boolean }
+      _my_venue_id: { Args: never; Returns: string }
       accept_sponsored_quest: { Args: { p_id: string }; Returns: Json }
       admin_delete_event: { Args: { p_id: string }; Returns: undefined }
       admin_delete_venue: { Args: { p_id: string }; Returns: undefined }
@@ -3013,6 +3017,7 @@ export type Database = {
         Returns: Json
       }
       creator_tier_for: { Args: { p_user: string }; Returns: number }
+      delete_my_event: { Args: { p_id: string }; Returns: undefined }
       draw_lucky_100_winners: {
         Args: { num_winners?: number }
         Returns: {
@@ -3156,6 +3161,18 @@ export type Database = {
         Args: { p_lat: number; p_lon: number; p_venue: string }
         Returns: Json
       }
+      publish_venue_event: {
+        Args: {
+          p_date: string
+          p_end: string
+          p_genres: string[]
+          p_image_url: string
+          p_lineup: string[]
+          p_start: string
+          p_title: string
+        }
+        Returns: string
+      }
       redeem_reward: { Args: { p_reward_id: string }; Returns: Json }
       report_user: {
         Args: { p_details?: string; p_reason: string; p_target: string }
@@ -3217,6 +3234,15 @@ export type Database = {
       toggle_review_helpful: { Args: { p_review_id: string }; Returns: Json }
       track: {
         Args: { p_event: string; p_props?: Json; p_session?: string }
+        Returns: undefined
+      }
+      update_my_venue: {
+        Args: {
+          p_cover_url: string
+          p_instagram: string
+          p_lat: number
+          p_lng: number
+        }
         Returns: undefined
       }
       verify_redemption: { Args: { p_code: string }; Returns: Json }
