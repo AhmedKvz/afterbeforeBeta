@@ -59,7 +59,7 @@ Noć kao igra uživo — app izaziva, grad je tabla, ljudi su potezi. Temelj pos
 - **War Room v2 ŽIV** — PLAN tab: timski task board u bazi (588 B1 taskova, statusi/vlasnici/pretraga), war_members pristup za PM/mentora (+ ČLAN po email-u), START-OVDE onboarding. Sledeća faza: migracija CILJEVI/MEETINGS/GRANT iz localStorage u bazu.
 - **Venue self-serve ŽIV** — svako registrovano mesto objavljuje događaje iz dashboarda (auto-upis u imenik), postavlja IG + cover + lokaciju; ti zadržavaš edit/delete u War Room. Verifikacija (✓) ostaje tvoja odluka po mestu.
 - **Home date-filter** (HANDOFF §4.4) — uključiti kad prvi pravi vikend bude unet (sad bi ispraznio Home).
-- **Higgsfield AI produkcijski sloj (POSLE BETE — founder 2026-07-18)** — princip: „AI produkcija DA, AI fikcija NE" (stilizuje stvarno, nikad ne izmišlja noć; sve generisano označeno). Redosled kad dođe vreme: auto-poster za evente (self-serve rupa) → animirani highlight → **AFC sink** (klip za poene; cap + sponzor „Powered by" pokriva trošak). Tehnički: Edge Function proxy, API ključ server-side, moderacija izlaza.
+- **Higgsfield AI produkcijski sloj (POSLE BETE)** — pun brainstorm: `BRAINSTORM-AI-PRODUKCIJA.md` (19 ideja × filteri; V1 auto-poster + K2 AFC-sink kao radna teza).
 - **AI Intelligence Layer** (Night Guide, Quest Copilot, Scene Summary) — kanon: `AfterBefore_AI_Intelligence_Layer_Claude_Brief.md`; podaci se već skupljaju (onboarding prefs). Grant faza.
 - **Push notifikacije (#18)** — native/Capacitor faza (grant M1–3).
 
