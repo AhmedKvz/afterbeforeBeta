@@ -6,7 +6,7 @@ import { useReportUser } from '@/hooks/useStories';
 import { useReceivedSparks, useSparkActions } from '@/hooks/useSparks';
 import { useAuth } from '@/contexts/AuthContext';
 import { incrementQuestProgress } from '@/services/questProgress';
-import { OS, G, hexA, MONO } from '../osTheme';
+import { AB, OS, G, hexA, MONO } from '../osTheme';
 
 const WHEEL = [G.techno, G.house, G.underground, G.festival, G.afterparty, G.community];
 const colOf = (name: string) => { let h = 0; for (let i = 0; i < name.length; i++) h = (h + name.charCodeAt(i)) % WHEEL.length; return WHEEL[h]; };
@@ -28,36 +28,36 @@ export const OSMatches = () => {
   const empty = !isLoading && conversations.length === 0 && sparks.length === 0;
 
   return (
-    <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
+    <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', background: AB.void, paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
       <div style={{ padding: '8px 18px 0' }}>
-        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.22em', color: OS.ink6 }}>PORUKE · MESSAGES</div>
-        <div style={{ fontWeight: 700, fontSize: 22, letterSpacing: '-.02em', color: OS.ink, marginTop: 2 }}>Chat</div>
+        <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3 }}>PORUKE · MESSAGES</div>
+        <div style={{ fontWeight: 800, fontSize: 30, lineHeight: '34px', letterSpacing: '-.02em', color: AB.ink, marginTop: 4 }}>Chat</div>
       </div>
 
-      {isLoading && <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink5, textAlign: 'center', padding: '40px 0' }}>UČITAVAM…</div>}
+      {isLoading && <div style={{ fontFamily: MONO, fontSize: 11, color: AB.ink3, textAlign: 'center', padding: '40px 0' }}>UČITAVAM…</div>}
 
       {empty && (
-        <div style={{ textAlign: 'center', padding: '60px 24px', color: OS.ink5 }}>
+        <div style={{ textAlign: 'center', padding: '60px 24px', color: AB.ink3 }}>
           <div style={{ fontSize: 30, marginBottom: 10 }}>✨</div>
-          <div style={{ fontSize: 14, color: OS.ink }}>Još nema veza</div>
-          <div style={{ fontSize: 12, marginTop: 4 }}>Pošalji iskru sa žurke (Explore → mapa).</div>
+          <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-.01em', color: AB.ink }}>Još nema veza</div>
+          <div style={{ fontSize: 13, color: AB.ink2, marginTop: 4 }}>Pošalji iskru sa žurke (Heat → mapa).</div>
         </div>
       )}
 
       {/* sparks */}
       {sparks.length > 0 && (
-        <div style={{ padding: '16px 16px 0' }}>
-          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: G.afterparty, marginBottom: 11 }}>[ ✨ {sparks.length} {sparks.length === 1 ? 'ISKRA' : 'ISKRI'} ]</div>
+        <div style={{ padding: '16px 18px 0' }}>
+          <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: G.afterparty, marginBottom: 11 }}>✨ {sparks.length} {sparks.length === 1 ? 'ISKRA' : 'ISKRI'}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {sparks.map((s: any) => (
-              <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 13, borderRadius: 15, background: `radial-gradient(120% 100% at 0% 0%, ${hexA(G.afterparty, 0.14)}, transparent 60%), ${OS.surface}`, border: `1px solid ${hexA(G.afterparty, 0.4)}` }}>
+              <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 13, borderRadius: 16, background: AB.surface, border: `1px solid ${hexA(G.afterparty, 0.4)}` }}>
                 <span style={{ flex: 'none', width: 44, height: 44, borderRadius: '50%', display: 'grid', placeItems: 'center', fontSize: 19, background: `linear-gradient(135deg,${G.afterparty},${G.underground})` }}>✨</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: OS.ink }}>Tajna iskra</div>
-                  <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 3 }}>{s.venue_emoji || '📍'} {(s.venue_name || 'BEOGRAD').toUpperCase()} · {rel(s.created_at)}</div>
+                  <div style={{ fontSize: 14.5, fontWeight: 700, letterSpacing: '-.01em', color: AB.ink }}>Tajna iskra</div>
+                  <div style={{ fontFamily: MONO, fontSize: 10, color: AB.ink3, marginTop: 3 }}>{s.venue_emoji || '📍'} {(s.venue_name || 'BEOGRAD').toUpperCase()} · {rel(s.created_at)}</div>
                 </div>
                 <button onClick={() => respond.mutate(s.id, { onSuccess: (d: any) => { if (user) incrementQuestProgress(user.id, 'social').catch(() => {}); d?.conversation_id && setOpenId(d.conversation_id); } })} disabled={respond.isPending}
-                  style={{ flex: 'none', cursor: 'pointer', fontFamily: MONO, fontSize: 11, fontWeight: 600, padding: '8px 13px', borderRadius: 11, border: 0, background: G.afterparty, color: '#0B0B0D' }}>UZVRATI</button>
+                  className="os-press" style={{ flex: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700, padding: '9px 16px', borderRadius: 999, border: 0, background: G.afterparty, color: '#0B0B0D' }}>Uzvrati</button>
               </div>
             ))}
           </div>
@@ -66,15 +66,15 @@ export const OSMatches = () => {
 
       {/* new waves */}
       {waves.length > 0 && (
-        <div style={{ padding: '22px 16px 0' }}>
-          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6, marginBottom: 11 }}>[ NOVO ]</div>
+        <div style={{ padding: '22px 18px 0' }}>
+          <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3, marginBottom: 11 }}>NOVO</div>
           <div className="os-scroll" style={{ display: 'flex', gap: 14, overflowX: 'auto' }}>
             {waves.map((n: any) => {
               const c = colOf(n.name || '·');
               return (
-                <button key={n.id} onClick={() => setOpenId(n.id)} style={{ flex: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: 64, background: 'transparent', border: 0, cursor: 'pointer', padding: 0 }}>
+                <button key={n.id} onClick={() => setOpenId(n.id)} className="os-press" style={{ flex: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: 64, background: 'transparent', border: 0, cursor: 'pointer', padding: 0 }}>
                   <span style={{ width: 60, height: 60, borderRadius: '50%', background: n.avatar ? `center/cover url(${n.avatar})` : mk(c), border: `2px solid ${c}`, boxShadow: `0 0 14px ${hexA(c, 0.4)}` }} />
-                  <span style={{ fontSize: 11, color: OS.ink, maxWidth: 64, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.name}</span>
+                  <span style={{ fontSize: 11, color: AB.ink, maxWidth: 64, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.name}</span>
                 </button>
               );
             })}
@@ -84,24 +84,24 @@ export const OSMatches = () => {
 
       {/* conversations */}
       {chats.length > 0 && (
-        <div style={{ padding: '22px 16px 0' }}>
-          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6, marginBottom: 11 }}>[ RAZGOVORI ]</div>
+        <div style={{ padding: '22px 18px 0' }}>
+          <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3, marginBottom: 11 }}>RAZGOVORI</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {chats.map((c: any) => {
               const col = colOf(c.name || '·');
               return (
-                <button key={c.id} onClick={() => setOpenId(c.id)} style={{ display: 'flex', alignItems: 'center', gap: 13, padding: 13, borderRadius: 15, background: OS.surface, border: `1px solid ${OS.line}`, textAlign: 'left', cursor: 'pointer', width: '100%' }}>
+                <button key={c.id} onClick={() => setOpenId(c.id)} className="os-press" style={{ display: 'flex', alignItems: 'center', gap: 13, padding: 13, borderRadius: 16, background: AB.surface, border: `1px solid ${AB.line}`, textAlign: 'left', cursor: 'pointer', width: '100%' }}>
                   <span style={{ flex: 'none', width: 46, height: 46, borderRadius: '50%', background: c.avatar ? `center/cover url(${c.avatar})` : mk(col), border: `1px solid ${hexA(col, 0.5)}` }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: 15, fontWeight: 600, color: OS.ink }}>{c.name}</span>
-                      <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>{rel(c.last_at)}</span>
+                      <span style={{ fontSize: 15.5, fontWeight: 700, letterSpacing: '-.01em', color: AB.ink }}>{c.name}</span>
+                      <span style={{ fontFamily: MONO, fontSize: 10, color: AB.ink3 }}>{rel(c.last_at)}</span>
                     </div>
-                    <div style={{ fontSize: 12.5, color: c.unread ? OS.ink : OS.ink5, marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontSize: 13, color: c.unread ? AB.ink : AB.ink3, marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {c.last_message || (c.status === 'wave' ? 'Pozdrav poslat 👋' : 'Recite ćao 👋')}
                     </div>
                   </div>
-                  {c.unread > 0 && <span style={{ flex: 'none', width: 9, height: 9, borderRadius: '50%', background: G.community, boxShadow: `0 0 8px ${G.community}` }} />}
+                  {c.unread > 0 && <span style={{ flex: 'none', width: 9, height: 9, borderRadius: '50%', background: AB.acid }} />}
                 </button>
               );
             })}
@@ -132,8 +132,8 @@ const OSChat = ({ conv, onBack }: { conv: Conversation; onBack: () => void }) =>
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <header style={{ position: 'sticky', top: 0, zIndex: 40, background: 'rgba(11,11,13,.92)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${OS.line}`, padding: 'calc(env(safe-area-inset-top) + 10px) 12px 12px', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <button onClick={onBack} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 0, cursor: 'pointer', color: OS.ink }}><ArrowLeft className="w-5 h-5" /></button>
+      <header style={{ position: 'sticky', top: 0, zIndex: 40, background: 'oklch(0.135 0.012 285 / 0.92)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${AB.line}`, padding: 'calc(env(safe-area-inset-top) + 10px) 12px 12px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <button onClick={onBack} className="os-press" style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 0, cursor: 'pointer', color: AB.ink }}><ArrowLeft className="w-5 h-5" /></button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
           <span style={{ width: 36, height: 36, borderRadius: '50%', flex: 'none', background: conv.avatar ? `center/cover url(${conv.avatar})` : mk(col) }} />
           <div style={{ minWidth: 0 }}>
@@ -167,10 +167,10 @@ const OSChat = ({ conv, onBack }: { conv: Conversation; onBack: () => void }) =>
         })}
       </div>
 
-      <form onSubmit={submit} style={{ position: 'sticky', bottom: 0, background: 'rgba(11,11,13,.92)', backdropFilter: 'blur(12px)', borderTop: `1px solid ${OS.line}`, padding: '12px 12px calc(env(safe-area-inset-bottom) + 12px)', display: 'flex', alignItems: 'center', gap: 8 }}>
+      <form onSubmit={submit} style={{ position: 'sticky', bottom: 0, background: 'oklch(0.135 0.012 285 / 0.92)', backdropFilter: 'blur(12px)', borderTop: `1px solid ${AB.line}`, padding: '12px 12px calc(env(safe-area-inset-bottom) + 12px)', display: 'flex', alignItems: 'center', gap: 8 }}>
         <input value={text} onChange={(e) => setText(e.target.value)} placeholder={`Poruka za ${conv.name}…`}
-          style={{ flex: 1, borderRadius: 999, padding: '12px 16px', fontSize: 14, outline: 'none', background: OS.surface, border: `1px solid ${OS.line2}`, color: OS.ink }} />
-        <button type="submit" disabled={sending || !text.trim()} style={{ width: 46, height: 46, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 0, cursor: 'pointer', background: G.community, color: '#0B0B0D', opacity: sending || !text.trim() ? 0.5 : 1 }}><Send className="w-5 h-5" /></button>
+          style={{ flex: 1, borderRadius: 999, padding: '12px 16px', fontSize: 14, outline: 'none', background: AB.surface, border: `1px solid ${AB.line2}`, color: AB.ink }} />
+        <button type="submit" disabled={sending || !text.trim()} className="os-press" style={{ width: 46, height: 46, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 0, cursor: 'pointer', background: AB.acid, color: AB.acidInk, opacity: sending || !text.trim() ? 0.5 : 1 }}><Send className="w-5 h-5" /></button>
       </form>
     </div>
   );
