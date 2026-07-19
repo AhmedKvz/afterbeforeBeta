@@ -51,8 +51,8 @@ Jedna **hero noć** (Kult + DJ koji scena želi + 10–15 OG ravera) → check-i
 | # | Stavka | Status |
 |---|---|---|
 | 1 | Test/seed data u deljenoj bazi | ⚠️ → očisti pre demo-a / kuriran demo-nalog |
-| 2 | Engleski (cela prijava + obavezan 3-min video sa svim članovima) | ❌ → SR app OK, treba EN demo walkthrough |
-| 3 | Demo nalog za evaluatore (read-only tura) | ❌ → seedovan „evaluator" nalog |
+| 2 | Engleski (cela prijava + obavezan 3-min video sa svim članovima) | 🟡 → EN walkthrough ✅ (`GRANT-EVALUATOR-WALKTHROUGH.md`, 2026-07-19); ostaje EN prijava + video |
+| 3 | Demo nalog za evaluatore (read-only tura) | ✅ `evaluator@afterbefore.rs` / `Evaluator2026!` (party_goer, onboarding preskočen, login verifikovan 2026-07-19) |
 | 4 | Realna retenciona kohorta | ❌ → hero noć (tačka 3) |
 | 5 | „AI" naming → pošten „algoritam" | ✅ |
 | 6 | Pitch deck (SR, 14 slajdova) | ✅ → dodaj safety + tim/partneri slajd |

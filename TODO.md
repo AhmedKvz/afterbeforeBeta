@@ -13,7 +13,7 @@
    Sve je spremno i čeka sadržaj: Home kartice → pun sheet (check-in/Idem/ekipa rade),
    onboarding korak 4 nudi prave evente, „ko ide" brojevi kreću. **Bez ovoga je app pozornica bez predstave.**
 2. **[FOUNDER] Prođi MESTA tab** — proveri/dotegni koordinate novih 14 mesta; dodaj festivale ako želiš (tip 🎪 postoji).
-3. **[DEV] #46 · Grant paket** — evaluator demo nalog + EN walkthrough. App je vizuelno spreman; ovo je poslednji korak ka Smart Start prijavi.
+3. ✅ **#46 · Grant paket** (2026-07-19) — evaluator nalog `evaluator@afterbefore.rs` (login verifikovan) + `GRANT-EVALUATOR-WALKTHROUGH.md` (EN tura, 10 min). Ostaje founder deo: EN prijava + 3-min video sa timom.
 
 ## 🎮 PRAVAC: IGRA VELIKIH (founder odluka 2026-07-13 — „definitivno idemo u ovom pravcu")
 
