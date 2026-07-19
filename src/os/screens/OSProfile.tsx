@@ -9,7 +9,7 @@ import { isFounder } from '@/lib/founder';
 import { getXPProgress, ACHIEVEMENTS, getUserAchievements, MORNING_STAR_ACHIEVEMENT_ID } from '@/services/gamification';
 import { track } from '@/lib/analytics';
 import { toast } from 'sonner';
-import { OS, G, hexA, MONO, genreCol, CONIC } from '../osTheme';
+import { AB, OS, G, hexA, MONO, genreCol, CONIC } from '../osTheme';
 
 const APP_URL = 'https://ahmedkvz.github.io/afterbeforeBeta/app/';
 
@@ -79,64 +79,61 @@ export const OSProfile = () => {
   });
 
   return (
-    <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
-      {/* identity */}
+    <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', background: AB.void, paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
+      {/* identity — vibe card: pročitaš je za 3 sekunde (kanon §9) */}
       <div style={{ padding: '14px 18px 0', display: 'flex', alignItems: 'center', gap: 15 }}>
         <div style={{ width: 74, height: 74, borderRadius: 22, flex: 'none', background: CONIC, padding: 2 }}>
-          <div style={{ width: '100%', height: '100%', borderRadius: 20, background: profile.avatar_url ? `center/cover url(${profile.avatar_url})` : OS.surface2 }} />
+          <div style={{ width: '100%', height: '100%', borderRadius: 20, background: profile.avatar_url ? `center/cover url(${profile.avatar_url})` : AB.raised }} />
         </div>
-        <div>
-          <div style={{ fontSize: 23, fontWeight: 700, letterSpacing: '-.02em', color: OS.ink }}>{profile.display_name}</div>
-          <div style={{ fontFamily: MONO, fontSize: 10.5, color: G.underground, marginTop: 3 }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-.02em', lineHeight: '30px', color: AB.ink }}>{profile.display_name}</div>
+          <div style={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 600, letterSpacing: '.08em', color: AB.uv, marginTop: 4 }}>
             EXPLORER RANK {roman(level)}{profile.founding_raver_number ? ` · 🏴 BG #${profile.founding_raver_number}` : ''}
           </div>
-          <div style={{ fontFamily: MONO, fontSize: 10.5, color: OS.ink5, marginTop: 3 }}>
+          <div style={{ fontFamily: MONO, fontSize: 10.5, color: AB.ink3, marginTop: 3 }}>
             {profile.instagram_handle ? `📸 @${profile.instagram_handle} · ` : ''}{(profile.city || 'BEOGRAD').toUpperCase()}
           </div>
         </div>
       </div>
 
-      {/* rank bar */}
-      <div style={{ margin: '18px 16px 0', padding: 15, borderRadius: 16, background: OS.surface, border: `1px solid ${OS.line}` }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: 11, marginBottom: 9 }}>
-          <span style={{ color: OS.ink4 }}>RANK {roman(level)} → {roman(level + 1)}</span>
-          <span style={{ color: G.underground }}>{xpProg.current} / {xpProg.required} REP</span>
+      {/* žanr tagovi odmah pod imenom (kanon: genre tags under the name) */}
+      {tags.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, padding: '12px 18px 0' }}>
+          {tags.slice(0, 6).map((m) => { const c = genreCol(m); return <span key={m} style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, color: c, border: `1px solid ${hexA(c, 0.4)}`, borderRadius: 999, padding: '6px 12px' }}>{m.toUpperCase()}</span>; })}
         </div>
-        <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,.08)', overflow: 'hidden' }}><div style={{ height: '100%', width: `${xpProg.percentage}%`, background: 'linear-gradient(90deg,#a64dff,#56d6e6)', borderRadius: 4 }} /></div>
+      )}
+
+      {/* rank — tanka acid traka ka SLEDEĆEM milestone-u (kanon §9) */}
+      <div style={{ margin: '16px 18px 0', padding: 15, borderRadius: 16, background: AB.surface, border: `1px solid ${AB.line}` }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: 11, marginBottom: 9 }}>
+          <span style={{ fontWeight: 600, letterSpacing: '.08em', color: AB.ink3 }}>RANK {roman(level)} → {roman(level + 1)}</span>
+          <span style={{ color: AB.acidDim }}>{xpProg.current} / {xpProg.required} REP</span>
+        </div>
+        <div style={{ height: 6, borderRadius: 999, background: 'rgba(255,255,255,.08)', overflow: 'hidden' }}><div className="ab-acid-fill" style={{ height: '100%', width: `${xpProg.percentage}%`, borderRadius: 999, transition: 'width .22s cubic-bezier(.16,1,.3,1)' }} /></div>
       </div>
 
       {/* stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 9, padding: '16px 16px 0' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 9, padding: '16px 18px 0' }}>
         {stats.map((p) => (
-          <div key={p.label} style={{ padding: 13, borderRadius: 14, background: OS.surface, border: `1px solid ${OS.line}`, textAlign: 'center' }}>
+          <div key={p.label} style={{ padding: 13, borderRadius: 16, background: AB.surface, border: `1px solid ${AB.line}`, textAlign: 'center' }}>
             <div style={{ fontFamily: MONO, fontWeight: 600, fontSize: 20, color: p.color }}>{p.value}</div>
-            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.08em', color: OS.ink6, marginTop: 4 }}>{p.label}</div>
+            <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.08em', color: AB.ink3, marginTop: 4 }}>{p.label}</div>
           </div>
         ))}
       </div>
 
-      {/* music DNA */}
-      {tags.length > 0 && (
-        <div style={{ margin: '16px 16px 0' }}>
-          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6, marginBottom: 10 }}>[ MUSIC DNA ]</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {tags.slice(0, 6).map((m) => { const c = genreCol(m); return <span key={m} style={{ fontFamily: MONO, fontSize: 11, color: c, border: `1px solid ${hexA(c, 0.4)}`, borderRadius: 999, padding: '6px 12px' }}>{m.toUpperCase()}</span>; })}
-          </div>
-        </div>
-      )}
-
       {/* achievements */}
-      <div style={{ margin: '20px 16px 0' }}>
-        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6, marginBottom: 11 }}>[ ACHIEVEMENTS ]</div>
+      <div style={{ margin: '20px 18px 0' }}>
+        <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3, marginBottom: 11 }}>ACHIEVEMENTS</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
           {achList.map((a) => (
-            <div key={a.title} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 13px', borderRadius: 14, background: OS.surface, border: `1px solid ${a.border}` }}>
+            <div key={a.title} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 13px', borderRadius: 16, background: AB.surface, border: `1px solid ${a.border}`, opacity: a.locked ? 0.66 : 1 }}>
               <span style={{ flex: 'none', width: 36, height: 36, borderRadius: 10, background: a.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, color: a.iconFg }}>{a.icon}</span>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 560, color: a.titleCol }}>{a.title}</div>
-                <div style={{ fontSize: 11, color: OS.ink5, marginTop: 2 }}>{a.desc}</div>
+                <div style={{ fontSize: 14.5, fontWeight: 700, letterSpacing: '-.01em', color: a.titleCol }}>{a.title}</div>
+                <div style={{ fontSize: 12, color: AB.ink2, marginTop: 2 }}>{a.desc}</div>
               </div>
-              {a.locked && <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink7 }}>🔒</span>}
+              {a.locked && <span style={{ fontFamily: MONO, fontSize: 10, color: AB.ink3 }}>🔒</span>}
             </div>
           ))}
         </div>
@@ -144,35 +141,35 @@ export const OSProfile = () => {
 
       {/* invite — share to earn */}
       {referral?.code && (
-        <div style={{ margin: '20px 16px 0', padding: 16, borderRadius: 18, background: `linear-gradient(140deg,${hexA(G.afterparty, 0.12)},transparent)`, border: `1px solid ${hexA(G.afterparty, 0.25)}` }}>
-          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: G.afterparty, marginBottom: 8 }}>[ POZOVI EKIPU ]</div>
+        <div style={{ margin: '20px 18px 0', padding: 16, borderRadius: 16, background: AB.surface, border: `1px solid ${AB.line2}`, borderLeft: `3px solid ${G.afterparty}` }}>
+          <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: G.afterparty, marginBottom: 8 }}>POZOVI EKIPU</div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <div>
-              <div style={{ fontFamily: MONO, fontSize: 22, fontWeight: 600, letterSpacing: '.08em', color: OS.ink }}>{referral.code}</div>
-              <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 4 }}>{referral.invited} POZVANO · {referral.converted} STIGLO · +{referral.afc_per_convert} AFC</div>
+              <div style={{ fontFamily: MONO, fontSize: 22, fontWeight: 600, letterSpacing: '.08em', color: AB.ink }}>{referral.code}</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, color: AB.ink3, marginTop: 4 }}>{referral.invited} POZVANO · {referral.converted} STIGLO · +{referral.afc_per_convert} AFC</div>
             </div>
-            <button onClick={shareInvite} style={{ flex: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600, color: '#0B0B0D', background: G.afterparty, border: 0, borderRadius: 13, padding: '12px 18px' }}>Podeli</button>
+            <button onClick={shareInvite} className="os-press" style={{ flex: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#0B0B0D', background: G.afterparty, border: 0, borderRadius: 999, padding: '12px 20px' }}>Podeli</button>
           </div>
         </div>
       )}
 
       {/* actions */}
-      <div style={{ margin: '16px 16px 0', borderRadius: 16, overflow: 'hidden', background: OS.surface, border: `1px solid ${OS.line}` }}>
+      <div style={{ margin: '16px 18px 0', borderRadius: 16, overflow: 'hidden', background: AB.surface, border: `1px solid ${AB.line}` }}>
         {[
           ...(isFounder(user) ? [{ icon: '⚡', label: 'War Room (founder)', onClick: () => navigate('/warroom') }] : []),
           { icon: '✎', label: 'Izmeni profil', onClick: () => navigate('/onboarding') },
           { icon: '🔔', label: 'Notifikacije', onClick: () => navigate('/notifications') },
         ].map((r, i) => (
-          <button key={r.label} onClick={r.onClick} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', padding: '13px 14px', background: 'transparent', border: 0, borderTop: i > 0 ? `1px solid ${OS.line}` : 'none', cursor: 'pointer' }}>
-            <span style={{ fontFamily: MONO, fontSize: 13, color: OS.ink5, width: 18 }}>{r.icon}</span>
-            <span style={{ flex: 1, fontSize: 14, color: OS.ink }}>{r.label}</span>
-            <span style={{ color: OS.ink6 }}>›</span>
+          <button key={r.label} onClick={r.onClick} className="os-press" style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', padding: '13px 14px', background: 'transparent', border: 0, borderTop: i > 0 ? `1px solid ${AB.line}` : 'none', cursor: 'pointer' }}>
+            <span style={{ fontFamily: MONO, fontSize: 13, color: AB.ink3, width: 18 }}>{r.icon}</span>
+            <span style={{ flex: 1, fontSize: 14.5, color: AB.ink }}>{r.label}</span>
+            <span style={{ color: AB.ink3 }}>›</span>
           </button>
         ))}
       </div>
 
-      <div style={{ padding: '14px 16px 0' }}>
-        <button onClick={handleSignOut} style={{ width: '100%', padding: 14, borderRadius: 14, background: hexA(G.afterparty, 0.1), color: G.afterparty, fontWeight: 600, fontSize: 14, border: 0, cursor: 'pointer' }}>Odjavi se</button>
+      <div style={{ padding: '14px 18px 0' }}>
+        <button onClick={handleSignOut} className="os-press" style={{ width: '100%', padding: 14, borderRadius: 999, background: 'transparent', color: AB.ink3, fontWeight: 600, fontSize: 14, border: `1px solid ${AB.line2}`, cursor: 'pointer' }}>Odjavi se</button>
       </div>
     </div>
   );
