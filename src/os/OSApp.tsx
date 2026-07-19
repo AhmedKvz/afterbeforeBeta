@@ -74,11 +74,14 @@ export const OSApp = () => {
       className="os-scroll os-phone-frame"
       style={{ minHeight: '100vh', background: OS.bg, color: OS.ink, fontFamily: "'Inter',system-ui,sans-serif", position: 'relative', overflowX: 'hidden' }}
     >
-      {screen === 'home' && <OSHome onOpenVenue={setVenue} goProfile={() => setScreen('profile')} />}
-      {screen === 'explore' && <OSExplore onOpenVenue={setVenue} />}
-      {screen === 'matches' && <OSMatches />}
-      {screen === 'quests' && <OSQuests />}
-      {screen === 'profile' && <OSProfile />}
+      {/* key={screen} → os-screen enter na svaku promenu ekrana (motion audit 🔴1) */}
+      <div key={screen} style={{ animation: 'os-screen .18s cubic-bezier(.22,1,.36,1) both' }}>
+        {screen === 'home' && <OSHome onOpenVenue={setVenue} goProfile={() => setScreen('profile')} />}
+        {screen === 'explore' && <OSExplore onOpenVenue={setVenue} />}
+        {screen === 'matches' && <OSMatches />}
+        {screen === 'quests' && <OSQuests />}
+        {screen === 'profile' && <OSProfile />}
+      </div>
 
       <OSOrbNav current={screen} onGo={(s) => { setScreen(s); setVenue(null); }} />
 

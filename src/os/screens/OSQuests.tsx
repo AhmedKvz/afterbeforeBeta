@@ -362,7 +362,7 @@ export const OSQuests = () => {
             <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, padding: '4px 9px', borderRadius: 999, background: shieldAvailable ? hexA(G.techno, 0.2) : 'rgba(255,255,255,.05)', color: shieldAvailable ? G.techno : OS.ink6 }}>{shieldAvailable ? '1' : '0'}</span>
           </div>
 
-          <button onClick={() => claimStreak()} disabled={claimedToday || isClaiming} style={{ width: '100%', padding: 16, borderRadius: 15, border: 0, fontWeight: 640, fontSize: 15, cursor: claimedToday ? 'default' : 'pointer', background: claimedToday ? 'rgba(255,255,255,.05)' : G.afterparty, color: claimedToday ? OS.ink5 : '#0B0B0D' }}>{claimedToday ? 'Danas uzeto ✓' : isClaiming ? '…' : 'Uzmi dnevni XP 🔥'}</button>
+          <button onClick={() => claimStreak()} disabled={claimedToday || isClaiming} className="os-press" style={{ width: '100%', padding: 16, borderRadius: 15, border: 0, fontWeight: 640, fontSize: 15, cursor: claimedToday ? 'default' : 'pointer', background: claimedToday ? 'rgba(255,255,255,.05)' : G.afterparty, color: claimedToday ? OS.ink5 : '#0B0B0D' }}>{claimedToday ? 'Danas uzeto ✓' : isClaiming ? '…' : 'Uzmi dnevni XP 🔥'}</button>
         </div>
       )}
 

@@ -65,7 +65,7 @@ export const OSOrbNav = ({ current, onGo }: { current: OSScreen; onGo: (s: OSScr
       </div>
       {/* first-run hint */}
       {!hintSeen && !open && (
-        <div style={{ position: 'absolute', bottom: 122, left: '50%', transform: 'translateX(-50%)', padding: '6px 12px', borderRadius: 999, background: hexA(activeColor, 0.16), border: `1px solid ${hexA(activeColor, 0.5)}`, fontFamily: MONO, fontSize: 10, letterSpacing: '.08em', color: OS.ink, whiteSpace: 'nowrap', pointerEvents: 'none', animation: 'os-pulse 1.8s ease-in-out infinite' }}>
+        <div style={{ position: 'absolute', bottom: 122, left: '50%', transform: 'translateX(-50%)', padding: '6px 12px', borderRadius: 999, background: hexA(activeColor, 0.16), border: `1px solid ${hexA(activeColor, 0.5)}`, fontFamily: MONO, fontSize: 10, letterSpacing: '.08em', color: OS.ink, whiteSpace: 'nowrap', pointerEvents: 'none' }}>
           ↑ TAPNI ZA NAVIGACIJU
         </div>
       )}

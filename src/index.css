@@ -11,10 +11,18 @@
 @keyframes os-screen{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:translateY(0);} }
 @keyframes os-sheet{ from{ transform:translateY(100%);} to{ transform:translateY(0);} }
 @keyframes os-scrim{ from{ opacity:0;} to{ opacity:1;} }
+@keyframes os-sheet-out{ from{ transform:translateY(0);} to{ transform:translateY(100%);} }
+@keyframes os-scrim-out{ from{ opacity:1;} to{ opacity:0;} }
+@keyframes os-overlay-in{ from{ opacity:0; transform:scale(.96);} to{ opacity:1; transform:scale(1);} }
+@keyframes os-overlay-out{ from{ opacity:1; transform:scale(1);} to{ opacity:0; transform:scale(.985);} }
+@keyframes os-swap{ from{ opacity:0; transform:translateY(5px);} to{ opacity:1; transform:translateY(0);} }
+@keyframes os-stamp{ 0%{ transform:scale(.985);} 45%{ transform:scale(1.015);} 100%{ transform:scale(1);} }
+.os-press{ transition:transform .08s ease; }
+.os-press:active{ transform:scale(.97); }
 .os-scroll::-webkit-scrollbar{ display:none; }
 .os-scroll{ -ms-overflow-style:none; scrollbar-width:none; }
 @media (prefers-reduced-motion: reduce){
-  [class*="os-"], [style*="os-pulse"], [style*="os-ping"], [style*="os-xp"]{ animation-duration:.001ms !important; animation-iteration-count:1 !important; }
+  [class*="os-"], [style*="os-"]{ animation-duration:.001ms !important; animation-iteration-count:1 !important; }
 }
 
 /* AfterBefore Design System - Dark Nightclub Theme */

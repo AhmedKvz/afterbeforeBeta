@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { avatarGradient, hueFromString, initials } from '@/lib/gradients';
 import { OS, G, hexA, MONO } from './osTheme';
+import { useExit } from './useExit';
 
 const db = supabase as any;
 
@@ -12,6 +13,7 @@ interface Props { eventId?: string | null; venueId?: string | null; title?: stri
 /** "Nađi ekipu" — opt-in crew for tonight, formed from people going to / at the
  *  same place. Group chat (safer than 1:1). Bootstraps the crew graph. */
 export const OSCrew = ({ eventId, venueId, title, onClose }: Props) => {
+  const { closing, close } = useExit(onClose);
   const qc = useQueryClient();
   const [crewId, setCrewId] = useState<string | null>(null);
   const [joining, setJoining] = useState(true);
@@ -64,7 +66,7 @@ export const OSCrew = ({ eventId, venueId, title, onClose }: Props) => {
   const messages: any[] = [...(crew?.messages || [])].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 140, background: OS.bgDeep, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 140, background: OS.bgDeep, display: 'flex', flexDirection: 'column', animation: closing ? 'os-overlay-out .15s ease forwards' : 'os-overlay-in .2s cubic-bezier(.16,1,.3,1)' }}>
       {/* header */}
       <div style={{ padding: 'calc(env(safe-area-inset-top) + 14px) 16px 12px', borderBottom: `1px solid ${OS.line}` }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -72,7 +74,7 @@ export const OSCrew = ({ eventId, venueId, title, onClose }: Props) => {
             <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: G.afterparty }}>TVOJA EKIPA VEČERAS</div>
             <div style={{ fontSize: 17, fontWeight: 700, color: OS.ink, marginTop: 2 }}>{crew?.crew?.venue || title || 'Nađi ekipu'}</div>
           </div>
-          <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.06)', border: 0, cursor: 'pointer', color: OS.ink }}>✕</button>
+          <button onClick={close} className="os-press" style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.06)', border: 0, cursor: 'pointer', color: OS.ink }}>✕</button>
         </div>
         {/* member avatars */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 12 }}>

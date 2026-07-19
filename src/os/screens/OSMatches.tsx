@@ -51,7 +51,7 @@ export const OSMatches = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {sparks.map((s: any) => (
               <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 13, borderRadius: 15, background: `radial-gradient(120% 100% at 0% 0%, ${hexA(G.afterparty, 0.14)}, transparent 60%), ${OS.surface}`, border: `1px solid ${hexA(G.afterparty, 0.4)}` }}>
-                <span style={{ flex: 'none', width: 44, height: 44, borderRadius: '50%', display: 'grid', placeItems: 'center', fontSize: 19, background: `linear-gradient(135deg,${G.afterparty},${G.underground})`, animation: 'os-pulse 2s ease-in-out infinite' }}>✨</span>
+                <span style={{ flex: 'none', width: 44, height: 44, borderRadius: '50%', display: 'grid', placeItems: 'center', fontSize: 19, background: `linear-gradient(135deg,${G.afterparty},${G.underground})` }}>✨</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: OS.ink }}>Tajna iskra</div>
                   <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 3 }}>{s.venue_emoji || '📍'} {(s.venue_name || 'BEOGRAD').toUpperCase()} · {rel(s.created_at)}</div>

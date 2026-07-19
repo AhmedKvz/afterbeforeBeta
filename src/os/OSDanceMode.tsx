@@ -4,12 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { track } from '@/lib/analytics';
 import { incrementQuestProgress } from '@/services/questProgress';
 import { OS, G, hexA, MONO, ROLE } from './osTheme';
+import { useExit } from './useExit';
 
 const db = supabase as any;
 
 interface Props { venueId?: string | null; venueName?: string; onClose: () => void }
 
 export const OSDanceMode = ({ venueId, venueName, onClose }: Props) => {
+  const { closing, close } = useExit(onClose);
   const dance = useDanceMeter();
   const [phase, setPhase] = useState<'intro' | 'live' | 'done' | 'board'>('intro');
   const [result, setResult] = useState<{ score: number; moves: number; rank: number | null }>({ score: 0, moves: 0, rank: null });
@@ -34,11 +36,11 @@ export const OSDanceMode = ({ venueId, venueName, onClose }: Props) => {
   const glow = 0.2 + dance.intensity * 0.8;
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 130, background: OS.bgDeep, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 130, background: OS.bgDeep, display: 'flex', flexDirection: 'column', animation: closing ? 'os-overlay-out .15s ease forwards' : 'os-overlay-in .2s cubic-bezier(.16,1,.3,1)' }}>
       {/* header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'calc(env(safe-area-inset-top) + 14px) 18px 0' }}>
         <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: '.2em', color: OS.ink5 }}>🕺 DANCE FLOOR{venueName ? ` · ${venueName.toUpperCase()}` : ''}</div>
-        <button onClick={() => { dance.stop(); onClose(); }} style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.06)', border: 0, cursor: 'pointer', color: OS.ink }}>✕</button>
+        <button onClick={() => { dance.stop(); close(); }} className="os-press" style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.06)', border: 0, cursor: 'pointer', color: OS.ink }}>✕</button>
       </div>
 
       {phase === 'intro' && (

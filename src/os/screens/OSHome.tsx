@@ -150,11 +150,11 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       <div style={{ display: 'flex', gap: 24, padding: '0 18px', borderBottom: `1px solid ${OS.line}` }}>
         {([['foryou', 'Za tebe'], ['all', 'Sve']] as const).map(([k, l]) => {
           const on = lens === k;
-          return <button key={k} onClick={() => setLens(k)} style={{ background: 'transparent', border: 0, cursor: 'pointer', padding: '12px 0', fontSize: 14, fontWeight: on ? 700 : 500, color: on ? OS.ink : OS.ink5, borderBottom: `2px solid ${on ? G.afterparty : 'transparent'}` }}>{l}</button>;
+          return <button key={k} onClick={() => setLens(k)} className="os-press" style={{ background: 'transparent', border: 0, cursor: 'pointer', padding: '12px 0', fontSize: 14, fontWeight: on ? 700 : 500, color: on ? OS.ink : OS.ink5, borderBottom: `2px solid ${on ? G.afterparty : 'transparent'}` }}>{l}</button>;
         })}
       </div>
 
-      {lens === 'foryou' && (<>
+      {lens === 'foryou' && (<div key="foryou" style={{ animation: 'os-swap .15s cubic-bezier(.22,1,.36,1) both' }}>
       {/* stories */}
       <OSStories />
 
@@ -242,10 +242,10 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
         </div>
         </button>
       </div>
-      </>)}
+      </div>)}
 
       {lens === 'all' && (
-        <div style={{ padding: '14px 16px 0' }}>
+        <div key="all" style={{ padding: '14px 16px 0', animation: 'os-swap .15s cubic-bezier(.22,1,.36,1) both' }}>
           {/* date pills */}
           <div className="os-scroll" style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 10 }}>
             {(['SVE', 'VEČERAS', 'VIKEND'] as const).map((dF) => {

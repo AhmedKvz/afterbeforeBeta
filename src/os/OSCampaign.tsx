@@ -4,12 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { OS, G, hexA, MONO } from './osTheme';
+import { useExit } from './useExit';
 
 const db = supabase as any;
 
 /** Content campaign — sponsored quest as a UGC machine. Post photo/video from
  *  the night, verified members vote, sponsor pays the reward (ECONOMY §8b). */
 export const OSCampaign = ({ sponsoredId, onClose }: { sponsoredId: string; onClose: () => void }) => {
+  const { closing, close } = useExit(onClose);
   const { user } = useAuth();
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -50,7 +52,7 @@ export const OSCampaign = ({ sponsoredId, onClose }: { sponsoredId: string; onCl
   };
 
   return (
-    <div className="os-scroll" style={{ position: 'fixed', inset: 0, zIndex: 150, background: OS.bgDeep, overflowY: 'auto' }}>
+    <div className="os-scroll" style={{ position: 'fixed', inset: 0, zIndex: 150, background: OS.bgDeep, overflowY: 'auto', animation: closing ? 'os-overlay-out .15s ease forwards' : 'os-overlay-in .2s cubic-bezier(.16,1,.3,1)' }}>
       {/* header */}
       <div style={{ position: 'sticky', top: 0, zIndex: 5, background: 'rgba(7,7,8,.92)', backdropFilter: 'blur(14px)', padding: 'calc(env(safe-area-inset-top) + 14px) 16px 12px', borderBottom: `1px solid ${OS.line}` }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -61,7 +63,7 @@ export const OSCampaign = ({ sponsoredId, onClose }: { sponsoredId: string; onCl
               <div style={{ fontSize: 17, fontWeight: 700, color: OS.ink }}>{c?.title || 'Kampanja'}</div>
             </div>
           </div>
-          <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.06)', border: 0, cursor: 'pointer', color: OS.ink }}>✕</button>
+          <button onClick={close} className="os-press" style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.06)', border: 0, cursor: 'pointer', color: OS.ink }}>✕</button>
         </div>
       </div>
 

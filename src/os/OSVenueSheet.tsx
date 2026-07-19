@@ -22,6 +22,7 @@ import { useCheckIn } from './venue/useCheckIn';
 import { OSClaimCard } from './venue/OSClaimCard';
 import { OSDareWheel } from './OSDareWheel';
 import { OS, G, hexA, MONO, HATCH } from './osTheme';
+import { useExit } from './useExit';
 
 const db = supabase as any;
 const DEV_SKIP_GEOFENCE = import.meta.env.VITE_OPEN_CHECKIN === 'true';
@@ -214,7 +215,8 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
     { value: String(past.length), label: 'ARHIVA NOĆI', color: G.house },
   ];
 
-  const { checkIn, done, busy } = useCheckIn(venue, (vid) => setFeedback(vid));
+  const { checkIn, done, busy, award } = useCheckIn(venue, (vid) => setFeedback(vid));
+  const { closing, close } = useExit(onClose);
 
   // Meta iz imenika: cover slika, instagram, koordinate (za "kako stići").
   const { data: vmeta } = useQuery({
@@ -230,14 +232,14 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
 
   return (
     <>
-      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(5,5,7,.66)', animation: 'os-scrim .25s ease' }} />
-      <div className="os-scroll" style={{ position: 'fixed', left: 0, right: 0, bottom: 0, top: 24, zIndex: 61, borderRadius: '26px 26px 0 0', overflowY: 'auto', background: OS.surface3, border: '1px solid rgba(255,255,255,.08)', animation: 'os-sheet .4s cubic-bezier(.16,1,.3,1)', paddingBottom: 24, maxWidth: 520, margin: '0 auto' }}>
+      <div onClick={close} style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(5,5,7,.66)', animation: closing ? 'os-scrim-out .15s ease forwards' : 'os-scrim .25s ease' }} />
+      <div className="os-scroll" style={{ position: 'fixed', left: 0, right: 0, bottom: 0, top: 24, zIndex: 61, borderRadius: '26px 26px 0 0', overflowY: 'auto', background: OS.surface3, border: '1px solid rgba(255,255,255,.08)', animation: closing ? 'os-sheet-out .15s ease forwards' : 'os-sheet .4s cubic-bezier(.16,1,.3,1)', paddingBottom: 24, maxWidth: 520, margin: '0 auto' }}>
         {/* hero */}
         <div style={{ position: 'relative', height: 240, background: vmeta?.cover_url ? `linear-gradient(180deg,rgba(7,7,8,.15),rgba(7,7,8,.82)), center/cover url(${vmeta.cover_url})` : `linear-gradient(160deg,${hexA(venue.col, 0.4)},#0e0f12 78%)` }}>
           {!vmeta?.cover_url && <div style={{ position: 'absolute', inset: 0, background: HATCH }} />}
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,#0E0E11 3%,transparent 60%)' }} />
           <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,.3)' }} />
-          <button onClick={onClose} style={{ position: 'absolute', top: 18, right: 16, width: 34, height: 34, borderRadius: '50%', border: 0, cursor: 'pointer', background: 'rgba(10,10,12,.6)', color: OS.ink, fontSize: 15, backdropFilter: 'blur(8px)' }}>✕</button>
+          <button onClick={close} className="os-press" style={{ position: 'absolute', top: 18, right: 16, width: 34, height: 34, borderRadius: '50%', border: 0, cursor: 'pointer', background: 'rgba(10,10,12,.6)', color: OS.ink, fontSize: 15, backdropFilter: 'blur(8px)' }}>✕</button>
           <div style={{ position: 'absolute', bottom: 16, left: 18, right: 18 }}>
             <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: hexA(venue.col, 0.95) }}>{venue.genre || 'VENUE'}</div>
             <div style={{ fontSize: 32, fontWeight: 700, letterSpacing: '-.02em', color: OS.ink, lineHeight: 1, marginTop: 5 }}>{venue.name}</div>
@@ -249,7 +251,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 0' }}>
           <button onClick={() => setFollowing((f) => !f)} style={{ flex: 'none', padding: '10px 18px', borderRadius: 12, cursor: 'pointer', fontWeight: 600, fontSize: 14, border: following ? `1px solid ${OS.line2}` : 0, background: following ? 'transparent' : venue.col, color: following ? OS.ink2 : '#0B0B0D' }}>{following ? '✓ Pratiš' : '+ Prati'}</button>
           
-          <button onClick={checkIn} disabled={busy} style={{ marginLeft: 'auto', flex: 'none', padding: '10px 16px', borderRadius: 12, cursor: busy ? 'default' : 'pointer', fontWeight: 600, fontSize: 13, border: `1px solid ${hexA(G.festival, 0.4)}`, background: done ? hexA(G.festival, 0.15) : 'transparent', color: G.festival, opacity: busy ? 0.6 : 1 }}>{done ? '✓ Tu si' : '📍 Check-in'}</button>
+          <button onClick={checkIn} disabled={busy} className="os-press" style={{ marginLeft: 'auto', flex: 'none', padding: '10px 16px', borderRadius: 12, cursor: busy ? 'default' : 'pointer', fontWeight: 600, fontSize: 13, border: `1px solid ${hexA(G.festival, 0.4)}`, background: done ? hexA(G.festival, 0.15) : 'transparent', color: G.festival, opacity: busy ? 0.6 : 1 }}>{done ? '✓ Tu si' : '📍 Check-in'}</button>
         </div>
 
         {/* IG + kako stići */}
@@ -436,11 +438,13 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
           {venue.venueId && (
             <button onClick={idem} disabled={signalIntent.isPending} style={{ flex: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: G.underground, background: hexA(G.underground, 0.12), border: `1px solid ${hexA(G.underground, 0.4)}`, borderRadius: 15, padding: '16px 18px' }}>✋ Idem</button>
           )}
-          <button onClick={checkIn} disabled={busy} style={{ flex: 1, cursor: busy ? 'default' : 'pointer', fontSize: 15, fontWeight: 640, color: '#0B0B0D', background: done ? G.festival : venue.col, border: 0, borderRadius: 15, padding: 16, opacity: busy ? 0.7 : 1 }}>
+          <button onClick={checkIn} disabled={busy} className="os-press" style={{ flex: 1, cursor: busy ? 'default' : 'pointer', fontSize: 15, fontWeight: 640, color: '#0B0B0D', background: done ? G.festival : venue.col, border: 0, borderRadius: 15, padding: 16, opacity: busy ? 0.7 : 1 }}>
             {done ? 'Prijavljen ✓' : busy ? '…' : 'Check-in'}
           </button>
         </div>
       </div>
+      {/* check-in proslava — os-xp float sa stvarnim REP awardom (motion audit 🟢1) */}
+      {award && <div style={{ position: 'fixed', left: '50%', bottom: 170, zIndex: 70, fontFamily: MONO, fontWeight: 600, fontSize: 18, color: G.festival, textShadow: `0 0 24px ${hexA(G.festival, 0.7)}`, animation: 'os-xp 1.4s ease forwards', pointerEvents: 'none' }}>+{award} REP</div>}
       {feedback && <OSFeedbackSheet venueId={feedback} onDone={() => setFeedback(null)} />}
       {dareOpen && <OSDareWheel onClose={() => setDareOpen(false)} />}
       {danceOpen && <OSDanceMode venueId={venue.venueId} venueName={venue.name} onClose={() => setDanceOpen(false)} />}

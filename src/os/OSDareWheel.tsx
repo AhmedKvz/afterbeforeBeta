@@ -5,6 +5,7 @@ import { incrementQuestProgress } from '@/services/questProgress';
 import { track } from '@/lib/analytics';
 import { toast } from 'sonner';
 import { OS, G, hexA, MONO } from './osTheme';
+import { useExit, prefersReducedMotion } from './useExit';
 
 /** ZAVRTI NOĆ — točak smelih misija. App te izaziva da živiš noć umesto da
  *  skroluješ. Sve misije su consent-aware i scene-safe (Z4); „odrađeno" gura
@@ -82,11 +83,11 @@ const SifraTab = ({ onClose }: { onClose: () => void }) => {
       Oboje dobijete po <strong style={{ color: OS.ink2 }}>pola šifre</strong>. Chill zona. Sastavite je.
       Ime saznaš tek kad se <strong style={{ color: OS.ink2 }}>oboje potvrdite</strong>. Izlaz — kad god hoćeš.
     </div>
-    <button onClick={join} disabled={busy} style={{ marginTop: 20, width: '100%', minHeight: 50, borderRadius: 14, border: 0, cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#fff', background: `linear-gradient(135deg,${G.underground},${G.techno})` }}>{busy ? '…' : 'UĐI U IGRU VEČERAS'}</button>
+    <button onClick={join} disabled={busy} className="os-press" style={{ marginTop: 20, width: '100%', minHeight: 50, borderRadius: 14, border: 0, cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#fff', background: `linear-gradient(135deg,${G.underground},${G.techno})` }}>{busy ? '…' : 'UĐI U IGRU VEČERAS'}</button>
   </>, G.underground);
 
   if (st.status === 'waiting') return card(<>
-    <div style={{ fontSize: 40, marginBottom: 10, animation: 'os-pulse 2s ease-in-out infinite' }}>🔐</div>
+    <div style={{ fontSize: 40, marginBottom: 10 }}>🔐</div>
     <div style={{ fontSize: 19, fontWeight: 800, color: OS.ink }}>U igri si.</div>
     <div style={{ fontSize: 13.5, color: OS.ink4, marginTop: 8, lineHeight: 1.55 }}>Čekaš polovinu — čim još neko iz mesta uđe u igru, šifra stiže. Drži app blizu.</div>
     <button onClick={async () => { await db.rpc('dare_leave'); refresh(); }} style={{ marginTop: 16, background: 'transparent', border: 0, cursor: 'pointer', fontFamily: MONO, fontSize: 10.5, color: OS.ink5 }}>IZAĐI IZ IGRE</button>
@@ -94,11 +95,11 @@ const SifraTab = ({ onClose }: { onClose: () => void }) => {
 
   // matched
   if (st.completed) return card(<>
-    <div style={{ fontSize: 40, marginBottom: 10 }}>🖤</div>
+    <div style={{ fontSize: 40, marginBottom: 10, animation: 'os-stamp .5s cubic-bezier(.16,1,.3,1)' }}>🖤</div>
     <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: G.festival }}>ŠIFRA SASTAVLJENA</div>
     <div style={{ fontSize: 21, fontWeight: 800, color: OS.ink, marginTop: 8 }}>{st.other_name || 'Tvoja polovina'}</div>
     <div style={{ fontSize: 13.5, color: OS.ink4, marginTop: 8 }}>Upoznali ste se kako se u ovom gradu upoznaje — uživo. Quest progres upisan.</div>
-    <button onClick={onClose} style={{ marginTop: 18, width: '100%', minHeight: 46, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 700, fontSize: 14, background: G.festival, color: '#0B0B0D' }}>Nazad u noć →</button>
+    <button onClick={onClose} className="os-press" style={{ marginTop: 18, width: '100%', minHeight: 46, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 700, fontSize: 14, background: G.festival, color: '#0B0B0D' }}>Nazad u noć →</button>
   </>, G.festival);
 
   return card(<>
@@ -108,7 +109,7 @@ const SifraTab = ({ onClose }: { onClose: () => void }) => {
     <div style={{ fontFamily: MONO, fontSize: 30, fontWeight: 600, letterSpacing: '.06em', color: OS.ink, textShadow: `0 0 30px ${hexA(G.underground, 0.6)}` }}>„{st.my_code}"</div>
     {st.me_confirmed
       ? <div style={{ fontFamily: MONO, fontSize: 11, color: G.house, marginTop: 18 }}>ČEKA SE POTVRDA DRUGE STRANE…</div>
-      : <button onClick={confirm} disabled={busy} style={{ marginTop: 18, width: '100%', minHeight: 48, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 800, fontSize: 14.5, background: G.underground, color: '#fff' }}>{busy ? '…' : 'NAŠLI SMO SE — POTVRDI ✓'}</button>}
+      : <button onClick={confirm} disabled={busy} className="os-press" style={{ marginTop: 18, width: '100%', minHeight: 48, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 800, fontSize: 14.5, background: G.underground, color: '#fff' }}>{busy ? '…' : 'NAŠLI SMO SE — POTVRDI ✓'}</button>}
     <div style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6, marginTop: 12 }}>JAVNA ZONA · IZLAZ KAD GOD HOĆEŠ · 🚩 PRIJAVA U CHATU RADI I OVDE</div>
   </>, G.underground);
 };
@@ -168,22 +169,22 @@ const CrewSifraTab = ({ onClose }: { onClose: () => void }) => {
       Imena tek kad obe ekipe potvrde.
     </div>
     {st.status === 'need_more' && <div style={{ fontFamily: MONO, fontSize: 11, color: G.house, marginTop: 12 }}>U IGRI: {st.opted} — TREBA JOŠ {Math.max(0, 2 - (st.opted || 0))} IZ EKIPE DA UĐE</div>}
-    <button onClick={join} disabled={busy} style={{ marginTop: 18, width: '100%', minHeight: 50, borderRadius: 14, border: 0, cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#0B0B0D', background: `linear-gradient(135deg,${G.community},${G.festival})` }}>{busy ? '…' : st.status === 'need_more' ? 'U IGRI SI — ZOVI OSTALE' : 'ULAZIM SA EKIPOM'}</button>
+    <button onClick={join} disabled={busy} className="os-press" style={{ marginTop: 18, width: '100%', minHeight: 50, borderRadius: 14, border: 0, cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#0B0B0D', background: `linear-gradient(135deg,${G.community},${G.festival})` }}>{busy ? '…' : st.status === 'need_more' ? 'U IGRI SI — ZOVI OSTALE' : 'ULAZIM SA EKIPOM'}</button>
   </>, G.community);
 
   if (st.status === 'waiting') return card(<>
-    <div style={{ fontSize: 40, marginBottom: 10, animation: 'os-pulse 2s ease-in-out infinite' }}>🔐🔐</div>
+    <div style={{ fontSize: 40, marginBottom: 10 }}>🔐🔐</div>
     <div style={{ fontSize: 19, fontWeight: 800, color: OS.ink }}>Ekipa je u igri.</div>
     <div style={{ fontSize: 13.5, color: OS.ink4, marginTop: 8, lineHeight: 1.55 }}>Čekate protivničku polovinu — čim još jedna ekipa iz mesta uđe, reči stižu svima.</div>
     <button onClick={async () => { await db.rpc('crew_dare_leave'); refresh(); }} style={{ marginTop: 16, background: 'transparent', border: 0, cursor: 'pointer', fontFamily: MONO, fontSize: 10.5, color: OS.ink5 }}>IZAĐI IZ IGRE</button>
   </>, G.community);
 
   if (st.completed) return card(<>
-    <div style={{ fontSize: 40, marginBottom: 10 }}>🖤🖤</div>
+    <div style={{ fontSize: 40, marginBottom: 10, animation: 'os-stamp .5s cubic-bezier(.16,1,.3,1)' }}>🖤🖤</div>
     <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: G.festival }}>ŠIFRA SASTAVLJENA · EKIPE SPOJENE</div>
     <div style={{ fontSize: 16, fontWeight: 700, color: OS.ink, marginTop: 10, lineHeight: 1.5 }}>{st.other_members || 'Druga ekipa'}</div>
     <div style={{ fontSize: 13.5, color: OS.ink4, marginTop: 8 }}>Večeras ste jedna scena. Poruka je u oba crew chata.</div>
-    <button onClick={onClose} style={{ marginTop: 18, width: '100%', minHeight: 46, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 700, fontSize: 14, background: G.festival, color: '#0B0B0D' }}>Nazad u noć →</button>
+    <button onClick={onClose} className="os-press" style={{ marginTop: 18, width: '100%', minHeight: 46, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 700, fontSize: 14, background: G.festival, color: '#0B0B0D' }}>Nazad u noć →</button>
   </>, G.festival);
 
   // matched — moje reči
@@ -193,13 +194,14 @@ const CrewSifraTab = ({ onClose }: { onClose: () => void }) => {
     <div style={{ fontFamily: MONO, fontSize: 28, fontWeight: 600, letterSpacing: '.05em', color: OS.ink, textShadow: `0 0 30px ${hexA(G.community, 0.6)}` }}>„{st.my_words}"</div>
     {st.me_confirmed
       ? <div style={{ fontFamily: MONO, fontSize: 11, color: G.house, marginTop: 18 }}>ČEKA SE POTVRDA DRUGE EKIPE…</div>
-      : <button onClick={confirm} disabled={busy} style={{ marginTop: 18, width: '100%', minHeight: 48, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 800, fontSize: 14.5, background: G.community, color: '#0B0B0D' }}>{busy ? '…' : 'NAŠLI SMO IH — POTVRDI ✓'}</button>}
+      : <button onClick={confirm} disabled={busy} className="os-press" style={{ marginTop: 18, width: '100%', minHeight: 48, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 800, fontSize: 14.5, background: G.community, color: '#0B0B0D' }}>{busy ? '…' : 'NAŠLI SMO IH — POTVRDI ✓'}</button>}
     <div style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6, marginTop: 12 }}>PO JEDNA POTVRDA IZ SVAKE EKIPE · JAVNA ZONA · IZLAZ KAD GOD</div>
   </>, G.community);
 };
 
 export const OSDareWheel = ({ onClose }: { onClose: () => void }) => {
   const { user } = useAuth();
+  const { closing, close } = useExit(onClose);
   const [mode, setMode] = useState<'tocak' | 'sifra' | 'ekipe'>('tocak');
   const [phase, setPhase] = useState<'idle' | 'spin' | 'landed'>('idle');
   const [idx, setIdx] = useState(0);
@@ -208,8 +210,14 @@ export const OSDareWheel = ({ onClose }: { onClose: () => void }) => {
 
   const spin = () => {
     if (phase === 'spin') return;
-    setPhase('spin');
     track('dare_spin', {});
+    // reduced-motion: bez 90ms flash-ciklusa — sleti odmah (motion audit 🔴3)
+    if (prefersReducedMotion()) {
+      setIdx(Math.floor(Math.random() * DARES.length));
+      setPhase('landed');
+      return;
+    }
+    setPhase('spin');
     let ticks = 0;
     const target = 18 + Math.floor(Math.random() * DARES.length);
     timer.current = setInterval(() => {
@@ -228,42 +236,44 @@ export const OSDareWheel = ({ onClose }: { onClose: () => void }) => {
     track('dare_done', { type: d.type });
     if (user) incrementQuestProgress(user.id, d.type).catch(() => {});
     toast.success('Legenda večeras 🖤 Quest progres upisan.');
-    onClose();
+    close();
   };
 
   const d = DARES[idx];
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 160, background: 'rgba(5,5,7,.88)', backdropFilter: 'blur(10px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={phase !== 'spin' ? onClose : undefined}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 160, background: 'rgba(5,5,7,.88)', backdropFilter: 'blur(10px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24, animation: closing ? 'os-overlay-out .15s ease forwards' : 'os-overlay-in .2s cubic-bezier(.16,1,.3,1)' }} onClick={phase !== 'spin' ? close : undefined}>
       <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
           {([['tocak', '🎲 TOČAK'], ['sifra', '🔐 ŠIFRA'], ['ekipe', '🔐🔐 EKIPE']] as const).map(([v, l]) => (
-            <button key={v} onClick={() => setMode(v)} style={{ minHeight: 36, cursor: 'pointer', padding: '7px 16px', borderRadius: 999, fontFamily: MONO, fontSize: 10.5, fontWeight: 700, letterSpacing: '.1em', border: `1px solid ${mode === v ? 'transparent' : OS.line2}`, background: mode === v ? hexA(G.afterparty, 0.18) : 'transparent', color: mode === v ? G.afterparty : OS.ink5 }}>{l}</button>
+            <button key={v} onClick={() => setMode(v)} className="os-press" style={{ minHeight: 36, cursor: 'pointer', padding: '7px 16px', borderRadius: 999, fontFamily: MONO, fontSize: 10.5, fontWeight: 700, letterSpacing: '.1em', border: `1px solid ${mode === v ? 'transparent' : OS.line2}`, background: mode === v ? hexA(G.afterparty, 0.18) : 'transparent', color: mode === v ? G.afterparty : OS.ink5 }}>{l}</button>
           ))}
         </div>
 
-        {mode === 'sifra' && <SifraTab onClose={onClose} />}
-        {mode === 'ekipe' && <CrewSifraTab onClose={onClose} />}
+        {/* key={mode} → os-swap crossfade na promenu taba (motion audit 🟡6) */}
+        <div key={mode} style={{ animation: 'os-swap .15s cubic-bezier(.22,1,.36,1) both' }}>
+        {mode === 'sifra' && <SifraTab onClose={close} />}
+        {mode === 'ekipe' && <CrewSifraTab onClose={close} />}
 
         {mode === 'tocak' && phase === 'idle' && (
           <>
             <div style={{ fontSize: 46, marginBottom: 10 }}>🎲</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: OS.ink, letterSpacing: '-.02em' }}>Smeš li?</div>
             <div style={{ fontSize: 13.5, color: OS.ink4, marginTop: 8, lineHeight: 1.55 }}>Jedna smela misija za večeras. Točak bira — ti izvodiš. Bez snimanja, bez izgovora.</div>
-            <button onClick={spin} style={{ marginTop: 22, minHeight: 52, padding: '14px 40px', borderRadius: 999, border: 0, cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#fff', background: `linear-gradient(135deg,${G.afterparty},${G.underground})`, boxShadow: `0 14px 40px -10px ${hexA(G.afterparty, 0.6)}` }}>ZAVRTI</button>
+            <button onClick={spin} className="os-press" style={{ marginTop: 22, minHeight: 52, padding: '14px 40px', borderRadius: 999, border: 0, cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#fff', background: `linear-gradient(135deg,${G.afterparty},${G.underground})`, boxShadow: `0 14px 40px -10px ${hexA(G.afterparty, 0.6)}` }}>ZAVRTI</button>
           </>
         )}
 
         {mode === 'tocak' && phase !== 'idle' && (
-          <div style={{ borderRadius: 20, border: `1px solid ${hexA(d.col, phase === 'landed' ? 0.55 : 0.25)}`, background: `radial-gradient(120% 100% at 50% 0%, ${hexA(d.col, 0.14)}, transparent 60%), ${OS.surface}`, padding: '30px 22px', transition: 'border-color .2s', boxShadow: phase === 'landed' ? `0 0 60px -20px ${hexA(d.col, 0.7)}` : 'none' }}>
+          <div style={{ borderRadius: 20, border: `1px solid ${hexA(d.col, phase === 'landed' ? 0.55 : 0.25)}`, background: `radial-gradient(120% 100% at 50% 0%, ${hexA(d.col, 0.14)}, transparent 60%), ${OS.surface}`, padding: '30px 22px', transition: 'border-color .2s', boxShadow: phase === 'landed' ? `0 0 60px -20px ${hexA(d.col, 0.7)}` : 'none', animation: phase === 'landed' ? 'os-stamp .5s cubic-bezier(.16,1,.3,1)' : undefined }}>
             <div style={{ fontSize: 40, marginBottom: 12, filter: phase === 'spin' ? 'blur(1px)' : 'none' }}>{d.emoji}</div>
             <div style={{ fontSize: 17.5, fontWeight: 700, color: OS.ink, lineHeight: 1.45, minHeight: 76, opacity: phase === 'spin' ? 0.55 : 1 }}>{d.text}</div>
             {phase === 'landed' && (
               <>
                 <div style={{ display: 'flex', gap: 9, marginTop: 20 }}>
-                  <button onClick={done} style={{ flex: 1, minHeight: 46, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 700, fontSize: 14.5, background: d.col, color: '#0B0B0D' }}>ODRAĐENO ✓</button>
+                  <button onClick={done} className="os-press" style={{ flex: 1, minHeight: 46, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 700, fontSize: 14.5, background: d.col, color: '#0B0B0D' }}>ODRAĐENO ✓</button>
                   {respins > 0 && (
-                    <button onClick={() => { setRespins((r) => r - 1); spin(); }} style={{ flex: 'none', minHeight: 46, padding: '0 16px', borderRadius: 13, border: `1px solid ${OS.line2}`, cursor: 'pointer', fontFamily: MONO, fontSize: 11, color: OS.ink4, background: 'transparent' }}>PREJAKO · {respins}</button>
+                    <button onClick={() => { setRespins((r) => r - 1); spin(); }} className="os-press" style={{ flex: 'none', minHeight: 46, padding: '0 16px', borderRadius: 13, border: `1px solid ${OS.line2}`, cursor: 'pointer', fontFamily: MONO, fontSize: 11, color: OS.ink4, background: 'transparent' }}>PREJAKO · {respins}</button>
                   )}
                 </div>
                 <div style={{ fontFamily: MONO, fontSize: 9.5, color: OS.ink6, marginTop: 12 }}>ODRAĐENO GURA TVOJ QUEST PROGRES · NA REČ — SCENA VERUJE SVOJIMA</div>
@@ -271,8 +281,9 @@ export const OSDareWheel = ({ onClose }: { onClose: () => void }) => {
             )}
           </div>
         )}
+        </div>
 
-        <button onClick={onClose} style={{ marginTop: 18, background: 'transparent', border: 0, cursor: 'pointer', fontFamily: MONO, fontSize: 11, letterSpacing: '.1em', color: OS.ink5 }}>MOŽDA SLEDEĆI VIKEND</button>
+        <button onClick={close} className="os-press" style={{ marginTop: 18, background: 'transparent', border: 0, cursor: 'pointer', fontFamily: MONO, fontSize: 11, letterSpacing: '.1em', color: OS.ink5 }}>MOŽDA SLEDEĆI VIKEND</button>
       </div>
     </div>
   );
