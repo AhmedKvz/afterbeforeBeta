@@ -146,14 +146,13 @@ export const useVenueDirectory = () => {
     staleTime: Infinity,
     gcTime: 24 * 60 * 60_000,
     queryFn: async () => {
-      const [{ data: dirVenues }, { data: evCoords }] = await Promise.all([
-        db.from('venues').select('id, name, type, neighborhood, emoji, hue, latitude, longitude'),
-        db.from('events').select('venue_name, geofence_radius').not('latitude', 'is', null),
-      ]);
+      // #57: radius je na venue (server čita ISTI broj u process_secure_checkin)
+      const { data: dirVenues } = await db.from('venues')
+        .select('id, name, type, neighborhood, emoji, hue, latitude, longitude, geofence_radius_m');
       // Plain object, NOT a Map — query data is JSON-persisted (Wave E) and a
       // Map rehydrates as {} → .get() crashes the whole Heat screen.
       const radius: Record<string, number> = {};
-      (evCoords || []).forEach((e: any) => { if (radius[e.venue_name] == null) radius[e.venue_name] = e.geofence_radius || 100; });
+      (dirVenues || []).forEach((v: any) => { radius[v.name] = v.geofence_radius_m || 100; });
       return { venues: dirVenues || [], radius };
     },
   });

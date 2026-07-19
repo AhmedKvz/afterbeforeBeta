@@ -30,14 +30,14 @@ export const OSApp = () => {
     if (!deepVenue) return;
     (async () => {
       const { data: v } = await (supabase as any).from('venues')
-        .select('id, name, type, neighborhood, latitude, longitude')
+        .select('id, name, type, neighborhood, latitude, longitude, geofence_radius_m')
         .eq('name', decodeURIComponent(deepVenue)).maybeSingle();
       if (!v) { navigate('/', { replace: true }); return; }
       setVenue({
         name: v.name, genre: (v.type || 'club').toUpperCase(), col: genreCol(v.type || 'club'),
         venueId: v.id, presenceId: v.name,
         lat: v.latitude != null ? Number(v.latitude) : null, lng: v.longitude != null ? Number(v.longitude) : null,
-        radius: 100, neighborhood: (v.neighborhood || '').toUpperCase(),
+        radius: v.geofence_radius_m || 100, neighborhood: (v.neighborhood || '').toUpperCase(),
       });
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps

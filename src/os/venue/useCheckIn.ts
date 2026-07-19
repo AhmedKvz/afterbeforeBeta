@@ -31,15 +31,20 @@ export const useCheckIn = (venue: OSVenue, onFeedback: (venueId: string) => void
       if (!venue.venueId) { toast('Check-in radi sa Heat mape — nađi ovo mesto na pinu.'); return; }
       let pos: GeolocationPosition | null = null;
       try { pos = await getCurrentPosition(); } catch { if (!DEV_SKIP_GEOFENCE) { toast.error('Uključi lokaciju za check-in.'); return; } }
+      // #57: klijentski prag = TAČNO server prag (venues.geofence_radius_m)
+      const geoRadius = venue.radius || 100;
       if (!DEV_SKIP_GEOFENCE && pos && venue.lat != null && venue.lng != null) {
         const d = calculateDistance(pos.coords.latitude, pos.coords.longitude, venue.lat, venue.lng);
-        if (d > Math.max(venue.radius || 100, 120)) { toast.error(`${formatDistance(d)} od ${venue.name} — priđi bliže.`); return; }
+        if (d > geoRadius) { toast.error(`${formatDistance(d)} od ${venue.name} — priđi na ${geoRadius}m za check-in.`); return; }
       }
       const lat = pos?.coords.latitude ?? venue.lat ?? 0;
       const lon = pos?.coords.longitude ?? venue.lng ?? 0;
       const { data, error } = await db.rpc('process_secure_checkin', { p_venue: venue.venueId, p_lat: lat, p_lon: lon });
       if (error) {
         const msg = String(error.message || '');
+        // #57: server vraća parsabilno 'TOO_FAR <dist> <radius>' kad je geofence upaljen
+        const far = msg.match(/TOO_FAR (\d+) (\d+)/);
+        if (far) { toast.error(`${formatDistance(Number(far[1]))} od ${venue.name} — priđi na ${far[2]}m za check-in.`); return; }
         toast.error(msg.includes('12 hours') || msg.includes('duplicate') ? 'Već si se prijavio ovde večeras.' : 'Check-in nije prošao — pokušaj ponovo.');
         return;
       }
