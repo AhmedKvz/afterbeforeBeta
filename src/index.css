@@ -21,8 +21,9 @@
 .os-press:active{ transform:scale(.97); }
 .os-scroll::-webkit-scrollbar{ display:none; }
 .os-scroll{ -ms-overflow-style:none; scrollbar-width:none; }
+@keyframes ab-reveal{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:translateY(0);} }
 @media (prefers-reduced-motion: reduce){
-  [class*="os-"], [style*="os-"]{ animation-duration:.001ms !important; animation-iteration-count:1 !important; }
+  [class*="os-"], [style*="os-"], [style*="ab-"]{ animation-duration:.001ms !important; animation-iteration-count:1 !important; }
 }
 
 /* AfterBefore Design System - Dark Nightclub Theme */
