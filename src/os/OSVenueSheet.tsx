@@ -178,7 +178,16 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
   const energy = venue.heat; // bez podatka = bez broja (iskren-broj)
   const here = presence?.headcount ?? venue.here ?? 0;
 
-  const toggleVisible = () => { if (venue.presenceId) setPresence.mutate({ venue: venue.presenceId, visible: !meVisible }); };
+  const toggleVisible = () => {
+    if (!venue.presenceId) return;
+    setPresence.mutate({ venue: venue.presenceId, visible: !meVisible }, {
+      // §10.2 gate: VISIBLE traži check-in na TOM mestu (server CHECKIN_REQUIRED)
+      onError: (e: any) => {
+        if (String(e?.message || '').includes('CHECKIN_REQUIRED')) toast('Prvo se čekiraj — vidljiv si samo tamo gde stvarno jesi. 📍');
+        else toast.error('Nije prošlo — pokušaj ponovo.');
+      },
+    });
+  };
   const spark = (pid: string) => {
     if (!venue.venueId) return;
     const person = people.find((p) => p.user_id === pid);
@@ -282,6 +291,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
                 </span>
               </button>
             </div>
+            {meVisible && <div style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: '.08em', color: AB.ink3, marginBottom: 10 }}>VISIBLE VAŽI OVDE I ISTIČE SAM · GHOST KAD GOD HOĆEŠ</div>}
             {meVisible ? (() => {
               const crowd = people.filter((p) => p.user_id && p.user_id !== user?.id);
               if (!crowd.length) return <div style={{ fontSize: 12, color: OS.ink5, textAlign: 'center', padding: '8px 0' }}>Niko vidljiv još — budi prvi 👋</div>;

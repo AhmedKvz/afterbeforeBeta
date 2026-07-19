@@ -22,7 +22,7 @@
 | Venue self-serve + klejm | `20260710100000`; `VenueSelfServe.tsx`; OSClaimCard | **LIVE** | — | statusne labele iz §12 u MESTA tab | LIVE→MVP |
 | Kuriran imenik (44 mesta) | `20260709180000` seed | **LIVE** | bez statusnih labela | `Curated/Confirmed/Claimed/Partner` UI | MVP |
 | Venue Growth Network (free→paid, tierovi) | — (novo) | **LOCKED ODLUKA** (dok.) | cene NISU kanon | willingness-to-pay intervjui | MVP/validacija |
-| Weekday Active + Iskra (isto mesto) | VISIBLE/ghost + iskra + check-in rade svaki dan | **PARTIAL** | nema Active auto-expiry ni iskra volumen limita | dorada + gustina pilot | B1→MVP |
+| Weekday Active + Iskra (isto mesto) | VISIBLE/ghost + iskra + check-in rade svaki dan | **LIVE** (korekcija audita) | ~~expiry/limit~~ POSTOJE po dizajnu (presence 3h TTL; 3 iskre/noć u send_spark). Prava rupa bila remote-browse → **zatvorena 2026-07-19**: VISIBLE traži check-in ≤12h (CHECKIN_REQUIRED) | ostaje midweek gustina pilot | B1→MVP |
 | Home day-adaptive stanja | HOME lock Faza 2 „Živi Home" (TODO Talas 2) | **PARTIAL** (dizajn) | graditi tek sa sadržajem | ostaje deferred, sada sa Pon–Pet spec-om | MVP |
 | Contributor tokovi (predlog mesta/eventa) | recenzije/satnica/story/self-serve žive; USER predlog mesta/eventa NE postoji | **PARTIAL** | Scout rola već u backlogu — spojeno | suggestion flow + moderacija | MVP |
 | Weekend Roadmaps + Afterglow | — (novo) | **B1/MVP kandidat** | drži odvojeno (QUEST §6) | Roadmap quest v0; Event 2 validira | MVP |
