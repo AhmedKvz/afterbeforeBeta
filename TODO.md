@@ -53,7 +53,7 @@ Noć kao igra uživo — app izaziva, grad je tabla, ljudi su potezi. Temelj pos
 ## 🔴 PRE-LAUNCH DUG (mora pre paljenja geofence-a / javnog launcha)
 
 - **ŠIFRA QA pre B1** — test sa DVA prava uređaja (ceo tok: join→match→potvrde→reveal); u simulaciji viđen fantomski dare_confirm (verovatno artefakt automatizovanog testiranja, ali potvrditi ručno pre pilota).
-- **#57 · Geofence fix** — server čita venue radius (ne hardkodovanih 50m), klijent prag = server prag, poruka „priđi bliže — Xm".
+- ✅ **#57 · Geofence fix** (2026-07-19, `6813416`) — `venues.geofence_radius_m` (100 / splav+festival 150), server RPC čita per-venue radius, klijent = isti prag, poruka „Xm od mesta — priđi na Ym"; SQL E2E verifikovan (TOO_FAR put), prod flagovi i dalje OFF do launcha. Ostaje: koordinate na terenu (GPS provera seedovanih mesta) pre paljenja.
 - **`venue_intent` privacy** — world-readable user_id → agregat RPC.
 - **Crew chat 🚩 Prijavi** — jedini interakcioni prostor bez report-a.
 - **Media bucket size/mime cap** (kampanje/story upload).
