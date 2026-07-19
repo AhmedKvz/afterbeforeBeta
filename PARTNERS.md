@@ -126,6 +126,31 @@
 - **Grant optika:** vodi sa Knjaz/CarGo/festivali (ne-alkohol) u grant materijalu; pivski sponzori su biznis linija, ne grant narativ.
 - **Underground separacija:** Jelen/mainstream ide na splav-noći, nikad na underground noći — dva moda se ne mešaju (Z9 važi i za sponzore).
 
+## VENUE GROWTH NETWORK — operativa (usvojeno 2026-07-19; ekonomika u ECONOMY §12)
+
+**Kurirani onboarding:** mi proaktivno biramo i uz saglasnost kreiramo profile
+za kulturno koherentnu mrežu (klubovi, kul kafići/barovi, kulturni centri,
+galerije, pop-upovi, skriveni/privremeni prostori, izabrani splavovi, rooftopovi,
+live-music prostori, promoteri, midweek kultura). Imenik od 44 mesta = prva
+generacija ovog modela.
+
+**Statusna lestvica** (vidljiva i u MESTA admin tabu):
+`Curated by AfterBefore → Confirmed by Venue → Claimed Venue → AfterBefore Partner`
+
+**Free→paid konverzija:** listing besplatan zauvek; plaćaju se alati za rast
+(analitika, Pre-Heat, kampanje, aktivacija slabih dana) TEK posle dokazane
+vrednosti. Cenovnik NIJE kanon dok ga ne validiraju intervjui o spremnosti na
+plaćanje (task u War Room → Venue Network Pilot).
+
+**Venue-funded nagrade prve:** klub/kafić finansira nagradu iz svog inventara
+(kafa, voda, skip-line, garderoba) → AFC katalog; sponsor-funded posle;
+platformski settlement kasnije (ECONOMY §13).
+
+**Prodajna rečenica:** „Dovedi nove ljude · Aktiviraj slabe dane · Pretvori
+posetioce u zajednicu."
+
+---
+
 ## Ambasador paket (šta svaki dobija — standardizuj)
 - **DJ:** spotlight profil, plaćen slot, Dance energy press-kit, content push
 - **Mladi brend:** katalog slot (barter), „scena nosi svoje" kampanja, spotlight

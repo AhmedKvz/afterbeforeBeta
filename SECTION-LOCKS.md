@@ -14,6 +14,7 @@
 | 7 · DANCE FLOOR | 🔒 locked (2026-07-11) |
 | 8 · ONBOARDING | 🟡 build isporučen (073e462: 5 koraka, muzika→crew→vikend), lock posle prvih korisnika |
 | 9 · SAFETY (cross-cut) | 🔒 locked (2026-07-11) |
+| 10 · PRODUCT-WIDE (cross-cut) | 🔒 locked (2026-07-19) |
 
 ---
 
@@ -236,3 +237,44 @@
 
 ### Zakoni
 **Z4** (bezbednost pre rasta) · **Z11/Z12** (moderacija + glas zajednice) · Z3 (bez lažnih signala — poverenje).
+
+---
+
+## 10 · PRODUCT-WIDE LOCKS 🔒 (2026-07-19 — usvojene odluke iz master integracije)
+
+> Odluke koje seku kroz sve sekcije. Detalji i ekonomika: `ECONOMY.md` §12–14,
+> `QUEST.md` §6, `PARTNERS.md` (Venue Growth Network), `WAR-ROOM-UPDATE-2026-07-19.md`.
+
+1. **Vlasništvo tokova:** HOME distribuira · QUESTS/CONTRIBUTE stvara · PROFILE
+   čuva · HEAT vezuje za prostor · VENUE stranice primaju saobraćaj. Isti sistem
+   se ne duplira u dve sekcije.
+2. **Weekday Active + Iskra (isto mesto):** radnim danima, u učesničkom
+   mestu (kafić/bar/galerija/kulturni centar…): verifikovan check-in → eksplicitni
+   `Active` opt-in → vidljiv SAMO drugim opt-in korisnicima u ISTOM mestu →
+   Iskra (ograničen volumen) → kratka consent-based interakcija uživo. Pravila:
+   Active automatski ističe posle ograničenog prozora · prisustvo NIKAD ne
+   znači dostupnost · lako ignore/leave/block/report · **bez neograničenog
+   daljinskog browse-ovanja ljudi** (nije lokalni Tinder). Postojeći VISIBLE/ghost
+   + iskra model = temelj; fali auto-expiry i volumen limit (War Room task).
+3. **Venue listing besplatan; plaćeni alati posle dokazane vrednosti.**
+   Besplatan profil nikad talac pretplate (ECONOMY §12).
+4. **XP/REP nije keš.** AFC („AXP") = neprenosivi closed-loop poen za konkretne
+   nagrade u partnerskoj mreži; bez fiksne RSD konverzije; nikad predstavljen
+   kao novac/kripto/wallet (ECONOMY §13).
+5. **Novac nikad ne kupuje organsku reputaciju** — ni Heat, ni posete, ni
+   recenzije, ni rang, ni uklanjanje kritike, ni Trust (ECONOMY §11.5).
+6. **App-exclusive pristup sme externi ticketing u MVP-u:** teaser → RSVP u appu
+   → externi checkout → access stanje + app pass → postepeno otkrivanje adrese.
+   BEZ in-app naplate, izdavanja, refundacija, skeniranja i merchant-of-record
+   obaveza dok se scope lock svesno ne promeni.
+7. **Doprinos zajednice se nagrađuje POSLE validacije** — prihvaćen i koristan
+   doprinos, ne submit forme; volumen sam nikad nije rang (QUEST §6).
+8. **Kulturna specifičnost kroz stvarnu korist i pristup** — ekskluzivnost iz
+   utility-ja (RSVP/pass/rute/questovi koji postoje samo unutra), nikad iz lažne
+   oskudice ili arogancije. Jezik: „Grad vidiš spolja. U živu scenu ulaziš kroz
+   AfterBefore."
+9. **Anti-scroll:** svaka bitna mehanika vodi ka akciji u stvarnom svetu
+   (vidi → izaberi → idi → učestvuj → doprinesi → zapamti); ne optimizujemo
+   pasivno vreme na ekranu.
+10. **Safety/care informacije se nikad ne naplaćuju.** Mesta mogu plaćati
+    operativne care alate i analitiku — nikad viši „safety score".

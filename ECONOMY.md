@@ -283,4 +283,103 @@ Promet fonda · platformski % · broj aktivnih partnera · payout/prihod racio (
 
 ---
 
-*Reference: `DANCE_FLOOR_STRATEGY.md` (sponzorski tierovi, anti-cheat), `SECTION-LOCKS.md` (HEAT ghost model), Ustav `AfterBefore-Istina-i-Zakoni.md` (Z5/Z6/Z10/Z11), `AfterBefore-Vision-Blueprint.md` (marketplace/guide sloj).*
+## 12 · VENUE GROWTH NETWORK — B2B put (usvojeno 2026-07-19)
+
+> Osnovni princip: **ne naplaćujemo mestima da postoje u aplikaciji. Prvo dokažemo
+> vrednost (posete, sadržaj, signali, povratci), pa prodajemo alate za rast,
+> kampanje i analitiku.** Besplatan profil NIKAD nije talac pretplate.
+
+**Zamajac prihoda:**
+```
+AfterBefore kurira grad → mesta ulaze besplatno → korisnici otkrivaju, posećuju,
+doprinose → questovi prave verifikovanu aktivnost i UGC → mesto vidi merljivu
+vrednost → mesto klejmuje profil → izabrana mesta se nadograđuju → platforma
+naplaćuje infrastrukturu rasta
+```
+
+**Statusi mesta (imenik već radi ovako — sada imenovano):**
+`Curated by AfterBefore` (mi kreiramo profil uz saglasnost — 44 mesta danas) →
+`Confirmed by Venue` → `Claimed Venue` (klejm kartica živa na svakom sheetu) →
+`AfterBefore Partner` (`is_partner`, PARTNERS Prsten 1).
+
+**Komercijalni slojevi (nazivi, NE cene — cenovnik se NE zaključava dok ga ne
+validiraju prodajni intervjui):** Free/Curated · Scene Partner · Growth Partner ·
+Nightlife OS Partner · One-time Campaign.
+
+**Prvi platiša je** venue / promoter / brend / festival / turizam — **ne krajnji
+korisnik.** Prodajna rečenica: *„Dovedi nove ljude · Aktiviraj slabe dane ·
+Pretvori posetioce u zajednicu."* Vrednost pretplate/kampanje: upravljanje
+profilom, objave, analitika (first-time vs repeat, Arrival Curve — §11.3
+Diagnostics), Pre-Heat, content questovi, aktivacija slabih dana, UGC pristup uz
+saglasnost, venue-specifičan Zavrti Noć, loyalty, izveštaji.
+
+**Kulturna koherentnost pre širine:** pilot mreža = klubovi, kul kafići/barovi,
+kulturni centri, galerije, pop-up/skriveni prostori, izabrani splavovi, midweek
+kultura — ne mapiramo svaki generički biznis. Ekskluzivnost dolazi iz stvarne
+koristi i pristupa (RSVP samo u appu, app pass, postepeno otkrivanje adrese,
+questovi i nagrade koji postoje samo unutra) — nikad iz lažne oskudice.
+Preporučen jezik: *„Grad vidiš spolja. U živu scenu ulaziš kroz AfterBefore."*
+
+**Ticketing MVP ograda (scope lock):** bez naplate, izdavanja, refundacija,
+skeniranja i merchant-of-record obaveza u appu. Tok: javni teaser → AfterBefore
+RSVP → externi checkout ako treba → access stanje u appu → app pass → otkrivanje
+adrese gde ima smisla.
+
+---
+
+## 13 · AFC (u novim dokumentima „AXP") — closed-loop partner nagrade + QR
+
+> **Kanonsko ime ostaje AFC** (tabele `afc_ledger`, UI, ustaljen rečnik). „AXP"
+> iz novih strateških dokumenata = isti pojam; ne uvodimo drugu valutu.
+
+**Pravila (potvrđuju §1, sad eksplicitno):**
+- AFC je **neprenosivi closed-loop loyalty poen** za unapred definisane nagrade
+  u ugovorenoj partnerskoj mreži. NIJE novac, kripto, keš-novčanik ni prenosivi
+  saldo — i tako se NIKAD ne predstavlja.
+- **Bez fiksne konverzije** („100 AFC = 100 RSD" se ne objavljuje). Model:
+  *„1.500 AFC otključava konkretnu nagradu"* (voda, kafa, garderoba, skip-line,
+  karta, merch, recovery perk, limitirani partner proizvod).
+- **Redosled finansiranja nagrada:** 1) venue-funded → 2) sponsor-funded →
+  3) settlement/refundacija platforme = kasnija faza (ne pre pravno-računovodstvene
+  validacije).
+
+**QR redemption tok (pilot pre šireg roll-outa):**
+```
+verifikovan check-in → izbor nagrade → rotirajući jednokratni QR → venue skenira
+→ server validacija → potvrda korisnika → AFC skidanje → nagrada zabeležena
+```
+
+**Alkohol nagrade:** 18+ kontrola + pravno/računovodstveno mišljenje + stroga
+ograničenja; nikad nagrađivanje količine alkohola ili rizičnog ponašanja.
+⚠️ Cela AFC-redemption oblast nosi flag **„srpska pravna/računovodstvena
+validacija pre launcha"** (v. §5).
+
+**Mapiranje pojmova (jednom zauvek):** `xp` = REP/reputacija (ne troši se) ·
+`spendable_xp`/AFC = utility poen (troši se u katalogu) · Trust = težina glasa i
+moderacije (Z5) — **ne kupuje se ni jedan od tri.** Novac kupuje alate, analitiku,
+označenu distribuciju i nagradni inventar — nikad Heat, posete, recenzije,
+organski rang ni uklanjanje kritike (§11.5).
+
+---
+
+## 14 · ORGANIC SHARE ENGINE — postignuće kao marketing
+
+> Korisnik deli **svoje postignuće, identitet, rutu, rivalstvo ili uspomenu** —
+> ne reklamu za nas. Korisnik je glavni lik; brend vidljiv ali sekundaran.
+
+**Petlja:** aktivnost → postignuće → shareable kartica → objava → deep link →
+novi korisnik → aktivacija → još aktivnosti.
+
+**Formati kartica:** achievement · Raverboard rang · VS izazov · Memento recap ·
+Weekend Roadmap · Sponsored Quest prijava · contributor milestone · otkriće mesta.
+
+**Merenje (levak):** share→click → click→signup → signup→check-in →
+signup→prvi quest → referral retencija.
+
+**Gvozdeno pravilo deljenja:** NE nagrađujemo pritisak na Share. Nagrađuje se
+**realna aktivacija** (share → signup → check-in → prvi quest → povratak) — isto
+kao referral rail koji već plaća aktivaciju, ne registraciju (§3 Sybil).
+
+---
+
+*Reference: `DANCE_FLOOR_STRATEGY.md` (sponzorski tierovi, anti-cheat), `SECTION-LOCKS.md` (HEAT ghost model + §10 product-wide locks), Ustav `AfterBefore-Istina-i-Zakoni.md` (Z5/Z6/Z10/Z11), `PARTNERS.md` (Venue Growth Network operativa), `WAR-ROOM-UPDATE-2026-07-19.md` (scope matrica i taskovi).*

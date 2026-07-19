@@ -123,6 +123,54 @@ SLOJ 3 · QUEST ADS PIJACA (self-serve)
 
 ---
 
+## 6 · CONTRIBUTOR SLOJ (usvojeno 2026-07-19 — quest kao mašina doprinosa, prošireno)
+
+> Vlasništvo tokova (product-wide lock, SECTION-LOCKS §10):
+> **QUESTS/CONTRIBUTE stvara · HOME distribuira · PROFILE čuva.** Isti sistem se
+> NIKAD ne duplira nezavisno u Home i Quests.
+
+### Šta korisnik može da doprinese (core tokovi, ne feedback)
+Nova mesta · novi događaji · ispravke · verifikovane recenzije · vibe tagovi ·
+**Weekend Roadmaps** · city guides · care informacije · predlozi questova ·
+community validacija. *(Predlozi funkcija = feedback/roadmap board (#20), ne
+glavni landing hero; landing sme sekundarni CTA: „Znaš mesto koje grad treba da
+otkrije? Predloži ga.")*
+
+### Primer petlje (kanonski):
+```
+Quest: „Napravi Weekend Roadmap"
+→ korisnik gradi rutu (mesta/eventi, satnica, zašto svaka stanica, publika,
+  muzika, budžet, solo/crew, prevoz, care info, lična verifikacija)
+→ validacija/review
+→ HOME je distribuira (drugi čuvaju i prate)
+→ PROFILE beleži autorstvo i reputaciju
+```
+**Afterglow ≠ Roadmap:** Afterglow = refleksija na prošli vikend (Pon);
+Roadmap = plan za sledeću noć (Uto/Sre). Drže se odvojeno.
+
+### Reputacija rute = verifikovana korisnost, NIKAD sirovi volumen
+saves · završeni stop check-inovi · helpful glasovi · tačnost · svežina ·
+Trust autora · potvrde mesta.
+
+### Merdevine doprinosa (mapirane na postojeće tierove, ne paralelni sistem)
+```
+Scout → Scene Contributor → Route Builder → Local Curator → AfterBefore Collaborator
+```
+- XP/AFC nagrađuje **validno učešće**; reputacija (REP/Trust) nagrađuje
+  **korisnost i dokazan kvalitet**; operativni rad može postati **plaćena
+  saradnja** (city editor, venue onboarding partner, event verifier, community
+  host, quest creator, scene reporter, visitor guide, care ambassador, pilot
+  moderator). **Trust se ne kupuje.**
+- Nagrada ide na **prihvaćen i koristan doprinos**, ne na submit forme (anti-spam:
+  moderacija + validacija pre kredita — `moderation_status` rail već postoji).
+
+### Home se prilagođava danu (potvrđuje HOME lock Faza 2 „Živi Home")
+Pon: Afterglow/recap/glas · Uto–Sre: Roadmap kreacija + midweek Active mesta ·
+Čet: rising rute + ČET drop (#41) + partner questovi · Pet: Pre-Heat/final plan/crew ·
+Live: check-in, Active, Iskra, questovi.
+
+---
+
 ## Fond scene veza (ECONOMY §11.8 — doc-level, 2026-07-13)
 
 Kad se Fond scene aktivira (okidač u §11.8), quest narativ se pomera:

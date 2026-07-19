@@ -5,6 +5,17 @@
 
 ---
 
+## 🧭 MASTER INTEGRACIJA 2026-07-19 (proizvod-ekonomija-rast)
+
+Founder master odluke primljene u kanon: **`WAR-ROOM-UPDATE-2026-07-19.md`**
+(truth audit + scope matrica LIVE/B1/MVP/PHASE2/VISION/LEGAL + founder summary).
+Kanon dopune: ECONOMY §12 (Venue Growth Network) · §13 (AFC/AXP closed-loop + QR)
+· §14 (Organic Share Engine) · QUEST §6 (contributor sloj + roadmaps) · PARTNERS
+(venue operativa) · SECTION-LOCKS §10 (10 product-wide lockova, uklj. weekday
+Active+Iskra) · GAPS §8. **50 novih taskova u War Room → PLAN (NK· sekcije).**
+Blokeri: 6 deep-dive MD fajlova nije u repou · šifra 2-device QA · AFC pravno
+mišljenje · datum 18.08 nepotvrđen · vikend program prazan.
+
 ## 🔥 SLEDEĆE — akcije koje otključavaju sve ostalo
 
 0. **[FOUNDER] B1 pilot odluke** — ✅ DATUM: **18.08.2026** (⚠️ utorak — potvrdi da li namerno) · scope presuda za 3 feature rupe (vibe tags / artist vote / badge — graditi ili seći PRE freeze-a) · mapiranje nagrada na REP/AFC · PM engagement model · OnlyClubbing ponuda. Board: War Room → PLAN (588 taskova čeka).

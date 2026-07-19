@@ -105,4 +105,23 @@ Legacy komponente koje OS koristi još imaju engleski string:
 
 ---
 
-*Reference: `SECTION-LOCKS.md`, `QUEST.md`, `ECONOMY.md`. Taskovi: #39 (ledger), #40 (sponsored progres), #44 (lock audit). Testovi nemaju task — dodati.*
+## 8 · 🟠 Product-canon gaps (master integracija 2026-07-19 — otvorena pitanja)
+
+| Gap | Zašto je rupa |
+|---|---|
+| **6 izvornih strateških MD dokumenata nije u repou** (VENUE_GROWTH, CONTRIBUTOR, SPONSORED_ENGINE, VIRAL, AXP_QR, BRAND_LAUNCH) | kanon sažet u ECONOMY §12–14 / QUEST §6 / SECTION-LOCKS §10 iz master prompta; deep-dive fajlove ubaciti kad ih founder dostavi |
+| **Raverboard scoring formula** | ponderisane kategorije (Presence/Quests/Contribution/Movement/Social/Creator/Care) nisu definisane; ne sme biti sirovi XP volumen |
+| **Movement/Night Motion permisije + anti-cheat** | capped Movement Score, bez čuvanja preciznih GPS tragova; nadovezuje se na dance score cap dug |
+| **AFC/AXP fiskalno-pravni model** | closed-loop loyalty tretman u Srbiji + alkohol nagrade — računovođa/pravnik PRE launcha redemption-a |
+| **QR redemption operativa** | rotirajući one-time QR, venue skener tok, obuka osoblja, offline fallback |
+| **Ticketing scope** | externi checkout + app pass = MVP; svaka promena = svesna izmena SECTION-LOCKS §10.6 |
+| **Memento privatnost** | privatne/tajne lokacije i tuđi identiteti se ne dele automatski; korisnik kontroliše public/friends/private |
+| **Sponsored Quest prava sadržaja** | UGC prava, saglasnost taggovanih, poseban opt-in za sponsor repost, poseban ugovor za plaćenu komercijalnu upotrebu |
+| **Venue data atribucija** | ko je uneo/potvrdio podatak (curated vs venue vs community) — poverenje u imenik |
+| **Weekday Active/Iskra gustina** | mehanika radi tek sa dovoljno opt-in ljudi u istom mestu — pilot merenje pre šireg roll-outa |
+| **Moderacija — kapacitet** | contributor tokovi + kampanje + care signali traže definisan moderacioni proces/ljude |
+| **Profesionalni brend — vlasništvo** | logo/ikonica/social šabloni traže senior dizajnera; AFTERBEFORE_DESIGN pokriva app, ne celu brend arhitekturu |
+
+---
+
+*Reference: `SECTION-LOCKS.md`, `QUEST.md`, `ECONOMY.md`, `WAR-ROOM-UPDATE-2026-07-19.md`. Taskovi: #39 (ledger), #40 (sponsored progres), #44 (lock audit). Testovi nemaju task — dodati.*
