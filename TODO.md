@@ -33,7 +33,7 @@ Noć kao igra uživo — app izaziva, grad je tabla, ljudi su potezi. Temelj pos
 - **#50 · Nađi ekipu v2** — safety (ženski crew), auto-match po Idem/check-in, Quest-hub ulaz.
 - **Scout rola** — reputation-gated najavljivanje evenata (klaberi sa statusom pune program umesto tebe; founder approve queue). Dugoročno rešenje content pipeline-a.
 - **REP/AFC pun jezički pass** — ostatak „XP" stringova u UI (quest hub brojevi itd.).
-- **Kanon migracija ekrana — ✅ SVIH 6 GLAVNIH GOTOVO** (Quests, Home, Venue sheet, Heat, Profile, Matches — 2026-07-19). U opciji još: unutrašnjosti overlay-a (Dance/Crew/Campaign/DareWheel/Stories/Lucky100) + onboarding — re-skin po istom AB šablonu kad se ukaže prilika.
+- **Kanon migracija ekrana — ✅ SVIH 6 GLAVNIH GOTOVO** (Quests, Home, Venue sheet, Heat, Profile, Matches — 2026-07-19). Profil v2 ✅ (cover + avatar upload + bio/link — 2026-07-19). U opciji još: unutrašnjosti overlay-a (Dance/Crew/Campaign/DareWheel/Stories/Lucky100) + onboarding — re-skin po istom AB šablonu kad se ukaže prilika.
 - **Motion audit — ostatak** (report: `motion-audits/afterbefore-2026-07-19.html`): ✅ shipovano 2026-07-19: os-screen enter, overlay enter/exit (sheet+točak+dance+crew+kampanja), reduced-motion gate za spin, os-press na CTA, pulse čišćenje (10→liveonly), tab crossfade (Home lens + točak modovi), +REP float na check-in, šifra/dare stamp beat. Ostalo: Explore/WarRoom tab crossfade, landing CTA hover ring, per-genre burst na check-in.
 - **Landing v3 dovršetak** — flywheel vizual u #ekonomija + Fond scene blok (osnova shipovana; fino podešavanje uz grant paket).
 - **#43 · Pravni template kampanja + Jungle pitch.**
