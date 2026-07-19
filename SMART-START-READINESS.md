@@ -59,6 +59,13 @@ Jedna **hero noć** (Kult + DJ koji scena želi + 10–15 OG ravera) → check-i
 
 ---
 
+> **Scope ograda (2026-07-19):** grant prijava prati SCOPE MATRICU iz
+> `WAR-ROOM-UPDATE-2026-07-19.md` — kao MVP se predstavlja SAMO „SMART START MVP"
+> kolona (native + weekday Active + roadmaps + venue pilot + QR pilot + share
+> engine). Raverboard/VS/Memento/Night Motion/Night Care = Phase 2 i NE
+> predstavljaju se kao MVP deliverables. Priča ostaje: testabilna inovacija +
+> realan pilot.
+
 ## 5. Beta → MVP koji grant finansira (~5.4M RSD, 6–9 mes)
 
 - **Capacitor iOS/Android** (native, ne RN rewrite) — external dev/tools

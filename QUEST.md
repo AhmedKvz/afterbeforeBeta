@@ -2,7 +2,7 @@
 
 > Living doc za Quest sekciju: šta je danas u produkciji, šta je zaključano, i kuda ide.
 > Kanon-veze: `SECTION-LOCKS.md` §4 (lock) · `ECONOMY.md` §2, §8b, §8c (ekonomija/kampanje/pijaca) · `PARTNERS.md` (ko časti) · Ustav `AfterBefore-Istina-i-Zakoni.md` (Z5/Z6/Z10/Z11, raver #4/#5/#7).
-> Poslednje ažuriranje: 2026-07-05.
+> Poslednje ažuriranje: 2026-07-19 (§6 contributor sloj — master integracija).
 
 ---
 
