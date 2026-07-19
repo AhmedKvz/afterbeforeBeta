@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,12 +16,49 @@ const APP_URL = 'https://ahmedkvz.github.io/afterbeforeBeta/app/';
 const ROMAN = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
 const roman = (n: number) => ROMAN[n] || `${n}`;
 
+const db = supabase as any;
+
 export const OSProfile = () => {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const { streak } = useStreak();
   const { data: referral } = useMyReferral();
   const [ach, setAch] = useState<any[]>([]);
+  const coverRef = useRef<HTMLInputElement>(null);
+  const avatarRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState<string | null>(null);
+  const [editIntro, setEditIntro] = useState(false);
+  const [introForm, setIntroForm] = useState({ bio: '', link: '' });
+
+  // Cover/avatar upload — isti media bucket i šablon kao venue self-serve.
+  const uploadImage = async (file: File | undefined, kind: 'cover' | 'avatar') => {
+    if (!file || !user) return;
+    setUploading(kind);
+    try {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `profiles/${user.id}/${kind}-${Date.now()}.${ext}`;
+      const up = await db.storage.from('media').upload(path, file, { contentType: file.type });
+      if (up.error) { toast.error('Upload nije uspeo — pokušaj ponovo.'); return; }
+      const { data: pub } = db.storage.from('media').getPublicUrl(path);
+      const col = kind === 'cover' ? 'cover_url' : 'avatar_url';
+      const { error } = await db.from('profiles').update({ [col]: pub.publicUrl }).eq('user_id', user.id);
+      if (error) { toast.error('Čuvanje nije uspelo.'); return; }
+      track('profile_image_set', { kind });
+      toast.success(kind === 'cover' ? 'Cover postavljen ✓' : 'Slika postavljena ✓');
+      await refreshProfile();
+    } finally { setUploading(null); }
+  };
+
+  const saveIntro = async () => {
+    if (!user) return;
+    const link = introForm.link.trim();
+    const normalized = link && !/^https?:\/\//i.test(link) ? `https://${link}` : link;
+    const { error } = await db.from('profiles').update({ bio: introForm.bio.trim() || null, link_url: normalized || null }).eq('user_id', user.id);
+    if (error) { toast.error('Čuvanje nije uspelo.'); return; }
+    setEditIntro(false);
+    toast.success('Intro sačuvan ✓');
+    await refreshProfile();
+  };
 
   useEffect(() => { if (user) getUserAchievements(user.id).then(setAch).catch(() => {}); }, [user]);
 
@@ -80,13 +117,21 @@ export const OSProfile = () => {
 
   return (
     <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', background: AB.void, paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
+      {/* cover — cinematic hero kao na venue sheetu; 📷 za upload */}
+      <input ref={coverRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => uploadImage(e.target.files?.[0], 'cover')} />
+      <input ref={avatarRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => uploadImage(e.target.files?.[0], 'avatar')} />
+      <div style={{ position: 'relative', height: 172, marginTop: -14, background: (profile as any).cover_url ? `center/cover url(${(profile as any).cover_url})` : 'linear-gradient(160deg, oklch(0.62 0.25 300 / 0.22), oklch(0.135 0.012 285) 72%)' }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, oklch(0.135 0.012 285) 4%, oklch(0.135 0.012 285 / 0.2) 45%, transparent 70%)' }} />
+        <button onClick={() => coverRef.current?.click()} disabled={uploading === 'cover'} className="os-press" aria-label="Promeni cover" style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top) + 10px)', right: 14, minHeight: 34, padding: '7px 13px', borderRadius: 999, border: `1px solid ${AB.line2}`, cursor: 'pointer', background: 'rgba(11,11,13,.62)', backdropFilter: 'blur(8px)', fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.08em', color: AB.ink2 }}>{uploading === 'cover' ? '…' : (profile as any).cover_url ? '📷 COVER' : '📷 DODAJ COVER'}</button>
+      </div>
+
       {/* identity — vibe card: pročitaš je za 3 sekunde (kanon §9) */}
-      <div style={{ padding: '14px 18px 0', display: 'flex', alignItems: 'center', gap: 15 }}>
-        <div style={{ width: 74, height: 74, borderRadius: 22, flex: 'none', background: CONIC, padding: 2 }}>
-          <div style={{ width: '100%', height: '100%', borderRadius: 20, background: profile.avatar_url ? `center/cover url(${profile.avatar_url})` : AB.raised }} />
-        </div>
-        <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-.02em', lineHeight: '30px', color: AB.ink }}>{profile.display_name}</div>
+      <div style={{ padding: '0 18px', display: 'flex', alignItems: 'flex-end', gap: 15, marginTop: -37 }}>
+        <button onClick={() => avatarRef.current?.click()} disabled={uploading === 'avatar'} className="os-press" aria-label="Promeni sliku" style={{ width: 84, height: 84, borderRadius: 24, flex: 'none', background: CONIC, padding: 2, border: 0, cursor: 'pointer', position: 'relative' }}>
+          <div style={{ width: '100%', height: '100%', borderRadius: 22, background: profile.avatar_url ? `center/cover url(${profile.avatar_url})` : AB.raised, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>{!profile.avatar_url && (uploading === 'avatar' ? '…' : '📷')}</div>
+        </button>
+        <div style={{ minWidth: 0, paddingBottom: 4 }}>
+          <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-.02em', lineHeight: '30px', color: AB.ink, textShadow: '0 2px 14px rgba(0,0,0,.55)' }}>{profile.display_name}</div>
           <div style={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 600, letterSpacing: '.08em', color: AB.uv, marginTop: 4 }}>
             EXPLORER RANK {roman(level)}{profile.founding_raver_number ? ` · 🏴 BG #${profile.founding_raver_number}` : ''}
           </div>
@@ -102,6 +147,34 @@ export const OSProfile = () => {
           {tags.slice(0, 6).map((m) => { const c = genreCol(m); return <span key={m} style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, color: c, border: `1px solid ${hexA(c, 0.4)}`, borderRadius: 999, padding: '6px 12px' }}>{m.toUpperCase()}</span>; })}
         </div>
       )}
+
+      {/* intro — bio + link (uredi inline) */}
+      <div style={{ padding: '12px 18px 0' }}>
+        {!editIntro ? (
+          <>
+            {(profile as any).bio && <div style={{ fontSize: 14, lineHeight: 1.55, color: AB.ink2 }}>{(profile as any).bio}</div>}
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginTop: (profile as any).bio ? 10 : 0 }}>
+              {(profile as any).link_url && (
+                <a href={(profile as any).link_url} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: MONO, fontSize: 11, color: AB.ink2, border: `1px solid ${AB.line2}`, borderRadius: 999, padding: '7px 13px', textDecoration: 'none' }}>
+                  🔗 {(() => { try { return new URL((profile as any).link_url).hostname.replace('www.', ''); } catch { return (profile as any).link_url; } })()}
+                </a>
+              )}
+              <button onClick={() => { setIntroForm({ bio: (profile as any).bio || '', link: (profile as any).link_url || '' }); setEditIntro(true); }} className="os-press" style={{ background: 'transparent', border: 0, cursor: 'pointer', fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.1em', color: AB.ink3, padding: '7px 0' }}>
+                ✎ {(profile as any).bio || (profile as any).link_url ? 'UREDI INTRO' : 'DODAJ INTRO + LINK'}
+              </button>
+            </div>
+          </>
+        ) : (
+          <div style={{ padding: 14, borderRadius: 16, background: AB.surface, border: `1px solid ${AB.line2}` }}>
+            <textarea value={introForm.bio} onChange={(e) => setIntroForm({ ...introForm, bio: e.target.value })} maxLength={160} rows={3} placeholder="Ko si na sceni? (do 160 znakova)" style={{ width: '100%', resize: 'none', background: AB.void, border: `1px solid ${AB.line2}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, lineHeight: 1.5, color: AB.ink, outline: 'none', fontFamily: 'inherit' }} />
+            <input value={introForm.link} onChange={(e) => setIntroForm({ ...introForm, link: e.target.value })} placeholder="Link (IG, SoundCloud, sajt…)" style={{ width: '100%', marginTop: 8, background: AB.void, border: `1px solid ${AB.line2}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, color: AB.ink, outline: 'none' }} />
+            <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+              <button onClick={() => setEditIntro(false)} className="os-press" style={{ flex: 'none', padding: '9px 14px', borderRadius: 999, background: 'transparent', border: `1px solid ${AB.line2}`, color: AB.ink3, fontSize: 13, cursor: 'pointer' }}>Otkaži</button>
+              <button onClick={saveIntro} className="os-press" style={{ flex: 1, padding: '9px', borderRadius: 999, background: AB.raised, border: `1px solid ${AB.line2}`, color: AB.ink, fontWeight: 700, fontSize: 13.5, cursor: 'pointer' }}>Sačuvaj</button>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* rank — tanka acid traka ka SLEDEĆEM milestone-u (kanon §9) */}
       <div style={{ margin: '16px 18px 0', padding: 15, borderRadius: 16, background: AB.surface, border: `1px solid ${AB.line}` }}>
