@@ -4,8 +4,35 @@
 > Kanon primljen u: `ECONOMY.md` §12–14 · `QUEST.md` §6 · `PARTNERS.md` (Venue Growth
 > Network) · `SECTION-LOCKS.md` §10 · `GAPS.md` §8. Ovaj fajl = truth audit, scope
 > matrica, War Room taskovi i founder summary.
-> ⚠️ 6 izvornih deep-dive MD fajlova NIJE u repou (nisu dostavljeni) — kad stignu,
-> commit-uju se kao specifikacije; kanonske odluke su već ovde.
+> 📦 **4/6 deep-dive fajlova dostavljeno i commitovano** (SPONSORED_QUEST_ENGINE,
+> ORGANIC_SHARE_VIRAL, AXP_QR_REDEMPTION, BRAND_LAUNCH — verbatim specifikacije).
+> Još fale: VENUE_GROWTH_REVENUE_MODEL + HOME_QUESTS_CONTRIBUTOR_ARCHITECTURE.
+>
+> **Rekonsilijacija 4 fajla sa kanonom (2026-07-19, drugi pass):**
+> - **SPONSORED_QUEST_ENGINE** → potvrđuje ECONOMY §8b/8c. Novo primljeno: duo/tag
+>   consent (prijava nije javna dok SVI taggovani ne odobre) · 3-slojna prava
+>   sadržaja (standard/repost opt-in/plaćena komercijala = poseban ugovor) ·
+>   reputacione kategorije (Creator/Community/Scene/Care XP + Trust + Curator —
+>   mapira se na REP/Trust, quest aktivnost NE diže automatski curator rep) ·
+>   paketi Basic/Growth/City (cene i dalje ne-kanon). Glasanje: kanon ostaje
+>   hibrid „zajednica top 5 → žiri" (fajl ga nudi kao 'simpler version');
+>   ponderisana formula 50/25/15/10 = opcija za kasnije, ne lock.
+> - **ORGANIC_SHARE** → potvrđuje ECONOMY §14. Novo: „share kao izazov" (Can you
+>   do better?) · stepenaste referral nagrade po levku (signup malo → check-in
+>   više → prvi quest → W2 povratak = potvrđen referral) · VS traži pristanak
+>   obe strane · privacy pravila deljenja (u GAPS §8 Memento).
+> - **AXP_QR** → potvrđuje ECONOMY §13 (ime ostaje AFC). Novo: pilot = 1 klub +
+>   1 kafić + 1 kulturno mesto, prve nagrade bezalkoholne (voda/kafa/garderoba/
+>   skip-line/karta) · partner scan mode (staff vidi samo minimum) · NBS
+>   konsultacija ako volumen poraste · ToU principi (bez keš vrednosti/transfera/
+>   prodaje, expiry uz transparentna pravila).
+> - **BRAND_LAUNCH** → vlasnik: War Room „Brand & Launch" + GAPS §8. ⚠️ KONFLIKT
+>   RAZREŠEN: §15 fajla lista Night Motion/VS/leaderboard u Event 1, ali sopstveni
+>   §27 Wave 1 = identitet + check-in + Zavrti Noć + sharing — **Wave 1 je merodavan**
+>   (B1 scope freeze ostaje; Night Motion/VS = Phase 2, potvrda truth audita).
+>   Novo primljeno: launch content checklist (12–15 videa, media kit, EN landing) ·
+>   secret-address logika (T-48h/T-12h/T-2h otključavanje, mystery ograničen i
+>   opravdan) · guerrilla kanali · creator kompenzacija po aktivaciji, ne followerima.
 
 ---
 

@@ -134,6 +134,12 @@ Nasleđuje ceo Dance Floor anti-cheat plan, plus:
 3. **Pravno pre prve kampanje:** template pravila (prava korišćenja UGC za sponzora+nas, GDPR saglasnost snimljenih, muzička prava, porez na nagradu, platform contest pravila). Konkurs kreativnosti sa žirijem — NE izvlačenje.
 4. **Alkohol brendovi:** tek posle čistog pilota; strogi 18+.
 5. **Jedna MEGA kampanja u isto vreme** (scarcity = event, ne inventar).
+6. **Tag/duo consent (2026-07-19):** prijava sa više učesnika nije javna dok
+   SVI taggovani ne odobre; niko se ne tagguje bez pristanka.
+7. **Prava sadržaja — 3 sloja (2026-07-19):** standard (kreator zadržava
+   vlasništvo, prikaz u kampanji po ToS) → sponsor repost (poseban opt-in) →
+   plaćena komercijalna upotreba (poseban ugovor + naknada). Ulazak u quest
+   NIKAD tiho ne prenosi trajna komercijalna prava.
 
 **Prvi pilot:** Jungle Travel (youth travel, ista publika, čist brend, nagrada = njihov proizvod). Sponsor report: submissions, reach, glasovi, unikatni glasači, instalacije tokom kampanje, cost-per-authentic-content vs influencer benchmark.
 
@@ -377,8 +383,18 @@ Weekend Roadmap · Sponsored Quest prijava · contributor milestone · otkriće 
 signup→prvi quest → referral retencija.
 
 **Gvozdeno pravilo deljenja:** NE nagrađujemo pritisak na Share. Nagrađuje se
-**realna aktivacija** (share → signup → check-in → prvi quest → povratak) — isto
-kao referral rail koji već plaća aktivaciju, ne registraciju (§3 Sybil).
+**realna aktivacija**, stepenasto po levku: signup = malo · prvi check-in = više ·
+prvi quest = contributor bonus · povratak sledeće nedelje = potvrđen referral —
+isto kao referral rail koji već plaća aktivaciju, ne registraciju (§3 Sybil).
+Najjači format: **share kao izazov** („Can you do better?") — svaka kartica je
+ulazna tačka u proizvod, ne poster. VS poređenja traže pristanak OBE strane.
+
+*Deep-dive spec: `AFTERBEFORE_ORGANIC_SHARE_VIRAL_GROWTH_ENGINE.md` (kartice,
+levak, anti-spam) · `AFTERBEFORE_SPONSORED_QUEST_ENGINE.md` (kampanje, prava
+sadržaja, paketi) · `AFTERBEFORE_AXP_PARTNER_REWARDS_QR_REDEMPTION.md` (QR tok,
+pilot: 1 klub + 1 kafić + 1 kulturno mesto, bezalkoholne nagrade prve) ·
+`AFTERBEFORE_PROFESSIONAL_BRAND_MARKETING_CONTROLLED_LAUNCH_STRATEGY.md`
+(launch talasi, secret-address logika).*
 
 ---
 
