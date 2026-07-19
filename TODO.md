@@ -33,7 +33,7 @@ Noć kao igra uživo — app izaziva, grad je tabla, ljudi su potezi. Temelj pos
 - **#50 · Nađi ekipu v2** — safety (ženski crew), auto-match po Idem/check-in, Quest-hub ulaz.
 - **Scout rola** — reputation-gated najavljivanje evenata (klaberi sa statusom pune program umesto tebe; founder approve queue). Dugoročno rešenje content pipeline-a.
 - **REP/AFC pun jezički pass** — ostatak „XP" stringova u UI (quest hub brojevi itd.).
-- **Kanon migracija ekrana** — ✅ Quests pilot shipovan 2026-07-19 (prvi --ab-* ekran: editorial header, featured Vikend Quest, UV okviri, acid trake, Ignite na claim, reveal stagger 40ms). Sledeći po redu kad se pilot potvrdi: Home → Venue sheet → Heat → Profile (§9 promptovi u AFTERBEFORE_DESIGN.md).
+- **Kanon migracija ekrana** — ✅ Quests + ✅ Home shipovani 2026-07-19 (AB tokeni u osTheme; Home: cinematic hero sa acid VEČERAS badge-om — vidi se tek kad ima predstojećih evenata). Sledeći: Venue sheet → Heat → Profile (§9 promptovi u AFTERBEFORE_DESIGN.md).
 - **Motion audit — ostatak** (report: `motion-audits/afterbefore-2026-07-19.html`): ✅ shipovano 2026-07-19: os-screen enter, overlay enter/exit (sheet+točak+dance+crew+kampanja), reduced-motion gate za spin, os-press na CTA, pulse čišćenje (10→liveonly), tab crossfade (Home lens + točak modovi), +REP float na check-in, šifra/dare stamp beat. Ostalo: Explore/WarRoom tab crossfade, landing CTA hover ring, per-genre burst na check-in.
 - **Landing v3 dovršetak** — flywheel vizual u #ekonomija + Fond scene blok (osnova shipovana; fino podešavanje uz grant paket).
 - **#43 · Pravni template kampanja + Jungle pitch.**
