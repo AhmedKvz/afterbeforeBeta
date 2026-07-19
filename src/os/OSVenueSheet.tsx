@@ -21,7 +21,7 @@ import { OSMatchCelebration } from './OSMatchCelebration';
 import { useCheckIn } from './venue/useCheckIn';
 import { OSClaimCard } from './venue/OSClaimCard';
 import { OSDareWheel } from './OSDareWheel';
-import { OS, G, hexA, MONO, HATCH } from './osTheme';
+import { AB, OS, G, hexA, MONO, HATCH } from './osTheme';
 import { useExit } from './useExit';
 
 const db = supabase as any;
@@ -233,25 +233,25 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
   return (
     <>
       <div onClick={close} style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(5,5,7,.66)', animation: closing ? 'os-scrim-out .15s ease forwards' : 'os-scrim .25s ease' }} />
-      <div className="os-scroll" style={{ position: 'fixed', left: 0, right: 0, bottom: 0, top: 24, zIndex: 61, borderRadius: '26px 26px 0 0', overflowY: 'auto', background: OS.surface3, border: '1px solid rgba(255,255,255,.08)', animation: closing ? 'os-sheet-out .15s ease forwards' : 'os-sheet .4s cubic-bezier(.16,1,.3,1)', paddingBottom: 24, maxWidth: 520, margin: '0 auto' }}>
-        {/* hero */}
-        <div style={{ position: 'relative', height: 240, background: vmeta?.cover_url ? `linear-gradient(180deg,rgba(7,7,8,.15),rgba(7,7,8,.82)), center/cover url(${vmeta.cover_url})` : `linear-gradient(160deg,${hexA(venue.col, 0.4)},#0e0f12 78%)` }}>
+      <div className="os-scroll" style={{ position: 'fixed', left: 0, right: 0, bottom: 0, top: 24, zIndex: 61, borderRadius: '22px 22px 0 0', overflowY: 'auto', background: AB.surface, border: `1px solid ${AB.line}`, animation: closing ? 'os-sheet-out .15s ease forwards' : 'os-sheet .4s cubic-bezier(.16,1,.3,1)', paddingBottom: 24, maxWidth: 520, margin: '0 auto' }}>
+        {/* hero — image-forward, void-scrim, editorial naslov (kanon §6.2) */}
+        <div style={{ position: 'relative', height: 248, background: vmeta?.cover_url ? `linear-gradient(180deg,rgba(7,7,8,.1),rgba(7,7,8,.5)), center/cover url(${vmeta.cover_url})` : `linear-gradient(160deg,${hexA(venue.col, 0.4)},#0e0f12 78%)` }}>
           {!vmeta?.cover_url && <div style={{ position: 'absolute', inset: 0, background: HATCH }} />}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,#0E0E11 3%,transparent 60%)' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, oklch(0.175 0.015 285) 4%, oklch(0.175 0.015 285 / 0.3) 40%, transparent 65%)' }} />
           <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,.3)' }} />
-          <button onClick={close} className="os-press" style={{ position: 'absolute', top: 18, right: 16, width: 34, height: 34, borderRadius: '50%', border: 0, cursor: 'pointer', background: 'rgba(10,10,12,.6)', color: OS.ink, fontSize: 15, backdropFilter: 'blur(8px)' }}>✕</button>
+          <button onClick={close} className="os-press" style={{ position: 'absolute', top: 18, right: 16, width: 34, height: 34, borderRadius: '50%', border: 0, cursor: 'pointer', background: 'rgba(10,10,12,.6)', color: AB.ink, fontSize: 15, backdropFilter: 'blur(8px)' }}>✕</button>
           <div style={{ position: 'absolute', bottom: 16, left: 18, right: 18 }}>
-            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: hexA(venue.col, 0.95) }}>{venue.genre || 'VENUE'}</div>
-            <div style={{ fontSize: 32, fontWeight: 700, letterSpacing: '-.02em', color: OS.ink, lineHeight: 1, marginTop: 5 }}>{venue.name}</div>
-            <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink4, marginTop: 7 }}>{venue.neighborhood || 'BEOGRAD'}{venue.rating ? ` · ★ ${venue.rating.toFixed(1)}` : ''}</div>
+            <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.14em', color: hexA(venue.col, 0.95) }}>{venue.genre || 'VENUE'}</div>
+            <div style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-.02em', color: AB.ink, lineHeight: 1, marginTop: 5 }}>{venue.name}</div>
+            <div style={{ fontFamily: MONO, fontSize: 11, color: AB.ink2, marginTop: 7 }}>{venue.neighborhood || 'BEOGRAD'}{venue.rating ? ` · ★ ${venue.rating.toFixed(1)}` : ''}</div>
           </div>
         </div>
 
         {/* action bar — RA-style follow + followers */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 0' }}>
-          <button onClick={() => setFollowing((f) => !f)} style={{ flex: 'none', padding: '10px 18px', borderRadius: 12, cursor: 'pointer', fontWeight: 600, fontSize: 14, border: following ? `1px solid ${OS.line2}` : 0, background: following ? 'transparent' : venue.col, color: following ? OS.ink2 : '#0B0B0D' }}>{following ? '✓ Pratiš' : '+ Prati'}</button>
-          
-          <button onClick={checkIn} disabled={busy} className="os-press" style={{ marginLeft: 'auto', flex: 'none', padding: '10px 16px', borderRadius: 12, cursor: busy ? 'default' : 'pointer', fontWeight: 600, fontSize: 13, border: `1px solid ${hexA(G.festival, 0.4)}`, background: done ? hexA(G.festival, 0.15) : 'transparent', color: G.festival, opacity: busy ? 0.6 : 1 }}>{done ? '✓ Tu si' : '📍 Check-in'}</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px 0' }}>
+          <button onClick={() => setFollowing((f) => !f)} className="os-press" style={{ flex: 'none', padding: '10px 18px', borderRadius: 999, cursor: 'pointer', fontWeight: 700, fontSize: 14, border: following ? `1px solid ${AB.line2}` : 0, background: following ? 'transparent' : venue.col, color: following ? AB.ink2 : '#0B0B0D' }}>{following ? '✓ Pratiš' : '+ Prati'}</button>
+
+          <button onClick={checkIn} disabled={busy} className="os-press" style={{ marginLeft: 'auto', flex: 'none', padding: '10px 16px', borderRadius: 999, cursor: busy ? 'default' : 'pointer', fontWeight: 600, fontSize: 13, border: `1px solid ${done ? 'transparent' : AB.acidDim}`, background: done ? 'oklch(0.88 0.19 158 / 0.15)' : 'transparent', color: done ? AB.acid : AB.acidDim, opacity: busy ? 0.6 : 1 }}>{done ? '✓ Tu si' : '📍 Check-in'}</button>
         </div>
 
         {/* IG + kako stići */}
@@ -259,12 +259,12 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
           <div style={{ display: 'flex', gap: 8, padding: '10px 16px 0', flexWrap: 'wrap' }}>
             {vmeta?.instagram && (
               <a href={`https://instagram.com/${String(vmeta.instagram).replace('@','')}`} target="_blank" rel="noreferrer"
-                 style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: MONO, fontSize: 11, color: OS.ink3, border: `1px solid ${OS.line2}`, borderRadius: 999, padding: '8px 14px' }}>
+                 style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: MONO, fontSize: 11, color: AB.ink2, border: `1px solid ${AB.line2}`, borderRadius: 999, padding: '8px 14px' }}>
                 📸 @{String(vmeta.instagram).replace('@','')}
               </a>
             )}
             <a href={mapsHref} target="_blank" rel="noreferrer"
-               style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: MONO, fontSize: 11, color: OS.ink3, border: `1px solid ${OS.line2}`, borderRadius: 999, padding: '8px 14px' }}>
+               style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: MONO, fontSize: 11, color: AB.ink2, border: `1px solid ${AB.line2}`, borderRadius: 999, padding: '8px 14px' }}>
               🧭 KAKO DA STIGNEM
             </a>
           </div>
@@ -272,13 +272,13 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
 
         {/* live presence — opt-in, who's here */}
         {venue.presenceId && (
-          <div style={{ margin: '16px 16px 0', padding: 16, borderRadius: 18, background: OS.surface, border: `1px solid ${OS.line}` }}>
+          <div style={{ margin: '16px 18px 0', padding: 16, borderRadius: 16, background: AB.raised, border: `1px solid ${AB.line}` }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6 }}>KO JE TU · {here}</span>
+              <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3 }}>KO JE TU · {here}</span>
               <button onClick={toggleVisible} disabled={setPresence.isPending} style={{ display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer', background: 'transparent', border: 0, padding: 0 }}>
-                <span style={{ fontFamily: MONO, fontSize: 10, color: meVisible ? G.festival : OS.ink5 }}>{meVisible ? 'VISIBLE' : 'GHOST'}</span>
-                <span style={{ width: 38, height: 22, borderRadius: 999, border: '1px solid rgba(255,255,255,.12)', background: meVisible ? hexA(G.festival, 0.3) : 'rgba(255,255,255,.06)', position: 'relative', display: 'inline-block' }}>
-                  <span style={{ position: 'absolute', top: 2, left: meVisible ? 18 : 2, width: 16, height: 16, borderRadius: '50%', background: OS.ink, transition: 'left .2s' }} />
+                <span style={{ fontFamily: MONO, fontSize: 10, color: meVisible ? AB.acid : AB.ink3 }}>{meVisible ? 'VISIBLE' : 'GHOST'}</span>
+                <span style={{ width: 38, height: 22, borderRadius: 999, border: `1px solid ${AB.line2}`, background: meVisible ? 'oklch(0.88 0.19 158 / 0.3)' : 'rgba(255,255,255,.06)', position: 'relative', display: 'inline-block' }}>
+                  <span style={{ position: 'absolute', top: 2, left: meVisible ? 18 : 2, width: 16, height: 16, borderRadius: '50%', background: AB.ink, transition: 'left .2s' }} />
                 </span>
               </button>
             </div>
@@ -336,35 +336,35 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
         )}
 
         {/* Nađi ekipu — form a crew for tonight */}
-        <div style={{ padding: '10px 16px 0' }}>
-          <button onClick={() => setCrewOpen(true)} style={{ width: '100%', padding: 15, borderRadius: 16, border: `1px solid ${hexA(G.community, 0.4)}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: `linear-gradient(135deg, ${hexA(G.community, 0.14)}, ${hexA(G.techno, 0.06)})`, textAlign: 'left' }}>
+        <div style={{ padding: '10px 18px 0' }}>
+          <button onClick={() => setCrewOpen(true)} className="os-press" style={{ width: '100%', padding: 15, borderRadius: 16, border: `1px solid ${hexA(G.community, 0.4)}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: hexA(G.community, 0.09), textAlign: 'left' }}>
             <span style={{ fontSize: 26 }}>🧑‍🤝‍🧑</span>
             <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 700, fontSize: 15, color: OS.ink }}>Nađi ekipu za večeras</div>
-              <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 2 }}>NIKAD NE IZLAZIŠ SAM · GRUPA OD ISTE NAMERE</div>
+              <div style={{ fontWeight: 700, fontSize: 15.5, letterSpacing: '-.01em', color: AB.ink }}>Nađi ekipu za večeras</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.1em', color: AB.ink3, marginTop: 2 }}>NIKAD NE IZLAZIŠ SAM · GRUPA OD ISTE NAMERE</div>
             </div>
             <span style={{ color: G.community, fontSize: 18 }}>›</span>
           </button>
         </div>
 
         {/* dance floor — the killer feature */}
-        <div style={{ padding: '12px 16px 0' }}>
-          <button onClick={() => setDanceOpen(true)} style={{ width: '100%', padding: 15, borderRadius: 16, border: `1px solid ${hexA(G.afterparty, 0.4)}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: `linear-gradient(135deg, ${hexA(G.afterparty, 0.14)}, ${hexA(G.underground, 0.06)})`, textAlign: 'left' }}>
+        <div style={{ padding: '12px 18px 0' }}>
+          <button onClick={() => setDanceOpen(true)} className="os-press" style={{ width: '100%', padding: 15, borderRadius: 16, border: `1px solid ${hexA(G.afterparty, 0.4)}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: hexA(G.afterparty, 0.09), textAlign: 'left' }}>
             <span style={{ fontSize: 26 }}>🕺</span>
             <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 700, fontSize: 15, color: OS.ink }}>Dance Floor Mode</div>
-              <div style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, marginTop: 2 }}>PLEŠI · SKORUJ · LEADERBOARD NOĆI</div>
+              <div style={{ fontWeight: 700, fontSize: 15.5, letterSpacing: '-.01em', color: AB.ink }}>Dance Floor Mode</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.1em', color: AB.ink3, marginTop: 2 }}>PLEŠI · SKORUJ · LEADERBOARD NOĆI</div>
             </div>
             <span style={{ color: G.afterparty, fontSize: 18 }}>›</span>
           </button>
         </div>
 
-        {/* Zavrti noć — smela misija */}
-        <div style={{ padding: '10px 16px 0' }}>
-          <button onClick={() => setDareOpen(true)} style={{ width: '100%', minHeight: 46, padding: '12px 15px', borderRadius: 16, border: `1px dashed ${hexA(G.afterparty, 0.45)}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 11, background: 'transparent', textAlign: 'left' }}>
+        {/* Zavrti noć — solid UV okvir (kanon: dashed = disabled, zabranjeno) */}
+        <div style={{ padding: '10px 18px 0' }}>
+          <button onClick={() => setDareOpen(true)} className="os-press" style={{ width: '100%', minHeight: 46, padding: '12px 15px', borderRadius: 16, border: `1px solid ${AB.uv}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 11, background: 'oklch(0.62 0.25 300 / 0.08)', textAlign: 'left' }}>
             <span style={{ fontSize: 20 }}>🎲</span>
-            <span style={{ flex: 1, fontWeight: 600, fontSize: 14, color: OS.ink2 }}>Zavrti noć</span>
-            <span style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: '.1em', color: G.afterparty }}>SMEŠ LI?</span>
+            <span style={{ flex: 1, fontWeight: 700, fontSize: 14.5, letterSpacing: '-.01em', color: AB.ink }}>Zavrti noć</span>
+            <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.12em', color: AB.uv }}>SMEŠ LI?</span>
           </button>
         </div>
 
@@ -376,40 +376,40 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
 
         {/* RA-style events at this venue */}
         {upcoming.length > 0 && (
-          <div style={{ padding: '20px 16px 0' }}>
-            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6, marginBottom: 4 }}>DOGAĐAJI · {upcoming.length}</div>
+          <div style={{ padding: '20px 18px 0' }}>
+            <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3, marginBottom: 4 }}>DOGAĐAJI · {upcoming.length}</div>
             {upcoming.map((e: any) => <OSEventRow key={e.id} e={e} />)}
           </div>
         )}
         {past.length > 0 && (
-          <div style={{ padding: '18px 16px 0' }}>
-            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: OS.ink6, marginBottom: 4 }}>PROŠLI · {past.length}</div>
+          <div style={{ padding: '18px 18px 0' }}>
+            <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3, marginBottom: 4 }}>PROŠLI · {past.length}</div>
             {past.slice(0, 4).map((e: any) => <OSEventRow key={e.id} e={e} past />)}
           </div>
         )}
 
-        {/* live */}
-        <div style={{ margin: '14px 16px 0', padding: 14, borderRadius: 16, background: `linear-gradient(140deg,${hexA(G.festival, 0.12)},transparent)`, border: `1px solid ${hexA(G.festival, 0.22)}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {/* live — hot signal (kanon §6.2: "34 ovde sada" = killer detalj) */}
+        <div style={{ margin: '14px 18px 0', padding: 14, borderRadius: 16, background: AB.raised, border: `1px solid ${AB.line2}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: G.festival, boxShadow: `0 0 10px ${G.festival}`, animation: 'os-pulse 1.8s ease-in-out infinite' }} />
-            <span style={{ fontSize: 13, color: OS.ink }}>{here} ovde sada</span>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: AB.hot, animation: here > 0 ? 'os-pulse 1.8s ease-in-out infinite' : undefined, opacity: here > 0 ? 1 : 0.4 }} />
+            <span style={{ fontSize: 13.5, color: AB.ink }}>{here} ovde sada</span>
           </div>
-          <span style={{ fontFamily: MONO, fontSize: 18, fontWeight: 600, color: energy != null ? G.festival : OS.ink6 }}>{energy != null ? `ENERGY ≈${energy}` : 'ENERGY —'}</span>
+          <span style={{ fontFamily: MONO, fontSize: 18, fontWeight: 600, color: energy != null ? AB.hot : AB.ink3 }}>{energy != null ? `ENERGY ≈${energy}` : 'ENERGY —'}</span>
         </div>
 
         {/* stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 9, padding: '14px 16px 0' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 9, padding: '14px 18px 0' }}>
           {stats.map((s) => (
-            <div key={s.label} style={{ padding: 12, borderRadius: 14, background: OS.surface, border: `1px solid ${OS.line}` }}>
+            <div key={s.label} style={{ padding: 12, borderRadius: 16, background: AB.raised, border: `1px solid ${AB.line}` }}>
               <div style={{ fontFamily: MONO, fontSize: 18, fontWeight: 600, color: s.color }}>{s.value}</div>
-              <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.08em', color: OS.ink6, marginTop: 4 }}>{s.label}</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.08em', color: AB.ink3, marginTop: 4 }}>{s.label}</div>
             </div>
           ))}
         </div>
 
         {/* crowd DNA */}
-        <div style={{ margin: '16px 16px 0', padding: 16, borderRadius: 18, background: OS.surface, border: `1px solid ${OS.line}` }}>
-          <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: '#7E828C', marginBottom: 6 }}>CROWD DNA · PREVIEW — PUNI SE SA RECENZIJAMA</div>
+        <div style={{ margin: '16px 18px 0', padding: 16, borderRadius: 16, background: AB.raised, border: `1px solid ${AB.line}` }}>
+          <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3, marginBottom: 6 }}>CROWD DNA · PREVIEW — PUNI SE SA RECENZIJAMA</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <Radar />
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -433,18 +433,18 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
         {/* claim funnel — akvizicija klubova (portovano sa legacy /venue) */}
         <OSClaimCard venueName={venue.name} />
 
-        {/* actions */}
-        <div style={{ padding: 16, display: 'flex', gap: 10 }}>
+        {/* actions — Check-in je acid primarna akcija (kanon §6.3 action bar) */}
+        <div style={{ padding: '16px 18px', display: 'flex', gap: 10 }}>
           {venue.venueId && (
-            <button onClick={idem} disabled={signalIntent.isPending} style={{ flex: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: G.underground, background: hexA(G.underground, 0.12), border: `1px solid ${hexA(G.underground, 0.4)}`, borderRadius: 15, padding: '16px 18px' }}>✋ Idem</button>
+            <button onClick={idem} disabled={signalIntent.isPending} className="os-press" style={{ flex: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: AB.uv, background: 'oklch(0.62 0.25 300 / 0.12)', border: `1px solid ${AB.uv}`, borderRadius: 999, padding: '16px 18px' }}>✋ Idem</button>
           )}
-          <button onClick={checkIn} disabled={busy} className="os-press" style={{ flex: 1, cursor: busy ? 'default' : 'pointer', fontSize: 15, fontWeight: 640, color: '#0B0B0D', background: done ? G.festival : venue.col, border: 0, borderRadius: 15, padding: 16, opacity: busy ? 0.7 : 1 }}>
+          <button onClick={checkIn} disabled={busy} className="os-press" style={{ flex: 1, cursor: busy ? 'default' : 'pointer', fontSize: 16, fontWeight: 700, color: AB.acidInk, background: done ? AB.acidDim : AB.acid, border: 0, borderRadius: 999, padding: 16, opacity: busy ? 0.7 : 1, boxShadow: done ? 'none' : 'var(--ab-glow-acid)' }}>
             {done ? 'Prijavljen ✓' : busy ? '…' : 'Check-in'}
           </button>
         </div>
       </div>
       {/* check-in proslava — os-xp float sa stvarnim REP awardom (motion audit 🟢1) */}
-      {award && <div style={{ position: 'fixed', left: '50%', bottom: 170, zIndex: 70, fontFamily: MONO, fontWeight: 600, fontSize: 18, color: G.festival, textShadow: `0 0 24px ${hexA(G.festival, 0.7)}`, animation: 'os-xp 1.4s ease forwards', pointerEvents: 'none' }}>+{award} REP</div>}
+      {award && <div style={{ position: 'fixed', left: '50%', bottom: 170, zIndex: 70, fontFamily: MONO, fontWeight: 600, fontSize: 19, color: AB.acid, textShadow: '0 0 24px oklch(0.88 0.19 158 / 0.6)', animation: 'os-xp 1.4s ease forwards', pointerEvents: 'none' }}>+{award} REP</div>}
       {feedback && <OSFeedbackSheet venueId={feedback} onDone={() => setFeedback(null)} />}
       {dareOpen && <OSDareWheel onClose={() => setDareOpen(false)} />}
       {danceOpen && <OSDanceMode venueId={venue.venueId} venueName={venue.name} onClose={() => setDanceOpen(false)} />}
