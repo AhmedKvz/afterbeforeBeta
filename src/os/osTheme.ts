@@ -35,6 +35,17 @@ export const OS = {
 
 export const MONO = "'IBM Plex Mono', monospace";
 
+/** AFTERBEFORE_DESIGN.md v1 — Frame tokeni (CSS vars iz index.css).
+ *  Kanon ekrani (Quests → Home → …) koriste ove umesto OS.* surface boja;
+ *  žanr/kultura i dalje ide kroz G/genreCol (content nosi boju, Frame ne). */
+export const AB = {
+  void: 'var(--ab-void)', surface: 'var(--ab-surface)', raised: 'var(--ab-raised)',
+  line: 'var(--ab-hairline)', line2: 'var(--ab-hairline-strong)',
+  ink: 'var(--ab-ink)', ink2: 'var(--ab-ink-2)', ink3: 'var(--ab-ink-3)',
+  acid: 'var(--ab-acid)', acidDim: 'var(--ab-acid-dim)', acidInk: 'var(--ab-acid-ink)',
+  uv: 'var(--ab-uv)', uvDim: 'var(--ab-uv-dim)', hot: 'var(--ab-hot)',
+};
+
 /** Role-based fixed field colors for dense lists (no per-genre rainbow).
  *  genre = blue · name = red · energy = green. Same across the whole app. */
 export const ROLE = {

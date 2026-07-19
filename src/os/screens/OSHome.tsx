@@ -8,7 +8,7 @@ import { useVenueDirectory } from '@/hooks/useHeatVenues';
 import { OSLucky100Modal } from '../OSLucky100Modal';
 import { OSStories } from '../OSStories';
 import { OSEventRow } from '../OSEventRow';
-import { OS, G, hexA, MONO, HATCH, stripe, genreCol, CONIC } from '../osTheme';
+import { AB, OS, G, hexA, MONO, stripe, genreCol, CONIC } from '../osTheme';
 import { lifecycleKey } from '@/lib/nightState';
 import type { OSVenue } from '../OSVenueSheet';
 
@@ -26,12 +26,14 @@ interface Ev {
 const dayLabel = (d: string) => { try { return ['NED', 'PON', 'UTO', 'SRE', 'ČET', 'PET', 'SUB'][new Date(d).getDay()]; } catch { return ''; } };
 
 const Mono = ({ children, style, ...s }: any) => <div style={{ fontFamily: MONO, ...s, ...(style || {}) }}>{children}</div>;
+// Kanon "label" — eyebrow vezivno tkivo (mono 11, +0.12em, ink-3).
 const SectionLabel = ({ children, right }: { children: string; right?: string }) => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-    <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.18em', color: OS.ink6 }}>{children}</span>
-    {right && <span style={{ fontFamily: MONO, fontSize: 11, color: OS.ink6 }}>{right}</span>}
+    <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3 }}>{children}</span>
+    {right && <span style={{ fontFamily: MONO, fontSize: 11, color: AB.ink3 }}>{right}</span>}
   </div>
 );
+const reveal = (i: number) => ({ animation: `ab-reveal .22s cubic-bezier(.16,1,.3,1) ${i * 40}ms both` });
 
 const LIVE_RED = '#ff3b46';
 
@@ -128,16 +130,16 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
     return true;
   }), [events, dateF, genreF, todayStr]);
 
-  const gChip = (on: boolean) => ({ flex: 'none' as const, cursor: 'pointer', padding: '6px 11px', borderRadius: 8, fontFamily: MONO, fontSize: 11, letterSpacing: '.04em', whiteSpace: 'nowrap' as const, border: `1px solid ${on ? 'transparent' : 'rgba(255,255,255,.1)'}`, background: on ? hexA(G.techno, 0.18) : 'transparent', color: on ? '#7AA0E8' : OS.ink5 });
+  const gChip = (on: boolean) => ({ flex: 'none' as const, cursor: 'pointer', padding: '7px 12px', borderRadius: 999, fontFamily: MONO, fontSize: 11, letterSpacing: '.04em', whiteSpace: 'nowrap' as const, border: `1px solid ${on ? 'transparent' : AB.line}`, background: on ? AB.raised : 'transparent', color: on ? AB.ink : AB.ink3 });
 
   return (
-    <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', paddingTop: 'calc(env(safe-area-inset-top) + 8px)', paddingBottom: 150 }}>
+    <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', background: AB.void, paddingTop: 'calc(env(safe-area-inset-top) + 8px)', paddingBottom: 150 }}>
       {/* header */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 40, background: 'rgba(11,11,13,.92)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${OS.line}`, padding: '11px 18px' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 40, background: 'oklch(0.135 0.012 285 / 0.92)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${AB.line}`, padding: '11px 18px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <Mono fontSize={10} letterSpacing=".24em" color={OS.ink6}>NIGHTLIFE OS</Mono>
-            <div style={{ fontWeight: 700, fontSize: 19, letterSpacing: '-.02em', color: OS.ink, lineHeight: 1, marginTop: 2 }}>AfterBefore</div>
+            <Mono fontSize={10} letterSpacing=".24em" color={AB.ink3}>NIGHTLIFE OS</Mono>
+            <div style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-.02em', color: AB.ink, lineHeight: 1, marginTop: 2 }}>AfterBefore</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <button onClick={() => navigate('/notifications')} aria-label="Notifikacije" style={{ width: 32, height: 32, borderRadius: 10, border: `1px solid ${OS.line2}`, cursor: 'pointer', background: OS.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', color: OS.ink3 }}><Bell className="w-4 h-4" /></button>
@@ -150,7 +152,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       <div style={{ display: 'flex', gap: 24, padding: '0 18px', borderBottom: `1px solid ${OS.line}` }}>
         {([['foryou', 'Za tebe'], ['all', 'Sve']] as const).map(([k, l]) => {
           const on = lens === k;
-          return <button key={k} onClick={() => setLens(k)} className="os-press" style={{ background: 'transparent', border: 0, cursor: 'pointer', padding: '12px 0', fontSize: 14, fontWeight: on ? 700 : 500, color: on ? OS.ink : OS.ink5, borderBottom: `2px solid ${on ? G.afterparty : 'transparent'}` }}>{l}</button>;
+          return <button key={k} onClick={() => setLens(k)} className="os-press" style={{ background: 'transparent', border: 0, cursor: 'pointer', padding: '12px 0', fontSize: 14, fontWeight: on ? 700 : 500, color: on ? AB.ink : AB.ink3, borderBottom: `2px solid ${on ? AB.ink : 'transparent'}` }}>{l}</button>;
         })}
       </div>
 
@@ -161,30 +163,32 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       {/* live line */}
       <div style={{ padding: '14px 18px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: G.festival, boxShadow: `0 0 10px ${G.festival}`, animation: 'os-pulse 1.8s ease-in-out infinite' }} />
-          <Mono fontSize={11} color={OS.ink4}>BEOGRAD · {upcoming.length} NAJAVLJENO</Mono>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: AB.hot, animation: 'os-pulse 1.8s ease-in-out infinite' }} />
+          <Mono fontSize={11} color={AB.ink2}>BEOGRAD · {upcoming.length} NAJAVLJENO</Mono>
         </div>
-        <Mono fontSize={11} color={OS.ink6}>VEČERAS {tonightCount} ↗</Mono>
+        <Mono fontSize={11} color={AB.ink3}>VEČERAS {tonightCount} ↗</Mono>
       </div>
 
       {/* AI strip */}
-      <div style={{ margin: '14px 16px 0', display: 'flex', alignItems: 'center', gap: 10, padding: '11px 13px', borderRadius: 14, background: OS.surface, border: `1px solid ${OS.line}` }}>
+      <div style={{ margin: '14px 18px 0', display: 'flex', alignItems: 'center', gap: 10, padding: '11px 13px', borderRadius: 16, background: AB.surface, border: `1px solid ${AB.line}` }}>
         <span style={{ flex: 'none', width: 24, height: 24, borderRadius: 8, background: hexA(G.community, 0.14), display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: MONO, fontSize: 10, color: G.community }}>⚡</span>
-        <span style={{ fontSize: 12.5, lineHeight: 1.35, color: OS.ink3 }}>{tonightCount > 0 ? `Večeras ${tonightCount} ${tonightCount === 1 ? 'događaj' : tonightCount < 5 ? 'događaja' : 'događaja'} — grad se budi.` : 'Mirno veče — vikend se sprema. Pogledaj šta dolazi.'}</span>
+        <span style={{ fontSize: 13, lineHeight: 1.4, color: AB.ink2 }}>{tonightCount > 0 ? `Večeras ${tonightCount} ${tonightCount === 1 ? 'događaj' : tonightCount < 5 ? 'događaja' : 'događaja'} — grad se budi.` : 'Mirno veče — vikend se sprema. Pogledaj šta dolazi.'}</span>
       </div>
 
-      {/* best party — the single hero moment */}
+      {/* best party — cinematic lead (kanon §6.1: full-bleed, title na slici,
+          jedini acid momenat na ekranu = VEČERAS badge) */}
       {best && (
-        <div style={{ padding: '18px 16px 0' }}>
-          <SectionLabel>IZDVOJENO OVE NEDELJE</SectionLabel>
-          <button onClick={() => openEvent(best)} style={{ width: '100%', textAlign: 'left', cursor: 'pointer', padding: 0, border: 0, background: 'transparent', borderRadius: 18, overflow: 'hidden' }}>
-            <div style={{ position: 'relative', height: 150, borderRadius: 18, overflow: 'hidden', border: `1px solid ${OS.line2}`, background: best.image_url ? `center/cover url(${best.image_url})` : stripe(G.house) }}>
-              <div style={{ position: 'absolute', inset: 0, background: HATCH }} />
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,#101013 4%,transparent 70%)' }} />
-              <Mono style={{ position: 'absolute', top: 12, left: 14 }} fontSize={10} letterSpacing=".16em" color="#f5c97a">{(signals[best.id] || 0) >= 3 ? `★ NAJVIŠE NAJAVA · ${signals[best.id]} IDE` : '★ IZDVOJENO'}</Mono>
-              <div style={{ position: 'absolute', bottom: 13, left: 14, right: 14 }}>
-                <div style={{ fontWeight: 700, fontSize: 19, color: OS.ink }}>{best.title}</div>
-                <Mono fontSize={11} color={OS.ink4} style={{ marginTop: 6 }}>{dayLabel(best.date)} · {best.start_time?.slice(0, 5)} · {best.venue_name}</Mono>
+        <div style={{ padding: '18px 18px 0', ...reveal(0) }}>
+          <button onClick={() => openEvent(best)} className="os-press" style={{ width: '100%', textAlign: 'left', cursor: 'pointer', padding: 0, border: 0, background: 'transparent', borderRadius: 22, overflow: 'hidden' }}>
+            <div style={{ position: 'relative', height: 208, borderRadius: 22, overflow: 'hidden', border: `1px solid ${AB.line2}`, background: best.image_url ? `center/cover url(${best.image_url})` : stripe(genreCol(best.music_genres?.[0] || best.venue_type)) }}>
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, oklch(0.135 0.012 285) 6%, oklch(0.135 0.012 285 / 0.25) 45%, transparent 72%)' }} />
+              {best.date === todayStr
+                ? <span style={{ position: 'absolute', top: 12, left: 14, fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.12em', background: AB.acid, color: AB.acidInk, borderRadius: 999, padding: '5px 11px' }}>VEČERAS{(signals[best.id] || 0) > 0 ? ` · ${signals[best.id]} IDE` : ''}</span>
+                : <Mono style={{ position: 'absolute', top: 12, left: 14 }} fontSize={10} fontWeight={600} letterSpacing=".14em" color={AB.ink2}>★ IZDVOJENO OVE NEDELJE</Mono>}
+              <div style={{ position: 'absolute', bottom: 14, left: 16, right: 16 }}>
+                <Mono fontSize={10} fontWeight={600} letterSpacing=".12em" color={genreCol(best.music_genres?.[0] || best.venue_type)}>{((best.music_genres?.[0] || best.venue_type || 'NOĆ')).toUpperCase()}</Mono>
+                <div style={{ fontWeight: 800, fontSize: 24, lineHeight: '28px', letterSpacing: '-.02em', color: AB.ink, marginTop: 4 }}>{best.title}</div>
+                <Mono fontSize={11} color={AB.ink2} style={{ marginTop: 6 }}>{dayLabel(best.date)} · {best.start_time?.slice(0, 5)} · {best.venue_name}</Mono>
               </div>
             </div>
           </button>
@@ -194,19 +198,19 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       {/* trending */}
       {trending.length > 0 && (
         <div style={{ padding: '22px 0 0' }}>
-          <div style={{ padding: '0 16px' }}><SectionLabel right={liveNow > 0 ? `${liveNow} LIVE` : 'PO NAJAVAMA'}>TRENDING VEČERAS</SectionLabel></div>
-          <div className="os-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 16px 4px' }}>
-            {trending.map((t) => {
+          <div style={{ padding: '0 18px' }}><SectionLabel right={liveNow > 0 ? `${liveNow} LIVE` : 'PO NAJAVAMA'}>TRENDING VEČERAS</SectionLabel></div>
+          <div className="os-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 18px 4px' }}>
+            {trending.map((t, i) => {
               const col = genreCol(t.music_genres?.[0] || t.venue_type);
               return (
-                <button key={t.id} onClick={() => openEvent(t)} style={{ minWidth: 230, maxWidth: 230, flex: 'none', borderRadius: 16, overflow: 'hidden', border: `1px solid ${OS.line2}`, background: OS.surface, textAlign: 'left', cursor: 'pointer', padding: 0 }}>
+                <button key={t.id} onClick={() => openEvent(t)} className="os-press" style={{ minWidth: 230, maxWidth: 230, flex: 'none', borderRadius: 16, overflow: 'hidden', border: `1px solid ${AB.line2}`, borderLeft: `3px solid ${col}`, background: AB.surface, textAlign: 'left', cursor: 'pointer', padding: 0, ...reveal(i) }}>
                   <div style={{ position: 'relative', height: 108, background: t.image_url ? `center/cover url(${t.image_url})` : stripe(col) }}>
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,rgba(0,0,0,.78),transparent 70%)' }} />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, oklch(0.135 0.012 285 / 0.85), transparent 70%)' }} />
                     <div style={{ position: 'absolute', top: 9, left: 9, display: 'flex', alignItems: 'center', gap: 6, padding: '4px 9px', borderRadius: 999, fontFamily: MONO, fontSize: 10, color: col, background: 'rgba(11,11,13,.66)', border: `1px solid ${hexA(col, 0.4)}` }}>
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: col, boxShadow: `0 0 8px ${col}` }} />{signals[t.id] || 0} IDE
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: col }} />{signals[t.id] || 0} IDE
                     </div>
                   </div>
-                  <div style={{ padding: 11 }}><div style={{ fontWeight: 600, fontSize: 14, color: OS.ink }}>{t.title}</div><Mono fontSize={10} color={OS.ink5} style={{ marginTop: 3 }}>{(t.venue_name || '').toUpperCase()}</Mono></div>
+                  <div style={{ padding: 12 }}><div style={{ fontWeight: 700, fontSize: 15, letterSpacing: '-.01em', color: AB.ink }}>{t.title}</div><Mono fontSize={10} color={AB.ink3} style={{ marginTop: 3 }}>{(t.venue_name || '').toUpperCase()}</Mono></div>
                 </button>
               );
             })}
@@ -215,11 +219,11 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       )}
 
       {/* za tebe — curated slice (state chips, no type filters) */}
-      <div style={{ padding: '22px 16px 0' }}>
+      <div style={{ padding: '22px 18px 0' }}>
         {tonightCount > 0 ? <SectionLabel right={`${forYou.length}`}>ZA TEBE VEČERAS</SectionLabel> : <SectionLabel right={`${forYou.length}`}>IZ ARHIVE SCENE · DOK SE GRAD NE UPALI</SectionLabel>}
         <div>
-          {forYou.map((e) => <OSEventRow key={e.id} e={e} state={stateOf(e)} onClick={() => openEvent(e)} />)}
-          {forYou.length === 0 && <Mono fontSize={12} color={OS.ink5} style={{ textAlign: 'center', padding: '24px 0' }}>Još nema događaja.</Mono>}
+          {forYou.map((e, i) => <div key={e.id} style={reveal(i)}><OSEventRow e={e} state={stateOf(e)} onClick={() => openEvent(e)} /></div>)}
+          {forYou.length === 0 && <Mono fontSize={12} color={AB.ink3} style={{ textAlign: 'center', padding: '24px 0' }}>Još nema događaja.</Mono>}
         </div>
       </div>
 
@@ -228,16 +232,15 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       <OSCommunity navigate={navigate} />
 
       {/* lucky100 — moved below the lead content */}
-      <div style={{ padding: '24px 16px 0' }}>
-        <button onClick={() => setLucky(true)} style={{ display: 'block', width: '100%', textAlign: 'left', padding: 0, border: 0, background: 'transparent', cursor: 'pointer', position: 'relative', overflow: 'hidden', borderRadius: 18 }}>
-        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 18, background: OS.surface, border: `1px solid ${OS.line2}` }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg,#a64dff,#ff4d8d,#f5a623)' }} />
+      <div style={{ padding: '24px 18px 0' }}>
+        <button onClick={() => setLucky(true)} className="os-press" style={{ display: 'block', width: '100%', textAlign: 'left', padding: 0, border: 0, background: 'transparent', cursor: 'pointer', overflow: 'hidden', borderRadius: 16 }}>
+        <div style={{ overflow: 'hidden', borderRadius: 16, background: AB.surface, border: `1px solid ${AB.line2}`, borderLeft: `3px solid ${AB.uv}` }}>
           <div style={{ padding: 15 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-              <div><Mono fontSize={10} letterSpacing=".2em" color={OS.ink5}>SISTEM · INSTANT WIN</Mono><div style={{ fontWeight: 700, fontSize: 17, color: OS.ink, marginTop: 3 }}>Lucky 100</div></div>
-              <Mono fontSize={11} color={G.festival}>OTVORI →</Mono>
+              <div><Mono fontSize={10} fontWeight={600} letterSpacing=".14em" color={AB.ink3}>SISTEM · INSTANT WIN</Mono><div style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-.01em', color: AB.ink, marginTop: 3 }}>Lucky 100</div></div>
+              <Mono fontSize={11} color={AB.uv}>Otvori →</Mono>
             </div>
-            <Mono fontSize={10.5} color={OS.ink5} style={{ margin: '11px 0 0' }}>Svaki 100. check-in nosi nagradu — vidi svoj broj unutra.</Mono>
+            <div style={{ fontSize: 13, color: AB.ink2, margin: '10px 0 0' }}>Svaki 100. check-in nosi nagradu — vidi svoj broj unutra.</div>
           </div>
         </div>
         </button>
@@ -245,12 +248,12 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       </div>)}
 
       {lens === 'all' && (
-        <div key="all" style={{ padding: '14px 16px 0', animation: 'os-swap .15s cubic-bezier(.22,1,.36,1) both' }}>
-          {/* date pills */}
+        <div key="all" style={{ padding: '14px 18px 0', animation: 'os-swap .15s cubic-bezier(.22,1,.36,1) both' }}>
+          {/* date pills — aktivan filter = acid (kanon §6.1 filter rail) */}
           <div className="os-scroll" style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 10 }}>
             {(['SVE', 'VEČERAS', 'VIKEND'] as const).map((dF) => {
               const on = dateF === dF;
-              return <button key={dF} onClick={() => setDateF(dF)} style={{ flex: 'none', cursor: 'pointer', padding: '7px 13px', borderRadius: 999, fontFamily: MONO, fontSize: 11, letterSpacing: '.04em', border: `1px solid ${on ? hexA(G.afterparty, 0.4) : 'rgba(255,255,255,.08)'}`, background: on ? hexA(G.afterparty, 0.16) : OS.surface, color: on ? OS.ink : OS.ink5 }}>{dF}</button>;
+              return <button key={dF} onClick={() => setDateF(dF)} className="os-press" style={{ flex: 'none', cursor: 'pointer', padding: '8px 14px', borderRadius: 999, fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.04em', border: `1px solid ${on ? 'transparent' : AB.line}`, background: on ? AB.acid : AB.surface, color: on ? AB.acidInk : AB.ink3 }}>{dF}</button>;
             })}
           </div>
           {/* genre chips */}
@@ -262,8 +265,8 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
           )}
           <SectionLabel right={`${catalog.length} DOGAĐAJA`}>SVE</SectionLabel>
           <div>
-            {catalog.map((e) => <OSEventRow key={e.id} e={e} state={stateOf(e)} onClick={() => openEvent(e)} />)}
-            {catalog.length === 0 && <Mono fontSize={12} color={OS.ink5} style={{ textAlign: 'center', padding: '24px 0' }}>Nema događaja za ovaj filter.</Mono>}
+            {catalog.map((e, i) => <div key={e.id} style={reveal(Math.min(i, 8))}><OSEventRow e={e} state={stateOf(e)} onClick={() => openEvent(e)} /></div>)}
+            {catalog.length === 0 && <Mono fontSize={12} color={AB.ink3} style={{ textAlign: 'center', padding: '24px 0' }}>Nema događaja za ovaj filter.</Mono>}
           </div>
         </div>
       )}
@@ -295,18 +298,18 @@ const OSDiscover = ({ navigate }: { navigate: (p: string) => void }) => {
   if (!venues.length) return null;
   return (
     <div style={{ padding: '24px 0 0' }}>
-      <div style={{ padding: '0 16px' }}><SectionLabel right={`${venues.length} MESTA`}>OTKRIJ MESTA</SectionLabel></div>
-      <div className="os-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 16px 4px' }}>
+      <div style={{ padding: '0 18px' }}><SectionLabel right={`${venues.length} MESTA`}>OTKRIJ MESTA</SectionLabel></div>
+      <div className="os-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 18px 4px' }}>
         {venues.map((v: any) => {
           const meta = TYPE_META[v.venue_type || 'club'] || TYPE_META.club;
           const col = genreCol(v.venue_type);
           return (
-            <button key={v.venue_name} onClick={() => navigate(`/venue/${encodeURIComponent(v.venue_name)}`)} style={{ minWidth: 160, maxWidth: 160, flex: 'none', borderRadius: 16, overflow: 'hidden', border: `1px solid ${OS.line2}`, background: OS.surface, textAlign: 'left', cursor: 'pointer', padding: 0 }}>
+            <button key={v.venue_name} onClick={() => navigate(`/venue/${encodeURIComponent(v.venue_name)}`)} className="os-press" style={{ minWidth: 160, maxWidth: 160, flex: 'none', borderRadius: 16, overflow: 'hidden', border: `1px solid ${AB.line2}`, background: AB.surface, textAlign: 'left', cursor: 'pointer', padding: 0 }}>
               <div style={{ position: 'relative', height: 82, background: stripe(col), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30 }}>{v.emoji || meta.emoji}
                 {v.is_partner && <div style={{ position: 'absolute', top: 8, right: 8, fontFamily: MONO, fontSize: 9, color: G.house }}>★</div>}
                 <div style={{ position: 'absolute', top: 8, left: 8, fontFamily: MONO, fontSize: 10, color: col, background: 'rgba(11,11,13,.66)', border: `1px solid ${hexA(col, 0.4)}`, padding: '2px 7px', borderRadius: 999 }}>{meta.label}</div>
               </div>
-              <div style={{ padding: 11 }}><div style={{ fontWeight: 600, fontSize: 13, color: OS.ink }}>{v.venue_name}</div>{v.neighborhood && <Mono fontSize={10} color={OS.ink6} style={{ marginTop: 3 }}>{v.neighborhood.toUpperCase()}</Mono>}</div>
+              <div style={{ padding: 11 }}><div style={{ fontWeight: 700, fontSize: 13.5, letterSpacing: '-.01em', color: AB.ink }}>{v.venue_name}</div>{v.neighborhood && <Mono fontSize={10} color={AB.ink3} style={{ marginTop: 3 }}>{v.neighborhood.toUpperCase()}</Mono>}</div>
             </button>
           );
         })}
@@ -327,15 +330,15 @@ const OSCommunity = ({ navigate }: { navigate: (p: string) => void }) => {
   if (!reviews.length) return null;
   return (
     <div style={{ padding: '24px 0 0' }}>
-      <div style={{ padding: '0 16px' }}><SectionLabel>OCENILA ZAJEDNICA</SectionLabel></div>
-      <div className="os-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 16px 4px' }}>
+      <div style={{ padding: '0 18px' }}><SectionLabel>OCENILA ZAJEDNICA</SectionLabel></div>
+      <div className="os-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 18px 4px' }}>
         {reviews.map((r: any) => (
-          <button key={r.id} onClick={() => r.venue_name && navigate(`/venue/${encodeURIComponent(r.venue_name)}#reviews`)} style={{ minWidth: 240, maxWidth: 240, flex: 'none', borderRadius: 16, border: `1px solid ${OS.line2}`, background: OS.surface, padding: 13, textAlign: 'left', cursor: 'pointer' }}>
+          <button key={r.id} onClick={() => r.venue_name && navigate(`/venue/${encodeURIComponent(r.venue_name)}#reviews`)} className="os-press" style={{ minWidth: 240, maxWidth: 240, flex: 'none', borderRadius: 16, border: `1px solid ${AB.line2}`, background: AB.surface, padding: 13, textAlign: 'left', cursor: 'pointer' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: OS.ink }}>{r.venue_name}</span>
+              <span style={{ fontSize: 13.5, fontWeight: 700, letterSpacing: '-.01em', color: AB.ink }}>{r.venue_name}</span>
               <span style={{ fontFamily: MONO, fontSize: 11, color: G.house }}>★ {r.rating}</span>
             </div>
-            {r.review_text && <div style={{ fontSize: 11.5, fontStyle: 'italic', color: OS.ink4, lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>"{r.review_text}"</div>}
+            {r.review_text && <div style={{ fontSize: 12.5, fontStyle: 'italic', color: AB.ink2, lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>"{r.review_text}"</div>}
             {r.verified_visit && <span style={{ display: 'inline-block', marginTop: 8, fontFamily: MONO, fontSize: 10, color: G.festival, background: hexA(G.festival, 0.12), padding: '2px 7px', borderRadius: 999 }}>✓ POSEĆENO</span>}
           </button>
         ))}

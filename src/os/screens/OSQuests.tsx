@@ -9,7 +9,7 @@ import { track } from '@/lib/analytics';
 import { toast } from 'sonner';
 import { OSCampaign } from '../OSCampaign';
 import { OSDareWheel } from '../OSDareWheel';
-import { G, hexA, MONO, ROLE } from '../osTheme';
+import { AB, G, hexA, MONO, ROLE } from '../osTheme';
 
 /**
  * QUESTS — prvi ekran na AFTERBEFORE_DESIGN.md kanonu (§9: "PlayStation trophy
@@ -17,13 +17,6 @@ import { G, hexA, MONO, ROLE } from '../osTheme';
  * Pravila: jedan acid hero po viewport-u, solid UV okviri (nikad dashed),
  * mono samo kao začin (kodovi, brojke, satnice), gutter 18px, radius 16/10/999.
  */
-const AB = {
-  void: 'var(--ab-void)', surface: 'var(--ab-surface)', raised: 'var(--ab-raised)',
-  line: 'var(--ab-hairline)', line2: 'var(--ab-hairline-strong)',
-  ink: 'var(--ab-ink)', ink2: 'var(--ab-ink-2)', ink3: 'var(--ab-ink-3)',
-  acid: 'var(--ab-acid)', acidDim: 'var(--ab-acid-dim)', acidInk: 'var(--ab-acid-ink)',
-  uv: 'var(--ab-uv)', uvDim: 'var(--ab-uv-dim)', hot: 'var(--ab-hot)',
-};
 const LABEL = { fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3 } as const;
 const MTAG = { fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.04em' } as const;
 const reveal = (i: number) => ({ animation: `ab-reveal .22s cubic-bezier(.16,1,.3,1) ${i * 40}ms both` });
