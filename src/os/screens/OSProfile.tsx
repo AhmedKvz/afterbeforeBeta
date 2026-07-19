@@ -36,7 +36,8 @@ export const OSProfile = () => {
     setUploading(kind);
     try {
       const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-      const path = `profiles/${user.id}/${kind}-${Date.now()}.${ext}`;
+      // storage polisa: prvi folder MORA biti auth.uid() (media own upload)
+      const path = `${user.id}/profile/${kind}-${Date.now()}.${ext}`;
       const up = await db.storage.from('media').upload(path, file, { contentType: file.type });
       if (up.error) { toast.error('Upload nije uspeo — pokušaj ponovo.'); return; }
       const { data: pub } = db.storage.from('media').getPublicUrl(path);
