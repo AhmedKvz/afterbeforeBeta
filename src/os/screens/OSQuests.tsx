@@ -9,6 +9,7 @@ import { track } from '@/lib/analytics';
 import { toast } from 'sonner';
 import { OSCampaign } from '../OSCampaign';
 import { OSDareWheel } from '../OSDareWheel';
+import { RoadmapMaker } from '../OSRoadmaps';
 import { AB, G, hexA, MONO, ROLE } from '../osTheme';
 
 /**
@@ -222,6 +223,9 @@ export const OSQuests = () => {
             <div style={{ ...MTAG, color: AB.acidDim, marginTop: 4 }}>{earnedXP} / {totalXP} XP</div>
             <div style={{ ...LABEL, fontSize: 10, marginTop: 12, borderTop: `1px solid ${AB.line}`, paddingTop: 10 }}>DOPRINOS → AFC → NAGRADE OD PARTNERA</div>
           </div>
+
+          {/* weekend roadmap — contributor quest (QUEST §6: Quests stvara) */}
+          <RoadmapMaker />
 
           {/* categories */}
           {cats.length > 2 && (

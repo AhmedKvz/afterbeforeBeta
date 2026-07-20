@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useVenueDirectory } from '@/hooks/useHeatVenues';
 import { OSLucky100Modal } from '../OSLucky100Modal';
+import { RoadmapRail } from '../OSRoadmaps';
 import { OSStories } from '../OSStories';
 import { OSEventRow } from '../OSEventRow';
 import { AB, OS, G, hexA, MONO, stripe, genreCol, CONIC } from '../osTheme';
@@ -226,6 +227,9 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
           {forYou.length === 0 && <Mono fontSize={12} color={AB.ink3} style={{ textAlign: 'center', padding: '24px 0' }}>Još nema događaja.</Mono>}
         </div>
       </div>
+
+      {/* rute scene — Home distribuira odobrene roadmape (QUEST §6) */}
+      <RoadmapRail />
 
       {/* discover places + community reviewed */}
       <OSDiscover navigate={navigate} />
