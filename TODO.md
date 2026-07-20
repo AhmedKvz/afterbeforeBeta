@@ -38,6 +38,8 @@ Noć kao igra uživo — app izaziva, grad je tabla, ljudi su potezi. Temelj pos
 
 ## 🛠 DEV BACKLOG (po prioritetu)
 
+- ✅ **Weekend Roadmap v0** (2026-07-20, `cab3cbe`) — QUEST §6 petlja živa: Quests hub 🗺️ maker (3–5 stanica, imenik datalist) → founder ✓/✕ inline na Home railu (+100 AFC autoru na odobrenje) → RUTE SCENE rail sa Sačuvaj. Kasnije: stop check-in praćenje + reputacija rute (Event 2).
+
 - **#49 · „Ko ide" crew signal** — Idem → vidiš ko još ide → ekipa se formira (nadovezuje se na people-first sheet).
 - **Talas 2 · „Živi Home"** — time-aware hero (3 stanja: sprema se / večeras / gori), 4-blok disciplina, **RECAP motor** iz pravih check-in/dance podataka, kontekstualni Lucky100+glasanje. ⚠️ Graditi TEK kad ima sadržaja/korisnika — inače pokazuje praznu tišinu.
 - **#41 · ČET quest-drop ritual** — nedeljni ritam objave questova (četvrtak).
