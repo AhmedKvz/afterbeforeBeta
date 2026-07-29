@@ -26,8 +26,14 @@ KONTROLER" — **IZMENA: novi sloj se gradi PRE B1** (konvergencija → IRL stre
 orb=TU SAM → picker/hub večeri, JA prima Questove, Quests tab ukinut, fix
 check-in→orb invalidacija) i `abd46be` (gamifikacija v2: M2 konvergencija,
 M1 IRL streak, M3 gradska ŠIFRA + War Room forme + kill-switch flagovi).
+✅ **Fable presuda + trim 2026-07-21** — `65a96d6`: sva 4 Opusova odstupanja
+prihvaćena; GRAD 16→~10 blokova (AI strip + live linija ubijeni, stories ispod
+liste, OTKRIJ/OCENILA van GRAD-a, Lucky100 → JA); traka dobila line ikone;
+JA dobio IRL streak red; `funded_by` na konvergenciji (ECONOMY §13, migracija
+primenjena) + „OMOGUĆIO {X}" + War Room polje.
 Ostaje: **2-device QA 08–09.08** (konvergencija race, šifra crew pooling,
-IRL streak par) i **B1 UX test** (<30s do izbora mesta, 7/10).
+IRL streak par) i **B1 UX test** (<30s do izbora mesta, 7/10) i **copy pass**
+(hub/picker/šifra stringovi — Fable pero).
 
 ## 🔥 SLEDEĆE — akcije koje otključavaju sve ostalo
 
