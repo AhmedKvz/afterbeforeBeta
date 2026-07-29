@@ -144,15 +144,20 @@ mesto (Ada = čamac) nosi veći REP — mehanika koju niko nema.
 (galerija→večera→klub→after) · Dovedi novog na Adu · IRL streak (već
 venue-agnostičan) · Jutarnja hronika (ceo luk dan-noć).
 
-**Build lista (redosled)**:
-1. Taksonomija + seed: tipovi buvljak/reka-ada/galerija/piknik + ~15–20
-   kuriranih skrivenih mesta sa geofence (Ada širi radius). Unos, ne kod.
-2. **Pop-up eventi sa sopstvenim koordinatama** — check-in na event (event-level
-   geofence + trajanje), ne na hardkodirano mesto. Glavni kod-item.
-3. „SKRIVENO" filter na Karti (uz KLUBOVI/BAROVI/SPLAVOVI).
-4. Težinski REP: dostupnost mesta množi vrednost dolaska.
-5. „Znaš mesto?" predlog-flow → founder kuracija (War Room) → trajni
-   „OTKRIO/LA {ime}" marker na mestu (zakon #3: oskudica autorstva).
+**Build lista (status 2026-07-29)**:
+1. ✅ Taksonomija + seed — tipovi market/river/gallery; 7 kuriranih mesta
+   (Buvljak, Ada Međica, Ratno ostrvo, KC Grad, Kvaka 22, Dorćol Platz,
+   Piknik na Adi). Founder dodaje ostala kroz War Room / predloge.
+2. ⏳ **Pop-up eventi sa sopstvenim koordinatama** — jedini preostali kod-item.
+3. ✅ „SKRIVENO" filter na Karti + 🔒 na pinu/redu/sheetu.
+4. ✅ Težinski REP — venues.rep_multiplier množi SAMO XP (AFC fond netaknut).
+5. ✅ „Znaš mesto?" → War Room kuracija → trajni „OTKRIO/LA {ime}".
+
+**BETA GATE (founder odluka 2026-07-29)**: skrivena mesta traže otključan
+RANK — venues.min_level, server gate LEVEL_REQUIRED u process_secure_checkin.
+Vidljiva su svima (aspiracija — 🔒 RANK X na kartici), ali check-in i picker
+traže level. Skala v1: Piknik I · galerije/Buvljak II · Ada III · Ratno
+ostrvo IV. Dnevna skrivena mesta izuzeta iz noćnog prozora 20–06h.
 
 **Sponzorski efekat**: dan-scena otvara kategorije van piva/energetskih —
 kafa, thrift/streetwear (Buvljak = njihov teren), TOB, kulturne institucije
