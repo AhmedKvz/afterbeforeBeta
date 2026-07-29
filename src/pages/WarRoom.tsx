@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { isFounder } from '@/lib/founder';
 import { WarRoomQuests } from './WarRoomQuests';
 import { WarRoomEvents } from './WarRoomEvents';
+import { WarRoomGamification } from '@/components/WarRoomGamification';
 import { WarRoomVenues } from './WarRoomVenues';
 import { WarRoomPlan } from './WarRoomPlan';
 import { OS, G, hexA, MONO, ROLE } from '@/os/osTheme';
@@ -252,6 +253,9 @@ export default function WarRoom() {
           <>
             <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.12em', color: OS.ink6, marginBottom: 14, lineHeight: 1.5 }}>PROGRAM SE PUNI OVDE — HOME I HEAT ŽIVE OD OVOGA. NE SCRAPER: TI KONTROLIŠEŠ ŠTA SCENA VIDI.</div>
             <WarRoomEvents />
+            <div style={{ marginTop: 26, borderTop: `1px solid `, paddingTop: 18 }}>
+              <WarRoomGamification />
+            </div>
           </>
         )}
 

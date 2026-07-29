@@ -8,6 +8,7 @@ import { useVenueDirectory, useHeatVenues } from '@/hooks/useHeatVenues';
 import { useQuests } from '@/hooks/useQuests';
 import { OSLucky100Modal } from '../OSLucky100Modal';
 import { RoadmapRail } from '../OSRoadmaps';
+import { ConvergenceRail, CityCipherCard } from '../OSGamification';
 import { OSExplore } from './OSExplore';
 import { OSStories } from '../OSStories';
 import { OSEventRow } from '../OSEventRow';
@@ -299,6 +300,10 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
           </>);
         })()}
       </div>
+
+      {/* gamifikacija v2 — telo je kontroler: dođi i uzmi / sastavi šifru */}
+      <ConvergenceRail />
+      <CityCipherCard />
 
       {/* rute scene — Home distribuira odobrene roadmape (QUEST §6) */}
       <RoadmapRail />

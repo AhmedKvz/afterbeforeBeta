@@ -7,6 +7,7 @@ import { OSMatches } from './screens/OSMatches';
 import { OSDareWheel } from './OSDareWheel';
 import { OSDanceMode } from './OSDanceMode';
 import { OSCrew } from './OSCrew';
+import { ConvergenceClaim, CityCipherCard, IrlStreaks } from './OSGamification';
 import { useExit } from './useExit';
 import { AB, G, hexA, MONO } from './osTheme';
 
@@ -81,6 +82,11 @@ export const OSNightHub = ({ night, onClose }: { night: MyNight; onClose: () => 
           </div>
         </div>
       )}
+
+      {/* gamifikacija v2 — dođi i uzmi · sastavi šifru · tvoji ljudi */}
+      <ConvergenceClaim venueId={night.venueId} />
+      <CityCipherCard solvable />
+      <IrlStreaks compact />
 
       {/* igre i ekipa — sve otključano check-inom */}
       <div style={{ padding: '12px 18px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
