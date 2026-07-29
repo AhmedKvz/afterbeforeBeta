@@ -7,7 +7,7 @@ import { isFounder } from '@/lib/founder';
 import { WarRoomQuests } from './WarRoomQuests';
 import { WarRoomEvents } from './WarRoomEvents';
 import { WarRoomGamification } from '@/components/WarRoomGamification';
-import { WarRoomSuggestions } from '@/components/WarRoomSuggestions';
+import { WarRoomSuggestions, WarRoomPopup } from '@/components/WarRoomSuggestions';
 import { WarRoomVenues } from './WarRoomVenues';
 import { WarRoomPlan } from './WarRoomPlan';
 import { OS, G, hexA, MONO, ROLE } from '@/os/osTheme';
@@ -264,7 +264,7 @@ export default function WarRoom() {
         {tab === 'plan' && <WarRoomPlan />}
 
         {/* ── VENUES (imenik mesta — odvojeno od događaja) ── */}
-        {tab === 'venues' && (<><WarRoomSuggestions /><WarRoomVenues /></>)}
+        {tab === 'venues' && (<><WarRoomPopup /><WarRoomSuggestions /><WarRoomVenues /></>)}
 
         {/* ── QUESTS (founder authoring) ── */}
         {tab === 'quests' && (

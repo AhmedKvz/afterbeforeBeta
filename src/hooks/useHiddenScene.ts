@@ -49,6 +49,60 @@ export const useAdminSuggestions = () =>
     },
   });
 
+/* ── POP-UP eventi (efemeralni venue, §6) — founder ── */
+export const useActivePopups = () =>
+  useQuery({
+    queryKey: ['admin-active-popups'],
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data, error } = await db.from('venues')
+        .select('id, name, neighborhood, emoji, active_until, is_hidden, min_level')
+        .eq('type', 'popup').gt('active_until', new Date().toISOString())
+        .order('active_until', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+export const useCreatePopup = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (p: {
+      name: string; neighborhood?: string; emoji?: string;
+      lat: number; lng: number; until: string;
+      radius?: number; hidden?: boolean; minLevel?: number; repMult?: number;
+    }) => {
+      const { data, error } = await db.rpc('admin_create_popup', {
+        p_name: p.name, p_neighborhood: p.neighborhood || null, p_emoji: p.emoji || '⚡',
+        p_lat: p.lat, p_lng: p.lng, p_until: p.until,
+        p_radius: p.radius ?? 150, p_hidden: p.hidden ?? false,
+        p_min_level: p.minLevel ?? 0, p_rep_mult: p.repMult ?? 1.5,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-active-popups'] });
+      qc.invalidateQueries({ queryKey: ['venue-directory'] });
+    },
+  });
+};
+
+export const useEndPopup = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await db.rpc('admin_end_popup', { p_id: id });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-active-popups'] });
+      qc.invalidateQueries({ queryKey: ['venue-directory'] });
+    },
+  });
+};
+
 export const useDecideSuggestion = () => {
   const qc = useQueryClient();
   return useMutation({

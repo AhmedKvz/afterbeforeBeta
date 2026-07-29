@@ -59,6 +59,7 @@ export const useCheckIn = (venue: OSVenue, onFeedback: (venueId: string) => void
         if (far) { toast.error(`${formatDistance(Number(far[1]))} od ${venue.name} — priđi na ${far[2]}m za check-in.`); return; }
         const lvl = msg.match(/LEVEL_REQUIRED (\d+)/);
         if (lvl) { toast(`🔒 Skriveno mesto — otključava se na RANK ${roman(Number(lvl[1]))}. Skupljaj REP izlascima.`); return; }
+        if (msg.includes('POPUP_ENDED')) { toast('⚡ Pop-up se završio — vidimo se na sledećem.'); return; }
         toast.error(msg.includes('12 hours') || msg.includes('duplicate') ? 'Već si se prijavio ovde večeras.' : 'Check-in nije prošao — pokušaj ponovo.');
         return;
       }

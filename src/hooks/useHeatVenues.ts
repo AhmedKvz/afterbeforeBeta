@@ -32,7 +32,7 @@ export const BELGRADE_HOODS = [
 const TYPE_EMOJI: Record<string, string> = {
   club: '🎵', splav: '🚢', cafe: '☕', cafe_bar: '☕', bar: '🍸',
   restaurant: '🍽', gallery: '🎨', afterplace: '🍔', festival: '🎪',
-  market: '🛍', river: '🛶',
+  market: '🛍', river: '🛶', popup: '⚡',
 };
 
 // Design system: genre drives color. Each music scene has its own hue.
@@ -91,7 +91,7 @@ function genreHue(genres: string[] | null | undefined, type: string): number {
 const TYPE_MODE: Record<string, 'day' | 'night' | 'both'> = {
   club: 'night', splav: 'night', bar: 'both', afterplace: 'night',
   cafe: 'day', cafe_bar: 'day', restaurant: 'day', gallery: 'day',
-  festival: 'night', market: 'day', river: 'day',
+  festival: 'night', market: 'day', river: 'day', popup: 'both',
 };
 
 function coordFor(neighborhood: string | null, key: string) {
@@ -134,6 +134,8 @@ export interface HeatVenue {
   lng: number | null;
   radius: number;
   hidden: boolean;           // skrivena scena (QUEST-DOKTRINA §6)
+  popup: boolean;            // efemeralni venue (pop-up event)
+  until: string | null;      // pop-up: kraj prozora (active_until)
   minLevel: number;          // rank potreban za check-in (beta gate)
   discoveredBy: string | null; // "OTKRIO/LA" kredit — ime predlagača
 }
@@ -152,7 +154,7 @@ export const useVenueDirectory = () => {
     queryFn: async () => {
       // #57: radius je na venue (server čita ISTI broj u process_secure_checkin)
       const { data: dirVenues } = await db.from('venues')
-        .select('id, name, type, neighborhood, emoji, hue, latitude, longitude, geofence_radius_m, is_hidden, min_level, discovered_by_name');
+        .select('id, name, type, neighborhood, emoji, hue, latitude, longitude, geofence_radius_m, is_hidden, min_level, discovered_by_name, active_until');
       // Plain object, NOT a Map — query data is JSON-persisted (Wave E) and a
       // Map rehydrates as {} → .get() crashes the whole Heat screen.
       const radius: Record<string, number> = {};
@@ -182,7 +184,11 @@ export const useHeatVenues = () => {
     (heatQ.data || []).forEach((h: any) => heatMap.set(h.venue_name, h));
     const radius = dir.data.radius || {};
 
-    return (dir.data.venues || []).map((v: any) => {
+    // Istekao pop-up nestaje iz imenika (server ionako odbija check-in).
+    const nowMs = Date.now();
+    return (dir.data.venues || [])
+      .filter((v: any) => !v.active_until || new Date(v.active_until).getTime() > nowMs)
+      .map((v: any) => {
         const h = heatMap.get(v.name);
         const type = v.type || 'club';
         const { x, y } = coordFor(v.neighborhood, v.name);
@@ -210,6 +216,8 @@ export const useHeatVenues = () => {
           hidden: !!v.is_hidden,
           minLevel: v.min_level ?? 0,
           discoveredBy: v.discovered_by_name || null,
+          popup: v.type === 'popup',
+          until: v.active_until || null,
         } as HeatVenue;
       });
   }, [dir.data, heatQ.data]);
