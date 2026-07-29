@@ -125,6 +125,39 @@ Logika: Niantic $0.15–0.50/procenjena poseta (bogata tržišta) → naš opseg
 4. **Sponzorska prodaja**: pitch deck iz §3 tek POSLE B1 brojeva (prvi honest
    lift izveštaj = prvi case study). Prvi target: pivski brend za septembar.
 
+## 6 · SKRIVENA SCENA (founder pravac, 2026-07-29)
+
+**Pozicija**: AfterBefore nije aplikacija za klubove — **OS je cele alternativne
+scene Beograda**. Klubovi su kičma PET/SUB; skrivena i dnevna mesta pune
+ostatak nedelje: Buvljak, Ada Međica (čamcem preko Save), pikniki, galerije,
+pop-up eventi, mesta „dobre atmosfere" koja do sad nisu bila ni na jednoj mapi.
+Ovo rešava „prazan grad sredom" POŠTENO — sadržajem, ne naduvanim brojevima —
+i bukvalno ispunjava ime: After**Before** = pre i posle noći.
+
+**Zašto po evidenciji**: Questo (138k recenzija) — lokalci plaćaju „moj grad,
+neviđen"; geocaching etos „let me show you something"; Gen Z veruje otkrivanju,
+autorstvu i IRL dokazu, ne oglasima. **Putovanje je quest**: teže dostupno
+mesto (Ada = čamac) nosi veći REP — mehanika koju niko nema.
+
+**Postojeće mehanike već pokrivaju**: konvergencija na Buvljaku u podne ·
+Šifra: Priče sa fragmentima na skrivenim mestima · rute dan+noć
+(galerija→večera→klub→after) · Dovedi novog na Adu · IRL streak (već
+venue-agnostičan) · Jutarnja hronika (ceo luk dan-noć).
+
+**Build lista (redosled)**:
+1. Taksonomija + seed: tipovi buvljak/reka-ada/galerija/piknik + ~15–20
+   kuriranih skrivenih mesta sa geofence (Ada širi radius). Unos, ne kod.
+2. **Pop-up eventi sa sopstvenim koordinatama** — check-in na event (event-level
+   geofence + trajanje), ne na hardkodirano mesto. Glavni kod-item.
+3. „SKRIVENO" filter na Karti (uz KLUBOVI/BAROVI/SPLAVOVI).
+4. Težinski REP: dostupnost mesta množi vrednost dolaska.
+5. „Znaš mesto?" predlog-flow → founder kuracija (War Room) → trajni
+   „OTKRIO/LA {ime}" marker na mestu (zakon #3: oskudica autorstva).
+
+**Sponzorski efekat**: dan-scena otvara kategorije van piva/energetskih —
+kafa, thrift/streetwear (Buvljak = njihov teren), TOB, kulturne institucije
+kao content (ne novčani) partneri.
+
 ---
 *Puni izveštaji agenata (izvori, cifre, URL-ovi) u transkriptu sesije
 2026-07-29. Ključne cifre: Niantic $0.50/CPV · Strava $20–30k/challenge,
