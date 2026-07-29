@@ -1,7 +1,7 @@
 # AfterBefore — TODO (živi backlog)
 
 > **Pravilo:** ovaj fajl se ažurira uz svaki radni blok — šta je urađeno izlazi, šta je odlučeno ulazi.
-> Otvara se iz War Room → DOCS. Poslednje ažuriranje: **2026-07-19**.
+> Otvara se iz War Room → DOCS. Poslednje ažuriranje: **2026-07-21**.
 
 ---
 
@@ -22,8 +22,12 @@ Presuda 3 greenfield agenta + branša → SECTION-LOCKS §11: GRAD (živi broj h
 Lista|Karta toggle + KRAJ) · ORB=TU SAM (check-in/hub večeri; lepeza se ukida) ·
 JA (prima NAGRADE+questove). Quests tab umire. Doktrina gamifikacije „TELO JE
 KONTROLER" — **IZMENA: novi sloj se gradi PRE B1** (konvergencija → IRL streak → gradska ŠIFRA; spec `HANDOFF-GAMIFIKACIJA-2026-07-21.md`; build 08.08, QA 08–09.08, freeze 11.08, kill-switch flagovi).
-**Build izvršava Opus: `HANDOFF-GRAD-ORB-2026-07-21.md`.** Neshipovani NOĆAS
-merge u radnom stablu = sirovina (embedded refaktori se čuvaju).
+✅ **SHIPOVANO 2026-07-21** — `2146b7a` (IA v2: GRAD živi broj + Lista|Karta,
+orb=TU SAM → picker/hub večeri, JA prima Questove, Quests tab ukinut, fix
+check-in→orb invalidacija) i `abd46be` (gamifikacija v2: M2 konvergencija,
+M1 IRL streak, M3 gradska ŠIFRA + War Room forme + kill-switch flagovi).
+Ostaje: **2-device QA 08–09.08** (konvergencija race, šifra crew pooling,
+IRL streak par) i **B1 UX test** (<30s do izbora mesta, 7/10).
 
 ## 🔥 SLEDEĆE — akcije koje otključavaju sve ostalo
 
