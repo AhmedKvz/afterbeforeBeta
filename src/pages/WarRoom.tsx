@@ -64,13 +64,10 @@ export default function WarRoom() {
   const founder = isFounder(user);
   const [tab, setTab] = useState<Tab>('pulse');
 
-  // War Room v2: pristup ima founder + članovi tima (war_members — PM/mentor).
-  const { data: isMember, isLoading: memberLoading } = useQuery({
-    queryKey: ['war-member', user?.id],
-    enabled: !!user && !founder,
-    queryFn: async () => { const { data } = await db.rpc('war_is_member'); return data === true; },
-  });
-  const allowed = founder || isMember === true;
+  // Founder odluka 2026-07-29: War Room je SAMO za foundera. Server je isto
+  // zaključan (war_is_member → _is_founder), ovo je UI kapija.
+  const allowed = founder;
+  const memberLoading = false;
 
   const { data: m, isLoading } = useQuery({
     queryKey: ['war-metrics'],

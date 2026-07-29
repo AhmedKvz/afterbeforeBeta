@@ -18,7 +18,8 @@ const ST: Record<string, { label: string; col: string }> = {
 const CYCLE = ['todo', 'doing', 'done', 'blocked'];
 
 /** War Room PLAN — timski task board (baza, ne localStorage): B1 pilot
- *  checklista + sve buduće. Founder + war_members (PM/mentor) rade zajedno. */
+ *  checklista + sve buduće. Pristup: SAMO founder (odluka 2026-07-29);
+ *  war_members je spisak kontakata tima, NE daje pristup. */
 export const WarRoomPlan = () => {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -119,7 +120,7 @@ export const WarRoomPlan = () => {
           <div style={{ fontFamily: MONO, fontSize: 9.5, color: OS.ink5, marginTop: 7 }}>{doing} u radu · {blocked} blokirano</div>
         </div>
         <div style={{ flex: 'none', padding: 13, borderRadius: 14, background: OS.surface, border: `1px solid ${OS.line}` }}>
-          <div style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: '.1em', color: OS.ink6, marginBottom: 6 }}>TIM · {members.length + 1}</div>
+          <div style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: '.1em', color: OS.ink6, marginBottom: 6 }}>TIM · KONTAKTI (BEZ PRISTUPA) · {members.length + 1}</div>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
             <span style={{ fontFamily: MONO, fontSize: 10, color: G.afterparty }}>KAVAZ · FOUNDER</span>
             {members.map((m: any) => (
