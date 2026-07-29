@@ -10,6 +10,7 @@ import { getXPProgress, ACHIEVEMENTS, getUserAchievements, MORNING_STAR_ACHIEVEM
 import { track } from '@/lib/analytics';
 import { toast } from 'sonner';
 import { AB, OS, G, hexA, MONO, genreCol, CONIC } from '../osTheme';
+import { OSQuests } from './OSQuests';
 
 const APP_URL = 'https://ahmedkvz.github.io/afterbeforeBeta/app/';
 
@@ -194,6 +195,11 @@ export const OSProfile = () => {
             <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.08em', color: AB.ink3, marginTop: 4 }}>{p.label}</div>
           </div>
         ))}
+      </div>
+
+      {/* questovi + nagrade + streak — IA v2 §11.3: JA čuva doprinos */}
+      <div style={{ marginTop: 22, borderTop: `1px solid ${AB.line}`, paddingTop: 4 }}>
+        <OSQuests embedded />
       </div>
 
       {/* achievements */}

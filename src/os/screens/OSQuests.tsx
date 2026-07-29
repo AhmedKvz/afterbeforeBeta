@@ -91,7 +91,8 @@ const OSPartyOfMonth = () => {
   );
 };
 
-export const OSQuests = () => {
+/** embedded = IA v2 §11.3: Questovi/Nagrade/Streak žive unutar JA ekrana. */
+export const OSQuests = ({ embedded }: { embedded?: boolean } = {}) => {
   const { quests = [], claimReward } = useQuests() as any;
   const { profile } = useAuth();
   const { streak, claimedToday, shieldAvailable, claimedDates, claim: claimStreak, isClaiming } = useStreak();
@@ -187,16 +188,22 @@ export const OSQuests = () => {
     );
   };
 
+  const Shell = embedded
+    ? ({ children }: any) => <div id="questovi" style={{ paddingTop: 8 }}>{children}</div>
+    : ({ children }: any) => <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', position: 'relative', background: AB.void, paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>{children}</div>;
+
   return (
-    <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', position: 'relative', background: AB.void, paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
+    <Shell>
       {/* editorial header — veliki naslov, label kao vezivno tkivo */}
       <div style={{ padding: '10px 18px 0' }}>
-        <div style={LABEL}>NEDELJNI · 🔥 {streak.current_streak} ZAREDOM</div>
-        <div style={{ fontWeight: 800, fontSize: 30, lineHeight: '34px', letterSpacing: '-.02em', color: AB.ink, marginTop: 4 }}>Questovi</div>
+        <div style={LABEL}>{embedded ? 'DOPRINOS' : 'NEDELJNI'} · 🔥 {streak.current_streak} ZAREDOM</div>
+        <div style={{ fontWeight: 800, fontSize: embedded ? 24 : 30, lineHeight: embedded ? '28px' : '34px', letterSpacing: '-.02em', color: AB.ink, marginTop: 4 }}>Questovi</div>
         <div style={{ fontSize: 14, color: AB.ink2, marginTop: 4 }}>Svaki quest gradi scenu — tvoj doprinos se računa.</div>
       </div>
 
-      {/* Zavrti noć — solid UV okvir (kanon: dashed = disabled, zabranjeno) */}
+      {/* Zavrti noć — igra živi u HUBU VEČERI (otključava je check-in), pa se
+          ovaj ulaz prikazuje samo na samostalnom ekranu (legacy ruta). */}
+      {!embedded && (
       <div style={{ padding: '16px 18px 0' }}>
         <button onClick={() => setDare(true)} className="os-press" style={{ width: '100%', minHeight: 52, padding: '13px 15px', borderRadius: 16, border: `1px solid ${AB.uv}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: 'oklch(0.62 0.25 300 / 0.08)', textAlign: 'left' }}>
           <span style={{ fontSize: 21 }}>🎲</span>
@@ -204,6 +211,7 @@ export const OSQuests = () => {
           <span style={{ ...MTAG, fontSize: 10, letterSpacing: '.12em', color: AB.uv }}>SMEŠ LI?</span>
         </button>
       </div>
+      )}
 
       {/* hub toggle — UV je okvir gejmifikacije; acid ostaje za progres */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, padding: '16px 18px 0' }}>
@@ -431,6 +439,6 @@ export const OSQuests = () => {
       {xp.show && <div style={{ position: 'fixed', left: '50%', bottom: 150, zIndex: 200, ...MTAG, fontSize: 19, color: AB.acid, textShadow: '0 0 24px oklch(0.88 0.19 158 / 0.6)', animation: 'os-xp 1.4s ease forwards', pointerEvents: 'none' }}>+{xp.val} XP</div>}
       {dare && <OSDareWheel onClose={() => setDare(false)} />}
       {campaign && <OSCampaign sponsoredId={campaign} onClose={() => setCampaign(null)} />}
-    </div>
+    </Shell>
   );
 };

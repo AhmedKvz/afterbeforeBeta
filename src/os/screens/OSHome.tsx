@@ -4,9 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { Bell } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useVenueDirectory } from '@/hooks/useHeatVenues';
+import { useVenueDirectory, useHeatVenues } from '@/hooks/useHeatVenues';
+import { useQuests } from '@/hooks/useQuests';
 import { OSLucky100Modal } from '../OSLucky100Modal';
 import { RoadmapRail } from '../OSRoadmaps';
+import { OSExplore } from './OSExplore';
 import { OSStories } from '../OSStories';
 import { OSEventRow } from '../OSEventRow';
 import { AB, OS, G, hexA, MONO, stripe, genreCol, CONIC } from '../osTheme';
@@ -36,15 +38,36 @@ const SectionLabel = ({ children, right }: { children: string; right?: string })
 );
 const reveal = (i: number) => ({ animation: `ab-reveal .22s cubic-bezier(.16,1,.3,1) ${i * 40}ms both` });
 
+/** Feed IMA dno (IA v2 §11.1 — anti-scroll je ustavno pravilo). */
+const KrajBlok = ({ onSwitch, to }: { onSwitch: () => void; to: 'lista' | 'karta' }) => (
+  <div style={{ padding: '34px 18px 8px', textAlign: 'center' }}>
+    <Mono fontSize={11} fontWeight={600} letterSpacing=".16em" color={AB.ink3}>— KRAJ —</Mono>
+    <div style={{ fontSize: 13.5, color: AB.ink2, marginTop: 8 }}>Ostalo se dešava napolju.</div>
+    <button onClick={onSwitch} className="os-press" style={{ marginTop: 14, minHeight: 44, padding: '11px 22px', borderRadius: 999, cursor: 'pointer', border: `1px solid ${AB.line2}`, background: 'transparent', color: AB.ink2, fontSize: 13.5, fontWeight: 600 }}>
+      {to === 'karta' ? 'Otvori kartu' : 'Nazad na listu'}
+    </button>
+  </div>
+);
+
 const LIVE_RED = '#ff3b46';
 
 export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) => void; goProfile: () => void }) => {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const [lens, setLens] = useState<'foryou' | 'all'>('foryou');
   const [dateF, setDateF] = useState<'SVE' | 'VEČERAS' | 'VIKEND'>('SVE');
   const [genreF, setGenreF] = useState<string | null>(null);
   const [lucky, setLucky] = useState(false);
+  // IA v2 §11.1: jedan sadržaj, dva prikaza — nikad naslagano.
+  const [view, setView] = useState<'lista' | 'karta'>('lista');
+  const { data: heatVenues = [] } = useHeatVenues();
+  const { quests = [] } = useQuests() as any;
+  // Živi broj grada — pošten i kad je nula (hero, jedini acid momenat).
+  const cityLive = heatVenues.reduce((s: number, v: any) => s + (v.here ?? 0), 0);
+  const hotNow = [...heatVenues].sort((a: any, b: any) => ((b.here ?? 0) - (a.here ?? 0)) || ((b.heat ?? 0) - (a.heat ?? 0))).slice(0, 3);
+  const weekQuest = quests.find((q: any) => !q.xp_claimed) || null;
+  const now = new Date();
+  const DOW = ['NED', 'PON', 'UTO', 'SRE', 'ČET', 'PET', 'SUB'][now.getDay()];
+  const clock = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
   const { data: events = [] } = useQuery<Ev[]>({
     queryKey: ['os-events'],
@@ -139,7 +162,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       <div style={{ position: 'sticky', top: 0, zIndex: 40, background: 'oklch(0.135 0.012 285 / 0.92)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${AB.line}`, padding: '11px 18px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <Mono fontSize={10} letterSpacing=".24em" color={AB.ink3}>NIGHTLIFE OS</Mono>
+            <Mono fontSize={10} letterSpacing=".24em" color={AB.ink3}>GRAD · {cityLive} NAPOLJU</Mono>
             <div style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-.02em', color: AB.ink, lineHeight: 1, marginTop: 2 }}>AfterBefore</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -149,15 +172,45 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
         </div>
       </div>
 
-      {/* lens tabs */}
-      <div style={{ display: 'flex', gap: 24, padding: '0 18px', borderBottom: `1px solid ${OS.line}` }}>
-        {([['foryou', 'Za tebe'], ['all', 'Sve']] as const).map(([k, l]) => {
-          const on = lens === k;
-          return <button key={k} onClick={() => setLens(k)} className="os-press" style={{ background: 'transparent', border: 0, cursor: 'pointer', padding: '12px 0', fontSize: 14, fontWeight: on ? 700 : 500, color: on ? AB.ink : AB.ink3, borderBottom: `2px solid ${on ? AB.ink : 'transparent'}` }}>{l}</button>;
+      {/* HERO — živi broj grada (IA v2 §11.1: prvi utisak, pošten i kad je nula) */}
+      <div style={{ padding: '26px 18px 0', textAlign: 'center' }}>
+        <div style={{ fontWeight: 800, fontSize: 'clamp(56px,17vw,72px)', lineHeight: 1, letterSpacing: '-.04em', color: cityLive > 0 ? AB.acid : AB.ink, textShadow: cityLive > 0 ? '0 0 40px oklch(0.88 0.19 158 / 0.35)' : 'none' }}>{cityLive}</div>
+        <Mono fontSize={11} fontWeight={600} letterSpacing=".14em" color={AB.ink2} style={{ marginTop: 8 }}>{cityLive > 0 ? 'NAPOLJU U BEOGRADU' : 'GRAD SE SPREMA'}</Mono>
+        <Mono fontSize={10.5} color={AB.ink3} style={{ marginTop: 4 }}>{DOW} · {clock}</Mono>
+      </div>
+
+      {/* Lista | Karta — isti sadržaj, dva prikaza */}
+      <div style={{ display: 'flex', gap: 8, padding: '18px 18px 0', justifyContent: 'center' }}>
+        {([['lista', 'Lista'], ['karta', 'Karta']] as const).map(([k, l]) => {
+          const on = view === k;
+          return <button key={k} onClick={() => setView(k)} className="os-press" style={{ minWidth: 108, padding: '10px 0', borderRadius: 999, fontSize: 14, fontWeight: on ? 700 : 500, cursor: 'pointer', border: `1px solid ${on ? AB.uv : AB.line}`, background: on ? 'oklch(0.62 0.25 300 / 0.16)' : AB.surface, color: on ? AB.ink : AB.ink3 }}>{l}</button>;
         })}
       </div>
 
-      {lens === 'foryou' && (<div key="foryou" style={{ animation: 'os-swap .15s cubic-bezier(.22,1,.36,1) both' }}>
+      {/* KARTA — mapa + vruće sada (mapa je prikaz, ne zaseban ekran) */}
+      {view === 'karta' && (
+        <div key="karta" style={{ animation: 'os-swap .15s cubic-bezier(.22,1,.36,1) both' }}>
+          <OSExplore embedded onOpenVenue={onOpenVenue} />
+          {hotNow.length > 0 && (
+            <div style={{ padding: '20px 18px 0' }}>
+              <SectionLabel right="PO PRISUSTVU">VRUĆE SADA</SectionLabel>
+              {hotNow.map((v: any, i: number) => (
+                <button key={v.id} onClick={() => onOpenVenue({ name: v.name, genre: (v.genreLabel || v.type || 'VENUE').toUpperCase(), col: genreCol(v.genreLabel || v.type), venueId: v.venue_id ?? null, presenceId: v.id ?? null, lat: v.lat ?? null, lng: v.lng ?? null, radius: v.radius, heat: v.heat, here: v.here ?? 0, neighborhood: (v.neighborhood || '').toUpperCase() })} className="os-press" style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', padding: '13px 0', background: 'transparent', border: 0, borderTop: `1px solid ${AB.line}`, cursor: 'pointer', ...reveal(i) }}>
+                  <span style={{ flex: 'none', width: 40, height: 40, borderRadius: 12, background: AB.raised, border: `1px solid ${AB.line2}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>{v.emoji || '📍'}</span>
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: 'block', fontSize: 15.5, fontWeight: 700, letterSpacing: '-.01em', color: AB.ink }}>{v.name}</span>
+                    <Mono fontSize={10} color={AB.ink3} style={{ marginTop: 3 }}>{(v.neighborhood || 'BEOGRAD').toUpperCase()}</Mono>
+                  </span>
+                  <Mono fontSize={13} fontWeight={600} color={(v.here ?? 0) > 0 ? AB.acid : AB.ink3}>{(v.here ?? 0) > 0 ? `${v.here} ovde` : 'mirno'}</Mono>
+                </button>
+              ))}
+            </div>
+          )}
+          <KrajBlok onSwitch={() => setView('lista')} to="lista" />
+        </div>
+      )}
+
+      {view === 'lista' && (<div key="lista" style={{ animation: 'os-swap .15s cubic-bezier(.22,1,.36,1) both' }}>
       {/* stories */}
       <OSStories />
 
@@ -219,17 +272,53 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
         </div>
       )}
 
-      {/* za tebe — curated slice (state chips, no type filters) */}
+      {/* događaji — JEDNA lista: kurirana dok nema filtera, pun katalog čim se filtrira */}
       <div style={{ padding: '22px 18px 0' }}>
-        {tonightCount > 0 ? <SectionLabel right={`${forYou.length}`}>ZA TEBE VEČERAS</SectionLabel> : <SectionLabel right={`${forYou.length}`}>IZ ARHIVE SCENE · DOK SE GRAD NE UPALI</SectionLabel>}
-        <div>
-          {forYou.map((e, i) => <div key={e.id} style={reveal(i)}><OSEventRow e={e} state={stateOf(e)} onClick={() => openEvent(e)} /></div>)}
-          {forYou.length === 0 && <Mono fontSize={12} color={AB.ink3} style={{ textAlign: 'center', padding: '24px 0' }}>Još nema događaja.</Mono>}
+        <div className="os-scroll" style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 10 }}>
+          {(['SVE', 'VEČERAS', 'VIKEND'] as const).map((dF) => {
+            const on = dateF === dF;
+            return <button key={dF} onClick={() => setDateF(dF)} className="os-press" style={{ flex: 'none', cursor: 'pointer', padding: '8px 14px', borderRadius: 999, fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.04em', border: `1px solid ${on ? 'transparent' : AB.line}`, background: on ? AB.acid : AB.surface, color: on ? AB.acidInk : AB.ink3 }}>{dF}</button>;
+          })}
         </div>
+        {genres.length > 0 && (
+          <div className="os-scroll" style={{ display: 'flex', gap: 7, overflowX: 'auto', marginBottom: 12 }}>
+            <button onClick={() => setGenreF(null)} style={gChip(!genreF)}>SVI</button>
+            {genres.map((g) => <button key={g} onClick={() => setGenreF(g)} style={gChip(genreF === g)}>{g.toUpperCase()}</button>)}
+          </div>
+        )}
+        {(() => {
+          const filtered = dateF !== 'SVE' || !!genreF;
+          const list = filtered ? catalog : forYou;
+          const label = filtered ? 'SVE ŠTO SE POKLAPA' : (tonightCount > 0 ? 'ZA TEBE VEČERAS' : 'IZ ARHIVE SCENE · DOK SE GRAD NE UPALI');
+          return (<>
+            <SectionLabel right={`${list.length}`}>{label}</SectionLabel>
+            <div>
+              {list.map((e, i) => <div key={e.id} style={reveal(Math.min(i, 8))}><OSEventRow e={e} state={stateOf(e)} onClick={() => openEvent(e)} /></div>)}
+              {list.length === 0 && <Mono fontSize={12} color={AB.ink3} style={{ textAlign: 'center', padding: '24px 0' }}>{filtered ? 'Nema događaja za ovaj filter.' : 'Još nema događaja.'}</Mono>}
+            </div>
+          </>);
+        })()}
       </div>
 
       {/* rute scene — Home distribuira odobrene roadmape (QUEST §6) */}
       <RoadmapRail />
+
+      {/* quest nedelje — jedna kartica (pun hub je u JA) */}
+      {weekQuest && (
+        <div style={{ padding: '22px 18px 0' }}>
+          <button onClick={goProfile} className="os-press" style={{ width: '100%', textAlign: 'left', cursor: 'pointer', padding: 14, borderRadius: 16, background: AB.surface, border: `1px solid ${AB.uvDim}` }}>
+            <Mono fontSize={10} fontWeight={600} letterSpacing=".14em" color={AB.uv}>QUEST NEDELJE</Mono>
+            <div style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-.01em', color: AB.ink, marginTop: 5 }}>{weekQuest.title}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 11 }}>
+              <div style={{ flex: 1, height: 8, borderRadius: 999, background: 'oklch(1 0 0 / 0.07)', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${Math.min(100, Math.round((weekQuest.progress / Math.max(weekQuest.target_count, 1)) * 100))}%`, borderRadius: 999, background: AB.acidDim }} />
+              </div>
+              <Mono fontSize={11} color={AB.ink3}>{weekQuest.progress}/{weekQuest.target_count}</Mono>
+              <Mono fontSize={11} fontWeight={600} color={AB.ink2}>+{weekQuest.xp_reward}</Mono>
+            </div>
+          </button>
+        </div>
+      )}
 
       {/* discover places + community reviewed */}
       <OSDiscover navigate={navigate} />
@@ -249,31 +338,9 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
         </div>
         </button>
       </div>
-      </div>)}
 
-      {lens === 'all' && (
-        <div key="all" style={{ padding: '14px 18px 0', animation: 'os-swap .15s cubic-bezier(.22,1,.36,1) both' }}>
-          {/* date pills — aktivan filter = acid (kanon §6.1 filter rail) */}
-          <div className="os-scroll" style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 10 }}>
-            {(['SVE', 'VEČERAS', 'VIKEND'] as const).map((dF) => {
-              const on = dateF === dF;
-              return <button key={dF} onClick={() => setDateF(dF)} className="os-press" style={{ flex: 'none', cursor: 'pointer', padding: '8px 14px', borderRadius: 999, fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.04em', border: `1px solid ${on ? 'transparent' : AB.line}`, background: on ? AB.acid : AB.surface, color: on ? AB.acidInk : AB.ink3 }}>{dF}</button>;
-            })}
-          </div>
-          {/* genre chips */}
-          {genres.length > 0 && (
-            <div className="os-scroll" style={{ display: 'flex', gap: 7, overflowX: 'auto', marginBottom: 12 }}>
-              <button onClick={() => setGenreF(null)} style={gChip(!genreF)}>SVI</button>
-              {genres.map((g) => <button key={g} onClick={() => setGenreF(g)} style={gChip(genreF === g)}>{g.toUpperCase()}</button>)}
-            </div>
-          )}
-          <SectionLabel right={`${catalog.length} DOGAĐAJA`}>SVE</SectionLabel>
-          <div>
-            {catalog.map((e, i) => <div key={e.id} style={reveal(Math.min(i, 8))}><OSEventRow e={e} state={stateOf(e)} onClick={() => openEvent(e)} /></div>)}
-            {catalog.length === 0 && <Mono fontSize={12} color={AB.ink3} style={{ textAlign: 'center', padding: '24px 0' }}>Nema događaja za ovaj filter.</Mono>}
-          </div>
-        </div>
-      )}
+      <KrajBlok onSwitch={() => setView('karta')} to="karta" />
+      </div>)}
 
       <OSLucky100Modal isOpen={lucky} onClose={() => setLucky(false)} />
     </div>

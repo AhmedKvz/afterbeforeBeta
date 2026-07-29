@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { incrementQuestProgress } from '@/services/questProgress';
@@ -22,6 +23,7 @@ export const useCheckIn = (venue: OSVenue, onFeedback: (venueId: string) => void
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
   const [award, setAward] = useState<number | null>(null);
+  const qc = useQueryClient();
 
   const checkIn = async () => {
     if (busy || done) return;
@@ -51,6 +53,9 @@ export const useCheckIn = (venue: OSVenue, onFeedback: (venueId: string) => void
       if (user) { incrementQuestProgress(user.id, 'check_in').catch(() => {}); incrementQuestProgress(user.id, 'explore').catch(() => {}); }
       track('check_in', { venue: venue.name, venue_id: venue.venueId, secure: true, awarded_xp: data?.awarded_xp });
       setDone(true);
+      // IA v2: orb mora da se upali ODMAH (bez čekanja na 120s refetch).
+      qc.invalidateQueries({ queryKey: ['my-night'] });
+      qc.invalidateQueries({ queryKey: ['venue-presence'] });
       if (data?.awarded_xp) setAward(Number(data.awarded_xp));
       toast.success(data ? `Prijavljen ✓ · +${data.awarded_xp} REP · +${data.awarded_afc} AFC` : 'Prijavljen ✓');
       if (venue.venueId && shouldShowFeedback()) setTimeout(() => onFeedback(venue.venueId!), 1400);

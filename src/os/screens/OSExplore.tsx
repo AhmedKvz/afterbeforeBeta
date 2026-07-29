@@ -9,7 +9,9 @@ const TYPES: [string, string][] = [
 ];
 const typeMatch = (vt: string, t: string) => t === 'all' || (t === 'cafe' ? /cafe/.test(vt) : vt === t);
 
-export const OSExplore = ({ onOpenVenue }: { onOpenVenue: (v: OSVenue) => void }) => {
+/** embedded = NOĆAS spajanje (founder odluka 2026-07-21): samo mapa + tišina
+ *  kartica, bez sopstvenog scroll kontejnera/headera — živi unutar Home-a. */
+export const OSExplore = ({ onOpenVenue, embedded }: { onOpenVenue: (v: OSVenue) => void; embedded?: boolean }) => {
   const { data: venues = [] } = useHeatVenues();
   const [ghost, setGhost] = useState(false);
   const [type, setType] = useState('all');
@@ -44,24 +46,11 @@ export const OSExplore = ({ onOpenVenue }: { onOpenVenue: (v: OSVenue) => void }
     color: on ? AB.acidInk : AB.ink2,
   });
 
-  return (
-    <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', background: AB.void, paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
-      {/* header + ghost */}
-      <div style={{ padding: '8px 18px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3 }}>CITY PULSE · LIVE</div>
-          <div style={{ fontWeight: 800, fontSize: 30, lineHeight: '34px', letterSpacing: '-.02em', color: AB.ink, marginTop: 4 }}>Heat</div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontFamily: MONO, fontSize: 10, color: ghost ? AB.ink3 : AB.acid }}>{ghost ? 'GHOST' : 'VISIBLE'}</span>
-          <button onClick={() => setGhost((g) => !g)} aria-label="Vidljivost" style={{ cursor: 'pointer', width: 42, height: 24, borderRadius: 999, border: `1px solid ${AB.line2}`, background: ghost ? 'rgba(255,255,255,.06)' : 'oklch(0.88 0.19 158 / 0.3)', position: 'relative', padding: 0 }}>
-            <span style={{ position: 'absolute', top: 2, left: ghost ? 2 : 20, width: 18, height: 18, borderRadius: '50%', background: AB.ink, transition: 'left .2s' }} />
-          </button>
-        </div>
-      </div>
-
+  // Mapa + tišina kartica — deljeno između samostalnog ekrana i NOĆAS embedded moda.
+  const mapBlock = (
+    <>
       {/* pulse map — hero (kanon §9), filteri plutaju preko nje */}
-      <div style={{ position: 'relative', margin: '14px 18px 0', height: 'min(480px, 56vh)', borderRadius: 22, overflow: 'hidden', background: `radial-gradient(70% 50% at 40% 30%, ${hexA(G.techno, 0.1)}, transparent 70%), #101013`, border: `1px solid ${AB.line}` }}>
+      <div style={{ position: 'relative', margin: '14px 18px 0', height: embedded ? 'min(400px, 46vh)' : 'min(480px, 56vh)', borderRadius: 22, overflow: 'hidden', background: `radial-gradient(70% 50% at 40% 30%, ${hexA(G.techno, 0.1)}, transparent 70%), #101013`, border: `1px solid ${AB.line}` }}>
         <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }} viewBox="0 0 380 360" preserveAspectRatio="xMidYMid slice">
           <line x1="0" y1="120" x2="380" y2="100" stroke="#1f1f22" strokeWidth="1" />
           <line x1="0" y1="240" x2="380" y2="260" stroke="#1f1f22" strokeWidth="1" />
@@ -115,10 +104,33 @@ export const OSExplore = ({ onOpenVenue }: { onOpenVenue: (v: OSVenue) => void }
           <span style={{ fontSize: 20 }}>🌙</span>
           <div>
             <div style={{ fontSize: 13.5, fontWeight: 700, letterSpacing: '-.01em', color: AB.ink }}>Tišina pre bure.</div>
-            <div style={{ fontSize: 12, color: AB.ink2, marginTop: 2 }}>Grad se pali vikendom — pogledaj šta se sprema na Home.</div>
+            <div style={{ fontSize: 12, color: AB.ink2, marginTop: 2 }}>Grad se pali vikendom — pogledaj šta se sprema ispod.</div>
           </div>
         </div>
       )}
+    </>
+  );
+
+  // NOĆAS spajanje: Home nosi ostatak strane — ovde samo mapa.
+  if (embedded) return mapBlock;
+
+  return (
+    <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', background: AB.void, paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
+      {/* header + ghost */}
+      <div style={{ padding: '8px 18px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3 }}>CITY PULSE · LIVE</div>
+          <div style={{ fontWeight: 800, fontSize: 30, lineHeight: '34px', letterSpacing: '-.02em', color: AB.ink, marginTop: 4 }}>Heat</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontFamily: MONO, fontSize: 10, color: ghost ? AB.ink3 : AB.acid }}>{ghost ? 'GHOST' : 'VISIBLE'}</span>
+          <button onClick={() => setGhost((g) => !g)} aria-label="Vidljivost" style={{ cursor: 'pointer', width: 42, height: 24, borderRadius: 999, border: `1px solid ${AB.line2}`, background: ghost ? 'rgba(255,255,255,.06)' : 'oklch(0.88 0.19 158 / 0.3)', position: 'relative', padding: 0 }}>
+            <span style={{ position: 'absolute', top: 2, left: ghost ? 2 : 20, width: 18, height: 18, borderRadius: '50%', background: AB.ink, transition: 'left .2s' }} />
+          </button>
+        </div>
+      </div>
+
+      {mapBlock}
 
       {/* ranked venue list — RA/OS rows */}
       <div style={{ padding: '20px 18px 0' }}>

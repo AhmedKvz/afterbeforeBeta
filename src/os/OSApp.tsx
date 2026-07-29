@@ -4,10 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { OS } from './osTheme';
 import { OSOrbNav, OSScreen } from './OSOrbNav';
 import { OSHome } from './screens/OSHome';
-import { OSExplore } from './screens/OSExplore';
-import { OSMatches } from './screens/OSMatches';
-import { OSQuests } from './screens/OSQuests';
 import { OSProfile } from './screens/OSProfile';
+import { OSNightHub } from './OSNightHub';
+import { OSVenuePicker } from './OSVenuePicker';
+import { useMyNight } from '@/hooks/useMyNight';
 import { OSVenueSheet, OSVenue } from './OSVenueSheet';
 import { genreCol } from './osTheme';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,7 +20,11 @@ import { supabase } from '@/integrations/supabase/client';
 export const OSApp = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
-  const [screen, setScreen] = useState<OSScreen>('home');
+  const [screen, setScreen] = useState<OSScreen>('grad');
+  // IA v2 §11.2: orb = TU SAM. Bez check-ina → izbor mesta; sa njim → hub noći.
+  const [hub, setHub] = useState(false);
+  const [picker, setPicker] = useState(false);
+  const { data: night } = useMyNight();
   const [venue, setVenue] = useState<OSVenue | null>(null);
 
   // Deep link /venue/:venueName → otvori OS venue sheet (zamena za legacy
@@ -45,10 +49,18 @@ export const OSApp = () => {
 
   const closeVenue = () => { setVenue(null); if (deepVenue) navigate('/', { replace: true }); };
 
-  // Event bus: deep components (venue sheet, celebrations) switch the orb
-  // screen without routing to legacy pages (D2 — Capacitor wraps ONE app).
+  // Event bus: deep components (venue sheet, celebrations) switch screens
+  // without routing to legacy pages (D2 — Capacitor wraps ONE app).
+  // IA v2 mapiranje: quests/profile → 'ja' · matches → hub večeri (poruke
+  // više nemaju svoj tab) · sve ostalo → 'grad'.
   useEffect(() => {
-    const go = (e: Event) => { setScreen((e as CustomEvent).detail as OSScreen); setVenue(null); };
+    const go = (e: Event) => {
+      const raw = String((e as CustomEvent).detail);
+      setVenue(null);
+      if (raw === 'matches') { setHub(true); return; }
+      setScreen(raw === 'quests' || raw === 'profile' ? 'ja' : 'grad');
+      if (raw === 'quests') setTimeout(() => document.getElementById('questovi')?.scrollIntoView({ behavior: 'smooth' }), 250);
+    };
     window.addEventListener('os-go', go);
     return () => window.removeEventListener('os-go', go);
   }, []);
@@ -76,16 +88,20 @@ export const OSApp = () => {
     >
       {/* key={screen} → os-screen enter na svaku promenu ekrana (motion audit 🔴1) */}
       <div key={screen} style={{ animation: 'os-screen .18s cubic-bezier(.22,1,.36,1) both' }}>
-        {screen === 'home' && <OSHome onOpenVenue={setVenue} goProfile={() => setScreen('profile')} />}
-        {screen === 'explore' && <OSExplore onOpenVenue={setVenue} />}
-        {screen === 'matches' && <OSMatches />}
-        {screen === 'quests' && <OSQuests />}
-        {screen === 'profile' && <OSProfile />}
+        {screen === 'grad' && <OSHome onOpenVenue={setVenue} goProfile={() => setScreen('ja')} />}
+        {screen === 'ja' && <OSProfile />}
       </div>
 
-      <OSOrbNav current={screen} onGo={(s) => { setScreen(s); setVenue(null); }} />
+      <OSOrbNav
+        current={screen}
+        live={!!night}
+        onGo={(s) => { setScreen(s); setVenue(null); }}
+        onOrb={() => (night ? setHub(true) : setPicker(true))}
+      />
 
       {venue && <OSVenueSheet venue={venue} onClose={closeVenue} />}
+      {picker && <OSVenuePicker onPick={(v) => { setPicker(false); setVenue(v); }} onClose={() => setPicker(false)} />}
+      {hub && night && <OSNightHub night={night} onClose={() => setHub(false)} />}
     </div>
   );
 };

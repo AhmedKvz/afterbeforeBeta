@@ -19,6 +19,9 @@
 @keyframes os-stamp{ 0%{ transform:scale(.985);} 45%{ transform:scale(1.015);} 100%{ transform:scale(1);} }
 .os-press{ transition:transform .08s ease; }
 .os-press:active{ transform:scale(.97); }
+/* a11y (WCAG 2.4.7): vidljiv fokus za tastaturu — inline stilovi ga nigde ne
+   definišu, pa jedan globalni acid ring pokriva ceo OS sloj. */
+:focus-visible{ outline:2px solid var(--ab-acid); outline-offset:2px; border-radius:6px; }
 .os-scroll::-webkit-scrollbar{ display:none; }
 .os-scroll{ -ms-overflow-style:none; scrollbar-width:none; }
 @keyframes ab-reveal{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:translateY(0);} }
@@ -120,7 +123,9 @@
     /* The Frame — ink */
     --ab-ink: oklch(0.97 0.005 285);
     --ab-ink-2: oklch(0.72 0.01 285);
-    --ab-ink-3: oklch(0.52 0.012 285);
+    /* a11y audit 2026-07-21: 0.52 → 0.56 — mali mono labeli (10–11px) na void
+       pozadini padali su ispod WCAG AA 4.5:1; 0.56 prolazi, ton ostaje isti. */
+    --ab-ink-3: oklch(0.56 0.012 285);
     /* Signature accents */
     --ab-acid: oklch(0.88 0.19 158);
     --ab-acid-dim: oklch(0.70 0.15 158);

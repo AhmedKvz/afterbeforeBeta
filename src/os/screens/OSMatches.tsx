@@ -13,7 +13,9 @@ const colOf = (name: string) => { let h = 0; for (let i = 0; i < name.length; i+
 const rel = (d?: string) => { if (!d) return ''; try { return formatDistanceToNow(new Date(d), { addSuffix: false }); } catch { return ''; } };
 const mk = (c: string) => `linear-gradient(135deg,${c},#15161b)`;
 
-export const OSMatches = () => {
+/** embedded = NOĆAS spajanje (2026-07-21): sekcija unutar Home-a — bez svog
+ *  kontejnera/headera; otvoren razgovor ide u fixed overlay preko cele strane. */
+export const OSMatches = ({ embedded }: { embedded?: boolean }) => {
   const { user } = useAuth();
   const { data: conversations = [], isLoading } = useConversations();
   const { data: sparks = [] } = useReceivedSparks();
@@ -21,26 +23,21 @@ export const OSMatches = () => {
   const [openId, setOpenId] = useState<string | null>(null);
 
   const open = conversations.find((c: any) => c.id === openId) || null;
-  if (openId && open) return <OSChat conv={open} onBack={() => setOpenId(null)} />;
+  if (openId && open && !embedded) return <OSChat conv={open} onBack={() => setOpenId(null)} />;
 
   const waves = conversations.filter((c: any) => c.is_incoming_wave);
   const chats = conversations.filter((c: any) => !c.is_incoming_wave);
   const empty = !isLoading && conversations.length === 0 && sparks.length === 0;
 
-  return (
-    <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', background: AB.void, paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
-      <div style={{ padding: '8px 18px 0' }}>
-        <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3 }}>PORUKE · MESSAGES</div>
-        <div style={{ fontWeight: 800, fontSize: 30, lineHeight: '34px', letterSpacing: '-.02em', color: AB.ink, marginTop: 4 }}>Chat</div>
-      </div>
-
-      {isLoading && <div style={{ fontFamily: MONO, fontSize: 11, color: AB.ink3, textAlign: 'center', padding: '40px 0' }}>UČITAVAM…</div>}
+  const inner = (
+    <>
+      {isLoading && <div style={{ fontFamily: MONO, fontSize: 11, color: AB.ink3, textAlign: 'center', padding: '20px 0' }}>UČITAVAM…</div>}
 
       {empty && (
-        <div style={{ textAlign: 'center', padding: '60px 24px', color: AB.ink3 }}>
-          <div style={{ fontSize: 30, marginBottom: 10 }}>✨</div>
+        <div style={{ textAlign: 'center', padding: embedded ? '18px 24px' : '60px 24px', color: AB.ink3 }}>
+          <div style={{ fontSize: embedded ? 22 : 30, marginBottom: 8 }}>✨</div>
           <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-.01em', color: AB.ink }}>Još nema veza</div>
-          <div style={{ fontSize: 13, color: AB.ink2, marginTop: 4 }}>Pošalji iskru sa žurke (Heat → mapa).</div>
+          <div style={{ fontSize: 13, color: AB.ink2, marginTop: 4 }}>Iskra kreće sa mesta na kom si — otvori mesto i pošalji je.</div>
         </div>
       )}
 
@@ -108,6 +105,32 @@ export const OSMatches = () => {
           </div>
         </div>
       )}
+    </>
+  );
+
+  // NOĆAS embedded: sekcija + chat overlay preko cele strane kad se otvori.
+  if (embedded) return (
+    <div id="poruke" style={{ padding: '22px 0 0' }}>
+      <div style={{ padding: '0 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3 }}>💬 PORUKE · ISKRE</span>
+        {conversations.length > 0 && <span style={{ fontFamily: MONO, fontSize: 11, color: AB.ink3 }}>{conversations.length}</span>}
+      </div>
+      {inner}
+      {openId && open && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 90, background: AB.void, overflowY: 'auto', animation: 'os-overlay-in .2s cubic-bezier(.16,1,.3,1)' }} className="os-scroll">
+          <OSChat conv={open} onBack={() => setOpenId(null)} />
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="os-scroll" style={{ minHeight: '100vh', overflowY: 'auto', background: AB.void, paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: 150 }}>
+      <div style={{ padding: '8px 18px 0' }}>
+        <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3 }}>PORUKE · MESSAGES</div>
+        <div style={{ fontWeight: 800, fontSize: 30, lineHeight: '34px', letterSpacing: '-.02em', color: AB.ink, marginTop: 4 }}>Chat</div>
+      </div>
+      {inner}
     </div>
   );
 };
