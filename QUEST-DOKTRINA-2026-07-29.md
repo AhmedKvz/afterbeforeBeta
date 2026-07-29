@@ -148,7 +148,9 @@ venue-agnostičan) · Jutarnja hronika (ceo luk dan-noć).
 1. ✅ Taksonomija + seed — tipovi market/river/gallery; 7 kuriranih mesta
    (Buvljak, Ada Međica, Ratno ostrvo, KC Grad, Kvaka 22, Dorćol Platz,
    Piknik na Adi). Founder dodaje ostala kroz War Room / predloge.
-2. ⏳ **Pop-up eventi sa sopstvenim koordinatama** — jedini preostali kod-item.
+2. ✅ **Pop-up eventi** — efemeralni venue (type='popup', active_until):
+   sopstvene koordinate + rok, War Room forma, POPUP_ENDED gate; sve postojeće
+   mehanike (prisustvo, konvergencija, šifra, streak) rade automatski.
 3. ✅ „SKRIVENO" filter na Karti + 🔒 na pinu/redu/sheetu.
 4. ✅ Težinski REP — venues.rep_multiplier množi SAMO XP (AFC fond netaknut).
 5. ✅ „Znaš mesto?" → War Room kuracija → trajni „OTKRIO/LA {ime}".
