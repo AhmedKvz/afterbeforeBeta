@@ -6,7 +6,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useVenueDirectory, useHeatVenues } from '@/hooks/useHeatVenues';
 import { useQuests } from '@/hooks/useQuests';
-import { OSLucky100Modal } from '../OSLucky100Modal';
 import { RoadmapRail } from '../OSRoadmaps';
 import { ConvergenceRail, CityCipherCard } from '../OSGamification';
 import { OSExplore } from './OSExplore';
@@ -15,12 +14,6 @@ import { OSEventRow } from '../OSEventRow';
 import { AB, OS, G, hexA, MONO, stripe, genreCol, CONIC } from '../osTheme';
 import { lifecycleKey } from '@/lib/nightState';
 import type { OSVenue } from '../OSVenueSheet';
-
-const TYPE_META: Record<string, { emoji: string; label: string }> = {
-  club: { emoji: '🎵', label: 'CLUB' }, splav: { emoji: '🚢', label: 'SPLAV' }, cafe: { emoji: '☕', label: 'CAFE' },
-  cafe_bar: { emoji: '☕', label: 'CAFE' }, bar: { emoji: '🍸', label: 'BAR' }, restaurant: { emoji: '🍽', label: 'EATS' },
-  afterplace: { emoji: '🍔', label: 'AFTER' }, gallery: { emoji: '🎨', label: 'ART' },
-};
 
 interface Ev {
   id: string; title: string; date: string; start_time: string; venue_name: string;
@@ -57,7 +50,6 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
   const { profile } = useAuth();
   const [dateF, setDateF] = useState<'SVE' | 'VEČERAS' | 'VIKEND'>('SVE');
   const [genreF, setGenreF] = useState<string | null>(null);
-  const [lucky, setLucky] = useState(false);
   // IA v2 §11.1: jedan sadržaj, dva prikaza — nikad naslagano.
   const [view, setView] = useState<'lista' | 'karta'>('lista');
   const { data: heatVenues = [] } = useHeatVenues();
@@ -211,25 +203,9 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
         </div>
       )}
 
+      {/* GRAD trim 2026-07-21: live linija i AI strip ubijeni — hero broj već
+          govori stanje grada; jedan glas, ne tri (§11.1 „jedan broj"). */}
       {view === 'lista' && (<div key="lista" style={{ animation: 'os-swap .15s cubic-bezier(.22,1,.36,1) both' }}>
-      {/* stories */}
-      <OSStories />
-
-      {/* live line */}
-      <div style={{ padding: '14px 18px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: AB.hot, animation: 'os-pulse 1.8s ease-in-out infinite' }} />
-          <Mono fontSize={11} color={AB.ink2}>BEOGRAD · {upcoming.length} NAJAVLJENO</Mono>
-        </div>
-        <Mono fontSize={11} color={AB.ink3}>VEČERAS {tonightCount} ↗</Mono>
-      </div>
-
-      {/* AI strip */}
-      <div style={{ margin: '14px 18px 0', display: 'flex', alignItems: 'center', gap: 10, padding: '11px 13px', borderRadius: 16, background: AB.surface, border: `1px solid ${AB.line}` }}>
-        <span style={{ flex: 'none', width: 24, height: 24, borderRadius: 8, background: hexA(G.community, 0.14), display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: MONO, fontSize: 10, color: G.community }}>⚡</span>
-        <span style={{ fontSize: 13, lineHeight: 1.4, color: AB.ink2 }}>{tonightCount > 0 ? `Večeras ${tonightCount} ${tonightCount === 1 ? 'događaj' : tonightCount < 5 ? 'događaja' : 'događaja'} — grad se budi.` : 'Mirno veče — vikend se sprema. Pogledaj šta dolazi.'}</span>
-      </div>
-
       {/* best party — cinematic lead (kanon §6.1: full-bleed, title na slici,
           jedini acid momenat na ekranu = VEČERAS badge) */}
       {best && (
@@ -301,6 +277,9 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
         })()}
       </div>
 
+      {/* stories — ispod liste: sadržaj scene, ne prvi utisak (trim 2026-07-21) */}
+      <OSStories />
+
       {/* gamifikacija v2 — telo je kontroler: dođi i uzmi / sastavi šifru */}
       <ConvergenceRail />
       <CityCipherCard />
@@ -325,100 +304,10 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
         </div>
       )}
 
-      {/* discover places + community reviewed */}
-      <OSDiscover navigate={navigate} />
-      <OSCommunity navigate={navigate} />
-
-      {/* lucky100 — moved below the lead content */}
-      <div style={{ padding: '24px 18px 0' }}>
-        <button onClick={() => setLucky(true)} className="os-press" style={{ display: 'block', width: '100%', textAlign: 'left', padding: 0, border: 0, background: 'transparent', cursor: 'pointer', overflow: 'hidden', borderRadius: 16 }}>
-        <div style={{ overflow: 'hidden', borderRadius: 16, background: AB.surface, border: `1px solid ${AB.line2}`, borderLeft: `3px solid ${AB.uv}` }}>
-          <div style={{ padding: 15 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-              <div><Mono fontSize={10} fontWeight={600} letterSpacing=".14em" color={AB.ink3}>SISTEM · INSTANT WIN</Mono><div style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-.01em', color: AB.ink, marginTop: 3 }}>Lucky 100</div></div>
-              <Mono fontSize={11} color={AB.uv}>Otvori →</Mono>
-            </div>
-            <div style={{ fontSize: 13, color: AB.ink2, margin: '10px 0 0' }}>Svaki 100. check-in nosi nagradu — vidi svoj broj unutra.</div>
-          </div>
-        </div>
-        </button>
-      </div>
-
+      {/* GRAD trim 2026-07-21: OTKRIJ MESTA duplira Kartu (44 mesta su prikaz),
+          OCENILA živi na venue stranama, Lucky100 je lična stvar → JA. */}
       <KrajBlok onSwitch={() => setView('karta')} to="karta" />
       </div>)}
-
-      <OSLucky100Modal isOpen={lucky} onClose={() => setLucky(false)} />
-    </div>
-  );
-};
-
-/* ── Discover places (venue cards) ── */
-const OSDiscover = ({ navigate }: { navigate: (p: string) => void }) => {
-  // Imenik (44 mesta) umesto club-naloga: partneri uvek prvi, ostatak se
-  // ROTIRA dnevno (seed = dan) — rail je svaki dan drugačiji, ceo imenik
-  // vremenom prodefiluje kroz Home.
-  const { data: venues = [] } = useQuery({
-    queryKey: ['os-discover', new Date().toISOString().slice(0, 10)],
-    queryFn: async () => {
-      const { data } = await supabase.from('venues')
-        .select('name, type, emoji, neighborhood, is_partner');
-      const all = (data || []).map((v: any) => ({ venue_name: v.name, venue_type: v.type, venue_logo_url: null, neighborhood: v.neighborhood, emoji: v.emoji, is_partner: v.is_partner }));
-      const partners = all.filter((v: any) => v.is_partner);
-      const rest = all.filter((v: any) => !v.is_partner);
-      // deterministički dnevni shuffle (bez Math.random — stabilno unutar dana)
-      const day = Math.floor(Date.now() / 86400000);
-      const keyed = rest.map((v: any, i: number) => ({ v, k: ((i + 1) * 2654435761 + day * 97) % 1000 })).sort((a: any, b: any) => a.k - b.k);
-      return [...partners, ...keyed.map((x: any) => x.v)].slice(0, 12);
-    },
-  });
-  if (!venues.length) return null;
-  return (
-    <div style={{ padding: '24px 0 0' }}>
-      <div style={{ padding: '0 18px' }}><SectionLabel right={`${venues.length} MESTA`}>OTKRIJ MESTA</SectionLabel></div>
-      <div className="os-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 18px 4px' }}>
-        {venues.map((v: any) => {
-          const meta = TYPE_META[v.venue_type || 'club'] || TYPE_META.club;
-          const col = genreCol(v.venue_type);
-          return (
-            <button key={v.venue_name} onClick={() => navigate(`/venue/${encodeURIComponent(v.venue_name)}`)} className="os-press" style={{ minWidth: 160, maxWidth: 160, flex: 'none', borderRadius: 16, overflow: 'hidden', border: `1px solid ${AB.line2}`, background: AB.surface, textAlign: 'left', cursor: 'pointer', padding: 0 }}>
-              <div style={{ position: 'relative', height: 82, background: stripe(col), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30 }}>{v.emoji || meta.emoji}
-                {v.is_partner && <div style={{ position: 'absolute', top: 8, right: 8, fontFamily: MONO, fontSize: 9, color: G.house }}>★</div>}
-                <div style={{ position: 'absolute', top: 8, left: 8, fontFamily: MONO, fontSize: 10, color: col, background: 'rgba(11,11,13,.66)', border: `1px solid ${hexA(col, 0.4)}`, padding: '2px 7px', borderRadius: 999 }}>{meta.label}</div>
-              </div>
-              <div style={{ padding: 11 }}><div style={{ fontWeight: 700, fontSize: 13.5, letterSpacing: '-.01em', color: AB.ink }}>{v.venue_name}</div>{v.neighborhood && <Mono fontSize={10} color={AB.ink3} style={{ marginTop: 3 }}>{v.neighborhood.toUpperCase()}</Mono>}</div>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
-/* ── Community reviewed ── */
-const OSCommunity = ({ navigate }: { navigate: (p: string) => void }) => {
-  const { data: reviews = [] } = useQuery({
-    queryKey: ['os-community-reviewed'],
-    queryFn: async () => {
-      const { data } = await supabase.from('event_reviews').select('id, venue_name, rating, review_text, verified_visit').neq('moderation_status', 'flagged').not('venue_name', 'is', null).order('helpful_count', { ascending: false }).limit(6);
-      return data || [];
-    },
-  });
-  if (!reviews.length) return null;
-  return (
-    <div style={{ padding: '24px 0 0' }}>
-      <div style={{ padding: '0 18px' }}><SectionLabel>OCENILA ZAJEDNICA</SectionLabel></div>
-      <div className="os-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '0 18px 4px' }}>
-        {reviews.map((r: any) => (
-          <button key={r.id} onClick={() => r.venue_name && navigate(`/venue/${encodeURIComponent(r.venue_name)}#reviews`)} className="os-press" style={{ minWidth: 240, maxWidth: 240, flex: 'none', borderRadius: 16, border: `1px solid ${AB.line2}`, background: AB.surface, padding: 13, textAlign: 'left', cursor: 'pointer' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
-              <span style={{ fontSize: 13.5, fontWeight: 700, letterSpacing: '-.01em', color: AB.ink }}>{r.venue_name}</span>
-              <span style={{ fontFamily: MONO, fontSize: 11, color: G.house }}>★ {r.rating}</span>
-            </div>
-            {r.review_text && <div style={{ fontSize: 12.5, fontStyle: 'italic', color: AB.ink2, lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>"{r.review_text}"</div>}
-            {r.verified_visit && <span style={{ display: 'inline-block', marginTop: 8, fontFamily: MONO, fontSize: 10, color: G.festival, background: hexA(G.festival, 0.12), padding: '2px 7px', borderRadius: 999 }}>✓ POSEĆENO</span>}
-          </button>
-        ))}
-      </div>
     </div>
   );
 };

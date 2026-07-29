@@ -8,6 +8,7 @@ const db = supabase as any;
 export interface Convergence {
   id: string; title: string; reward_label: string; afc_bonus: number; capacity: number;
   starts_at: string; ends_at: string; status: string; venue_id: string; venue_name: string;
+  funded_by: string | null; // ECONOMY §13: ko finansira nagradu (NULL = kuća)
   claimed: number; my_claimed: boolean; is_live: boolean;
 }
 
@@ -99,10 +100,10 @@ export const useCipherSubmit = () => {
 export const useCreateConvergence = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (p: { venue: string; title: string; reward: string; capacity: number; starts: string; ends: string; afc: number }) => {
+    mutationFn: async (p: { venue: string; title: string; reward: string; capacity: number; starts: string; ends: string; afc: number; fundedBy?: string }) => {
       const { data, error } = await db.rpc('create_convergence', {
         p_venue: p.venue, p_title: p.title, p_reward: p.reward, p_capacity: p.capacity,
-        p_starts: p.starts, p_ends: p.ends, p_afc: p.afc,
+        p_starts: p.starts, p_ends: p.ends, p_afc: p.afc, p_funded_by: p.fundedBy || null,
       });
       if (error) throw error;
       return data;

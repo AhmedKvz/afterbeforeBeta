@@ -21,15 +21,15 @@ export const WarRoomGamification = () => {
   const createCipher = useCreateCipher();
 
   const now = new Date();
-  const [c, setC] = useState({ venue: '', title: '', reward: '', capacity: 30, afc: 50, starts: localIso(now), ends: localIso(new Date(now.getTime() + 2 * 3600_000)) });
+  const [c, setC] = useState({ venue: '', title: '', reward: '', fundedBy: '', capacity: 30, afc: 50, starts: localIso(now), ends: localIso(new Date(now.getTime() + 2 * 3600_000)) });
   const [ci, setCi] = useState({ night: new Date().toISOString().slice(0, 10), phrase: '', reward: 150 });
   const [frags, setFrags] = useState([{ venue_id: '', word: '' }, { venue_id: '', word: '' }, { venue_id: '', word: '' }]);
 
   const submitDrop = () => {
     if (!c.venue || !c.title.trim() || !c.reward.trim()) { toast('Mesto, naslov i nagrada su obavezni.'); return; }
     createDrop.mutate(
-      { venue: c.venue, title: c.title, reward: c.reward, capacity: c.capacity, afc: c.afc, starts: new Date(c.starts).toISOString(), ends: new Date(c.ends).toISOString() },
-      { onSuccess: () => { toast.success('Konvergencija zakazana ⚡'); setC({ ...c, title: '', reward: '' }); }, onError: (e: any) => toast.error(e?.message || 'Nije prošlo.') },
+      { venue: c.venue, title: c.title, reward: c.reward, fundedBy: c.fundedBy.trim() || undefined, capacity: c.capacity, afc: c.afc, starts: new Date(c.starts).toISOString(), ends: new Date(c.ends).toISOString() },
+      { onSuccess: () => { toast.success('Konvergencija zakazana ⚡'); setC({ ...c, title: '', reward: '', fundedBy: '' }); }, onError: (e: any) => toast.error(e?.message || 'Nije prošlo.') },
     );
   };
 
@@ -61,6 +61,7 @@ export const WarRoomGamification = () => {
         {venueSelect(c.venue, (v) => setC({ ...c, venue: v }))}
         <input value={c.title} onChange={(e) => setC({ ...c, title: e.target.value })} placeholder="Naslov (npr. Ponoćni drop)" style={{ ...inp, marginTop: 8 }} />
         <input value={c.reward} onChange={(e) => setC({ ...c, reward: e.target.value })} placeholder="Nagrada (npr. Shot na račun kuće)" style={{ ...inp, marginTop: 8 }} />
+        <input value={c.fundedBy} onChange={(e) => setC({ ...c, fundedBy: e.target.value })} placeholder="Ko finansira? (prazno = kuća · OBAVEZNO za sponzora — §13)" style={{ ...inp, marginTop: 8 }} />
         <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
           <label style={{ flex: 1, ...lbl }}>KAPACITET<input type="number" min={1} value={c.capacity} onChange={(e) => setC({ ...c, capacity: +e.target.value })} style={{ ...inp, marginTop: 4 }} /></label>
           <label style={{ flex: 1, ...lbl }}>AFC BONUS<input type="number" min={0} step={10} value={c.afc} onChange={(e) => setC({ ...c, afc: +e.target.value })} style={{ ...inp, marginTop: 4 }} /></label>

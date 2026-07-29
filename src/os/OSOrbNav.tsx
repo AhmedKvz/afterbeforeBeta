@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+import { Building2, Heart } from 'lucide-react';
 import { G, AB, hexA, MONO, CONIC } from './osTheme';
 
 // IA v2 §11 (2026-07-21): fiksna 3-tačka traka GRAD · (ORB=TU SAM) · JA.
@@ -17,7 +19,8 @@ export const OSOrbNav = ({ current, onGo, onOrb, live }: {
 }) => {
   const orbCol = live ? AB.acid : G.community;
 
-  const tab = (screen: OSScreen, label: string, icon: string) => {
+  // Trim 2026-07-21: emoji (🌃/🖤) → line ikone u kanon stilu (mono linija, ink).
+  const tab = (screen: OSScreen, label: string, icon: ReactNode) => {
     const on = current === screen;
     return (
       <button
@@ -30,7 +33,7 @@ export const OSOrbNav = ({ current, onGo, onOrb, live }: {
           background: 'transparent', border: 0, cursor: 'pointer', pointerEvents: 'auto', padding: 0,
         }}
       >
-        <span style={{ fontSize: 17, opacity: on ? 1 : 0.5 }}>{icon}</span>
+        <span style={{ display: 'flex', color: on ? AB.ink : AB.ink3 }}>{icon}</span>
         <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.1em', color: on ? AB.ink : AB.ink3 }}>{label}</span>
       </button>
     );
@@ -44,7 +47,7 @@ export const OSOrbNav = ({ current, onGo, onOrb, live }: {
         background: 'oklch(0.135 0.012 285 / 0.94)', backdropFilter: 'blur(18px)', borderTop: `1px solid ${AB.line}`,
         pointerEvents: 'auto',
       }}>
-        {tab('grad', 'GRAD', '🌃')}
+        {tab('grad', 'GRAD', <Building2 size={18} strokeWidth={1.8} />)}
 
         {/* ORB = TU SAM — najveća meta, centar, money path */}
         <div style={{ flex: 'none', width: 92, display: 'flex', justifyContent: 'center' }}>
@@ -73,7 +76,7 @@ export const OSOrbNav = ({ current, onGo, onOrb, live }: {
           </button>
         </div>
 
-        {tab('ja', 'JA', '🖤')}
+        {tab('ja', 'JA', <Heart size={18} strokeWidth={1.8} fill={current === 'ja' ? 'currentColor' : 'none'} />)}
       </div>
     </div>
   );

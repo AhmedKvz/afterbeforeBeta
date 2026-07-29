@@ -41,6 +41,7 @@ export const ConvergenceRail = () => {
               </div>
               <div style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-.01em', color: AB.ink, marginTop: 5 }}>{d.title}</div>
               <div style={{ display: 'inline-block', ...MTAG, fontSize: 10, letterSpacing: '.1em', color: G.festival, background: hexA(G.festival, 0.1), borderRadius: 999, padding: '3px 9px', marginTop: 8 }}>→ {d.reward_label}</div>
+              {d.funded_by && <div style={{ ...MTAG, fontSize: 9.5, letterSpacing: '.1em', color: AB.ink3, marginTop: 7 }}>OMOGUĆIO {d.funded_by.toUpperCase()}</div>}
               {d.my_claimed && <div style={{ ...MTAG, fontSize: 10, color: AB.acid, marginTop: 8 }}>✓ TVOJE JE</div>}
             </div>
           );
@@ -65,6 +66,7 @@ export const ConvergenceClaim = ({ venueId }: { venueId: string }) => {
             <div style={{ ...LABEL, color: G.festival }}>⚡ SADA OVDE · {left} OD {d.capacity}</div>
             <div style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-.01em', color: AB.ink, marginTop: 5 }}>{d.title}</div>
             <div style={{ fontSize: 13, color: AB.ink2, marginTop: 3 }}>{d.reward_label}</div>
+            {d.funded_by && <div style={{ ...MTAG, fontSize: 9.5, letterSpacing: '.1em', color: AB.ink3, marginTop: 6 }}>OMOGUĆIO {d.funded_by.toUpperCase()}</div>}
             <button
               onClick={() => claim.mutate(d.id, {
                 onSuccess: (r: any) => toast.success(`Tvoje je! #${r.position} od ${r.capacity} · +${r.afc} AFC`),
