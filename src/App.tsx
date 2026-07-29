@@ -10,6 +10,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { OSApp } from "./os/OSApp";
 import { BetaFeedback } from "@/components/BetaFeedback";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
+import { PasswordRecovery } from "@/components/PasswordRecovery";
 
 // Ultra-review perf A1: only the OS shell is eager. Every legacy page is a
 // lazy chunk — they're deep-link targets, not the primary flow, and they carry
@@ -57,6 +58,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <PasswordRecovery />
       <HashRouter>
         <AuthProvider>
           <Suspense fallback={<RouteFallback />}>

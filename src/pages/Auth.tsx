@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Loader2, Eye, EyeOff, Music, Building2, Check, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { cn } from '@/lib/utils';
@@ -55,6 +56,21 @@ const Auth = () => {
   const handleSignInClick = () => {
     setIsSignUp(false);
     setAuthStep(1);
+  };
+
+  // Zaboravljena lozinka: mejl sa linkom → PasswordRecovery modal (App.tsx)
+  // hvata PASSWORD_RECOVERY i traži novu lozinku. Nalozi se NIKAD ne brišu —
+  // isti mejl uvek može nazad.
+  const handleForgot = async () => {
+    const em = email.trim();
+    if (!em || !/^\S+@\S+\.\S+$/.test(em)) { toast.error('Upiši svoj email gore, pa klikni ponovo.'); return; }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(em, {
+      redirectTo: 'https://ahmedkvz.github.io/afterbeforeBeta/app/',
+    });
+    setLoading(false);
+    if (error) { toast.error('Slanje nije prošlo — pokušaj za koji minut.'); return; }
+    toast.success(`Poslat je mejl na ${em} — otvori link i postavi novu lozinku.`);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -285,6 +301,20 @@ const Auth = () => {
                   )}
                 </button>
               </form>
+
+              {/* Zaboravljena lozinka — samo u sign-in modu */}
+              {!isSignUp && (
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={handleForgot}
+                    disabled={loading}
+                    className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+                  >
+                    Zaboravljena lozinka? <span className="text-primary">Pošalji mi link</span>
+                  </button>
+                </div>
+              )}
 
               {/* Toggle */}
               <div className="text-center mt-6">
