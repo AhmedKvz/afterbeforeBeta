@@ -18,8 +18,11 @@ const DEV_SKIP_GEOFENCE = import.meta.env.VITE_OPEN_CHECKIN === 'true';
  * lands, only getCurrentPosition() here swaps to the Capacitor Geolocation
  * plugin — the sheet UI stays untouched.
  */
+const ROMAN = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+const roman = (n: number) => ROMAN[n] || `${n}`;
+
 export const useCheckIn = (venue: OSVenue, onFeedback: (venueId: string) => void) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
   const [award, setAward] = useState<number | null>(null);
@@ -31,6 +34,13 @@ export const useCheckIn = (venue: OSVenue, onFeedback: (venueId: string) => void
     try {
       // iskren-broj: bez venue uuid-a nema pravog awarda — ne foliraj uspeh
       if (!venue.venueId) { toast('Check-in radi sa Heat mape — nađi ovo mesto na pinu.'); return; }
+      // SKRIVENA SCENA gate (beta): server je izvor istine (LEVEL_REQUIRED),
+      // klijent presreće pre GPS-a da poruka bude trenutna.
+      const myLevel = (profile as any)?.level || 1;
+      if ((venue.minLevel || 0) > myLevel) {
+        toast(`🔒 Skriveno mesto — otključava se na RANK ${roman(venue.minLevel!)}. Skupljaj REP izlascima.`);
+        return;
+      }
       let pos: GeolocationPosition | null = null;
       try { pos = await getCurrentPosition(); } catch { if (!DEV_SKIP_GEOFENCE) { toast.error('Uključi lokaciju za check-in.'); return; } }
       // #57: klijentski prag = TAČNO server prag (venues.geofence_radius_m)
@@ -47,6 +57,8 @@ export const useCheckIn = (venue: OSVenue, onFeedback: (venueId: string) => void
         // #57: server vraća parsabilno 'TOO_FAR <dist> <radius>' kad je geofence upaljen
         const far = msg.match(/TOO_FAR (\d+) (\d+)/);
         if (far) { toast.error(`${formatDistance(Number(far[1]))} od ${venue.name} — priđi na ${far[2]}m za check-in.`); return; }
+        const lvl = msg.match(/LEVEL_REQUIRED (\d+)/);
+        if (lvl) { toast(`🔒 Skriveno mesto — otključava se na RANK ${roman(Number(lvl[1]))}. Skupljaj REP izlascima.`); return; }
         toast.error(msg.includes('12 hours') || msg.includes('duplicate') ? 'Već si se prijavio ovde večeras.' : 'Check-in nije prošao — pokušaj ponovo.');
         return;
       }

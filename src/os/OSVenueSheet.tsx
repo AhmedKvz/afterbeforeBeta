@@ -42,6 +42,9 @@ export interface OSVenue {
   here?: number;             // headcount
   neighborhood?: string;
   rating?: number;
+  hidden?: boolean;          // skrivena scena (QUEST-DOKTRINA §6)
+  minLevel?: number;         // rank potreban za check-in (beta gate)
+  discoveredBy?: string | null; // "OTKRIO/LA" kredit
 }
 
 // Crowd-DNA radar — the "scene intelligence" layer (no backend yet; representative).
@@ -155,7 +158,9 @@ const OSReviews = ({ venueName, eventId }: { venueName: string; eventId?: string
 };
 
 export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () => void }) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  // SKRIVENA SCENA gate (§6): zaključano dok rank ne stigne — dugme to kaže.
+  const lockedHidden = !!venue.hidden && (venue.minLevel || 0) > ((profile as any)?.level || 1);
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [match, setMatch] = useState<{ name?: string; avatar?: string } | null>(null);
@@ -250,9 +255,14 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
           <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,.3)' }} />
           <button onClick={close} className="os-press" style={{ position: 'absolute', top: 18, right: 16, width: 34, height: 34, borderRadius: '50%', border: 0, cursor: 'pointer', background: 'rgba(10,10,12,.6)', color: AB.ink, fontSize: 15, backdropFilter: 'blur(8px)' }}>✕</button>
           <div style={{ position: 'absolute', bottom: 16, left: 18, right: 18 }}>
-            <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.14em', color: hexA(venue.col, 0.95) }}>{venue.genre || 'VENUE'}</div>
+            <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.14em', color: hexA(venue.col, 0.95) }}>
+              {venue.genre || 'VENUE'}{venue.hidden ? <span style={{ color: AB.ink2 }}> · 🔒 SKRIVENA SCENA</span> : null}
+            </div>
             <div style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-.02em', color: AB.ink, lineHeight: 1, marginTop: 5 }}>{venue.name}</div>
-            <div style={{ fontFamily: MONO, fontSize: 11, color: AB.ink2, marginTop: 7 }}>{venue.neighborhood || 'BEOGRAD'}{venue.rating ? ` · ★ ${venue.rating.toFixed(1)}` : ''}</div>
+            <div style={{ fontFamily: MONO, fontSize: 11, color: AB.ink2, marginTop: 7 }}>
+              {venue.neighborhood || 'BEOGRAD'}{venue.rating ? ` · ★ ${venue.rating.toFixed(1)}` : ''}
+              {venue.discoveredBy ? ` · OTKRIO/LA ${venue.discoveredBy.toUpperCase()}` : ''}
+            </div>
           </div>
         </div>
 
@@ -448,8 +458,8 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
           {venue.venueId && (
             <button onClick={idem} disabled={signalIntent.isPending} className="os-press" style={{ flex: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: AB.uv, background: 'oklch(0.62 0.25 300 / 0.12)', border: `1px solid ${AB.uv}`, borderRadius: 999, padding: '16px 18px' }}>✋ Idem</button>
           )}
-          <button onClick={checkIn} disabled={busy} className="os-press" style={{ flex: 1, cursor: busy ? 'default' : 'pointer', fontSize: 16, fontWeight: 700, color: AB.acidInk, background: done ? AB.acidDim : AB.acid, border: 0, borderRadius: 999, padding: 16, opacity: busy ? 0.7 : 1, boxShadow: done ? 'none' : 'var(--ab-glow-acid)' }}>
-            {done ? 'Prijavljen ✓' : busy ? '…' : 'Check-in'}
+          <button onClick={checkIn} disabled={busy} className="os-press" style={{ flex: 1, cursor: busy ? 'default' : 'pointer', fontSize: 16, fontWeight: 700, color: lockedHidden ? AB.ink3 : AB.acidInk, background: lockedHidden ? AB.raised : done ? AB.acidDim : AB.acid, border: 0, borderRadius: 999, padding: 16, opacity: busy ? 0.7 : 1, boxShadow: done || lockedHidden ? 'none' : 'var(--ab-glow-acid)' }}>
+            {lockedHidden ? `🔒 RANK ${['0','I','II','III','IV','V','VI','VII','VIII','IX','X'][venue.minLevel || 0] || venue.minLevel}` : done ? 'Prijavljen ✓' : busy ? '…' : 'Check-in'}
           </button>
         </div>
       </div>

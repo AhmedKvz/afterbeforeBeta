@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useHeatVenues } from '@/hooks/useHeatVenues';
 import { useExit } from './useExit';
 import { AB, MONO, genreCol } from './osTheme';
@@ -13,21 +14,26 @@ const LABEL = { fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: 
 export const OSVenuePicker = ({ onPick, onClose }: { onPick: (v: OSVenue) => void; onClose: () => void }) => {
   const { closing, close } = useExit(onClose);
   const { data: venues = [] } = useHeatVenues();
+  const { profile } = useAuth();
+  const myLevel = (profile as any)?.level || 1;
   const [q, setQ] = useState('');
 
   const list = useMemo(() => {
+    // Picker služi check-inu — zaključana skrivena mesta ne nudimo (gate §6).
+    const eligible = venues.filter((v: any) => !(v.hidden && (v.minLevel || 0) > myLevel));
     const term = q.trim().toLowerCase();
     const base = term
-      ? venues.filter((v: any) => (v.name || '').toLowerCase().includes(term) || (v.neighborhood || '').toLowerCase().includes(term))
-      : [...venues].sort((a: any, b: any) => ((b.here ?? 0) - (a.here ?? 0)) || ((b.heat ?? 0) - (a.heat ?? 0)));
+      ? eligible.filter((v: any) => (v.name || '').toLowerCase().includes(term) || (v.neighborhood || '').toLowerCase().includes(term))
+      : [...eligible].sort((a: any, b: any) => ((b.here ?? 0) - (a.here ?? 0)) || ((b.heat ?? 0) - (a.heat ?? 0)));
     return base.slice(0, term ? 12 : 5);
-  }, [venues, q]);
+  }, [venues, q, myLevel]);
 
   const pick = (v: any) => {
     onPick({
       name: v.name, genre: (v.genreLabel || v.type || 'VENUE').toUpperCase(), col: genreCol(v.genreLabel || v.type),
       venueId: v.venue_id ?? null, presenceId: v.id ?? null, lat: v.lat ?? null, lng: v.lng ?? null,
       radius: v.radius, heat: v.heat, here: v.here ?? 0, neighborhood: (v.neighborhood || '').toUpperCase(),
+      hidden: v.hidden, minLevel: v.minLevel, discoveredBy: v.discoveredBy,
     });
     close();
   };

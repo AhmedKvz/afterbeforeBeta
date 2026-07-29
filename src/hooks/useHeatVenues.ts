@@ -32,6 +32,7 @@ export const BELGRADE_HOODS = [
 const TYPE_EMOJI: Record<string, string> = {
   club: '🎵', splav: '🚢', cafe: '☕', cafe_bar: '☕', bar: '🍸',
   restaurant: '🍽', gallery: '🎨', afterplace: '🍔', festival: '🎪',
+  market: '🛍', river: '🛶',
 };
 
 // Design system: genre drives color. Each music scene has its own hue.
@@ -90,7 +91,7 @@ function genreHue(genres: string[] | null | undefined, type: string): number {
 const TYPE_MODE: Record<string, 'day' | 'night' | 'both'> = {
   club: 'night', splav: 'night', bar: 'both', afterplace: 'night',
   cafe: 'day', cafe_bar: 'day', restaurant: 'day', gallery: 'day',
-  festival: 'night',
+  festival: 'night', market: 'day', river: 'day',
 };
 
 function coordFor(neighborhood: string | null, key: string) {
@@ -132,6 +133,9 @@ export interface HeatVenue {
   lat: number | null;
   lng: number | null;
   radius: number;
+  hidden: boolean;           // skrivena scena (QUEST-DOKTRINA §6)
+  minLevel: number;          // rank potreban za check-in (beta gate)
+  discoveredBy: string | null; // "OTKRIO/LA" kredit — ime predlagača
 }
 
 /**
@@ -148,7 +152,7 @@ export const useVenueDirectory = () => {
     queryFn: async () => {
       // #57: radius je na venue (server čita ISTI broj u process_secure_checkin)
       const { data: dirVenues } = await db.from('venues')
-        .select('id, name, type, neighborhood, emoji, hue, latitude, longitude, geofence_radius_m');
+        .select('id, name, type, neighborhood, emoji, hue, latitude, longitude, geofence_radius_m, is_hidden, min_level, discovered_by_name');
       // Plain object, NOT a Map — query data is JSON-persisted (Wave E) and a
       // Map rehydrates as {} → .get() crashes the whole Heat screen.
       const radius: Record<string, number> = {};
@@ -203,6 +207,9 @@ export const useHeatVenues = () => {
           lat: v.latitude != null ? Number(v.latitude) : null,
           lng: v.longitude != null ? Number(v.longitude) : null,
           radius: radius[v.name] ?? 100,
+          hidden: !!v.is_hidden,
+          minLevel: v.min_level ?? 0,
+          discoveredBy: v.discovered_by_name || null,
         } as HeatVenue;
       });
   }, [dir.data, heatQ.data]);

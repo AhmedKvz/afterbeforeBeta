@@ -1,26 +1,34 @@
 import { useState, useMemo } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useHeatVenues } from '@/hooks/useHeatVenues';
+import { OSSuggestVenue } from '../OSSuggestVenue';
 import { AB, OS, G, hexA, MONO, ROLE, genreCol } from '../osTheme';
 import type { OSVenue } from '../OSVenueSheet';
 
 const HOODS = ['All', 'Savamala', 'Dorćol', 'Vračar', 'Stari Grad', 'Novi Beograd'];
 const TYPES: [string, string][] = [
-  ['all', 'Sve'], ['club', 'Klubovi'], ['bar', 'Barovi'], ['splav', 'Splavovi'], ['cafe', 'Kafići'], ['festival', 'Festivali'], ['afterplace', 'After'],
+  ['all', 'Sve'], ['club', 'Klubovi'], ['bar', 'Barovi'], ['splav', 'Splavovi'], ['hidden', '🔒 Skriveno'], ['cafe', 'Kafići'], ['festival', 'Festivali'], ['afterplace', 'After'],
 ];
 const typeMatch = (vt: string, t: string) => t === 'all' || (t === 'cafe' ? /cafe/.test(vt) : vt === t);
+
+const ROMAN = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+export const romanRank = (n: number) => ROMAN[n] || `${n}`;
 
 /** embedded = NOĆAS spajanje (founder odluka 2026-07-21): samo mapa + tišina
  *  kartica, bez sopstvenog scroll kontejnera/headera — živi unutar Home-a. */
 export const OSExplore = ({ onOpenVenue, embedded }: { onOpenVenue: (v: OSVenue) => void; embedded?: boolean }) => {
   const { data: venues = [] } = useHeatVenues();
+  const { profile } = useAuth();
+  const myLevel = (profile as any)?.level || 1;
   const [ghost, setGhost] = useState(false);
   const [type, setType] = useState('all');
   const [hood, setHood] = useState('All');
 
   const filtered = useMemo(() => venues
-    .filter((v: any) => typeMatch(v.type || '', type))
+    .filter((v: any) => (type === 'hidden' ? v.hidden : typeMatch(v.type || '', type)))
     .filter((v: any) => hood === 'All' || (v.neighborhood || '').toLowerCase().includes(hood.toLowerCase())),
     [venues, type, hood]);
+  const isLocked = (v: any) => !!v.hidden && (v.minLevel || 0) > myLevel;
   // Deterministički: pin dobija top-15 po (prisustvo, heat) — ne prvih 12 iz
   // baze; labelu nosi samo top-10, naizmenično iznad/ispod (declutter).
   const pins = [...filtered]
@@ -34,6 +42,7 @@ export const OSExplore = ({ onOpenVenue, embedded }: { onOpenVenue: (v: OSVenue)
     name: v.name, genre: (v.genreLabel || v.type || 'VENUE').toUpperCase(), col: genreCol(v.genreLabel || v.type),
     venueId: v.venue_id ?? null, presenceId: v.id ?? null, lat: v.lat ?? null, lng: v.lng ?? null, radius: v.radius,
     heat: v.heat, here: v.here ?? 0, neighborhood: (v.neighborhood || '').toUpperCase(),
+    hidden: v.hidden, minLevel: v.minLevel, discoveredBy: v.discoveredBy,
   });
 
   // Glass pilula preko mape (kanon §9: UI pluta NAD mapom, nikad paneli ispod).
@@ -69,7 +78,7 @@ export const OSExplore = ({ onOpenVenue, embedded }: { onOpenVenue: (v: OSVenue)
               {live && pi < 6 && <span style={{ position: 'absolute', inset: 0, margin: 'auto', width: size, height: size, borderRadius: '50%', background: col, animation: 'os-ping 2.4s ease-out infinite' }} />}
               <span style={{ position: 'relative', display: 'flex', flexDirection: above ? 'column-reverse' : 'column', alignItems: 'center', gap: 3 }}>
                 <span style={{ width: size, height: size, borderRadius: '50%', background: live ? col : hexA(col, 0.5), border: '2px solid #101013', boxShadow: live ? `0 0 12px ${col}` : 'none' }} />
-                {labeled && <span style={{ fontFamily: MONO, fontSize: 10, color: AB.ink, background: 'rgba(11,11,13,.62)', backdropFilter: 'blur(6px)', padding: '2px 6px', borderRadius: 999, whiteSpace: 'nowrap' }}>{v.name}{count > 0 ? ` · ${count}` : ''}</span>}
+                {labeled && <span style={{ fontFamily: MONO, fontSize: 10, color: isLocked(v) ? AB.ink3 : AB.ink, background: 'rgba(11,11,13,.62)', backdropFilter: 'blur(6px)', padding: '2px 6px', borderRadius: 999, whiteSpace: 'nowrap' }}>{isLocked(v) ? '🔒 ' : ''}{v.name}{count > 0 ? ` · ${count}` : ''}</span>}
               </span>
             </button>
           );
@@ -108,6 +117,9 @@ export const OSExplore = ({ onOpenVenue, embedded }: { onOpenVenue: (v: OSVenue)
           </div>
         </div>
       )}
+
+      {/* skrivena scena — „Znaš mesto?" predlog (QUEST-DOKTRINA §6: kuracija je proizvod) */}
+      <OSSuggestVenue />
     </>
   );
 
@@ -139,7 +151,7 @@ export const OSExplore = ({ onOpenVenue, embedded }: { onOpenVenue: (v: OSVenue)
           <span style={{ fontFamily: MONO, fontSize: 10, color: AB.ink3 }}>PO ENERGIJI ≈</span>
         </div>
         <div>
-          {ranked.map((v: any) => <VenueRow key={v.id} v={v} onClick={() => open(v)} />)}
+          {ranked.map((v: any) => <VenueRow key={v.id} v={v} locked={isLocked(v)} onClick={() => open(v)} />)}
           {ranked.length === 0 && <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink5, textAlign: 'center', padding: '24px 0' }}>NEMA MESTA ZA OVAJ FILTER.</div>}
         </div>
       </div>
@@ -148,10 +160,10 @@ export const OSExplore = ({ onOpenVenue, embedded }: { onOpenVenue: (v: OSVenue)
 };
 
 /* ── Venue row: emoji | name(red) + genre(blue)·hood | energy(green) ── */
-const VenueRow = ({ v, onClick }: { v: any; onClick: () => void }) => {
+const VenueRow = ({ v, locked, onClick }: { v: any; locked?: boolean; onClick: () => void }) => {
   const here = v.here ?? 0;
   return (
-    <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 13, width: '100%', textAlign: 'left', padding: '13px 0', background: 'transparent', border: 0, borderTop: `1px solid ${AB.line}`, cursor: 'pointer' }}>
+    <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 13, width: '100%', textAlign: 'left', padding: '13px 0', background: 'transparent', border: 0, borderTop: `1px solid ${AB.line}`, cursor: 'pointer', opacity: locked ? 0.75 : 1 }}>
       <div style={{ flex: 'none', width: 46, height: 46, borderRadius: 12, background: AB.raised, border: `1px solid ${AB.line2}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{v.emoji || '📍'}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 15.5, fontWeight: 700, letterSpacing: '-.01em', color: ROLE.name, lineHeight: 1.2 }}>{v.name}</div>
@@ -162,8 +174,17 @@ const VenueRow = ({ v, onClick }: { v: any; onClick: () => void }) => {
         <div style={{ fontFamily: MONO, fontSize: 11, color: AB.ink2, marginTop: 3 }}>{here > 0 ? `${here} ovde` : 'mirno'}</div>
       </div>
       <div style={{ flex: 'none', textAlign: 'right' }}>
-        <div style={{ fontFamily: MONO, fontSize: 19, fontWeight: 600, color: ROLE.energy }}>≈{v.heat ?? 0}</div>
-        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.1em', color: AB.ink3, marginTop: 1 }}>ENERGY</div>
+        {locked ? (
+          <>
+            <div style={{ fontFamily: MONO, fontSize: 14, fontWeight: 600, color: AB.ink3 }}>🔒 {romanRank(v.minLevel || 0)}</div>
+            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.1em', color: AB.ink3, marginTop: 1 }}>RANK</div>
+          </>
+        ) : (
+          <>
+            <div style={{ fontFamily: MONO, fontSize: 19, fontWeight: 600, color: ROLE.energy }}>≈{v.heat ?? 0}</div>
+            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.1em', color: AB.ink3, marginTop: 1 }}>ENERGY</div>
+          </>
+        )}
       </div>
     </button>
   );
