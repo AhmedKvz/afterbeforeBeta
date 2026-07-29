@@ -16,6 +16,15 @@ Active+Iskra) · GAPS §8. **50 novih taskova u War Room → PLAN (NK· sekcije)
 Blokeri: 6 deep-dive MD fajlova nije u repou · šifra 2-device QA · AFC pravno
 mišljenje · datum 18.08 nepotvrđen · vikend program prazan.
 
+## ⚡ IA v2 — „JEDAN BROJ, JEDNO DUGME" (founder odluka 2026-07-21, PRE B1)
+
+Presuda 3 greenfield agenta + branša → SECTION-LOCKS §11: GRAD (živi broj hero +
+Lista|Karta toggle + KRAJ) · ORB=TU SAM (check-in/hub večeri; lepeza se ukida) ·
+JA (prima NAGRADE+questove). Quests tab umire. Doktrina gamifikacije „TELO JE
+KONTROLER" — novi sloj (IRL streak → konvergencija → gradska ŠIFRA) POSLE B1.
+**Build izvršava Opus: `HANDOFF-GRAD-ORB-2026-07-21.md`.** Neshipovani NOĆAS
+merge u radnom stablu = sirovina (embedded refaktori se čuvaju).
+
 ## 🔥 SLEDEĆE — akcije koje otključavaju sve ostalo
 
 0. **[FOUNDER] B1 pilot odluke** — ✅ DATUM: **18.08.2026** (⚠️ utorak — potvrdi da li namerno) · scope presuda za 3 feature rupe (vibe tags / artist vote / badge — graditi ili seći PRE freeze-a) · mapiranje nagrada na REP/AFC · PM engagement model · OnlyClubbing ponuda. Board: War Room → PLAN (588 taskova čeka).

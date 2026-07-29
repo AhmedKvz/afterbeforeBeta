@@ -278,3 +278,37 @@
    pasivno vreme na ekranu.
 10. **Safety/care informacije se nikad ne naplaćuju.** Mesta mogu plaćati
     operativne care alate i analitiku — nikad viši „safety score".
+
+---
+
+## 11 · IA v2 — „JEDAN BROJ, JEDNO DUGME" 🔒 (founder odluka 2026-07-21, PRE B1)
+
+> Nadjačava navigacione delove HOME/HEAT/CHAT lockova (sadržajna pravila tih
+> sekcija ostaju). Izvor: 3 nezavisna greenfield agenta konvergirala + branša
+> (groblje social-mapa; pobednici = jedna oštra mehanika) + Smart Start narativ.
+> Spec za build: `HANDOFF-GRAD-ORB-2026-07-21.md`.
+
+**Arhitektura: 2 taba + orb.** `GRAD · (● ORB=TU SAM) · JA` — fiksna, uvek
+vidljiva 3-tačka traka. Orb lepeza (skrivena navigacija) se ukida.
+
+1. **GRAD** (jedina strana): hero = **živi broj grada** („873 napolju · PET
+   23:41" — pošten i kad je nula) → toggle **Lista | Karta** (isti sadržaj, dva
+   prikaza — nikad naslagano) → hero event → živo sada → rute → quest nedelje
+   kartica → VIKEND/KASNIJE → **„KRAJ — ostalo se dešava napolju"** (feed ima dno).
+2. **ORB = TU SAM**: ugašen (daleko) → gori (na mestu, u radijusu) → posle
+   check-ina otvara **HUB VEČERI**: poruke/iskre (bez zasebnog taba; notifikacija
+   vodi pravo u nit), aktivni quest traka, točak/ŠIFRA, dance, VISIBLE. Orb =
+   ključ noći — brend objekat postaje money path.
+3. **JA**: profil, REP, AFC katalog (NAGRADE se sele iz Quests), streak,
+   sačuvane rute, istorija, bezbednost.
+4. **Quests kao tab umire**: quest nedelje = kartica u GRAD feedu · aktivni
+   quest = traka u hubu · katalog = JA · maker (custom/roadmap) = iz JA.
+5. **Doktrina gamifikacije — „TELO JE KONTROLER, GRAD JE TABLA":** mehanika
+   koja se može odigrati sa kauča ne ulazi. Sinteza najboljih, prisustvo-gated:
+   IRL streak (Snap streak ali co-presence) · noć=sezona (Fortnite; check-in
+   otvara night run → recap kartica) · konvergencija (PoGO raid drop na mestu) ·
+   gradska ŠIFRA (Wordle×ARG preko više mesta). **Sve POSLE B1** (MVP faza);
+   B1 igra postojećim mehanikama. Ograde: isplate ≤ fond · novac ≠
+   reputacija/pristup · consent · pošteni brojevi · Lucky100 odvojen.
+6. **Zvanični UX test (B1):** novi korisnik bez objašnjenja — otvaranje →
+   izbor mesta < 30s, check-in iste noći, 7/10 testera.
