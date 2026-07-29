@@ -21,7 +21,7 @@ mišljenje · datum 18.08 nepotvrđen · vikend program prazan.
 Presuda 3 greenfield agenta + branša → SECTION-LOCKS §11: GRAD (živi broj hero +
 Lista|Karta toggle + KRAJ) · ORB=TU SAM (check-in/hub večeri; lepeza se ukida) ·
 JA (prima NAGRADE+questove). Quests tab umire. Doktrina gamifikacije „TELO JE
-KONTROLER" — novi sloj (IRL streak → konvergencija → gradska ŠIFRA) POSLE B1.
+KONTROLER" — **IZMENA: novi sloj se gradi PRE B1** (konvergencija → IRL streak → gradska ŠIFRA; spec `HANDOFF-GAMIFIKACIJA-2026-07-21.md`; build 08.08, QA 08–09.08, freeze 11.08, kill-switch flagovi).
 **Build izvršava Opus: `HANDOFF-GRAD-ORB-2026-07-21.md`.** Neshipovani NOĆAS
 merge u radnom stablu = sirovina (embedded refaktori se čuvaju).
 

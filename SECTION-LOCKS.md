@@ -307,8 +307,10 @@ vidljiva 3-tačka traka. Orb lepeza (skrivena navigacija) se ukida.
    koja se može odigrati sa kauča ne ulazi. Sinteza najboljih, prisustvo-gated:
    IRL streak (Snap streak ali co-presence) · noć=sezona (Fortnite; check-in
    otvara night run → recap kartica) · konvergencija (PoGO raid drop na mestu) ·
-   gradska ŠIFRA (Wordle×ARG preko više mesta). **Sve POSLE B1** (MVP faza);
-   B1 igra postojećim mehanikama. Ograde: isplate ≤ fond · novac ≠
+   gradska ŠIFRA (Wordle×ARG preko više mesta). **IZMENA (founder, 2026-07-21):
+   sve tri se grade PRE B1** — B1 postaje demo pune doktrine. Uslov: build do
+   08.08, obavezan 2-device QA vikend 08–09.08, feature freeze 11.08; mehanika
+   koja ne prođe QA se ISKLJUČUJE za B1 (flag), ne krpi u hodu. Ograde: isplate ≤ fond · novac ≠
    reputacija/pristup · consent · pošteni brojevi · Lucky100 odvojen.
 6. **Zvanični UX test (B1):** novi korisnik bez objašnjenja — otvaranje →
    izbor mesta < 30s, check-in iste noći, 7/10 testera.
