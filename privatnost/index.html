@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privatnost — AfterBefore</title>
+  <meta name="description" content="Koje podatke AfterBefore prikuplja, zašto, i šta nikada ne radimo sa njima." />
+  <meta name="theme-color" content="#0a0b0d" />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --bg:#090a0c;--panel:#111317;--text:#f4f3ef;--muted:#a2a5aa;
+      --line:rgba(255,255,255,.12);--acid:#b6ff4a;--radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;background:var(--bg);color:var(--text);line-height:1.6;
+      font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    }
+    a{color:var(--acid)}
+    .wrap{width:min(760px,calc(100% - 40px));margin:0 auto;padding:40px 0 80px}
+    .nav{border-bottom:1px solid var(--line);margin-bottom:44px;padding-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    .brand{font-weight:900;letter-spacing:-.04em;font-size:20px;text-decoration:none;color:var(--text)}
+    .brand span{color:var(--acid)}
+    .eyebrow{font:700 11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--acid)}
+    h1{font-size:clamp(34px,6vw,52px);line-height:1.02;letter-spacing:-.04em;margin:12px 0 18px}
+    h2{font-size:22px;letter-spacing:-.02em;margin:38px 0 10px}
+    p,li{color:#d8d8d5}
+    .muted{color:var(--muted)}
+    .small{font-size:13px;color:var(--muted)}
+    ul{padding-left:20px}
+    li{margin:7px 0}
+    .box{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin:22px 0}
+    .box.acid{border-color:rgba(182,255,74,.35);background:rgba(182,255,74,.05)}
+    table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;display:block;overflow-x:auto}
+    th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+    th{font:700 11px ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+    footer{border-top:1px solid var(--line);margin-top:50px;padding-top:20px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="../">After<span>Before</span></a>
+      <a class="small" href="../">← Nazad na sajt</a>
+    </div>
+
+    <div class="eyebrow">Politika privatnosti</div>
+    <h1>Šta prikupljamo, zašto, i šta nikada ne radimo.</h1>
+    <p class="muted">Poslednja izmena: 3. avgust 2026. · Verzija beta programa.</p>
+
+    <div class="box acid">
+      <strong>Ukratko:</strong> lokaciju čitamo <em>samo u trenutku kada sam pritisneš check-in</em> — ne pratimo te u pozadini.
+      Ne prodajemo podatke. Partneri (klubovi, brendovi) nikada ne dobijaju tvoje poruke,
+      tvoje kretanje ni tvoju email adresu — samo zbirne brojeve.
+    </div>
+
+    <h2>Ko je odgovoran</h2>
+    <p>AfterBefore (u razvoju, Beograd). Kontakt za sva pitanja o podacima:
+      <a href="mailto:kontakt@afterbefore.app">kontakt@afterbefore.app</a>.
+      Aplikacija je u beta fazi; ova politika se menja kako proizvod raste i biće ažurirana pre javnog lansiranja.</p>
+
+    <h2>Koje podatke prikupljamo</h2>
+    <table>
+      <tr><th>Podatak</th><th>Zašto</th><th>Kada</th></tr>
+      <tr><td>Email i lozinka</td><td>Nalog i prijava</td><td>Pri registraciji</td></tr>
+      <tr><td>Ime, grad, žanrovi, bio, link, slike</td><td>Tvoj profil — ti biraš šta upisuješ</td><td>Kad sam uneseš</td></tr>
+      <tr><td>GPS koordinate i udaljenost od mesta</td><td>Da check-in bude stvaran, a ne lažan</td><td><strong>Samo u sekundi kad pritisneš check-in</strong></td></tr>
+      <tr><td>Check-in istorija (mesto, vreme)</td><td>Pasoš noći, pečati, tabela, zajedničke noći</td><td>Pri svakom check-inu</td></tr>
+      <tr><td>Vidljivost na mestu (VISIBLE/ghost)</td><td>Da te vide samo ako ti to hoćeš</td><td>Kad sam uključiš</td></tr>
+      <tr><td>Poruke i iskre</td><td>Razgovor sa ljudima sa kojima si uzajamno povezan</td><td>Kad pišeš</td></tr>
+      <tr><td>Prijave sa sajta (email + uloga)</td><td>Da te kontaktiramo o partnerstvu</td><td>Kad pošalješ formu</td></tr>
+      <tr><td>Osnovna analitika korišćenja</td><td>Da vidimo šta radi, a šta ne</td><td>U toku korišćenja</td></tr>
+    </table>
+
+    <h2>Šta NE radimo</h2>
+    <ul>
+      <li><strong>Ne pratimo lokaciju u pozadini.</strong> Nema stalnog praćenja kretanja — lokacija se čita jednom, na tvoj pritisak dugmeta.</li>
+      <li><strong>Ne prodajemo podatke</strong> ni jednoj trećoj strani, ni u agregatnom ni u pojedinačnom obliku.</li>
+      <li><strong>Ne dajemo partnerima tvoje podatke.</strong> Klub vidi koliko je ljudi bilo — ne vidi ko, ne vidi tvoje poruke, ne dobija tvoj email.</li>
+      <li><strong>Ne čitamo privatne poruke</strong> osim kada nam neko prijavi zloupotrebu, isključivo radi bezbednosne provere.</li>
+      <li><strong>Ne naplaćujemo pristup ljudima.</strong> Nema plaćanja da vidiš ko te je označio — to ne postoji u proizvodu.</li>
+    </ul>
+
+    <h2>Ko šta vidi</h2>
+    <ul>
+      <li><strong>Drugi korisnici:</strong> tvoj profil, i tvoje prisustvo na mestu <em>samo</em> ako si uključio vidljivost. Ghost režim znači da te broje, ali te ne vide.</li>
+      <li><strong>Ljudi sa kojima si uzajamno povezan:</strong> poruke, i podatak da ste bili iste noći na istom mestu.</li>
+      <li><strong>Klubovi i partneri:</strong> zbirni brojevi (koliko ljudi, koliko dolazaka) — nikada imena, kretanje ni kontakt.</li>
+      <li><strong>Mi:</strong> tehnički pristup bazi radi održavanja i bezbednosti.</li>
+    </ul>
+
+    <h2>Tvoja kontrola</h2>
+    <ul>
+      <li>Vidljivost pališ i gasiš u svakom trenutku (ghost režim).</li>
+      <li>Upoznavanje (1 na 1, grupe) je isključeno po podrazumevanoj postavci — uključuješ ga sam i gasiš jednim tapom.</li>
+      <li>Blokiranje i prijava korisnika su uvek dostupni u razgovoru.</li>
+      <li>Brisanje naloga i svih podataka: piši na <a href="mailto:kontakt@afterbefore.app">kontakt@afterbefore.app</a> — brišemo u roku od 30 dana.</li>
+      <li>Kopiju svojih podataka možeš tražiti na istu adresu.</li>
+    </ul>
+
+    <h2>Gde se podaci čuvaju</h2>
+    <p>Podatke čuvamo kod <strong>Supabase</strong> (PostgreSQL, serveri u EU) i sajt serviramo preko <strong>GitHub Pages</strong>.
+      Sajt ne koristi kolačiće za praćenje niti spoljne fontove i analitičke skripte trećih strana.
+      Aplikacija čuva deo podataka lokalno na tvom uređaju da bi radila i kad je veza loša.</p>
+
+    <h2>Uzrast</h2>
+    <p>AfterBefore je namenjen osobama sa <strong>18+ godina</strong>, u skladu sa prirodom noćnog života.</p>
+
+    <div class="box">
+      <p class="small" style="margin:0">Ovo je radna verzija za beta program, pisana da bude razumljiva i tačna.
+        Pre javnog lansiranja prolazi pravnu proveru radi usklađivanja sa Zakonom o zaštiti podataka o ličnosti i GDPR-om.
+        Ako nešto ovde ne odgovara onome što aplikacija radi — javi nam i ispravljamo.</p>
+    </div>
+
+    <footer>
+      <div class="small">© 2026 AfterBefore · Beograd · <a href="../">Nazad na sajt</a> · <a href="https://ahmedkvz.github.io/afterbeforeBeta/app/">Aplikacija</a></div>
+    </footer>
+  </div>
+</body>
+</html>
