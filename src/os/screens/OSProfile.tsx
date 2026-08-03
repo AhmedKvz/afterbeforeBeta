@@ -17,7 +17,7 @@ const db = supabase as any;
 const LABEL = { fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3 } as const;
 const DOW = ['NED', 'PON', 'UTO', 'SRE', 'ČET', 'PET', 'SUB'];
 const MON = ['JAN', 'FEB', 'MAR', 'APR', 'MAJ', 'JUN', 'JUL', 'AVG', 'SEP', 'OKT', 'NOV', 'DEC'];
-const hhmm = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+const hhmm = (iso: string) => { const d = new Date(iso); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
 
 /** Kartica jedne noći (PREDLOG §6): datum → linija rute kao hero → timeline
  *  → pečati utisnuti pod uglom. Piše se sama; nijedna nije "nepotpuna". */
@@ -170,7 +170,7 @@ export const OSProfile = () => {
       {/* SLEDEĆI IZLAZAK — jedina živa misija, prerušena u plan (opcija B) */}
       <div style={{ margin: '20px 18px 0' }}>
         <div style={{ ...LABEL, color: AB.acid, marginBottom: 10 }}>SLEDEĆI IZLAZAK</div>
-        <RoadmapMaker />
+        <RoadmapMaker passport />
       </div>
 
       {/* MOJE NOĆI — pasoš: dokaz, ne skor. Nula se ne renderuje. */}
@@ -198,7 +198,7 @@ export const OSProfile = () => {
             {stamps.map((s, i) => (
               <div key={s.id} style={{ padding: '10px 13px', borderRadius: 12, border: `1.5px solid ${AB.acidDim}`, transform: `rotate(${(i % 3) - 1}deg)`, maxWidth: 165 }}>
                 <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.06em', color: AB.acid }}>{s.emoji} {s.name.toUpperCase()}</div>
-                <div style={{ fontFamily: MONO, fontSize: 9.5, color: AB.ink3, marginTop: 4 }}>{s.where.toUpperCase()} · {s.earnedAt.getDate()}. {MON[s.earnedAt.getMonth()]}</div>
+                <div style={{ fontFamily: MONO, fontSize: 9.5, color: AB.ink3, marginTop: 4 }}>{s.where.toUpperCase()} · {new Date(s.earnedAt).getDate()}. {MON[new Date(s.earnedAt).getMonth()]}</div>
               </div>
             ))}
             {pass?.ghost && (

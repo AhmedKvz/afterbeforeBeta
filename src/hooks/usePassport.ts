@@ -11,9 +11,11 @@ const db = supabase as any;
  * (deterministički iz podataka — pošten broj, ništa se ne izmišlja).
  */
 
-export interface NightVisit { name: string; type: string; neighborhood: string | null; at: Date }
-export interface Stamp { id: string; name: string; desc: string; emoji: string; earnedAt: Date; where: string }
-export interface Night { key: string; date: Date; visits: NightVisit[]; stamps: Stamp[] }
+// ZAKON: persisted react-query keš je JSON-only — datumi su ISO stringovi,
+// NIKAD Date instance (Date u query data ruši app posle reload-a).
+export interface NightVisit { name: string; type: string; neighborhood: string | null; at: string }
+export interface Stamp { id: string; name: string; desc: string; emoji: string; earnedAt: string; where: string }
+export interface Night { key: string; visits: NightVisit[]; stamps: Stamp[] }
 
 // noć kojoj check-in pripada: pomeraj -14h (23:00 PET i 03:00 SUB = ista noć)
 const nightKey = (d: Date) => {
@@ -38,18 +40,22 @@ export const STAMP_DEFS = [
 ];
 const DEF = Object.fromEntries(STAMP_DEFS.map((d) => [d.id, d]));
 
-const mk = (id: string, at: Date, where: string): Stamp => ({ ...DEF[id], earnedAt: at, where });
+const mk = (id: string, at: Date, where: string): Stamp => ({ ...DEF[id], earnedAt: at.toISOString(), where });
 
 /** Pure: iz sirovih check-inova → noći + zarađeni pečati + ghost + taste line. */
 export const buildPassport = (rows: { at: Date; name: string; type: string; neighborhood: string | null }[]) => {
+  type Raw = { at: Date; name: string; type: string; neighborhood: string | null };
   const sorted = [...rows].sort((a, b) => a.at.getTime() - b.at.getTime());
-  const byNight = new Map<string, NightVisit[]>();
+  const byNight = new Map<string, Raw[]>();
   sorted.forEach((r) => {
     const k = nightKey(r.at);
     if (!byNight.has(k)) byNight.set(k, []);
-    byNight.get(k)!.push({ name: r.name, type: r.type, neighborhood: r.neighborhood, at: r.at });
+    byNight.get(k)!.push(r);
   });
-  const nights: Night[] = [...byNight.entries()].map(([key, visits]) => ({ key, date: visits[0].at, visits, stamps: [] }));
+  const nights = [...byNight.entries()].map(([key, raw]) => ({
+    key, raw,
+    night: { key, visits: raw.map((r) => ({ name: r.name, type: r.type, neighborhood: r.neighborhood, at: r.at.toISOString() })), stamps: [] as Stamp[] } as Night,
+  }));
 
   const earned = new Map<string, Stamp>();
   const press = (night: Night, stamp: Stamp) => {
@@ -58,16 +64,17 @@ export const buildPassport = (rows: { at: Date; name: string; type: string; neig
     night.stamps.push(stamp);
   };
 
+
   const venueCount = new Map<string, number>();
   const distinctVenues = new Set<string>();
   const distinctTypes = new Set<string>();
   const weekNights = new Map<string, Set<number>>(); // ISO-week → set of day indexes
 
-  nights.forEach((n) => {
-    const names = new Set(n.visits.map((v) => v.name));
-    if (!earned.has('prvo-mastilo')) press(n, mk('prvo-mastilo', n.visits[0].at, n.visits[0].name));
-    if (names.size >= 3) press(n, mk('triptih', n.visits[2].at, [...names].slice(0, 3).join(' → ')));
-    n.visits.forEach((v) => {
+  nights.forEach(({ key, raw, night: n }) => {
+    const names = new Set(raw.map((v) => v.name));
+    if (!earned.has('prvo-mastilo')) press(n, mk('prvo-mastilo', raw[0].at, raw[0].name));
+    if (names.size >= 3) press(n, mk('triptih', raw[2].at, [...names].slice(0, 3).join(' → ')));
+    raw.forEach((v) => {
       const h = v.at.getHours();
       if (h >= 4 && h < 9) press(n, mk('zora', v.at, v.name));
       if ((v.type === 'splav' || v.type === 'river') && !earned.has('recno-krstenje')) press(n, mk('recno-krstenje', v.at, v.name));
@@ -81,7 +88,7 @@ export const buildPassport = (rows: { at: Date; name: string; type: string; neig
       if (distinctTypes.size === 3 && !earned.has('zanrovski-prelaz')) press(n, mk('zanrovski-prelaz', v.at, v.name));
     });
     // Dubl: noć-datum (key) petak(5) + subota(6) u istoj ISO nedelji
-    const nd = new Date(n.key + 'T12:00:00');
+    const nd = new Date(key + 'T12:00:00');
     const day = nd.getDay();
     const monday = new Date(nd); monday.setDate(nd.getDate() - ((day + 6) % 7));
     const wk = monday.toISOString().slice(0, 10);
@@ -89,18 +96,19 @@ export const buildPassport = (rows: { at: Date; name: string; type: string; neig
     weekNights.get(wk)!.add(day);
     if (day === 5 || day === 6) {
       const s = weekNights.get(wk)!;
-      if (s.has(5) && s.has(6) && !earned.has('dubl')) press(n, mk('dubl', n.visits[0].at, 'vikend'));
+      if (s.has(5) && s.has(6) && !earned.has('dubl')) press(n, mk('dubl', raw[0].at, 'vikend'));
     }
   });
+  const nightList: Night[] = nights.map((x) => x.night);
 
   // Ghost (§8): max JEDAN, tek kad ponašanje kaže da si blizu, bez progresa.
   let ghost: { name: string; desc: string; emoji: string } | null = null;
-  if (nights.length >= 3 && !earned.has('zora')) ghost = { name: 'Zora', desc: 'Dočekaj izlazak sunca', emoji: '🌅' };
-  else if (!earned.has('triptih') && nights.some((n) => new Set(n.visits.map((v) => v.name)).size === 2)) ghost = { name: 'Triptih', desc: 'Tri mesta u jednoj noći', emoji: '🎞' };
+  if (nightList.length >= 3 && !earned.has('zora')) ghost = { name: 'Zora', desc: 'Dočekaj izlazak sunca', emoji: '🌅' };
+  else if (!earned.has('triptih') && nightList.some((n) => new Set(n.visits.map((v) => v.name)).size === 2)) ghost = { name: 'Triptih', desc: 'Tri mesta u jednoj noći', emoji: '🎞' };
 
   // Taste line (§9): proza, nikad brojke; tek od 3. noći.
   let taste: string | null = null;
-  if (nights.length >= 3) {
+  if (nightList.length >= 3) {
     const hoods = new Map<string, number>();
     rows.forEach((r) => r.neighborhood && hoods.set(r.neighborhood, (hoods.get(r.neighborhood) || 0) + 1));
     const topHood = [...hoods.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
@@ -110,7 +118,7 @@ export const buildPassport = (rows: { at: Date; name: string; type: string; neig
     taste = parts.join(' ') || null;
   }
 
-  return { nights: nights.reverse(), stamps: [...earned.values()], ghost, taste };
+  return { nights: nightList.reverse(), stamps: [...earned.values()], ghost, taste };
 };
 
 export const usePassport = () => {

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>afterbefore motion audit — 2026-07-19</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:oklch(0.155 0.006 255); --surface:oklch(0.195 0.007 255); --surface-2:oklch(0.235 0.008 255);
+  --paper:oklch(0.945 0.004 255); --paper-dim:oklch(0.800 0.006 255); --muted:oklch(0.680 0.008 255); --faint:oklch(0.505 0.008 255);
+  --line:oklch(0.95 0.01 255 / 0.09); --line-strong:oklch(0.95 0.01 255 / 0.16);
+  --sev-crit:oklch(0.655 0.185 25); --sev-imp:oklch(0.805 0.125 78); --sev-opp:oklch(0.745 0.135 152);
+  --t-good:oklch(0.745 0.135 152); --t-mid:oklch(0.805 0.125 78); --t-slow:oklch(0.655 0.185 25);
+  --accent:var(--paper); --accent-soft:var(--paper-dim); --accent-tint:oklch(0.95 0.01 255 / 0.06);
+  --display:"Familjen Grotesk","Hanken Grotesk",system-ui,sans-serif;
+  --sans:"Public Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+:root:has(#theme-light:checked){
+  --ink:oklch(0.985 0.003 255); --surface:oklch(0.965 0.004 255); --surface-2:oklch(0.940 0.005 255);
+  --paper:oklch(0.180 0.006 255); --paper-dim:oklch(0.330 0.008 255); --muted:oklch(0.475 0.010 255); --faint:oklch(0.640 0.009 255);
+  --line:oklch(0.180 0.010 255 / 0.12); --line-strong:oklch(0.180 0.010 255 / 0.22);
+  --sev-crit:oklch(0.560 0.200 25); --sev-imp:oklch(0.620 0.140 78); --sev-opp:oklch(0.560 0.140 152);
+  --t-good:oklch(0.560 0.140 152); --t-mid:oklch(0.620 0.140 78); --t-slow:oklch(0.560 0.200 25);
+  --accent-tint:oklch(0.180 0.010 255 / 0.05);
+}
+*{box-sizing:border-box}
+body{background:var(--ink);color:var(--paper);font-family:var(--sans);margin:0;line-height:1.6;font-size:15px}
+.wrap{max-width:1080px;margin:0 auto;padding:40px 28px 80px}
+.vh{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+a{color:inherit}
+code{font-family:var(--mono);font-size:12.5px;background:var(--accent-tint);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.mono-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.theme-switch{display:flex;justify-content:flex-end;margin-bottom:26px}
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:100px;overflow:hidden}
+.seg label{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:4px 11px;cursor:pointer;user-select:none;transition:background .15s ease,color .15s ease}
+:root:has(#theme-dark:checked) .theme-switch label[for="theme-dark"],
+:root:has(#theme-light:checked) .theme-switch label[for="theme-light"]{background:color-mix(in oklch,var(--paper) 12%,transparent);color:var(--paper)}
+header .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--muted)}
+h1.title{font-family:var(--display);font-size:clamp(28px,4.5vw,42px);font-weight:700;letter-spacing:-.02em;line-height:1.12;margin:14px 0 10px}
+p.lede{color:var(--paper-dim);max-width:640px;margin:0 0 14px}
+.meta-row{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-bottom:22px}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stats a{display:inline-flex;align-items:baseline;gap:7px;text-decoration:none;border:1px solid var(--line-strong);border-radius:10px;padding:9px 14px;transition:border-color .2s ease}
+.stats a:hover{border-color:var(--paper-dim)}
+.stats .n{font-family:var(--display);font-size:21px;font-weight:700}
+.stats .l{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stats .c-crit .n{color:var(--sev-crit)} .stats .c-imp .n{color:var(--sev-imp)} .stats .c-opp .n{color:var(--sev-opp)}
+section{margin-top:52px}
+.assessment p{font-family:var(--display);font-size:clamp(17px,2.3vw,21px);line-height:1.55;max-width:820px;margin:12px 0 0}
+h2.sec{font-family:var(--display);font-size:22px;font-weight:700;letter-spacing:-.01em;margin:0 0 4px}
+h2.sec .no{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.14em;margin-right:10px}
+.lens-table{width:100%;border-collapse:collapse;margin-top:16px}
+.lens-table th{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 12px;border-bottom:1px solid var(--line-strong)}
+.lens-table td{padding:13px 12px;border-bottom:1px solid var(--line);vertical-align:top;transition:border-color .2s ease}
+.lens-table tr:hover td{border-color:var(--line-strong)}
+.wchip{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line-strong);border-radius:99px;padding:2px 8px;color:var(--muted);margin-left:8px}
+.vdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:middle}
+.timing-grid{display:grid;grid-template-columns:1fr 300px;gap:24px;margin-top:18px;align-items:start}
+.timing-key{font-size:13px}
+.timing-key li{margin-bottom:7px;color:var(--paper-dim)}
+.timing-key .t{font-family:var(--mono);font-size:11.5px;color:var(--paper);font-variant-numeric:tabular-nums}
+.whats-off{margin-top:14px;border:1px solid var(--line-strong);border-radius:12px;padding:14px 16px;font-size:13.5px;color:var(--paper-dim)}
+.lens-sec{border-top:1px solid var(--line-strong);padding-top:30px}
+.lens-sec__head{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.lens-sec__head h3{font-family:var(--display);font-size:19px;font-weight:700;margin:0}
+.lens-sec__verdict{color:var(--paper-dim);font-size:14px;margin:8px 0 20px}
+.lens-block{margin-top:20px}
+.lens-list{list-style:none;padding:0;margin:10px 0 0}
+.lens-list li{padding:7px 0;font-size:14px;color:var(--paper-dim);border-bottom:1px solid var(--line)}
+.lens-list.good li::before{content:"✓  ";color:var(--sev-opp)}
+.lens-list.opp li::before{content:"💡 "}
+.lens-take{margin-top:22px;background:var(--accent-tint);border:1px solid var(--line);border-radius:12px;padding:14px 18px;font-size:14px;color:var(--paper-dim)}
+.lens-take b{color:var(--paper)}
+.lens-empty{color:var(--faint);font-style:italic;font-size:13.5px}
+.finding-row{display:grid;grid-template-columns:1fr 380px;gap:26px;border:1px solid var(--line-strong);border-radius:16px;padding:22px;margin-top:16px;transition:border-color .2s ease}
+.finding-row:hover{border-color:var(--paper-dim)}
+.find-tags{display:flex;gap:7px;margin-bottom:10px}
+.chip{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;border-radius:99px;padding:3px 9px}
+.chip.crit{background:color-mix(in oklch,var(--sev-crit) 16%,transparent);color:var(--sev-crit)}
+.chip.imp{background:color-mix(in oklch,var(--sev-imp) 16%,transparent);color:var(--sev-imp)}
+.chip.lens{border:1px solid var(--line-strong);color:var(--muted)}
+h4.find-title{font-family:var(--display);font-size:17px;font-weight:700;margin:0 0 10px}
+.find-body p{font-size:14px;color:var(--paper-dim);margin:0 0 10px}
+.find-body .label{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.fix{background:var(--accent-tint);border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin:12px 0}
+.find-loc{margin-top:8px}
+.demo{position:relative;width:100%;max-width:380px;justify-self:end}
+.demo__bar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.demo__meta{min-width:0}
+.demo__title{display:block;font-size:13.5px;font-weight:600;color:var(--paper);line-height:1.3}
+.demo__timing{display:block;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
+.demo__controls{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.demo__loop{font-family:var(--mono);font-size:12px;color:var(--faint)}
+.demo .seg label{padding:4px 9px}
+.demo input[id$="-a"]:checked ~ .demo__bar .seg label[for$="-a"],
+.demo input[id$="-l"]:checked ~ .demo__bar .seg label[for$="-l"],
+.demo input[id$="-d"]:checked ~ .demo__bar .seg label[for$="-d"]{background:color-mix(in oklch,var(--paper) 12%,transparent);color:var(--paper)}
+.demo__stage{--st-bg:var(--surface-2);--st-fg:var(--paper);--st-line:var(--line-strong);--st-dim:color-mix(in oklch,var(--paper) 55%,transparent);
+  background:var(--st-bg);color:var(--st-fg);border:1px solid var(--line);border-radius:10px;padding:32px 24px;min-height:168px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.demo input[id$="-l"]:checked ~ .demo__stage{--st-bg:oklch(0.985 0.003 255);--st-fg:oklch(0.180 0.006 255);--st-line:oklch(0.180 0.010 255 / 0.18);--st-dim:oklch(0.180 0.010 255 / 0.45)}
+.demo input[id$="-d"]:checked ~ .demo__stage{--st-bg:oklch(0.180 0.006 255);--st-fg:oklch(0.985 0.003 255);--st-line:oklch(0.985 0.010 255 / 0.18);--st-dim:oklch(0.985 0.010 255 / 0.50)}
+.ui-btn{display:inline-flex;align-items:center;justify-content:center;padding:9px 18px;border-radius:8px;background:var(--st-fg);color:var(--st-bg);font-family:var(--sans);font-size:13px;font-weight:600}
+.ui-card{background:var(--st-bg);border:1px solid var(--st-line);border-radius:10px;padding:14px 16px;min-width:180px;box-shadow:0 8px 24px oklch(0 0 0 / 0.12)}
+.ui-row{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--st-fg)}
+.ui-num{font-family:var(--display);font-size:34px;font-weight:700;color:var(--st-fg);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ui-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--st-dim)}
+.rec table{width:100%;border-collapse:collapse;margin-top:12px}
+.rec th{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line-strong)}
+.rec td{padding:11px 10px;border-bottom:1px solid var(--line);font-size:13.5px;color:var(--paper-dim);vertical-align:top}
+.tier-label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin:26px 0 0}
+.tier-label.crit{color:var(--sev-crit)} .tier-label.imp{color:var(--sev-imp)} .tier-label.opp{color:var(--sev-opp)}
+.ref-summary{border:1px solid var(--line-strong);border-radius:16px;padding:22px;margin-top:18px;font-size:14px;color:var(--paper-dim)}
+.ref-lean{display:grid;grid-template-columns:1fr 1fr;gap:8px 26px;margin-top:12px}
+footer{margin-top:64px;font-family:var(--mono);font-size:11px;color:var(--faint);border-top:1px solid var(--line);padding-top:18px}
+@media(max-width:860px){.finding-row{grid-template-columns:1fr}.demo{justify-self:start}.timing-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.ref-lean{grid-template-columns:1fr}.lens-table thead{display:none}.lens-table tr{display:block;border-bottom:1px solid var(--line-strong);padding:8px 0}.lens-table td{display:block;border:0;padding:4px 12px}}
+@media (prefers-reduced-motion: reduce){.demo__loop{display:none}[class*="__mt"],[class*="__mt"] *{animation:none !important;transition:none !important}}
+@media (prefers-reduced-motion: no-preference){
+@keyframes m1{0%{opacity:0;transform:translateY(8px)}14%{opacity:1;transform:translateY(0)}60%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+.demo-1__mt{animation:m1 3s cubic-bezier(0.22,1,0.36,1) infinite}
+@keyframes m2{0%{opacity:0;transform:scale(0.96)}12%{opacity:1;transform:scale(1)}55%{opacity:1;transform:scale(1)}68%{opacity:0;transform:scale(0.985)}100%{opacity:0;transform:scale(0.985)}}
+.demo-2__mt{animation:m2 3s cubic-bezier(0.22,1,0.36,1) infinite}
+@keyframes m3{0%{opacity:.4;filter:blur(3px)}10%{opacity:.6;filter:blur(2px)}20%{opacity:.8;filter:blur(1px)}30%{opacity:1;filter:blur(0)}60%{opacity:1;filter:blur(0)}100%{opacity:1;filter:blur(0)}}
+.demo-3__mt{animation:m3 3s ease-out infinite}
+@keyframes m4a{0%{transform:scale(.7);opacity:.7}22%{transform:scale(2.1);opacity:0}100%{transform:scale(2.1);opacity:0}}
+.demo-4__mt .ping{position:absolute;inset:0;border-radius:50%;background:var(--st-fg);animation:m4a 3s ease-out infinite}
+@keyframes m5{0%{transform:scale(1)}8%{transform:scale(0.97)}16%{transform:scale(1)}60%{transform:scale(1)}100%{transform:scale(1)}}
+.demo-5__mt .ui-btn{animation:m5 3s cubic-bezier(0.22,1,0.36,1) infinite}
+@keyframes m6a{0%{opacity:1}10%{opacity:0}18%{opacity:0}100%{opacity:0}}
+@keyframes m6b{0%{opacity:0;transform:translateY(5px)}10%{opacity:0;transform:translateY(5px)}20%{opacity:1;transform:translateY(0)}60%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+.demo-6__mt{position:relative}
+.demo-6__mt .pane-a{animation:m6a 3s ease infinite;position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.demo-6__mt .pane-b{animation:m6b 3s cubic-bezier(0.22,1,0.36,1) infinite}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="theme-switch">
+  <input class="vh" type="radio" name="theme" id="theme-dark" checked>
+  <input class="vh" type="radio" name="theme" id="theme-light">
+  <div class="seg"><label for="theme-dark">Dark</label><label for="theme-light">Light</label></div>
+</div>
+
+<header>
+  <div class="eyebrow">MOTION AUDIT · DESIGN-MOTION-PRINCIPLES</div>
+  <h1 class="title">AfterBefore — a nightlife OS whose motion has real character, undercut by snaps, silence and a pulse epidemic</h1>
+  <p class="lede">Belgrade nightlife operating system: mobile-first PWA with a terminal aesthetic (IBM Plex Mono, deep blacks, genre color wheel), a signature orb radial nav, a bottom-sheet venue surface and a playful dare/passphrase game layer. Used at night, in clubs, often one-handed.</p>
+  <div class="meta-row">React 18 + Vite · inline-style OS components · hand-rolled CSS keyframes (no framer-motion in the OS) · audited: src/os/** + landing</div>
+  <div class="stats">
+    <a href="#rec-crit" class="c-crit"><span class="n">3</span><span class="l">Critical</span></a>
+    <a href="#rec-imp" class="c-imp"><span class="n">3</span><span class="l">Important</span></a>
+    <a href="#rec-opp" class="c-opp"><span class="n">4</span><span class="l">Opportunities</span></a>
+  </div>
+</header>
+
+<section class="assessment">
+  <div class="mono-label">OVERALL</div>
+  <p>This is not AI-slop motion — the orb's springy radial open and the sheet's ease-out-quint curve show real authorship. But the app currently animates the <em>decorations</em> and snaps the <em>structure</em>: screens, overlays and tabs all cut instantly while ten pulsing dots loop forever. Invert that — put motion on state changes, take it off idle indicators — and add one true celebration to check-in, and the motion will match the brand's ambition.</p>
+</section>
+
+<section>
+  <h2 class="sec"><span class="no">01</span>Lens summary</h2>
+  <table class="lens-table">
+    <thead><tr><th>Lens</th><th>Verdict</th><th>Read</th></tr></thead>
+    <tbody>
+      <tr><td>Jhey Tompkins — Experimentation &amp; Delight<span class="wchip">Primary</span></td><td><span class="vdot" style="background:var(--sev-imp)"></span>Mixed</td><td>The game layer has the right instincts (wheel, glow, passphrase reveal) but the app's biggest moments — check-in, šifra completion — resolve as plain toasts. Delight exists, it's just not spent where it counts.</td></tr>
+      <tr><td>Emil Kowalski — Restraint &amp; Speed<span class="wchip">Secondary</span></td><td><span class="vdot" style="background:var(--sev-crit)"></span>Problem</td><td>Ten infinite pulses violate the restraint rule, and the highest-frequency transition in the app (orb screen switch) has no motion at all — the exact inverse of the frequency rule.</td></tr>
+      <tr><td>Jakub Krehel — Production Polish<span class="wchip">Selective</span></td><td><span class="vdot" style="background:var(--sev-imp)"></span>Concern</td><td>Enters exist where exits don't; buttons lack press feedback; tab content swaps instantly. The polish layer is half-installed.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2 class="sec"><span class="no">02</span>Where the timings land</h2>
+  <div class="timing-grid">
+    <svg viewBox="0 0 660 300" role="img" aria-label="Duration budget diagram">
+      <style>
+        .zg{fill:var(--t-good);opacity:.12}.zm{fill:var(--t-mid);opacity:.12}.zs{fill:var(--t-slow);opacity:.12}
+        .zl{font:600 9px var(--mono);fill:var(--muted);letter-spacing:.08em}
+        .ax{stroke:var(--line-strong)}.axl{font:500 9px var(--mono);fill:var(--faint)}
+        .dot{fill:var(--paper)}.dotl{font:700 9px var(--mono);fill:var(--ink)}
+        .hollow{fill:none;stroke:var(--sev-crit);stroke-dasharray:3 3;stroke-width:1.5}
+        .hl{font:700 9px var(--mono);fill:var(--sev-crit)}
+      </style>
+      <rect x="40" y="40" width="93" height="200" class="zg"/><rect x="133" y="40" width="187" height="200" class="zg"/>
+      <rect x="320" y="40" width="187" height="200" class="zm"/><rect x="507" y="40" width="113" height="200" class="zs"/>
+      <text x="44" y="32" class="zl">INSTANT</text><text x="140" y="32" class="zl">RESPONSIVE</text><text x="326" y="32" class="zl">DELIBERATE</text><text x="512" y="32" class="zl">SLUGGISH</text>
+      <line x1="40" y1="240" x2="620" y2="240" class="ax"/>
+      <text x="36" y="258" class="axl">0</text><text x="126" y="258" class="axl">100ms</text><text x="308" y="258" class="axl">300ms</text><text x="495" y="258" class="axl">500ms</text><text x="596" y="258" class="axl">600+</text>
+      <circle cx="40" cy="80" r="11" class="hollow"/><text x="36" y="84" class="hl">1</text>
+      <circle cx="40" cy="120" r="11" class="hollow"/><text x="36" y="124" class="hl">2</text>
+      <circle cx="40" cy="160" r="11" class="hollow"/><text x="36" y="164" class="hl">6</text>
+      <circle cx="180" cy="200" r="11" class="dot"/><text x="176" y="204" class="dotl">7</text>
+      <circle cx="273" cy="120" r="11" class="dot"/><text x="269" y="124" class="dotl">3</text>
+      <circle cx="413" cy="160" r="11" class="dot"/><text x="409" y="164" class="dotl">4</text>
+      <circle cx="432" cy="200" r="11" class="dot"/><text x="428" y="204" class="dotl">5</text>
+    </svg>
+    <ul class="timing-key" style="list-style:none;padding:0;margin:0">
+      <li><b>1</b> Orb screen switch — <span class="t">NO MOTION</span></li>
+      <li><b>2</b> Game overlays mount/close — <span class="t">NO MOTION</span></li>
+      <li><b>6</b> Tab &amp; lens content swaps — <span class="t">NO MOTION</span></li>
+      <li><b>7</b> Hover/toggle transitions — <span class="t">100–200ms</span></li>
+      <li><b>3</b> Scrim fade — <span class="t">250ms · ease</span></li>
+      <li><b>4</b> Sheet enter — <span class="t">400ms · ease-out-quint</span></li>
+      <li><b>5</b> Orb radial open — <span class="t">420ms · springy bézier</span></li>
+    </ul>
+  </div>
+  <div class="whats-off"><b>What's off:</b> the three hollow dots at zero are the app's most-traveled paths. Meanwhile ten <code>os-pulse</code> loops run forever at every idle moment — the motion budget is being spent on standing still, not on moving. The 400ms sheet and orb are deliberate-zone but earn it (low frequency, signature moments); keep them.</div>
+</section>
+
+<section class="lens-sec">
+  <div class="lens-sec__head"><h3>Jhey Tompkins — Experimentation &amp; Delight</h3><span class="wchip">Primary</span></div>
+  <p class="lens-sec__verdict"><span class="vdot" style="background:var(--sev-imp)"></span>Mixed — the playful bones are here; the payoff moments are missing.</p>
+  <div class="lens-block"><div class="mono-label">What's working well</div>
+    <ul class="lens-list good">
+      <li>The dare wheel's cycling-cards spin with genre-colored landing glow is a genuinely original moment — <code>src/os/OSDareWheel.tsx:215</code></li>
+      <li>Orb radial nav with overshoot bézier <code>(.34,1.56,.64,1)</code> — bounce on a rare, playful, signature interaction is exactly where bounce belongs — <code>src/os/OSOrbNav.tsx:57</code></li>
+      <li>Landing hero glow breathing at 7s with a reduced-motion guard — ambient, slow, branded — <code>landing index.html .heroglow</code></li>
+      <li>Passphrase card glow (<code>text-shadow</code> on „PONOĆ NEMA") gives the šifra its secret-code aura — <code>OSDareWheel.tsx SifraTab</code></li>
+    </ul>
+  </div>
+  <div class="lens-block"><div class="mono-label">Issues to address</div>
+
+    <div class="finding-row" data-sev="crit">
+      <div class="finding-row__prose">
+        <div class="find-tags"><span class="chip crit">Critical</span><span class="chip lens">Jhey</span><span class="chip lens">A11y</span></div>
+        <h4 class="find-title">The wheel spin ignores prefers-reduced-motion</h4>
+        <div class="find-body">
+          <p><span class="label">What</span>The spin is a JS <code>setInterval</code> cycling card content every 90ms with a blur flash. The CSS reduced-motion guards can't reach it — a motion-sensitive user who opted out still gets ~2.5s of rapid content flashing. Same class of issue: the dare-wheel and šifra overlays are full-screen instant swaps driven by JS state.</p>
+          <p><span class="label">Why it matters</span>Accessibility is the one non-negotiable in this audit. Rapid full-card flashing is exactly the vestibular-trigger category reduced-motion exists for — and the game layer is the app's most attention-seeking surface.</p>
+          <div class="fix"><p><span class="label">Recommended motion</span>Gate the spin in JS: <code>matchMedia('(prefers-reduced-motion: reduce)')</code> → skip the interval, land instantly on the result with a single soft blur-out settle (demo). Full experience for everyone else, instant honest landing for those who asked.</p></div>
+          <p class="find-loc"><code>src/os/OSDareWheel.tsx:211-222 (spin)</code></p>
+        </div>
+      </div>
+      <div class="demo">
+        <input class="vh" type="radio" name="st3" id="st3-a" checked><input class="vh" type="radio" name="st3" id="st3-l"><input class="vh" type="radio" name="st3" id="st3-d">
+        <div class="demo__bar"><div class="demo__meta"><span class="demo__title">Reduced-motion landing: settle, don't spin</span><span class="demo__timing">~900ms · ease-out settle</span></div>
+        <div class="demo__controls"><div class="seg"><label for="st3-a">Auto</label><label for="st3-l">Light</label><label for="st3-d">Dark</label></div><span class="demo__loop">↻</span></div></div>
+        <div class="demo__stage"><div class="demo-3__mt"><div class="ui-card"><div class="ui-label" style="margin-bottom:6px">🎲 MISIJA</div><div class="ui-row"><span>Prvi/prva na podijumu kad se otvori.</span></div></div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="lens-block"><div class="mono-label">Opportunities</div>
+    <ul class="lens-list opp">
+      <li>Check-in success is the app's biggest moment and it resolves as a toast. Spend the delight budget here: genre-colored one-shot burst + the existing <code>os-xp</code> float (currently used once, in quests) showing „+50 REP" — <code>src/os/venue/useCheckIn.ts:47</code></li>
+      <li>Šifra completion (🖤 „ŠIFRA SASTAVLJENA") deserves a lock-opening beat — one-shot scale/rotate on the padlock emoji, 500ms, then still — <code>OSDareWheel.tsx SifraTab completed</code></li>
+      <li>Dare landing glow currently just appears — flash it once (box-shadow keyframe to peak then settle) so the landing feels like a stamp — <code>OSDareWheel.tsx phase 'landed'</code></li>
+      <li>Landing hero CTA („UĐI →") could rotate its conic ring on hover — one playful signature echo of the in-app orb — <code>landing index.html hero</code></li>
+    </ul>
+  </div>
+  <div class="lens-take">Through <b>Jhey's lens:</b> the game layer proves this team can do delight — but delight is currently decoration around the edges while the emotional peaks (check-in, šifra sastavljena) stay silent. Move the play to the payoff.</div>
+</section>
+
+<section class="lens-sec">
+  <div class="lens-sec__head"><h3>Emil Kowalski — Restraint &amp; Speed</h3><span class="wchip">Secondary</span></div>
+  <p class="lens-sec__verdict"><span class="vdot" style="background:var(--sev-crit)"></span>Problem — the frequency rule is inverted: frequent actions snap, idle elements loop.</p>
+  <div class="lens-block"><div class="mono-label">What's working well</div>
+    <ul class="lens-list good">
+      <li>Sheet enter uses a custom curve <code>cubic-bezier(.16,1,.3,1)</code>, not default ease — <code>index.css os-sheet</code></li>
+      <li>Hover/toggle transitions sit at 100–200ms — inside the responsive budget — <code>OSExplore ghost toggle, chips</code></li>
+      <li>Transform/opacity only — no layout-property animation anywhere in the OS</li>
+      <li>Static grain overlay on the landing (no film-grain animation loop — a common slop trap avoided)</li>
+    </ul>
+  </div>
+  <div class="lens-block"><div class="mono-label">Issues to address</div>
+
+    <div class="finding-row" data-sev="crit">
+      <div class="finding-row__prose">
+        <div class="find-tags"><span class="chip crit">Critical</span><span class="chip lens">Emil</span></div>
+        <h4 class="find-title">Motion gap: orb screen switches snap — and the fix already exists, unwired</h4>
+        <div class="find-body">
+          <p><span class="label">What</span>All five OS screens are bare conditional renders — Home→Heat→Chat cuts with zero transition. The kicker: an <code>os-screen</code> keyframe (opacity + 8px rise) exists in the stylesheet and is referenced by nothing.</p>
+          <p><span class="label">Why it matters</span>This is the single most-traveled path in the app. An instant hard cut after the orb's 420ms springy open reads as a glitch — the nav animates, the destination doesn't. Someone already designed the right motion and forgot to plug it in.</p>
+          <div class="fix"><p><span class="label">Recommended motion</span>Attach <code>animation:'os-screen .18s cubic-bezier(0.22,1,0.36,1)'</code> to each screen's root. 180ms keeps Emil's frequency rule happy (fast, subtle, once per switch — not a slideshow).</p></div>
+          <p class="find-loc"><code>src/os/OSApp.tsx:77-81 · src/index.css:11 (unused os-screen)</code></p>
+        </div>
+      </div>
+      <div class="demo">
+        <input class="vh" type="radio" name="st1" id="st1-a" checked><input class="vh" type="radio" name="st1" id="st1-l"><input class="vh" type="radio" name="st1" id="st1-d">
+        <div class="demo__bar"><div class="demo__meta"><span class="demo__title">Screen enter — the unwired keyframe, wired</span><span class="demo__timing">180ms · ease-out-quint</span></div>
+        <div class="demo__controls"><div class="seg"><label for="st1-a">Auto</label><label for="st1-l">Light</label><label for="st1-d">Dark</label></div><span class="demo__loop">↻</span></div></div>
+        <div class="demo__stage"><div class="demo-1__mt"><div class="ui-card"><div class="ui-label" style="margin-bottom:6px">HEAT · CITY PULSE</div><div class="ui-num">44</div><div class="ui-label">MESTA</div></div></div></div>
+      </div>
+    </div>
+
+    <div class="finding-row" data-sev="imp">
+      <div class="finding-row__prose">
+        <div class="find-tags"><span class="chip imp">Important</span><span class="chip lens">Emil</span></div>
+        <h4 class="find-title">The os-pulse epidemic — ten infinite loops</h4>
+        <div class="find-body">
+          <p><span class="label">What</span><code>os-pulse ... infinite</code> appears 10+ times: live dots, orb hint label, waiting states, spark rows, crew labels. The anti-slop gate flags <em>any</em> pulsing indicator; ten is a pattern.</p>
+          <p><span class="label">Why it matters</span>When everything pulses, nothing is live. The one place a pulse means something — a genuinely live venue — drowns in decorative twins. Continuous animation also burns battery on a phone that needs to survive a club night.</p>
+          <div class="fix"><p><span class="label">Recommended motion</span>Keep exactly two: the LIVE dot on truly-live things and the existing one-shot <code>os-ping</code>. Everywhere else: static color/glow for state, or a single ping on mount (demo) — attention once, then quiet.</p></div>
+          <p class="find-loc"><code>grep "os-pulse" src/os → 10 hits (OSOrbNav:68, OSMatches:54, OSDareWheel waiting, …)</code></p>
+        </div>
+      </div>
+      <div class="demo">
+        <input class="vh" type="radio" name="st4" id="st4-a" checked><input class="vh" type="radio" name="st4" id="st4-l"><input class="vh" type="radio" name="st4" id="st4-d">
+        <div class="demo__bar"><div class="demo__meta"><span class="demo__title">One ping on mount, then still</span><span class="demo__timing">650ms · ease-out, once</span></div>
+        <div class="demo__controls"><div class="seg"><label for="st4-a">Auto</label><label for="st4-l">Light</label><label for="st4-d">Dark</label></div><span class="demo__loop">↻</span></div></div>
+        <div class="demo__stage"><div class="demo-4__mt"><div class="ui-row"><span style="position:relative;width:10px;height:10px;border-radius:50%;background:var(--st-fg);display:inline-block"><span class="ping"></span></span><span>1 ovde sada</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="finding-row" data-sev="imp">
+      <div class="finding-row__prose">
+        <div class="find-tags"><span class="chip imp">Important</span><span class="chip lens">Emil</span><span class="chip lens">Jakub</span></div>
+        <h4 class="find-title">No press feedback on primary CTAs</h4>
+        <div class="find-body">
+          <p><span class="label">What</span>Check-in, UĐI, PRIHVATI, ZAVRTI, POTVRDI — none scale on <code>:active</code>. Only the legacy <code>.btn-gradient</code> has press feedback; the entire OS (inline styles) has zero.</p>
+          <p><span class="label">Why it matters</span>This app is used in the dark, one-handed, with unsteady thumbs. Tactile confirmation that a money-path tap registered is not polish — it's error prevention.</p>
+          <div class="fix"><p><span class="label">Recommended motion</span>One shared utility class: <code>.os-press:active{transform:scale(0.97)}</code> with a 80ms transition, applied to every OS button. Cheapest fix in this report.</p></div>
+          <p class="find-loc"><code>src/index.css (add) · src/os/** buttons</code></p>
+        </div>
+      </div>
+      <div class="demo">
+        <input class="vh" type="radio" name="st5" id="st5-a" checked><input class="vh" type="radio" name="st5" id="st5-l"><input class="vh" type="radio" name="st5" id="st5-d">
+        <div class="demo__bar"><div class="demo__meta"><span class="demo__title">Press: scale 0.97 and back</span><span class="demo__timing">80ms · ease-out</span></div>
+        <div class="demo__controls"><div class="seg"><label for="st5-a">Auto</label><label for="st5-l">Light</label><label for="st5-d">Dark</label></div><span class="demo__loop">↻</span></div></div>
+        <div class="demo__stage"><div class="demo-5__mt"><span class="ui-btn">📍 Check-in</span></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="lens-block"><div class="mono-label">Opportunities</div><p class="lens-empty">Emil's opportunities fold into the fixes above — restraint is subtraction.</p></div>
+  <div class="lens-take">Through <b>Emil's lens:</b> invert the budget. The paths users travel hundreds of times a night (screens, taps) deserve the fast subtle motion they currently lack; the idle indicators looping forever deserve the stillness they currently never get.</div>
+</section>
+
+<section class="lens-sec">
+  <div class="lens-sec__head"><h3>Jakub Krehel — Production Polish</h3><span class="wchip">Selective</span></div>
+  <p class="lens-sec__verdict"><span class="vdot" style="background:var(--sev-imp)"></span>Concern — enters without exits, switches without transitions.</p>
+  <div class="lens-block"><div class="mono-label">What's working well</div>
+    <ul class="lens-list good">
+      <li>Sheet + scrim enter as a coordinated pair (400ms sheet, 250ms scrim) — correct layering instinct — <code>OSVenueSheet.tsx:~300</code></li>
+      <li>Chip/toggle hover-state transitions exist (150–200ms) instead of instant color jumps</li>
+      <li>Consistent easing family across sheet and celebration (<code>.16,1,.3,1</code>) — a de facto brand curve</li>
+    </ul>
+  </div>
+  <div class="lens-block"><div class="mono-label">Issues to address</div>
+
+    <div class="finding-row" data-sev="crit">
+      <div class="finding-row__prose">
+        <div class="find-tags"><span class="chip crit">Critical</span><span class="chip lens">Jakub</span></div>
+        <h4 class="find-title">Overlays have no exits — and half have no enters</h4>
+        <div class="find-body">
+          <p><span class="label">What</span>Closing anything — sheet, dare wheel, campaign, crew chat, dance mode — is an instant unmount. The dare wheel and campaign don't even animate <em>in</em>: a full-screen dark surface just appears over the app.</p>
+          <p><span class="label">Why it matters</span>Exits are how an interface says "that happened." Instant disappearance after a 400ms entrance breaks the physics the enter established — it reads as a crash, especially full-screen. Jakub's rule: exits exist, and they're subtler than enters.</p>
+          <div class="fix"><p><span class="label">Recommended motion</span>Shared overlay pattern: enter <code>opacity 0→1 + scale .96→1</code> at 200ms; exit mirror at 150ms, subtler (scale to .985). For unmount-on-state, keep a 150ms closing class before removal (or a tiny <code>useOverlayExit</code> hook — one implementation, five surfaces).</p></div>
+          <p class="find-loc"><code>OSDareWheel.tsx:~230 (instant mount) · OSVenueSheet onClose · OSCampaign · OSCrew · OSDanceMode</code></p>
+        </div>
+      </div>
+      <div class="demo">
+        <input class="vh" type="radio" name="st2" id="st2-a" checked><input class="vh" type="radio" name="st2" id="st2-l"><input class="vh" type="radio" name="st2" id="st2-d">
+        <div class="demo__bar"><div class="demo__meta"><span class="demo__title">Overlay enter, subtler exit</span><span class="demo__timing">200ms in · 150ms out · ease-out-quint</span></div>
+        <div class="demo__controls"><div class="seg"><label for="st2-a">Auto</label><label for="st2-l">Light</label><label for="st2-d">Dark</label></div><span class="demo__loop">↻</span></div></div>
+        <div class="demo__stage"><div class="demo-2__mt"><div class="ui-card" style="text-align:center"><div class="ui-label" style="margin-bottom:6px">🎲 ZAVRTI NOĆ</div><div class="ui-row" style="justify-content:center"><span>Smeš li?</span></div></div></div></div>
+      </div>
+    </div>
+
+    <div class="finding-row" data-sev="imp">
+      <div class="finding-row__prose">
+        <div class="find-tags"><span class="chip imp">Important</span><span class="chip lens">Jakub</span></div>
+        <h4 class="find-title">Every tab and lens switch swaps content instantly</h4>
+        <div class="find-body">
+          <p><span class="label">What</span>Za tebe ↔ Sve, TOČAK ↔ ŠIFRA ↔ EKIPE, Heat type/hood filters, War Room tabs — the control highlights move (good) but the content below hard-swaps.</p>
+          <p><span class="label">Why it matters</span>Mode switches should carry their content, not just their chrome. The instant swap makes filtering feel like a page reload rather than the same surface re-arranging.</p>
+          <div class="fix"><p><span class="label">Recommended motion</span>A 150ms content crossfade + 5px rise on the incoming pane (demo) — fast enough for Emil, present enough for Jakub. One shared <code>os-swap</code> keyframe keyed by the active tab.</p></div>
+          <p class="find-loc"><code>OSHome.tsx lens/dateF/genreF · OSDareWheel mode · OSExplore filters · WarRoom tabs</code></p>
+        </div>
+      </div>
+      <div class="demo">
+        <input class="vh" type="radio" name="st6" id="st6-a" checked><input class="vh" type="radio" name="st6" id="st6-l"><input class="vh" type="radio" name="st6" id="st6-d">
+        <div class="demo__bar"><div class="demo__meta"><span class="demo__title">Tab content crossfade</span><span class="demo__timing">150ms · ease-out-quint</span></div>
+        <div class="demo__controls"><div class="seg"><label for="st6-a">Auto</label><label for="st6-l">Light</label><label for="st6-d">Dark</label></div><span class="demo__loop">↻</span></div></div>
+        <div class="demo__stage"><div class="demo-6__mt" style="min-height:80px;min-width:200px">
+          <div class="pane-a"><div class="ui-row"><span class="ui-label">ZA TEBE · 6 EVENTA</span></div></div>
+          <div class="pane-b"><div class="ui-card"><div class="ui-label" style="margin-bottom:6px">SVE · 119</div><div class="ui-row"><span>MAGLA @ Para — Sunday Day Rave</span></div></div></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+  <div class="lens-block"><div class="mono-label">Opportunities</div>
+    <ul class="lens-list opp">
+      <li>The „+X XP" float in the quest hub still says XP — while it's floating, rename it to REP (motion + language polish in one touch) — <code>OSQuests.tsx:369</code></li>
+    </ul>
+  </div>
+  <div class="lens-take">Through <b>Jakub's lens:</b> finish the pairs. Every enter needs its (subtler) exit, every switch needs its content to travel — the app currently opens doors it never closes.</div>
+</section>
+
+<section class="rec">
+  <h2 class="sec"><span class="no">06</span>Combined recommendations</h2>
+  <p class="tier-label crit" id="rec-crit">Critical · must fix — 3</p>
+  <table><thead><tr><th></th><th>Issue</th><th>File</th><th>Fix</th></tr></thead><tbody>
+    <tr><td>🔴</td><td>Orb screen switches snap; os-screen keyframe unused</td><td><code>OSApp.tsx:77-81</code></td><td>Wire <code>os-screen .18s</code> to each screen root</td></tr>
+    <tr><td>🔴</td><td>Overlays: no exits anywhere, no enters on wheel/campaign</td><td><code>OSDareWheel · OSCampaign · OSVenueSheet …</code></td><td>Shared 200ms enter / 150ms subtler exit pattern</td></tr>
+    <tr><td>🔴</td><td>JS wheel spin ignores prefers-reduced-motion</td><td><code>OSDareWheel.tsx:211</code></td><td><code>matchMedia</code> gate → instant landing with soft settle</td></tr>
+  </tbody></table>
+  <p class="tier-label imp" id="rec-imp">Important · should fix — 3</p>
+  <table><thead><tr><th></th><th>Issue</th><th>File</th><th>Fix</th></tr></thead><tbody>
+    <tr><td>🟡</td><td>10+ infinite os-pulse loops (anti-slop category #1)</td><td><code>src/os/** (10 hits)</code></td><td>Keep 2 meaningful; others → static state or one-shot ping</td></tr>
+    <tr><td>🟡</td><td>No :active press feedback on OS buttons</td><td><code>index.css + src/os/**</code></td><td><code>.os-press:active{scale:.97}</code> shared utility</td></tr>
+    <tr><td>🟡</td><td>Tab/lens/filter content swaps are instant</td><td><code>OSHome · OSDareWheel · OSExplore · WarRoom</code></td><td>150ms crossfade + 5px rise on incoming pane</td></tr>
+  </tbody></table>
+  <p class="tier-label opp" id="rec-opp">Opportunities · could enhance — 4</p>
+  <table><thead><tr><th></th><th>Enhancement</th><th>Where</th><th>Impact</th></tr></thead><tbody>
+    <tr><td>🟢</td><td>Check-in celebration: genre burst + os-xp „+50 REP" float</td><td><code>useCheckIn.ts:47</code></td><td>The app's biggest moment finally lands emotionally</td></tr>
+    <tr><td>🟢</td><td>Šifra completion lock-opening beat (one-shot)</td><td><code>OSDareWheel SifraTab</code></td><td>Payoff worthy of the build-up</td></tr>
+    <tr><td>🟢</td><td>Dare landing glow flashes once (stamp), not static</td><td><code>OSDareWheel 'landed'</code></td><td>Landing feels decisive</td></tr>
+    <tr><td>🟢</td><td>Landing CTA conic-ring hover rotation</td><td><code>landing hero</code></td><td>Orb signature echoed on the poster</td></tr>
+  </tbody></table>
+</section>
+
+<section>
+  <h2 class="sec"><span class="no">07</span>Lens reference summary</h2>
+  <div class="ref-summary">
+    <p><b>Lens referenced most: Emil Kowalski — Restraint &amp; Speed.</b> Ironically, in a Jhey-primary audit: the biggest wins here are subtractions (pulse epidemic) and fast functional motion on frequent paths — the groundwork delight needs to read against. Jhey's delight spends land where feelings peak; they only work if the rest of the surface is calm and quick.</p>
+    <div class="ref-lean">
+      <div><b>To follow Emil more strictly:</b> drop screen-enter to 120ms; remove the orb label pulse entirely; audit the 400ms sheet down to 300ms.</div>
+      <div><b>To follow Jakub more strictly:</b> add blur(2px) to the sheet enter; give toasts a subtler exit; optical-align the 📍 in the Check-in button.</div>
+      <div><b>To follow Jhey more strictly:</b> let the check-in burst use per-genre particle colors; give the orb a micro-wobble on long-press; seasonal šifra reveal variants.</div>
+      <div><b>Non-negotiable regardless of lens:</b> the reduced-motion JS gate ships before B1 (18.08) — the pilot crowd will include motion-sensitive users.</div>
+    </div>
+  </div>
+</section>
+
+<footer>afterbefore · motion audit 2026-07-19 · 3 critical / 3 important / 4 opportunities · lenses: Jhey (primary) · Emil (secondary) · Jakub (selective)</footer>
+</div>
+</body>
+</html>

@@ -28,7 +28,9 @@ const errMsg = (e: any) => {
 };
 
 /* ── MAKER (Quests hub) — quest "Napravi Weekend Roadmap" ── */
-export const RoadmapMaker = () => {
+/** passport = JA varijanta (PREDLOG-JA-PASOS): bez valute, bez quest kože —
+ *  plan za petak, ne zadatak. Quest izgled ostaje samo u GRAD → Misije. */
+export const RoadmapMaker = ({ passport }: { passport?: boolean } = {}) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [day, setDay] = useState<'PET' | 'SUB' | 'NED'>('PET');
@@ -57,7 +59,13 @@ export const RoadmapMaker = () => {
 
   const inp = { width: '100%', background: AB.void, border: `1px solid ${AB.line2}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, color: AB.ink, outline: 'none' } as const;
 
-  if (!open) return (
+  if (!open) return passport ? (
+    <button onClick={() => setOpen(true)} className="os-press" style={{ width: '100%', padding: 16, borderRadius: 16, border: `1px solid ${AB.acidDim}`, cursor: 'pointer', background: 'oklch(0.88 0.19 158 / 0.06)', textAlign: 'left' }}>
+      <span style={{ display: 'block', fontWeight: 800, fontSize: 18, letterSpacing: '-.01em', color: AB.ink }}>Petak je blizu.</span>
+      <span style={{ display: 'block', fontSize: 13.5, color: AB.ink2, marginTop: 4 }}>Sastavi svoju rutu — grad ide za onim ko zna gde se izlazi.</span>
+      <span style={{ display: 'inline-block', marginTop: 12, fontWeight: 700, fontSize: 14, color: AB.acidInk, background: AB.acid, borderRadius: 999, padding: '10px 18px' }}>Sastavi rutu →</span>
+    </button>
+  ) : (
     <div style={{ padding: '16px 18px 0' }}>
       <button onClick={() => setOpen(true)} className="os-press" style={{ width: '100%', minHeight: 52, padding: '13px 15px', borderRadius: 16, border: `1px solid ${hexA(G.house, 0.5)}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: hexA(G.house, 0.08), textAlign: 'left' }}>
         <span style={{ fontSize: 21 }}>🗺️</span>
@@ -71,8 +79,8 @@ export const RoadmapMaker = () => {
   );
 
   return (
-    <div style={{ margin: '16px 18px 0', padding: 14, borderRadius: 16, background: AB.surface, border: `1px solid ${hexA(G.house, 0.4)}` }}>
-      <div style={{ ...LABEL, color: G.house, marginBottom: 10 }}>🗺️ TVOJA RUTA · NAGRADA POSLE ODOBRENJA</div>
+    <div style={{ margin: passport ? 0 : '16px 18px 0', padding: 14, borderRadius: 16, background: AB.surface, border: `1px solid ${passport ? AB.acidDim : hexA(G.house, 0.4)}` }}>
+      <div style={{ ...LABEL, color: passport ? AB.acid : G.house, marginBottom: 10 }}>{passport ? '🗺️ TVOJA RUTA ZA VIKEND' : '🗺️ TVOJA RUTA · NAGRADA POSLE ODOBRENJA'}</div>
       <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ime rute (npr. Petak u Savamali)" style={inp} />
       <div style={{ display: 'flex', gap: 8, margin: '10px 0' }}>
         {DAYS.map((d) => (
