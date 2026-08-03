@@ -194,3 +194,52 @@ da zove RPC. Founder ih vidi kroz `admin_list_signups()` u War Room → PULSE.
    „Nightlife OS / earning layer / Phase 2", aplikacija je „koliko ljudi je
    večeras napolju". Nije greška, ali vredi da presudiš da li se copy
    približava ili namerno ostaje razdvojen (B2B vs korisnik).
+
+---
+
+# DODATAK 3 · Landing: istina + preraspored + privatnost (Opus, 2026-08-03)
+
+Posle Fable analize landinga, izvršeno direktno. Landing grana `7d4bcf6`.
+
+## Tri netačne tvrdnje koje su bile na ŽIVOM sajtu — sve tri sklonjene
+1. **Lucky 100** — reklamiran, a danas obrisan iz cele bete.
+2. **„Circle povezuje ljude samo kroz konkretan događaj ili lokaciju"** —
+   mrtvo ime + obrnuta mehanika (LJUDI radi cele nedelje, bez check-ina).
+   Zamenjeno grupama do 6.
+3. **„2.840 XP · Level 7" + Raverboard po XP-u** — jezik koji je aplikacija
+   danas napustila. Zamenjeno **karticom noći sa pečatima** (Drugstore →
+   20/44 → KC Grad · 🌅 ZORA · 🎞 TRIPTIH) i **tabelom po dolascima**
+   („17 dolazaka"), što je ono što aplikacija stvarno radi.
+   Pasoš/pečati/grupe su ranije imali **0 pomena** na celoj stranici.
+
+## Preraspored (proizvod pre poslovnog modela)
+`kako-radi → gamification(pasoš) → scena → partneri → zarada → phase2`
+Ranije je raver morao kroz 6 sekcija poslovnog modela pre proizvoda.
+Nisam radio pun `/scena` split iz tvoje analize — preraspored donosi
+najveći deo dobitka bez druge stranice; split ostaje otvoren ako želiš
+oštriju podelu B2B/korisnik.
+
+## /privatnost/ — nova stranica
+Prava politika, ne boilerplate: tabela šta se prikuplja i **kada**
+(GPS samo u sekundi pritiska check-ina), lista „šta NE radimo",
+ko-šta-vidi, kontrola korisnika, brisanje naloga u 30 dana, gde se
+podaci čuvaju (Supabase EU + GitHub Pages), 18+. Označeno kao radna
+verzija koja ide na pravnu proveru pre javnog lansiranja.
+**Napomena:** tvrdnje u njoj su pisane prema stvarnom ponašanju aplikacije
+— ako se mehanika menja, ovaj dokument mora da se menja s njom.
+
+## Sitno
+- Footer: mrtav tekst → pravi linkovi (privatnost, `/en` koji je postojao
+  ali nije bio linkovan, aplikacija, mailto).
+- `Inter` uklonjen iz font stacka — nikad se nije učitavao. Google Fonts
+  namerno NISAM dodao: slao bi IP posetioca trećoj strani, što bi bilo u
+  suprotnosti sa politikom privatnosti koju istog dana objavljujemo.
+
+## Ostaje tebi
+1. **`og.png` i dalje star** (ljubičasto-pink brend). Jedina preostala
+   vizuelna laž na sajtu — prvi share je pokazuje.
+2. **`kontakt@afterbefore.app`** — proveri da domen stvarno prima poštu;
+   sada je i u footeru i u politici privatnosti kao zvanična adresa.
+3. **Dva glasa** i dalje postoje: landing govori „earning layer / Phase 2",
+   aplikacija „koliko ljudi je večeras napolju". Preraspored je ublažio,
+   ali odluka o punom `/scena` splitu je tvoja.
