@@ -305,7 +305,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       )}
 
       {/* GRAD trim 2026-07-21: OTKRIJ MESTA duplira Kartu (44 mesta su prikaz),
-          OCENILA živi na venue stranama, Lucky100 je lična stvar → JA. */}
+          OCENILA živi na venue stranama. */}
       <KrajBlok onSwitch={() => setView('karta')} to="karta" />
       </div>)}
     </div>

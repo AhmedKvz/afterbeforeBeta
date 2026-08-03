@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { Check, Flame, MapPin, MessageSquare, Sparkles, Trophy } from 'lucide-react';
-import { useLucky100Counter } from '@/hooks/useLucky100Counter';
 import { cn } from '@/lib/utils';
 import { fadeUp } from '@/lib/motion';
 
@@ -21,14 +20,13 @@ interface Props {
   onGoing?: () => void;
   onReview?: () => void;
   onVibeSignal?: () => void;
-  /** Hide the Lucky 100 strip (e.g. on non-event venue profiles) */
-  hideLucky?: boolean;
   className?: string;
 }
 
 /**
  * Inline gamification card — surfaces XP rewards available on the current page
- * (check-in, going, review, vibe signal) plus live Lucky 100 progress.
+ * (check-in, going, review, vibe signal). Lucky 100 uklonjen iz bete
+ * (founder odluka 2026-07-29 — kladionička mehanika ruši poverenje).
  */
 export const XPRewardCard = ({
   isCheckedIn,
@@ -38,13 +36,8 @@ export const XPRewardCard = ({
   onGoing,
   onReview,
   onVibeSignal,
-  hideLucky,
   className,
 }: Props) => {
-  const { stats } = useLucky100Counter();
-  const luckyProgress = stats.globalCount % 5;
-  const luckyTotal = 5;
-
   const rewards: Reward[] = [
     onCheckIn && {
       key: 'checkin',
@@ -79,7 +72,7 @@ export const XPRewardCard = ({
     },
   ].filter(Boolean) as Reward[];
 
-  if (!rewards.length && hideLucky) return null;
+  if (!rewards.length) return null;
 
   const totalAvailable = rewards.filter((r) => !r.done).reduce((a, r) => a + r.xp, 0);
 
@@ -151,27 +144,6 @@ export const XPRewardCard = ({
         </div>
       )}
 
-      {!hideLucky && (
-        <div className="mt-3 rounded-xl border border-accent/20 bg-accent/5 p-3">
-          <div className="mb-1.5 flex items-center justify-between">
-            <span className="text-xs font-bold text-accent">🎰 Lucky 100</span>
-            <span className="text-[11px] text-muted-foreground">
-              {luckyProgress}/{luckyTotal} to next winner
-            </span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-accent/10">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${(luckyProgress / luckyTotal) * 100}%` }}
-              transition={{ duration: 0.6 }}
-              className="h-full rounded-full bg-gradient-to-r from-accent to-yellow-300"
-            />
-          </div>
-          <p className="mt-1.5 text-[10px] text-muted-foreground">
-            Every 5th global check-in wins a partner guestlist spot.
-          </p>
-        </div>
-      )}
     </motion.div>
   );
 };

@@ -498,7 +498,7 @@ const EventDetail = () => {
               <div>
                 <p className="text-sm font-medium">Check in unlocks the full circle.</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Verified review · Circle Swipe visibility · Weekly quests · +XP & Lucky 100 entry
+                  Verified review · Circle Swipe visibility · Weekly quests · +XP
                 </p>
               </div>
             </div>

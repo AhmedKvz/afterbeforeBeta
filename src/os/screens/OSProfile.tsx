@@ -12,7 +12,6 @@ import { toast } from 'sonner';
 import { AB, OS, G, hexA, MONO, genreCol, CONIC } from '../osTheme';
 import { OSQuests } from './OSQuests';
 import { IrlStreaks } from '../OSGamification';
-import { OSLucky100Modal } from '../OSLucky100Modal';
 
 const APP_URL = 'https://ahmedkvz.github.io/afterbeforeBeta/app/';
 
@@ -32,7 +31,6 @@ export const OSProfile = () => {
   const [uploading, setUploading] = useState<string | null>(null);
   const [editIntro, setEditIntro] = useState(false);
   const [introForm, setIntroForm] = useState({ bio: '', link: '' });
-  const [lucky, setLucky] = useState(false);
 
   // Cover/avatar upload — isti media bucket i šablon kao venue self-serve.
   const uploadImage = async (file: File | undefined, kind: 'cover' | 'avatar') => {
@@ -208,20 +206,6 @@ export const OSProfile = () => {
         <OSQuests embedded />
       </div>
 
-      {/* lucky100 — lična stvar (tvoj broj), preseljen sa GRAD-a (trim 2026-07-21) */}
-      <div style={{ margin: '20px 18px 0' }}>
-        <button onClick={() => setLucky(true)} className="os-press" style={{ display: 'block', width: '100%', textAlign: 'left', padding: 15, border: `1px solid ${AB.line2}`, borderLeft: `3px solid ${AB.uv}`, background: AB.surface, cursor: 'pointer', borderRadius: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.14em', color: AB.ink3 }}>SISTEM · INSTANT WIN</div>
-              <div style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-.01em', color: AB.ink, marginTop: 3 }}>Lucky 100</div>
-            </div>
-            <span style={{ fontFamily: MONO, fontSize: 11, color: AB.uv }}>Otvori →</span>
-          </div>
-          <div style={{ fontSize: 13, color: AB.ink2, marginTop: 9 }}>Svaki 100. check-in nosi nagradu — vidi svoj broj unutra.</div>
-        </button>
-      </div>
-
       {/* achievements */}
       <div style={{ margin: '20px 18px 0' }}>
         <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3, marginBottom: 11 }}>ACHIEVEMENTS</div>
@@ -272,7 +256,6 @@ export const OSProfile = () => {
         <button onClick={handleSignOut} className="os-press" style={{ width: '100%', padding: 14, borderRadius: 999, background: 'transparent', color: AB.ink3, fontWeight: 600, fontSize: 14, border: `1px solid ${AB.line2}`, cursor: 'pointer' }}>Odjavi se</button>
       </div>
 
-      <OSLucky100Modal isOpen={lucky} onClose={() => setLucky(false)} />
     </div>
   );
 };
