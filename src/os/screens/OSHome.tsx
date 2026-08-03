@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Bell } from 'lucide-react';
@@ -9,6 +9,7 @@ import { useQuests } from '@/hooks/useQuests';
 import { RoadmapRail } from '../OSRoadmaps';
 import { ConvergenceRail, CityCipherCard } from '../OSGamification';
 import { OSExplore } from './OSExplore';
+import { OSQuests } from './OSQuests';
 import { OSStories } from '../OSStories';
 import { OSEventRow } from '../OSEventRow';
 import { AB, OS, G, hexA, MONO, stripe, genreCol, CONIC } from '../osTheme';
@@ -50,8 +51,14 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
   const { profile } = useAuth();
   const [dateF, setDateF] = useState<'SVE' | 'VEČERAS' | 'VIKEND'>('SVE');
   const [genreF, setGenreF] = useState<string | null>(null);
-  // IA v2 §11.1: jedan sadržaj, dva prikaza — nikad naslagano.
-  const [view, setView] = useState<'lista' | 'karta'>('lista');
+  // IA v2 §11.1 + Pasoš odluka: jedan ekran, tri prikaza — Lista | Karta | Misije.
+  // Misije žive PORED akcije (GRAD), ne u identitetu (PREDLOG-JA-PASOS §5).
+  const [view, setView] = useState<'lista' | 'karta' | 'misije'>('lista');
+  useEffect(() => {
+    const go = (e: any) => { const v = e?.detail; if (v === 'lista' || v === 'karta' || v === 'misije') setView(v); };
+    window.addEventListener('ab-grad-view', go);
+    return () => window.removeEventListener('ab-grad-view', go);
+  }, []);
   const { data: heatVenues = [] } = useHeatVenues();
   const { quests = [] } = useQuests() as any;
   // Živi broj grada — pošten i kad je nula (hero, jedini acid momenat).
@@ -172,13 +179,21 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
         <Mono fontSize={10.5} color={AB.ink3} style={{ marginTop: 4 }}>{DOW} · {clock}</Mono>
       </div>
 
-      {/* Lista | Karta — isti sadržaj, dva prikaza */}
+      {/* Lista | Karta | Misije — jedan grad, tri prikaza */}
       <div style={{ display: 'flex', gap: 8, padding: '18px 18px 0', justifyContent: 'center' }}>
-        {([['lista', 'Lista'], ['karta', 'Karta']] as const).map(([k, l]) => {
+        {([['lista', 'Lista'], ['karta', 'Karta'], ['misije', 'Misije']] as const).map(([k, l]) => {
           const on = view === k;
-          return <button key={k} onClick={() => setView(k)} className="os-press" style={{ minWidth: 108, padding: '10px 0', borderRadius: 999, fontSize: 14, fontWeight: on ? 700 : 500, cursor: 'pointer', border: `1px solid ${on ? AB.uv : AB.line}`, background: on ? 'oklch(0.62 0.25 300 / 0.16)' : AB.surface, color: on ? AB.ink : AB.ink3 }}>{l}</button>;
+          return <button key={k} onClick={() => setView(k)} className="os-press" style={{ minWidth: 96, padding: '10px 0', borderRadius: 999, fontSize: 14, fontWeight: on ? 700 : 500, cursor: 'pointer', border: `1px solid ${on ? AB.uv : AB.line}`, background: on ? 'oklch(0.62 0.25 300 / 0.16)' : AB.surface, color: on ? AB.ink : AB.ink3 }}>{l}</button>;
         })}
       </div>
+
+      {/* MISIJE — pun quest hub pored akcije (PREDLOG-JA-PASOS §5, founder navbar odluka) */}
+      {view === 'misije' && (
+        <div key="misije" style={{ animation: 'os-swap .15s cubic-bezier(.22,1,.36,1) both' }}>
+          <OSQuests embedded />
+          <KrajBlok onSwitch={() => setView('lista')} to="lista" />
+        </div>
+      )}
 
       {/* KARTA — mapa + vruće sada (mapa je prikaz, ne zaseban ekran) */}
       {view === 'karta' && (
@@ -290,7 +305,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       {/* quest nedelje — jedna kartica (pun hub je u JA) */}
       {weekQuest && (
         <div style={{ padding: '22px 18px 0' }}>
-          <button onClick={goProfile} className="os-press" style={{ width: '100%', textAlign: 'left', cursor: 'pointer', padding: 14, borderRadius: 16, background: AB.surface, border: `1px solid ${AB.uvDim}` }}>
+          <button onClick={() => setView('misije')} className="os-press" style={{ width: '100%', textAlign: 'left', cursor: 'pointer', padding: 14, borderRadius: 16, background: AB.surface, border: `1px solid ${AB.uvDim}` }}>
             <Mono fontSize={10} fontWeight={600} letterSpacing=".14em" color={AB.uv}>QUEST NEDELJE</Mono>
             <div style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-.01em', color: AB.ink, marginTop: 5 }}>{weekQuest.title}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 11 }}>

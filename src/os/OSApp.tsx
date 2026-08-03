@@ -58,8 +58,9 @@ export const OSApp = () => {
       const raw = String((e as CustomEvent).detail);
       setVenue(null);
       if (raw === 'matches') { setHub(true); return; }
-      setScreen(raw === 'quests' || raw === 'profile' ? 'ja' : 'grad');
-      if (raw === 'quests') setTimeout(() => document.getElementById('questovi')?.scrollIntoView({ behavior: 'smooth' }), 250);
+      // Pasoš odluka 2026-07-29: questovi žive u GRAD → Misije prikaz, ne u JA.
+      setScreen(raw === 'profile' ? 'ja' : 'grad');
+      if (raw === 'quests') setTimeout(() => window.dispatchEvent(new CustomEvent('ab-grad-view', { detail: 'misije' })), 60);
     };
     window.addEventListener('os-go', go);
     return () => window.removeEventListener('os-go', go);
