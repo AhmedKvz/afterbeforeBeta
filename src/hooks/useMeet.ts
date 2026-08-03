@@ -73,3 +73,80 @@ export const useMeetOptIn = () => {
     isPending: mut.isPending,
   };
 };
+
+/* ══ PAR ZA PAR (founder 2026-08-03) ══
+   Ti + tvoj čovek = par. Deck pokazuje DRUGE parove; uzajamna iskra pravi
+   grupu od 4 kroz postojeći crew (grupni chat), ne četiri odvojene niti. */
+
+export interface PairPerson { user_id: string; name: string; avatar: string | null; genres: string[] }
+export interface PairCard { id: string; person_a: PairPerson; person_b: PairPerson; together: number; together_venue: string | null }
+export interface MyPair {
+  has_pair: boolean; id?: string; status?: 'pending' | 'active'; i_invited?: boolean;
+  crew_id?: string | null; partner?: { user_id: string; name: string; avatar: string | null };
+}
+
+export const useMyPair = () => {
+  const { user } = useAuth();
+  return useQuery<MyPair>({
+    queryKey: ['my-pair', user?.id],
+    enabled: !!user,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data, error } = await db.rpc('my_pair');
+      if (error) throw error;
+      return data || { has_pair: false };
+    },
+  });
+};
+
+export const usePairCandidates = (enabled: boolean) =>
+  useQuery<{ user_id: string; display_name: string; avatar_url: string | null }[]>({
+    queryKey: ['pair-candidates'],
+    enabled,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await db.rpc('pair_candidates');
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+export const usePairDeck = (enabled: boolean) =>
+  useQuery<PairCard[]>({
+    queryKey: ['pair-deck'],
+    enabled,
+    staleTime: 60_000,
+    retry: false,
+    queryFn: async () => {
+      const { data, error } = await db.rpc('get_pair_deck');
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+export const usePairActions = () => {
+  const qc = useQueryClient();
+  const inv = () => { qc.invalidateQueries({ queryKey: ['my-pair'] }); qc.invalidateQueries({ queryKey: ['pair-deck'] }); qc.invalidateQueries({ queryKey: ['pair-candidates'] }); };
+
+  const invite = useMutation({
+    mutationFn: async (to: string) => { const { data, error } = await db.rpc('pair_invite', { p_to: to }); if (error) throw error; return data; },
+    onSuccess: inv,
+  });
+  const respond = useMutation({
+    mutationFn: async (p: { id: string; accept: boolean }) => { const { data, error } = await db.rpc('pair_respond', { p_pair: p.id, p_accept: p.accept }); if (error) throw error; return data; },
+    onSuccess: inv,
+  });
+  const leave = useMutation({
+    mutationFn: async () => { const { data, error } = await db.rpc('pair_leave'); if (error) throw error; return data; },
+    onSuccess: inv,
+  });
+  const swipe = useMutation({
+    mutationFn: async (p: { to: string; like: boolean }) => {
+      const { data, error } = await db.rpc('pair_swipe', { p_to_pair: p.to, p_like: p.like });
+      if (error) throw error;
+      return data as { matched: boolean; crew_id?: string };
+    },
+    onSuccess: (r) => { if (r?.matched) inv(); },
+  });
+  return { invite, respond, leave, swipe };
+};
