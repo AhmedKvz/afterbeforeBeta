@@ -1,337 +1,104 @@
 <!DOCTYPE html>
 <html lang="sr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AfterBefore — Operativni sistem noćnog života</title>
-<meta name="description" content="AfterBefore je operativni sistem noćnog života: otkrij pravu scenu, poveži se na podijumu i zaradi od svog doprinosa. Cirkularna ekonomija — vrednost koju scena stvara ostaje u sceni." />
-<meta property="og:title" content="AfterBefore — Operativni sistem noćnog života" />
-<meta property="og:description" content="Otkrij. Poveži se. Doprinesi. Zaradi. Vrednost noći ostaje u sceni — ne kod platformi." />
-<meta property="og:image" content="https://ahmedkvz.github.io/afterbeforeBeta/og.png" />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="AfterBefore — operativni sistem beogradskog noćnog života" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AfterBefore — Nightlife OS za Beograd</title>
+<meta name="description" content="Koliko ljudi je večeras napolju? AfterBefore je pasoš beogradske noći — grad uživo, check-in, pečati, grupe do 6. Beta je otvorena." />
+<meta name="theme-color" content="#0b0b0d" />
+<meta property="og:title" content="AfterBefore — Nightlife OS za Beograd" />
+<meta property="og:description" content="Koliko ljudi je večeras napolju? Grad uživo, pasoš noći, grupe do 6. Beta je otvorena." />
 <meta property="og:type" content="website" />
-<link rel="alternate" hreflang="sr" href="https://ahmedkvz.github.io/afterbeforeBeta/" />
-<link rel="alternate" hreflang="en" href="https://ahmedkvz.github.io/afterbeforeBeta/en/" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<meta property="og:url" content="https://ahmedkvz.github.io/afterbeforeBeta/" />
+<meta property="og:image" content="https://ahmedkvz.github.io/afterbeforeBeta/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
 <style>
+  /* AfterBefore kanon — void, acid je zarađen (jedno dugme), mono je začin. */
   :root{
-    --bg:#0a0a0b; --surface:#141417; --surface2:#1a1a1e; --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.15);
-    --ink:#f4f4f6; --ink2:#d8d8dc; --ink4:#9a9aa2; --ink5:#86868e; --ink6:#6a6a72;
-    --hot:#ff4d8d; --blue:#7AA0E8; --green:#34d399; --amber:#f5a623; --uv:#a64dff; --cyan:#56d6e6;
+    --void:#0b0b0d; --surface:#15161a; --line:rgba(255,255,255,.07);
+    --ink:#f5f5f5; --ink2:rgba(255,255,255,.66); --ink3:rgba(255,255,255,.42);
+    --acid:oklch(0.88 0.19 158); --acid-ink:oklch(0.16 0.02 160);
+    --mono:ui-monospace,"SF Mono","IBM Plex Mono",Menlo,monospace;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
-  .mono{font-family:'IBM Plex Mono',monospace;letter-spacing:.16em}
-  .wrap{max-width:1020px;margin:0 auto;padding:0 22px}
-  section{padding:72px 0;border-top:1px solid var(--line)}
-  .kicker{font-family:'IBM Plex Mono',monospace;letter-spacing:.22em;font-size:11px;color:var(--hot);margin-bottom:16px}
-  h2{font-size:clamp(26px,4vw,36px);font-weight:800;letter-spacing:-.02em;line-height:1.18}
-  .lead{color:var(--ink4);font-size:clamp(15px,2vw,17.5px);margin-top:14px;max-width:660px}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px}
+  body{
+    background:var(--void); color:var(--ink); line-height:1.5;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,system-ui,sans-serif;
+    min-height:100svh; display:flex; flex-direction:column;
+  }
   a{color:inherit;text-decoration:none}
-  .btn{display:inline-block;padding:15px 26px;border-radius:13px;font-size:15px;font-weight:700}
-  .btn-hot{background:var(--hot);color:#3a0f22}
-  .btn-ghost{border:1px solid var(--line2);color:var(--ink)}
-  .grid{display:grid;gap:14px}
-  .g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-  .g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-  .tag{display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;padding:5px 11px;border-radius:8px;border:1px solid var(--line);color:var(--ink5);background:var(--surface)}
-  @media(max-width:720px){section{padding:52px 0}}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-  .dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 1.8s ease-in-out infinite}
+  .mono{font-family:var(--mono);font-weight:600;letter-spacing:.14em;font-size:11px;color:var(--ink3)}
 
-  /* ── POSTER SLOJ ── */
-  .display{font-family:'Anton',Impact,sans-serif;text-transform:uppercase;letter-spacing:.01em;line-height:.95;font-weight:400}
-  .grain{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.055;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")}
-  .heroglow{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;animation:breathe 7s ease-in-out infinite}
-  @keyframes breathe{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.9;transform:scale(1.12)}}
-  .flyer{font-family:'IBM Plex Mono',monospace;letter-spacing:.18em;font-size:11.5px;color:var(--ink4);display:flex;flex-wrap:wrap;gap:8px 22px}
-  .slot{display:grid;grid-template-columns:76px 1fr;gap:18px;padding:17px 0;border-bottom:1px solid var(--line);align-items:baseline}
-  .slot .t{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;letter-spacing:.08em}
-  .slot .n{font-weight:800;font-size:15px;letter-spacing:.02em}
-  .slot .d{color:var(--ink4);font-size:14px;margin-top:3px;line-height:1.55;max-width:560px}
-  .stub{position:relative;border:1px dashed rgba(245,166,35,.5);border-radius:18px;padding:30px 26px;background:linear-gradient(140deg,rgba(245,166,35,.07),transparent 60%)}
-  .stub:before,.stub:after{content:'';position:absolute;top:50%;width:22px;height:22px;border-radius:50%;background:var(--bg);border:1px dashed rgba(245,166,35,.5);transform:translateY(-50%)}
-  .stub:before{left:-12px;border-left-color:transparent}
-  .stub:after{right:-12px;border-right-color:transparent}
-  @media(prefers-reduced-motion:reduce){.heroglow,.dot{animation:none}}
+  main{
+    flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;
+    text-align:center; padding:48px 22px 40px; position:relative; overflow:hidden;
+  }
+  /* jedan tihi UV dah iza heroja — ne festival gradijenata */
+  main::before{
+    content:""; position:absolute; inset:auto; top:-180px; width:520px; height:520px;
+    border-radius:50%; background:radial-gradient(circle, rgba(166,77,255,.16), transparent 65%);
+    pointer-events:none;
+  }
+  .in{position:relative; max-width:640px}
+
+  h1{
+    font-size:clamp(40px,9vw,76px); font-weight:800; letter-spacing:-.035em;
+    line-height:1.02; text-wrap:balance; margin:18px 0 0;
+  }
+  .sub{
+    font-size:clamp(15px,2.2vw,18px); color:var(--ink2); max-width:44ch;
+    margin:18px auto 0; text-wrap:balance;
+  }
+  .cta{
+    display:inline-block; margin-top:34px; padding:18px 44px; border-radius:999px;
+    background:var(--acid); color:var(--acid-ink); font-weight:800; font-size:17px;
+    box-shadow:0 0 44px rgba(52,211,153,.28); transition:transform .15s ease;
+  }
+  .cta:hover{transform:translateY(-2px)}
+  .cta:focus-visible{outline:2px solid var(--acid); outline-offset:3px}
+  .free{margin-top:14px}
+
+  .tri{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:10px 26px;
+    margin-top:52px; padding-top:22px; border-top:1px solid var(--line);
+  }
+  .tri span{font-family:var(--mono); font-size:11px; letter-spacing:.1em; color:var(--ink2); white-space:nowrap}
+  .tri b{color:var(--acid); font-weight:600}
+
+  footer{
+    display:flex; align-items:center; justify-content:center; gap:14px;
+    padding:20px 22px calc(20px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);
+  }
+  footer .mono{letter-spacing:.08em}
+  @media (prefers-reduced-motion: reduce){ .cta{transition:none} }
 </style>
 </head>
 <body>
-<div class="grain"></div>
 
-<!-- ══ NAV ══ -->
-<div class="wrap" style="display:flex;justify-content:space-between;align-items:center;padding-top:20px;padding-bottom:20px">
-  <span style="font-size:18px;font-weight:900;letter-spacing:-.02em">AfterBefore</span>
-  <div style="display:flex;align-items:center;gap:14px">
-    <a href="#ekonomija" class="mono" style="font-size:11px;color:var(--ink5)">EKONOMIJA</a>
-    <a href="#vizija" class="mono" style="font-size:11px;color:var(--ink5)">VIZIJA</a>
-    <a href="en/" class="mono" style="font-size:11px;color:var(--ink5)">EN</a>
-    <a href="https://ahmedkvz.github.io/afterbeforeBeta/app/" class="mono" style="display:inline-flex;align-items:center;gap:8px;font-size:11px;color:var(--green);border:1px solid rgba(52,211,153,.35);border-radius:999px;padding:7px 14px"><span class="dot"></span>LIVE BETA</a>
-  </div>
-</div>
-
-<!-- ══ HERO ══ -->
-<div class="wrap" style="position:relative;padding-top:56px;padding-bottom:78px;overflow:visible">
-  <div class="heroglow" style="width:520px;height:520px;top:-160px;right:-120px;background:radial-gradient(closest-side,rgba(255,77,141,.28),transparent)"></div>
-  <div class="heroglow" style="width:420px;height:420px;bottom:-180px;left:-140px;background:radial-gradient(closest-side,rgba(166,77,255,.22),transparent);animation-delay:3.5s"></div>
-
-  <div class="flyer" style="margin-bottom:26px">
-    <span>BEOGRAD</span><span>44.81°N · 20.46°E</span><span>PET–SUB · 23:00 → 06:00</span><span style="color:var(--green)">ULAZ: TVOJE PRISUSTVO</span>
-  </div>
-
-  <h1 class="display" style="position:relative;font-size:clamp(58px,11vw,124px);max-width:900px">
-    NOĆ TE<br/><span style="background:linear-gradient(90deg,var(--hot),var(--uv) 70%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">ČEKA.</span>
-  </h1>
-
-  <p style="position:relative;color:var(--ink2);font-size:clamp(16px,2.3vw,19px);margin-top:26px;max-width:640px;line-height:1.6">
-    Ovo nije još jedna nightlife aplikacija — <strong>ovo je poziv sceni.</strong>
-    Energija koju ostavljaš u noći konačno se vraća: <strong>nagrade, status, uticaj.</strong>
-  </p>
-  <div style="position:relative;display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;align-items:center">
-    <a class="btn btn-hot" style="font-size:17px;padding:17px 34px" href="https://ahmedkvz.github.io/afterbeforeBeta/app/">UĐI →</a>
-    <a class="btn btn-ghost" href="#kako">Jedna noć kroz app</a>
-  </div>
-  <div class="mono" style="position:relative;font-size:11px;letter-spacing:.14em;color:var(--ink5);margin-top:22px">NEMOJ SAMO DA PRISUSTVUJEŠ — UĐI U IGRU I OSTAVI TRAG NA SCENI.</div>
-</div>
-
-
-
-<!-- ══ JEDNA NOĆ — SET TIMES ══ -->
-<section id="kako"><div class="wrap">
-  <div class="kicker">RUNNING ORDER · JEDNA NOĆ KROZ APP</div>
-  <h2 class="display" style="font-size:clamp(30px,5vw,46px)">Before. Party. After.</h2>
-  <div style="margin-top:26px">
-    <div class="slot"><span class="t" style="color:var(--cyan)">21:40</span><div><div class="n">GRAD DIŠE</div><div class="d">Otvaraš mapu. Dorćol se greje, Savamala tinja. Tri mesta pulsiraju baš tvoj zvuk.</div></div></div>
-    <div class="slot"><span class="t" style="color:var(--blue)">22:15</span><div><div class="n">EKIPA</div><div class="d">„Idem." Vidiš još sedmoro — dvoje znaš od prošlog vikenda. Ekipa se sama složila.</div></div></div>
-    <div class="slot"><span class="t" style="color:var(--hot)">23:47</span><div><div class="n">PEAK</div><div class="d">Bas u grudima. Telefon u džep — ovde se ne snima, ovde se <strong style="color:var(--ink)">jeste</strong>. Check-in te je već upisao u noć.</div></div></div>
-    <div class="slot"><span class="t" style="color:var(--amber)">01:10</span><div><div class="n">SATNICA</div><div class="d">Headliner tek u dva — znaš jer je zajednica unela satnicu. Prvi koji ju je upisao već je nagrađen.</div></div></div>
-    <div class="slot"><span class="t" style="color:var(--uv)">02:30</span><div><div class="n">ISKRA</div><div class="d">Neko koga si video kod zvučnika. Anonimna dok oboje ne kažete da.</div></div></div>
-    <div class="slot"><span class="t" style="color:var(--green)">05:50</span><div><div class="n">AFTER — KAMERA IZLAZI</div><div class="d">Tek sad. Tvoj snimak svitanja sutra gleda ceo grad — i glasa. Najbolji video postaje reklama mesta.</div></div></div>
-    <div class="slot" style="border-bottom:0"><span class="t" style="color:var(--ink5)">PON</span><div><div class="n">RECAP</div><div class="d">Šta ti je noć vratila: poeni, ljudi, status. Sledeći vikend te već čeka.</div></div></div>
-  </div>
-</div></section>
-
-<!-- ══ FOUNDING 100 ══ -->
-<section><div class="wrap">
-  <div class="stub">
-    <div class="mono" style="font-size:10px;color:var(--amber);letter-spacing:.24em;margin-bottom:14px">ULAZNICA KOJA SE NE ŠTAMPA PONOVO</div>
-    <div class="display" style="font-size:clamp(30px,5vw,48px)">🏴 FOUNDING RAVER</div>
-    <p style="color:var(--ink2);margin-top:14px;max-width:600px;line-height:1.65;font-size:15.5px">
-      Zauvek <strong>samo sto brojeva</strong> za prvu generaciju koja gradi scenu.
-      Broj ostaje tvoj — u profilu, na rang listama, u istoriji scene. <strong>Brojevi se ne vraćaju.</strong>
+<main>
+  <div class="in">
+    <div class="mono">AFTERBEFORE · NIGHTLIFE OS · BEOGRAD</div>
+    <h1>Koliko ljudi je večeras napolju?</h1>
+    <p class="sub">
+      Grad uživo, pošten broj. Čekiraš se kad stigneš — noć se upisuje u tvoj
+      pasoš, ekipa se pravi pre izlaska. Ostalo se dešava napolju.
     </p>
-    <a class="btn btn-ghost" style="margin-top:20px;border-color:rgba(245,166,35,.5);color:var(--amber)" href="https://ahmedkvz.github.io/afterbeforeBeta/app/">Uzmi svoj broj →</a>
-  </div>
-</div></section>
+    <a class="cta" href="https://ahmedkvz.github.io/afterbeforeBeta/app/">Uđi u aplikaciju →</a>
+    <div class="mono free">BETA · BESPLATNO · RADI U PREGLEDAČU</div>
 
-<!-- ══ PRILIKA · MANIFEST ══ -->
-<section><div class="wrap">
-  <div class="kicker">KONAČNO · VREME JE</div>
-  <h2>Godinama scena daje sve — a ne dobija ništa. To se sada menja.</h2>
-  <div class="grid g2" style="margin-top:28px">
-    <div class="card"><div style="font-size:22px">🛠</div><div style="font-weight:700;margin-top:10px">Ti praviš scenu</div><div style="color:var(--ink4);font-size:14px;margin-top:6px">Satnica koju uneseš, recenzija koju napišeš, glas koji daš — po tome ceo grad izlazi. App je alat zajednice, ne još jedan feed.</div></div>
-    <div class="card"><div style="font-size:22px">⚡</div><div style="font-weight:700;margin-top:10px">Energija ti se vraća</div><div style="color:var(--ink4);font-size:14px;margin-top:6px">Check-in, recenzija, ples — svaki doprinos postaje AFC, a AFC postaju stvarne nagrade na licu mesta: ulaz, koktel, guest lista.</div></div>
-    <div class="card" style="border-color:rgba(245,166,35,.35)"><div style="font-size:22px">🏆</div><div style="font-weight:700;margin-top:10px">Najbolji budu nagrađeni — redovno</div><div style="color:var(--ink4);font-size:14px;margin-top:6px">Ako si istaknut, kreativan član scene — mega questovi te čekaju: <strong style="color:var(--ink)">putovanja, festivali, oprema, kreativni poslovi</strong>. Finansiraju partneri i brendovi, o pobedniku glasa scena.</div></div>
-    <div class="card"><div style="font-size:22px">🤝</div><div style="font-weight:700;margin-top:10px">Scena bolja za sve</div><div style="color:var(--ink4);font-size:14px;margin-top:6px">Istina umesto marketinga (recenzije samo od prisutnih), bezbednost bez naplate, klubovi koji časte zajednicu umesto da kupuju oglase.</div></div>
-  </div>
-</div></section>
-
-<!-- ══ PROBLEM ══ -->
-<section><div class="wrap">
-  <div class="kicker">ZAŠTO OVO PRAVIMO</div>
-  <h2>Izlazak je raskomadan. Vrednost odlazi drugima.</h2>
-  <p class="lead">Satnica na Instagram story-ju koji nestane. „Ko ide večeras?" u pet Telegram grupa. Turisti čitaju zastarele Reddit postove. A svu pažnju i sadržaj koje scena stvori — pokupe platforme koje sceni ne vrate ništa.</p>
-  <div class="grid g3" style="margin-top:28px">
-    <div class="card"><div style="font-size:22px">🧩</div><div style="font-weight:700;margin-top:10px">Informacija rasuta</div><div style="color:var(--ink4);font-size:14px;margin-top:6px">Ko svira, kad, gde je gužva, gde posle — niko ne zna sve, svi pitaju sve.</div></div>
-    <div class="card"><div style="font-size:22px">📵</div><div style="font-weight:700;margin-top:10px">Telefon ubija podijum</div><div style="color:var(--ink4);font-size:14px;margin-top:6px">Snimanje seta umesto prisustva. Scena zaslužuje alat koji vraća ljude u trenutak.</div></div>
-    <div class="card"><div style="font-size:22px">💸</div><div style="font-weight:700;margin-top:10px">Vrednost curi napolje</div><div style="color:var(--ink4);font-size:14px;margin-top:6px">Reklame, sadržaj, podaci — sve što noć proizvede monetizuje neko treći. Scena ne vidi ni dinar.</div></div>
-  </div>
-</div></section>
-
-
-<!-- ══ CIRKULARNA EKONOMIJA ══ -->
-<section id="ekonomija"><div class="wrap">
-  <div class="kicker">SRCE SISTEMA</div>
-  <h2>Cirkularna ekonomija noći.</h2>
-  <p class="lead">Ovo pokušavamo da pokrenemo: zatvoren krug u kome <strong style="color:var(--ink)">svako ko daje — dobija</strong>. Klaber daje prisustvo i sadržaj. Klub daje nagrade i prostor. Brend daje fond. A vrednost kruži — umesto da iscuri.</p>
-
-  <!-- dijagram -->
-  <div style="margin:36px auto 0;max-width:640px">
-    <svg viewBox="0 0 640 560" style="width:100%;height:auto" role="img" aria-label="Dijagram cirkularne ekonomije: klaberi, klubovi i brendovi razmenjuju vrednost kroz AFC fond">
-      <defs>
-        <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#6a6a72"/></marker>
-      </defs>
-      <circle cx="320" cy="280" r="86" fill="rgba(245,166,35,.08)" stroke="#f5a623" stroke-width="1.5"/>
-      <text x="320" y="268" text-anchor="middle" fill="#f5a623" font-family="IBM Plex Mono" font-size="15" font-weight="600" letter-spacing="2">AFC FOND</text>
-      <text x="320" y="292" text-anchor="middle" fill="#9a9aa2" font-size="12">nagrade pokrivene</text>
-      <text x="320" y="310" text-anchor="middle" fill="#9a9aa2" font-size="12">stvarnim novcem</text>
-      <rect x="230" y="18" width="180" height="66" rx="14" fill="#141417" stroke="#ff4d8d"/>
-      <text x="320" y="46" text-anchor="middle" fill="#ff4d8d" font-family="IBM Plex Mono" font-size="13" letter-spacing="2">KLABERI</text>
-      <text x="320" y="68" text-anchor="middle" fill="#9a9aa2" font-size="12">prisustvo · sadržaj · glas</text>
-      <rect x="42" y="452" width="180" height="66" rx="14" fill="#141417" stroke="#7AA0E8"/>
-      <text x="132" y="480" text-anchor="middle" fill="#7AA0E8" font-family="IBM Plex Mono" font-size="13" letter-spacing="2">KLUBOVI</text>
-      <text x="132" y="502" text-anchor="middle" fill="#9a9aa2" font-size="12">nagrade · prostor</text>
-      <rect x="418" y="452" width="180" height="66" rx="14" fill="#141417" stroke="#34d399"/>
-      <text x="508" y="480" text-anchor="middle" fill="#34d399" font-family="IBM Plex Mono" font-size="13" letter-spacing="2">BRENDOVI</text>
-      <text x="508" y="502" text-anchor="middle" fill="#9a9aa2" font-size="12">kampanje · fond</text>
-      <path d="M300 88 L305 186" stroke="#6a6a72" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
-      <path d="M338 186 L342 88" stroke="#6a6a72" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
-      <text x="192" y="140" fill="#86868e" font-size="11.5" font-family="IBM Plex Mono">doprinos</text>
-      <text x="352" y="140" fill="#86868e" font-size="11.5" font-family="IBM Plex Mono">AFC + nagrade</text>
-      <path d="M172 450 L252 338" stroke="#6a6a72" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
-      <path d="M222 356 L146 448" stroke="#6a6a72" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
-      <text x="46" y="392" fill="#86868e" font-size="11.5" font-family="IBM Plex Mono">guest liste · pića</text>
-      <text x="228" y="410" fill="#86868e" font-size="11.5" font-family="IBM Plex Mono">publika + podaci</text>
-      <path d="M470 450 L390 338" stroke="#6a6a72" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
-      <path d="M420 356 L495 448" stroke="#6a6a72" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
-      <text x="462" y="392" fill="#86868e" font-size="11.5" font-family="IBM Plex Mono">karte · putovanja</text>
-      <text x="308" y="410" fill="#86868e" font-size="11.5" font-family="IBM Plex Mono">autentičan sadržaj</text>
-    </svg>
-  </div>
-
-  <div class="grid g3" style="margin-top:32px">
-    <div class="card" style="border-color:rgba(255,77,141,.35)">
-      <div class="mono" style="font-size:10px;color:var(--hot);margin-bottom:10px">KLABER DAJE → DOBIJA</div>
-      <div style="font-size:14px;color:var(--ink2);line-height:1.7">Check-in, satnicu, recenziju, ples, after sadržaj → <strong>AFC poene → piće, ulaz, karte, putovanja.</strong> Izlazak počinje da se isplati.</div>
-    </div>
-    <div class="card" style="border-color:rgba(122,160,232,.35)">
-      <div class="mono" style="font-size:10px;color:var(--blue);margin-bottom:10px">KLUB DAJE → DOBIJA</div>
-      <div style="font-size:14px;color:var(--ink2);line-height:1.7">Guest liste, pića, popuste → <strong>verifikovanu publiku na vratima + žive podatke</strong> (kad je špic, šta pali, ko se vraća).</div>
-    </div>
-    <div class="card" style="border-color:rgba(52,211,153,.35)">
-      <div class="mono" style="font-size:10px;color:var(--green);margin-bottom:10px">BREND DAJE → DOBIJA</div>
-      <div style="font-size:14px;color:var(--ink2);line-height:1.7">Nagradni fond (karte, putovanja, roba) → <strong>autentičan sadržaj i merljivo prisustvo</strong> — ne klikove, već stvarne ljude na stvarnim mestima.</div>
+    <div class="tri">
+      <span><b>GRAD UŽIVO</b> · KO JE GDE, SADA</span>
+      <span><b>PASOŠ NOĆI</b> · PEČATI ZA PRAVE NOĆI</span>
+      <span><b>GRUPE DO 6</b> · NIKO NE IZLAZI SAM</span>
     </div>
   </div>
+</main>
 
-  <div class="card" style="margin-top:16px;background:linear-gradient(140deg,rgba(245,166,35,.08),transparent);border-color:rgba(245,166,35,.3)">
-    <div class="mono" style="font-size:10px;color:var(--amber);margin-bottom:8px">⚖️ GVOZDENO PRAVILO</div>
-    <div style="font-size:15px;color:var(--ink2)">Nijedna nagrada se ne „štampa". <strong>Svaka isplata je pokrivena stvarnim novcem</strong> — od kluba, sponzora ili turiste. Zato ovo nije još jedna aplikacija sa poenima koji ništa ne vrede: AFC ima pokriće, kao milje — samo za noćni život.</div>
-  </div>
+<footer>
+  <span class="mono">© <span id="yr"></span> AFTERBEFORE · BEOGRAD</span>
+</footer>
 
-  <div style="margin-top:26px;text-align:center">
-    <div class="mono" style="font-size:10px;color:var(--ink5);letter-spacing:.2em;margin-bottom:12px">ZAMAJAC — ŠTO VIŠE SCENA DAJE, VIŠE JOJ SE VRAĆA</div>
-    <div class="mono" style="font-size:12px;color:var(--ink3);line-height:2;overflow-x:auto;white-space:nowrap;padding:0 8px">
-      tvoj doprinos → bolja slika grada → više partnera → više nagrada → jača scena → <span style="color:var(--hot)">↺</span>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:18px;background:linear-gradient(140deg,rgba(166,77,255,.09),transparent);border-color:rgba(166,77,255,.35)">
-    <div class="mono" style="font-size:10px;color:var(--uv);margin-bottom:8px">🏛 FOND SCENE — SLEDEĆI KORAK MOTORA</div>
-    <div style="font-size:15px;color:var(--ink2);line-height:1.7">
-      Kad motor postane održiv, <strong>deo prihoda platforme se vraća zajednici</strong> — oprema za DJ-eve i kreatore,
-      kursevi, kreativni grantovi, festivali. Šta se finansira — <strong>bira scena glasanjem</strong>.
-      Ne izvlačimo vrednost iz noćnog života. <strong>Kružimo je unutar njega.</strong>
-    </div>
-  </div>
-</div></section>
-
-<!-- ══ ZAJEDNICA ══ -->
-<section><div class="wrap">
-  <div class="kicker">VRAĆANJE ZAJEDNICI</div>
-  <h2>Scena nije publika. Scena je vlasnik.</h2>
-  <p class="lead">Platforme tretiraju noćni život kao sadržaj za skrolovanje. Mi ga tretiramo kao zajednicu koja zaslužuje glas, bezbednost i deo kolača.</p>
-  <div class="grid g2" style="margin-top:28px">
-    <div class="card"><div style="font-size:20px">🗳</div><div style="font-weight:700;margin-top:8px">Publika bira</div><div style="color:var(--ink4);font-size:14px;margin-top:5px">Žurka meseca, pravac aplikacije, pobednici kampanja — glasa zajednica, ne organizator. Verifikovan glas (bar 1 check-in) — bez farmi.</div></div>
-    <div class="card"><div style="font-size:20px">🛡</div><div style="font-weight:700;margin-top:8px">Bezbednost ugrađena</div><div style="color:var(--ink4);font-size:14px;margin-top:5px">Ghost mod (broj se vidi, identitet biraš), block & report svuda, grupno upoznavanje umesto random 1:1. Briga, ne moralisanje.</div></div>
-    <div class="card"><div style="font-size:20px">📵</div><div style="font-weight:700;margin-top:8px">Žurka je sveta</div><div style="color:var(--ink4);font-size:14px;margin-top:5px">Pravilo platforme: na podijumu se ne snima. Kamera izlazi na afteru. Alat koji čuva ono zbog čega izlazimo.</div></div>
-    <div class="card"><div style="font-size:20px">🌱</div><div style="font-weight:700;margin-top:8px">Mladi zarađuju od svoje kulture</div><div style="color:var(--ink4);font-size:14px;margin-top:5px">DJ-evi početnici, kreatori, ljudi koji nose scenu — dobijaju binu, publiku i prihod. Kultura koja hrani one koji je prave.</div></div>
-  </div>
-</div></section>
-
-<!-- ══ VIZIJA — SLOJEVI ══ -->
-<section id="vizija"><div class="wrap">
-  <div class="kicker">VIZIJA · SLOJ PO SLOJ</div>
-  <h2>Od jedne noći u Beogradu — do ekonomije noćnog života.</h2>
-
-  <div style="margin-top:34px;display:flex;flex-direction:column;gap:12px">
-    <div class="card" style="display:flex;gap:18px;align-items:flex-start;border-color:rgba(52,211,153,.4)">
-      <span class="mono" style="flex:none;font-size:12px;color:var(--green);padding-top:2px">SLOJ 1<br/><span style="font-size:9px;color:var(--ink6)">SADA · LIVE</span></span>
-      <div><strong style="font-size:16px">Dokaz petlje — Beograd beta</strong>
-      <div style="color:var(--ink4);font-size:14px;margin-top:6px">Otkrivanje, check-in, iskra/match, questovi, satnica, dance floor, ekipe, prve kampanje. Sve što vidiš u beti — već radi.</div></div>
-    </div>
-    <div class="card" style="display:flex;gap:18px;align-items:flex-start">
-      <span class="mono" style="flex:none;font-size:12px;color:var(--uv);padding-top:2px">SLOJ 2</span>
-      <div><strong style="font-size:16px">Afters — otvaranje posle ponoći</strong>
-      <div style="color:var(--ink4);font-size:14px;margin-top:6px">Najveća tražnja, nulta ponuda: <em>gde posle?</em> Domaćin otvara after proverenim ljudima (poziv po reputaciji, ne javna adresa) — <strong style="color:var(--ink2)">ulaz/doprinos ide domaćinu</strong>, after postaje bezbedan i isplativ umesto haotičan. Monetizacija aftera = prvi marketplace potez.</div></div>
-    </div>
-    <div class="card" style="display:flex;gap:18px;align-items:flex-start">
-      <span class="mono" style="flex:none;font-size:12px;color:var(--cyan);padding-top:2px">SLOJ 3</span>
-      <div><strong style="font-size:16px">Marketplace — noć kao posao</strong>
-      <div style="color:var(--ink4);font-size:14px;margin-top:6px">
-        <strong style="color:var(--ink2)">Be My Guide</strong> — lokalci vode turiste kroz pravu scenu (turisti su tražnja koja plaća; lokalci zarađuju od znanja).<br/>
-        <strong style="color:var(--ink2)">Talent</strong> — DJ-evi, fotografi, video kreatori: booking direktno kroz app, sa reputacijom umesto CV-ja.<br/>
-        <strong style="color:var(--ink2)">Helpers</strong> — ljudi koji nose noć: postava, garderoba, promo, siguran prevoz. Svaka noć zapošljava — sada i formalno.
-      </div></div>
-    </div>
-    <div class="card" style="display:flex;gap:18px;align-items:flex-start">
-      <span class="mono" style="flex:none;font-size:12px;color:var(--amber);padding-top:2px">SLOJ 4</span>
-      <div><strong style="font-size:16px">Gradovi — isti OS, nova scena</strong>
-      <div style="color:var(--ink4);font-size:14px;margin-top:6px">Budimpešta, Istanbul, Berlin, Barselona. Svaki grad dobija svoju scenu-zajednicu na istom sistemu — lokalci prvi, uvek.</div></div>
-    </div>
-  </div>
-</div></section>
-
-<!-- ══ ZA KOGA ══ -->
-<section><div class="wrap">
-  <div class="kicker">ZA KOGA JE OVO</div>
-  <h2>Šta tačno dobijaš — ko god da si u sceni.</h2>
-  <div class="grid g3" style="margin-top:28px">
-    <div class="card"><div class="mono" style="font-size:10px;color:var(--hot);margin-bottom:8px">🎧 KLABER</div><div style="font-size:14px;color:var(--ink2);line-height:1.65">Satnica, ekipa, iskra, dance skor — i AFC koji plaća sledeći izlazak. Nikad više mrtva noć, nikad sam.</div></div>
-    <div class="card"><div class="mono" style="font-size:10px;color:var(--blue);margin-bottom:8px">🏛 KLUB</div><div style="font-size:14px;color:var(--ink2);line-height:1.65">Verifikovana publika na vratima, questovi koji pune ranu smenu, živi podaci o svojoj noći. Node u mreži — ne red u imeniku.</div></div>
-    <div class="card"><div class="mono" style="font-size:10px;color:var(--uv);margin-bottom:8px">🎛 DJ</div><div style="font-size:14px;color:var(--ink2);line-height:1.65">Rezident program: bina za mlade, satnica koja te najavi, dance-data kao dokaz da si pomerio pod. Tvoj press-kit piše publika.</div></div>
-    <div class="card"><div class="mono" style="font-size:10px;color:var(--green);margin-bottom:8px">🏷 BREND</div><div style="font-size:14px;color:var(--ink2);line-height:1.65">Kampanje u kojima ljudi učestvuju umesto da ih preskaču. Merljivo prisustvo, autentičan sadržaj, zajednica koja bira.</div></div>
-    <div class="card"><div class="mono" style="font-size:10px;color:var(--cyan);margin-bottom:8px">✈️ TURISTA</div><div style="font-size:14px;color:var(--ink2);line-height:1.65">Živa slika prave scene — od ljudi koji su sinoć bili tamo. I lokalac koji te vodi, ako hoćeš. Reddit u penziju.</div></div>
-    <div class="card"><div class="mono" style="font-size:10px;color:var(--amber);margin-bottom:8px">🤝 HELPER</div><div style="font-size:14px;color:var(--ink2);line-height:1.65">Radiš noć — garderoba, postava, promo, prevoz? Marketplace sloj ti daje posao, reputaciju i isplatu kroz istu ekonomiju.</div></div>
-  </div>
-</div></section>
-
-<!-- ══ ŽIVO U BETI ══ -->
-<section><div class="wrap">
-  <div class="kicker">NE OBEĆANJE — PROIZVOD</div>
-  <h2>Sve ovo već radi. Večeras.</h2>
-  <div class="grid g3" style="margin-top:28px">
-    <div class="card"><strong>🕒 Satnica</strong><div style="color:var(--ink4);font-size:13.5px;margin-top:5px">crowdsource + „SADA svira" uživo</div></div>
-    <div class="card"><strong>🕺 Dance Floor</strong><div style="color:var(--ink4);font-size:13.5px;margin-top:5px">skor iz džepa + leaderboard noći</div></div>
-    <div class="card"><strong>🧑‍🤝‍🧑 Nađi ekipu</strong><div style="color:var(--ink4);font-size:13.5px;margin-top:5px">grupa + chat za večeras</div></div>
-    <div class="card"><strong>✨ Iskra → Match</strong><div style="color:var(--ink4);font-size:13.5px;margin-top:5px">upoznavanje vezano za mesto i noć</div></div>
-    <div class="card"><strong>🎯 Questovi + AFC</strong><div style="color:var(--ink4);font-size:13.5px;margin-top:5px">doprinos → poeni → stvarne nagrade</div></div>
-    <div class="card"><strong>📸 Kampanje</strong><div style="color:var(--ink4);font-size:13.5px;margin-top:5px">after foto/video + glasanje scene</div></div>
-  </div>
-  <div style="text-align:center;margin-top:44px">
-    <a class="btn btn-hot" href="https://ahmedkvz.github.io/afterbeforeBeta/app/" style="font-size:16px;padding:17px 34px">Uđi u betu — besplatno →</a>
-    <div class="mono" style="font-size:10px;color:var(--ink6);margin-top:14px">BEOGRAD PRVI · FOUNDING RAVER MESTA SU OGRANIČENA</div>
-  </div>
-</div></section>
-
-<!-- ══ SCENA GRADI SCENU — CONTRIBUTOR POZIV ══ -->
-<section><div class="wrap" style="text-align:center;max-width:760px">
-  <div class="kicker" style="justify-content:center">SCENA GRADI SCENU</div>
-  <h2 style="font-size:clamp(26px,4.5vw,40px)">Grad vidiš spolja.<br/>U živu scenu ulaziš kroz AfterBefore.</h2>
-  <p style="color:var(--ink4);font-size:15px;margin-top:16px;line-height:1.65;max-width:600px;margin-left:auto;margin-right:auto">
-    Imenik mesta, satnice i vikend rute ne piše redakcija — <strong style="color:var(--ink2)">piše ih scena.</strong>
-    Doprinos prvo prođe proveru, pa se nagrađuje.
-  </p>
-  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:26px">
-    <a class="btn btn-ghost" href="https://ahmedkvz.github.io/afterbeforeBeta/app/">🗺️ Napravi rutu za vikend →</a>
-    <a class="btn btn-ghost" href="mailto:team@afterbefore.rs?subject=Predlog%20mesta">Znaš mesto koje grad treba da otkrije? Javi →</a>
-  </div>
-</div></section>
-
-<!-- ══ FOOTER ══ -->
-<section style="padding:36px 0 46px"><div class="wrap" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-  <span class="mono" style="font-size:10px;color:var(--ink6)">AFTERBEFORE · BEOGRAD</span>
-  <div style="display:flex;gap:18px">
-    <a class="mono" style="font-size:10px;color:var(--ink6)" href="https://ahmedkvz.github.io/afterbeforeBeta/app/">APP</a>
-    <a class="mono" style="font-size:10px;color:var(--ink6)" href="mailto:team@afterbefore.rs">KONTAKT</a>
-  </div>
-</div></section>
-
+<script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
 </body>
 </html>
