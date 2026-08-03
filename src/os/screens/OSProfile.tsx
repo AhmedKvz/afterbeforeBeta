@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMyReferral } from '@/hooks/useReferral';
+import { useQuery } from '@tanstack/react-query';
 import { usePassport, Night } from '@/hooks/usePassport';
+import { getXPProgress } from '@/services/gamification';
 import { isFounder } from '@/lib/founder';
 import { track } from '@/lib/analytics';
 import { toast } from 'sonner';
@@ -56,6 +58,19 @@ export const OSProfile = () => {
   const navigate = useNavigate();
   const { data: referral } = useMyReferral();
   const { data: pass } = usePassport();
+  // Redesign §15: acid pasoš kartica traži stvarne brojeve — nikad hardkod.
+  const { data: counts } = useQuery({
+    queryKey: ['ja-passport-counts', user?.id],
+    enabled: !!user,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const [ci, mq] = await Promise.all([
+        db.from('venue_checkins').select('*', { count: 'exact', head: true }).eq('user_id', user!.id),
+        db.from('user_quests').select('*', { count: 'exact', head: true }).eq('user_id', user!.id).eq('is_completed', true),
+      ]);
+      return { checkins: ci.count ?? 0, missions: mq.count ?? 0 };
+    },
+  });
   const coverRef = useRef<HTMLInputElement>(null);
   const avatarRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState<string | null>(null);
@@ -116,8 +131,8 @@ export const OSProfile = () => {
       <input ref={avatarRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => uploadImage(e.target.files?.[0], 'avatar')} />
 
       {/* korice pasoša — žanr boji cover kad nema slike */}
-      <div style={{ position: 'relative', height: 168, marginTop: -14, background: (profile as any).cover_url ? `center/cover url(${(profile as any).cover_url})` : `linear-gradient(160deg, ${hexA(genreHue, 0.26)}, oklch(0.135 0.012 285) 74%)` }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, oklch(0.135 0.012 285) 4%, oklch(0.135 0.012 285 / 0.2) 45%, transparent 70%)' }} />
+      <div style={{ position: 'relative', height: 168, marginTop: -14, background: (profile as any).cover_url ? `center/cover url(${(profile as any).cover_url})` : `linear-gradient(160deg, ${hexA(genreHue, 0.26)}, #050506 74%)` }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, #050506 4%, rgba(5,5,6,.2) 45%, transparent 70%)' }} />
         <button onClick={() => coverRef.current?.click()} disabled={uploading === 'cover'} className="os-press" aria-label="Promeni cover" style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top) + 10px)', right: 14, width: 34, height: 34, borderRadius: '50%', border: `1px solid ${AB.line2}`, cursor: 'pointer', background: 'rgba(11,11,13,.55)', backdropFilter: 'blur(8px)', fontSize: 13, color: AB.ink2 }}>{uploading === 'cover' ? '…' : '📷'}</button>
       </div>
 
@@ -166,6 +181,50 @@ export const OSProfile = () => {
           </div>
         )}
       </div>
+
+      {/* ACID PASOŠ KARTICA (redesign §15) — identitet + nivo, stvarni podaci.
+          Napomena: gazi „bez sirovih brojeva" pravilo pasoša — founder master
+          prompt 2026-08-03 eksplicitno traži level/XP/statistiku ovde. */}
+      {(() => {
+        const xp = getXPProgress(profile.xp || 0);
+        const lvl = profile.level || 1;
+        const since = (profile as any).created_at ? new Date((profile as any).created_at).getFullYear() : null;
+        return (
+          <div style={{ margin: '20px 18px 0', padding: 16, borderRadius: 18, background: AB.acid, color: AB.acidInk }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-.02em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile.display_name}</div>
+                {since && <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.1em', marginTop: 3, opacity: 0.75 }}>NA SCENI OD {since}.</div>}
+              </div>
+              <div style={{ flex: 'none', textAlign: 'right' }}>
+                <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: '.12em', opacity: 0.75 }}>LEVEL</div>
+                <div style={{ fontWeight: 800, fontSize: 26, lineHeight: 1, letterSpacing: '-.03em' }}>{lvl}</div>
+              </div>
+            </div>
+            <div style={{ marginTop: 13 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: 10, fontWeight: 600, opacity: 0.8 }}>
+                <span>{xp.current} / {xp.required} XP</span>
+                <span>LEVEL {lvl + 1}</span>
+              </div>
+              <div style={{ height: 5, borderRadius: 3, background: 'rgba(9,11,4,.22)', overflow: 'hidden', marginTop: 6 }}>
+                <div style={{ height: '100%', width: `${xp.percentage}%`, background: AB.acidInk, borderRadius: 3, transition: 'width .3s' }} />
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+              {[
+                { n: nights.length, l: nights.length === 1 ? 'NOĆ' : 'NOĆI' },
+                { n: counts?.checkins ?? 0, l: 'CHECK-INI' },
+                { n: counts?.missions ?? 0, l: 'MISIJE' },
+              ].map((x) => (
+                <div key={x.l} style={{ flex: 1, textAlign: 'center', padding: '9px 0', borderRadius: 10, background: 'rgba(9,11,4,.12)' }}>
+                  <div style={{ fontFamily: MONO, fontWeight: 700, fontSize: 17 }}>{x.n}</div>
+                  <div style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 600, letterSpacing: '.1em', marginTop: 2, opacity: 0.7 }}>{x.l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* SLEDEĆI IZLAZAK — jedina živa misija, prerušena u plan (opcija B) */}
       <div style={{ margin: '20px 18px 0' }}>

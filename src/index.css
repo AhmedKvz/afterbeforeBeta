@@ -114,28 +114,35 @@
        Additive. Migrated screen-by-screen; legacy HSL tokens above
        stay until a screen adopts these. Quests is the first pilot.
        ───────────────────────────────────────────────────────────── */
+    /* Redesign 2026-08-03: Signal Void × Acid District × Midnight Lux.
+       Imena tokena su NEPROMENJENA (kompatibilnost svih ekrana) — samo
+       vrednosti. Acid prelazi sa mint-zelene na kiselinsku #c7ff21. */
     /* The Frame — surfaces */
-    --ab-void: oklch(0.135 0.012 285);
-    --ab-surface: oklch(0.175 0.015 285);
-    --ab-raised: oklch(0.215 0.018 285);
-    --ab-hairline: oklch(1 0 0 / 0.08);
-    --ab-hairline-strong: oklch(1 0 0 / 0.14);
+    --ab-void: #050506;
+    --ab-surface: #0c0d0f;
+    --ab-raised: #121316;
+    --ab-raised-2: #17191d;
+    --ab-hairline: rgba(255,255,255,.08);
+    --ab-hairline-strong: rgba(255,255,255,.15);
     /* The Frame — ink */
-    --ab-ink: oklch(0.97 0.005 285);
-    --ab-ink-2: oklch(0.72 0.01 285);
-    /* a11y audit 2026-07-21: 0.52 → 0.56 — mali mono labeli (10–11px) na void
-       pozadini padali su ispod WCAG AA 4.5:1; 0.56 prolazi, ton ostaje isti. */
-    --ab-ink-3: oklch(0.56 0.012 285);
+    --ab-ink: #f4f3ee;
+    --ab-ink-2: #c5c6c8;
+    /* #8e9298 na #050506 ≈ 6.4:1 — WCAG AA prolazi i za male mono labele */
+    --ab-ink-3: #8e9298;
+    --ab-ink-disabled: #565a61;
     /* Signature accents */
-    --ab-acid: oklch(0.88 0.19 158);
-    --ab-acid-dim: oklch(0.70 0.15 158);
-    --ab-acid-ink: oklch(0.16 0.02 160);   /* dark ink for text ON acid */
-    --ab-uv: oklch(0.62 0.25 300);
-    --ab-uv-dim: oklch(0.48 0.18 300);
-    --ab-hot: oklch(0.66 0.25 18);
+    --ab-acid: #c7ff21;
+    --ab-acid-dim: #9fd119;
+    --ab-acid-soft: rgba(199,255,33,.15);
+    --ab-acid-ink: #090b04;   /* dark ink for text ON acid */
+    --ab-uv: #a15cff;
+    --ab-uv-dim: #7a3fd1;
+    --ab-uv-soft: rgba(161,92,255,.16);
+    --ab-hot: #ff454f;        /* LIVE / hitno / greška */
+    --ab-success: #53e397;
     /* Earned glows */
-    --ab-glow-acid: 0 0 20px oklch(0.88 0.19 158 / 0.45);
-    --ab-glow-uv: 0 0 22px oklch(0.62 0.25 300 / 0.40);
+    --ab-glow-acid: 0 0 20px rgba(199,255,33,.38);
+    --ab-glow-uv: 0 0 22px rgba(161,92,255,.40);
   }
 }
 

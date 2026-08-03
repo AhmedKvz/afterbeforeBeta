@@ -40,10 +40,14 @@ export const MONO = "'IBM Plex Mono', monospace";
  *  žanr/kultura i dalje ide kroz G/genreCol (content nosi boju, Frame ne). */
 export const AB = {
   void: 'var(--ab-void)', surface: 'var(--ab-surface)', raised: 'var(--ab-raised)',
+  raised2: 'var(--ab-raised-2)',
   line: 'var(--ab-hairline)', line2: 'var(--ab-hairline-strong)',
   ink: 'var(--ab-ink)', ink2: 'var(--ab-ink-2)', ink3: 'var(--ab-ink-3)',
-  acid: 'var(--ab-acid)', acidDim: 'var(--ab-acid-dim)', acidInk: 'var(--ab-acid-ink)',
-  uv: 'var(--ab-uv)', uvDim: 'var(--ab-uv-dim)', hot: 'var(--ab-hot)',
+  inkDisabled: 'var(--ab-ink-disabled)',
+  acid: 'var(--ab-acid)', acidDim: 'var(--ab-acid-dim)', acidSoft: 'var(--ab-acid-soft)',
+  acidInk: 'var(--ab-acid-ink)',
+  uv: 'var(--ab-uv)', uvDim: 'var(--ab-uv-dim)', uvSoft: 'var(--ab-uv-soft)',
+  hot: 'var(--ab-hot)', live: 'var(--ab-hot)', success: 'var(--ab-success)',
 };
 
 /** Role-based fixed field colors for dense lists (no per-genre rainbow).
