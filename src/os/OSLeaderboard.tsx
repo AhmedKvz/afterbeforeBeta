@@ -7,7 +7,25 @@ import { AB, G, hexA, MONO } from './osTheme';
 const db = supabase as any;
 const LABEL = { fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3 } as const;
 
-interface Row { user_id: string; display_name: string; avatar_url: string | null; checkins: number; venues: number; me: boolean }
+interface Row {
+  user_id: string; display_name: string; avatar_url: string | null; me: boolean;
+  score: number; checkins: number; venues: number; weeks: number;
+  reviews: number; quests: number; signals: number; routes: number; posts: number;
+  streak_mult: number; pts_presence: number; pts_soft: number;
+}
+
+/** Razlaganje: pošteni brojevi — vidiš ZAŠTO si tu gde si. */
+const breakdown = (r: Row) => {
+  const parts: string[] = [];
+  if (r.checkins) parts.push(`${r.checkins} ${r.checkins === 1 ? 'dolazak' : 'dolazaka'}`);
+  if (r.venues > 1) parts.push(`${r.venues} mesta`);
+  if (r.reviews) parts.push(`${r.reviews} ${r.reviews === 1 ? 'recenzija' : 'recenzije'}`);
+  if (r.quests) parts.push(`${r.quests} ${r.quests === 1 ? 'misija' : 'misije'}`);
+  if (r.routes) parts.push(`${r.routes} ${r.routes === 1 ? 'ruta' : 'rute'}`);
+  if (r.signals) parts.push(`${r.signals} signala`);
+  if (r.posts) parts.push(`${r.posts} priloga`);
+  return parts.join(' · ');
+};
 
 const MEDAL = ['🥇', '🥈', '🥉'];
 
@@ -45,7 +63,11 @@ export const OSLeaderboard = () => {
       <div style={{ padding: '12px 14px', borderRadius: 16, background: hexA(G.house, 0.08), border: `1px solid ${hexA(G.house, 0.4)}`, marginBottom: 14 }}>
         <div style={{ ...LABEL, color: G.house }}>🎁 SVAKOG MESECA · PRVA TRI</div>
         <div style={{ fontSize: 13.5, lineHeight: 1.5, color: AB.ink2, marginTop: 5 }}>
-          Top 3 meseca nose <b style={{ color: AB.ink }}>nagradu iznenađenja</b> — objava prvog u mesecu. Broje se samo pravi dolasci.
+          Top 3 meseca nose <b style={{ color: AB.ink }}>nagradu iznenađenja</b> — objava prvog u mesecu.
+        </div>
+        <div style={{ ...LABEL, marginTop: 10, lineHeight: 1.7, color: AB.ink3 }}>
+          BROJI SE SVE — DOLASCI, RECENZIJE, MISIJE, RUTE.<br />
+          DOLAZAK VREDI NAJVIŠE · VIŠE NEDELJA = MNOŽILAC.
         </div>
       </div>
 
@@ -72,12 +94,24 @@ export const OSLeaderboard = () => {
             <div key={r.user_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 13px', borderRadius: 16, background: r.me ? hexA(G.techno, 0.08) : AB.surface, border: `1px solid ${r.me ? hexA(G.techno, 0.45) : top3 ? hexA(G.house, 0.4) : AB.line}` }}>
               <span style={{ flex: 'none', width: 26, textAlign: 'center', fontFamily: MONO, fontSize: top3 ? 16 : 12, fontWeight: 600, color: top3 ? G.house : AB.ink3 }}>{top3 ? MEDAL[i] : i + 1}</span>
               <span style={{ flex: 'none', width: 36, height: 36, borderRadius: '50%', background: r.avatar_url ? `center/cover url(${r.avatar_url})` : `linear-gradient(135deg,${G.underground},${G.techno})` }} />
-              <span style={{ flex: 1, minWidth: 0, fontSize: 14.5, fontWeight: 700, letterSpacing: '-.01em', color: AB.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {r.display_name}{r.me ? ' · ti' : ''}
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 14.5, fontWeight: 700, letterSpacing: '-.01em', color: AB.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {r.display_name}{r.me ? ' · ti' : ''}
+                  </span>
+                  {r.streak_mult > 1 && (
+                    <span style={{ flex: 'none', fontFamily: MONO, fontSize: 9, fontWeight: 600, color: G.afterparty, border: `1px solid ${hexA(G.afterparty, 0.45)}`, borderRadius: 999, padding: '2px 6px' }}>
+                      🔥 ×{r.streak_mult}
+                    </span>
+                  )}
+                </span>
+                <span style={{ display: 'block', fontFamily: MONO, fontSize: 9.5, color: AB.ink3, marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {breakdown(r) || 'bez aktivnosti'}
+                </span>
               </span>
               <span style={{ flex: 'none', textAlign: 'right' }}>
-                <span style={{ display: 'block', fontFamily: MONO, fontSize: 15, fontWeight: 600, color: top3 ? G.house : AB.ink2 }}>{r.checkins}</span>
-                <span style={{ display: 'block', fontFamily: MONO, fontSize: 9, letterSpacing: '.1em', color: AB.ink3 }}>{r.checkins === 1 ? 'DOLAZAK' : 'DOLAZAKA'}{!venue ? ` · ${r.venues} ${r.venues === 1 ? 'MESTO' : 'MESTA'}` : ''}</span>
+                <span style={{ display: 'block', fontFamily: MONO, fontSize: 16, fontWeight: 600, color: top3 ? G.house : AB.ink2 }}>{r.score}</span>
+                <span style={{ display: 'block', fontFamily: MONO, fontSize: 9, letterSpacing: '.1em', color: AB.ink3 }}>BODOVA</span>
               </span>
             </div>
           );
