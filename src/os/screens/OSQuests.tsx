@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { track } from '@/lib/analytics';
 import { toast } from 'sonner';
 import { OSCampaign } from '../OSCampaign';
+import { OSLeaderboard } from '../OSLeaderboard';
 import { OSDareWheel } from '../OSDareWheel';
 import { RoadmapMaker } from '../OSRoadmaps';
 import { AB, G, hexA, MONO, ROLE } from '../osTheme';
@@ -44,7 +45,7 @@ const TYPE_OUTPUT: Record<string, string> = {
 const colOf = (t?: string) => TYPE_COL[(t || '').toLowerCase()] || G.community;
 const outputOf = (t?: string) => TYPE_OUTPUT[(t || '').toLowerCase()] || null;
 const DAYS = ['PON', 'UTO', 'SRE', 'ČET', 'PET', 'SUB', 'NED'];
-type Hub = 'quests' | 'rewards' | 'streak';
+type Hub = 'quests' | 'rewards' | 'tabela' | 'streak';
 
 /* ── Debela acid progress traka (kanon §6.5) — glow samo kad je "hero". ── */
 const AcidBar = ({ pct, hero }: { pct: number; hero?: boolean }) => (
@@ -157,7 +158,7 @@ export const OSQuests = ({ embedded }: { embedded?: boolean } = {}) => {
     return DAYS.map((_, i) => { const d = new Date(now); d.setDate(now.getDate() - dow + i); return d.toISOString().split('T')[0]; });
   }, []);
 
-  const HUBS: { id: Hub; label: string }[] = [{ id: 'quests', label: 'Questovi' }, { id: 'rewards', label: 'Nagrade' }, { id: 'streak', label: 'Streak' }];
+  const HUBS: { id: Hub; label: string }[] = [{ id: 'quests', label: 'Questovi' }, { id: 'rewards', label: 'Nagrade' }, { id: 'tabela', label: 'Tabela' }, { id: 'streak', label: 'Streak' }];
 
   /* Kartica sporednog questa (kanon §6.5 stanja: complete=acid · active=UV · claimed=dim). */
   const QuestCard = ({ q, i }: { q: any; i: number }) => {
@@ -401,6 +402,8 @@ export const OSQuests = ({ embedded }: { embedded?: boolean } = {}) => {
       )}
 
       {/* ── STREAK ── */}
+      {hub === 'tabela' && <OSLeaderboard />}
+
       {hub === 'streak' && (
         <div key="streak" style={{ padding: '20px 18px 0', animation: 'os-swap .15s cubic-bezier(.22,1,.36,1) both' }}>
           <div style={{ padding: '22px 16px', borderRadius: 22, background: AB.surface, border: `1px solid ${AB.line2}`, textAlign: 'center' }}>
