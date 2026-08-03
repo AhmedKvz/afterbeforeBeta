@@ -104,3 +104,48 @@ postojeća ŠIFRA (dare_*), landing, kanon boje.
 **Preporuka za podelu dalje:** ja sam efikasan na mehaničkom (migracije, RPC,
 E2E, refaktori po specu); ti si potrebna tamo gde odluka nosi ukus ili rizik
 (šta pada sa GRAD ekrana, copy, brend, scope pred pilot).
+
+---
+
+# DODATAK · LJUDI shipovan (Opus, 2026-08-03)
+
+Izvršen HANDOFF-LJUDI-2026-08-03 u celosti. Commit `1b12daf`.
+
+## Odstupanja od speca (moje odluke — proveri)
+1. **Match nit dobija `status='active'`, ne 'wave'.** `ensure_conversation`
+   pravi 'wave' (jednosmerni talas). Kod meet matcha su OBA lajkovala, pa
+   sam odmah podigao na 'active' — inače bi PORUKE prikazale match kao
+   "dolazni talas" koji treba prihvatiti, što je pogrešan model za obostrani
+   match. Iskra tok NIJE diran.
+2. **Deck isključuje sve sa kojima već postoji nit** (ne samo matcheve iz
+   meet-a). Ako ste već pričali preko iskre, nema smisla da se pojavi u decku.
+3. **Rate limit puca POSLE provere mete** (TARGET_CLOSED pre LIMIT_REACHED).
+   Namerno: korisniku je korisnije da zna da se osoba isključila. Napomena:
+   to znači da meta koja se isključi ne troši swipe.
+4. **„Isključi me" je uvek vidljiv** na dnu Ljudi ekrana kad si uključen —
+   spec je tražio „gasi se jednim tapom", ovo je najdirektnije mesto.
+5. **Ekipa mod v1 = isti deck nad `open_crew` poolom** + traka ka postojećem
+   „Nađi ekipu" samo kad si čekiran. Bez posebne crew-specifične kartice.
+
+## Šta sam našao usput
+- **Pasoš je rušio JA ekran posle reload-a** (`Date` objekti u persisted
+  react-query kešu — naš zakon kaže JSON-only). Popravljeno u prethodnom
+  commitu (ISO stringovi + buster v6). Vredi zapamtiti: svaki novi hook koji
+  vraća `Date` u query data je tempirana bomba.
+- Sesija u pregledaču je **KVZ (founder) nalog**, ne evaluator — bitno za
+  buduće preview provere.
+
+## Provereno u pregledaču sa PRAVIM podacima
+Kartica renderuje co-presence signal iz stvarne istorije:
+„BILI STE ISTE NOĆI U PARA KLUB · 29. jul" + NAJČEŠĆE „Para Klub · Koffein".
+E2E 7/7 u rollback bloku. Svi test opt-inovi obrisani — prod baza čista
+(0 opted, 0 swipes).
+
+## Za tebe (ukus/odluke)
+1. **Prazan deck je realnost do B1** — 25 naloga, niko nije uključen po
+   defaultu. Da li Ljudi tab uopšte treba da bude vidljiv pre nego što se
+   scena uključi, ili treba „uskoro" stanje dok ne bude ≥10 uključenih?
+2. **Copy za crew mod** je moj, ne tvoje pero: „Nađi s kim se izlazi" /
+   „Ekipa se pravi pre izlaska."
+3. Nedostaje **prijava/blokada sa kartice** (blocks tabela se poštuje u
+   upitima, ali nema dugmeta u decku) — pre B1 je to safety stavka.
