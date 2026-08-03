@@ -6,6 +6,7 @@ import { OSOrbNav, OSScreen } from './OSOrbNav';
 import { OSHome } from './screens/OSHome';
 import { OSProfile } from './screens/OSProfile';
 import { OSNightHub } from './OSNightHub';
+import { OSMessagesOverlay } from './OSMessagesOverlay';
 import { OSVenuePicker } from './OSVenuePicker';
 import { useMyNight } from '@/hooks/useMyNight';
 import { OSVenueSheet, OSVenue } from './OSVenueSheet';
@@ -23,6 +24,9 @@ export const OSApp = () => {
   const [screen, setScreen] = useState<OSScreen>('grad');
   // IA v2 §11.2: orb = TU SAM. Bez check-ina → izbor mesta; sa njim → hub noći.
   const [hub, setHub] = useState(false);
+  // LJUDI radi cele nedelje → poruke moraju da postoje i van noći (bez check-ina
+  // hub ne postoji, a match u utorak mora da se otvori). Samostalni overlay.
+  const [msgs, setMsgs] = useState(false);
   const [picker, setPicker] = useState(false);
   const { data: night } = useMyNight();
   const [venue, setVenue] = useState<OSVenue | null>(null);
@@ -57,14 +61,14 @@ export const OSApp = () => {
     const go = (e: Event) => {
       const raw = String((e as CustomEvent).detail);
       setVenue(null);
-      if (raw === 'matches') { setHub(true); return; }
+      if (raw === 'matches') { if (night) setHub(true); else setMsgs(true); return; }
       // Pasoš odluka 2026-07-29: questovi žive u GRAD → Misije prikaz, ne u JA.
       setScreen(raw === 'profile' ? 'ja' : 'grad');
       if (raw === 'quests') setTimeout(() => window.dispatchEvent(new CustomEvent('ab-grad-view', { detail: 'misije' })), 60);
     };
     window.addEventListener('os-go', go);
     return () => window.removeEventListener('os-go', go);
-  }, []);
+  }, [night]);
 
   // Same auth/onboarding guards the legacy Home enforced.
   useEffect(() => {
@@ -103,6 +107,7 @@ export const OSApp = () => {
       {venue && <OSVenueSheet venue={venue} onClose={closeVenue} />}
       {picker && <OSVenuePicker onPick={(v) => { setPicker(false); setVenue(v); }} onClose={() => setPicker(false)} />}
       {hub && night && <OSNightHub night={night} onClose={() => setHub(false)} />}
+      {msgs && <OSMessagesOverlay onClose={() => setMsgs(false)} />}
     </div>
   );
 };

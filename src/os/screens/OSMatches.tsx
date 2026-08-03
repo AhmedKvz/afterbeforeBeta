@@ -6,6 +6,7 @@ import { useReportUser } from '@/hooks/useStories';
 import { useReceivedSparks, useSparkActions } from '@/hooks/useSparks';
 import { useAuth } from '@/contexts/AuthContext';
 import { incrementQuestProgress } from '@/services/questProgress';
+import { ChatStarters } from '../chat/ChatStarters';
 import { AB, OS, G, hexA, MONO } from '../osTheme';
 
 const WHEEL = [G.techno, G.house, G.underground, G.festival, G.afterparty, G.community];
@@ -189,6 +190,14 @@ const OSChat = ({ conv, onBack }: { conv: Conversation; onBack: () => void }) =>
           );
         })}
       </div>
+
+      <ChatStarters
+        otherId={conv.other_id}
+        otherName={conv.name || ''}
+        empty={(messages || []).length === 0}
+        onPrefill={(t) => setText(t)}
+        onSend={(t) => { if (!sending) send(t); }}
+      />
 
       <form onSubmit={submit} style={{ position: 'sticky', bottom: 0, background: 'oklch(0.135 0.012 285 / 0.92)', backdropFilter: 'blur(12px)', borderTop: `1px solid ${AB.line}`, padding: '12px 12px calc(env(safe-area-inset-bottom) + 12px)', display: 'flex', alignItems: 'center', gap: 8 }}>
         <input value={text} onChange={(e) => setText(e.target.value)} placeholder={`Poruka za ${conv.name}…`}
