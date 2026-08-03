@@ -199,6 +199,7 @@ export default function WarRoom() {
               <Section label='NPS · "PREPORUČIO BI?"'>
                 <Big value={m.nps_total === 0 ? '—' : `${m.nps_pct}%`} sub={m.nps_total === 0 ? 'nema odgovora još' : `bi preporučilo · ${m.nps_total} odgovora`} color={ROLE.energy} />
               </Section>
+              <LandingSignups />
             </>
           )
         )}
@@ -365,6 +366,40 @@ export default function WarRoom() {
 
 /* ── small UI atoms ── */
 const Mut = ({ children }: any) => <div style={{ fontFamily: MONO, fontSize: 12, color: OS.ink5, textAlign: 'center', padding: '24px 0' }}>{children}</div>;
+/** Prijave sa landinga (forma #prijava) — founder-only, poslednjih 50. */
+const ROLE_LABEL: Record<string, string> = {
+  raver: 'Raver', izvodjac: 'Izvođač', vodic: 'Vodič',
+  helper: 'Helper', venue: 'Venue', brend: 'Brend',
+};
+const LandingSignups = () => {
+  const { data: rows = [] } = useQuery<any[]>({
+    queryKey: ['landing-signups'],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc('admin_list_signups');
+      if (error) throw error;
+      return data || [];
+    },
+  });
+  return (
+    <Section label={`PRIJAVE SA LANDINGA · ${rows.length}`}>
+      {rows.length === 0 ? (
+        <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink6, textAlign: 'center', padding: '18px 0' }}>NEMA PRIJAVA JOŠ.</div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {rows.map((r: any, i: number) => (
+            <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderTop: i > 0 ? `1px solid ${OS.line}` : 'none' }}>
+              <span style={{ flex: 1, minWidth: 0, fontSize: 13, color: OS.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.email}</span>
+              <span style={{ flex: 'none', fontFamily: MONO, fontSize: 10, letterSpacing: '.06em', color: G.house }}>{(ROLE_LABEL[r.role] || r.role).toUpperCase()}</span>
+              <span style={{ flex: 'none', fontFamily: MONO, fontSize: 10, color: OS.ink6 }}>{new Date(r.created_at).toLocaleDateString('sr-RS')}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </Section>
+  );
+};
+
 const Section = ({ label, right, children }: any) => (
   <div style={{ marginBottom: 22 }}>
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
