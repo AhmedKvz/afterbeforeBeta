@@ -6,7 +6,7 @@ import { useMyNight } from '@/hooks/useMyNight';
 import { track } from '@/lib/analytics';
 import { OSMatchCelebration } from './OSMatchCelebration';
 import { OSCrew } from './OSCrew';
-import { OSPairMode } from './OSPairMode';
+import { OSGroups } from './OSGroups';
 import { AB, G, hexA, MONO, genreCol, CONIC } from './osTheme';
 
 const APP_URL = 'https://ahmedkvz.github.io/afterbeforeBeta/app/';
@@ -36,13 +36,13 @@ const nightLabel = (iso: string) => {
  * Sve besplatno — nema boost/premium/„ko te lajkovao".
  */
 export const OSMeet = () => {
-  const [mode, setMode] = useState<MeetMode | 'par'>('dates');
+  const [mode, setMode] = useState<MeetMode | 'grupe'>('grupe');
   const [i, setI] = useState(0);
   const [match, setMatch] = useState<{ name?: string; avatar?: string } | null>(null);
   const [crewOpen, setCrewOpen] = useState(false);
   const opt = useMeetOptIn();
   const optedIn = mode === 'dates' ? opt.dates : mode === 'crew' ? opt.crew : true;
-  const { data: deck = [], isLoading, error } = useMeetDeck(mode === 'par' ? 'dates' : mode, optedIn && mode !== 'par');
+  const { data: deck = [], isLoading, error } = useMeetDeck(mode === 'grupe' ? 'dates' : mode, optedIn && mode !== 'grupe');
   const swipe = useMeetSwipe();
   const { data: referral } = useMyReferral();
   const { data: night } = useMyNight();
@@ -74,7 +74,7 @@ export const OSMeet = () => {
     } catch { /* otkazano */ }
   };
 
-  const modePill = (m: MeetMode | 'par', label: string) => {
+  const modePill = (m: MeetMode | 'grupe', label: string) => {
     const on = mode === m;
     return (
       <button key={m} onClick={() => setMode(m)} className="os-press" style={{ flex: '1 0 auto', minWidth: 96, padding: '0 14px', minHeight: 42, borderRadius: 999, cursor: 'pointer', fontSize: 14, fontWeight: on ? 700 : 500, border: `1px solid ${on ? AB.uv : AB.line}`, background: on ? 'oklch(0.62 0.25 300 / 0.16)' : AB.surface, color: on ? AB.ink : AB.ink3 }}>{label}</button>
@@ -93,15 +93,14 @@ export const OSMeet = () => {
   return (
     <div style={{ padding: '4px 0 0' }}>
       <div className="os-scroll" style={{ display: 'flex', gap: 8, padding: '0 18px 14px', overflowX: 'auto' }}>
+        {modePill('grupe', 'Grupe')}
         {modePill('dates', '1 na 1')}
-        {modePill('crew', 'Ekipa')}
-        {modePill('par', 'Par za par')}
       </div>
 
-      {mode === 'par' && <OSPairMode />}
+      {mode === 'grupe' && <OSGroups />}
 
       {/* opt-in — default OFF, gasi se jednim tapom */}
-      {mode !== 'par' && (!optedIn ? (
+      {mode !== 'grupe' && (!optedIn ? (
         <div style={{ padding: '0 18px' }}>
           <div style={{ padding: 16, borderRadius: 16, background: AB.surface, border: `1px solid ${AB.line}` }}>
             <div style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-.01em', color: AB.ink }}>
@@ -218,7 +217,7 @@ export const OSMeet = () => {
       ))}
 
       {/* isključi me — uvek dostupno kad si uključen */}
-      {optedIn && mode !== 'par' && (
+      {optedIn && mode !== 'grupe' && (
         <div style={{ padding: '22px 18px 0', textAlign: 'center' }}>
           <button onClick={() => opt.set({ mode: mode as MeetMode, on: false })} className="os-press" style={{ background: 'transparent', border: 0, cursor: 'pointer', ...LABEL, padding: '8px 0' }}>
             ISKLJUČI ME IZ {mode === 'dates' ? '1 NA 1' : 'EKIPE'}

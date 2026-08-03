@@ -8,11 +8,13 @@ import { useExit } from './useExit';
 
 const db = supabase as any;
 
-interface Props { eventId?: string | null; venueId?: string | null; title?: string; onClose: () => void }
+interface Props { eventId?: string | null; venueId?: string | null; title?: string; onClose: () => void;
+  /** Otvorena grupa (GRUPE, founder 2026-08-03) — već si član, ne traži join_crew. */
+  crewId?: string | null }
 
 /** "Nađi ekipu" — opt-in crew for tonight, formed from people going to / at the
  *  same place. Group chat (safer than 1:1). Bootstraps the crew graph. */
-export const OSCrew = ({ eventId, venueId, title, onClose }: Props) => {
+export const OSCrew = ({ eventId, venueId, title, onClose, crewId: fixedCrew }: Props) => {
   const { closing, close } = useExit(onClose);
   const qc = useQueryClient();
   const [crewId, setCrewId] = useState<string | null>(null);
@@ -25,6 +27,7 @@ export const OSCrew = ({ eventId, venueId, title, onClose }: Props) => {
     (async () => {
       const { data: auth } = await supabase.auth.getUser();
       setMe(auth?.user?.id ?? null);
+      if (fixedCrew) { setCrewId(fixedCrew); setJoining(false); return; }
       try {
         const { data, error } = await db.rpc('join_crew', { p_event: eventId ?? null, p_venue: venueId ?? null });
         if (error) throw error;
@@ -32,7 +35,7 @@ export const OSCrew = ({ eventId, venueId, title, onClose }: Props) => {
       } catch (e: any) { toast.error('Ne mogu da nađem ekipu — pokušaj kasnije.'); }
       finally { setJoining(false); }
     })();
-  }, [eventId, venueId]);
+  }, [eventId, venueId, fixedCrew]);
 
   const { data: crew } = useQuery({
     queryKey: ['crew', crewId],
