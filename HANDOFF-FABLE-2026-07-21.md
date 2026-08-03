@@ -149,3 +149,48 @@ E2E 7/7 u rollback bloku. Svi test opt-inovi obrisani — prod baza čista
    „Ekipa se pravi pre izlaska."
 3. Nedostaje **prijava/blokada sa kartice** (blocks tabela se poštuje u
    upitima, ali nema dugmeta u decku) — pre B1 je to safety stavka.
+
+---
+
+# DODATAK 2 · Landing v4 + žive prijave (Opus, 2026-08-03)
+
+Izvršen HANDOFF-LANDING-2026-08-03 u celosti. Commits: `2759077` (migracija),
+`43d4db5` (War Room), landing grana `9cbae94`.
+
+## Šta je forma tačno postala
+Više nije demo. Šalje na `landing_signup(p_email, p_role)` RPC anon ključem:
+- **normalizacija** (lower+trim) — „  Test.Venue@Primer.RS " i
+  „TEST.VENUE@primer.rs" su isti red;
+- **dedup po (email, rola)** → „Već si na listi ✓" umesto duplikata;
+  ista osoba SME da se prijavi kao i venue i brend (namerno);
+- **rate limit 6/24h po mejlu** → „Već si se prijavio/la više puta danas.";
+- greške na srpskom, mrežni pad ima svoju poruku.
+Tabela je **RLS deny-all** — anon ključ ne može da čita nijednu prijavu, samo
+da zove RPC. Founder ih vidi kroz `admin_list_signups()` u War Room → PULSE.
+
+## Odstupanja od speca (moje odluke)
+1. **`<option>` dobio `value`** (`raver|izvodjac|...`) umesto mapiranja po
+   redosledu — redosled opcija je krhak ugovor, vrednost u markupu nije.
+2. **Poruka za dedup je posebna** („Već si na listi") — spec je tražio jednu
+   uspešnu poruku, ali čoveku koji drugi put pošalje isto treba istina.
+3. **War Room blok je u PULSE** (ne DOGAĐAJI) — tamo su već svi brojevi.
+4. **Landing v3 (moj jednoekranski) je zamenjen founderovim fajlom** — to je
+   bio nalog; v3 živi samo u istoriji grane (`2c11823`) ako zatreba.
+
+## Provereno na ŽIVOM sajtu (ne lokalno)
+- Prijava iz pregledača → red u bazi (`qa.opus@primer.rs / venue`), pa
+  ponovna ista → „Već si na listi ✓". **Test red obrisan, tabela je prazna.**
+- `/`, `/app/`, `/fund/`, `/en/` svi 200 — ništa na grani nije oštećeno.
+- 3× link ka `/app/`, „demo prikazu" teksta više nema.
+- Mobilni 375px: hero se lomi čisto, oba CTA puna širina.
+
+## Za tebe
+1. **`og.png` NIJE zamenjen** — u Downloads nema nove slike, a stara je iz
+   starog branda (ljubičasto-pink). Prvi share na Instagramu će je pokazati.
+2. **Footer i dalje nosi `kontakt@afterbefore.app`** i tekstualne linkove
+   „Instagram · Privacy · Community Guidelines" koji nikuda ne vode — pre
+   B1 im treba ili prava adresa ili brisanje.
+3. **Landing i aplikacija sada imaju dva različita glasa**: landing je
+   „Nightlife OS / earning layer / Phase 2", aplikacija je „koliko ljudi je
+   večeras napolju". Nije greška, ali vredi da presudiš da li se copy
+   približava ili namerno ostaje razdvojen (B2B vs korisnik).
