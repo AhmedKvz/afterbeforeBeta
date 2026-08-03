@@ -230,6 +230,7 @@ export const OSProfile = () => {
       <div style={{ margin: '24px 18px 0', borderRadius: 16, overflow: 'hidden', background: AB.surface, border: `1px solid ${AB.line}` }}>
         {[
           ...(isFounder(user) ? [{ icon: '⚡', label: 'War Room (founder)', onClick: () => navigate('/warroom') }] : []),
+          { icon: '✦', label: 'Upoznavanje', onClick: () => { window.dispatchEvent(new CustomEvent('os-go', { detail: 'grad' })); setTimeout(() => window.dispatchEvent(new CustomEvent('ab-grad-view', { detail: 'ljudi' })), 60); } },
           { icon: '✎', label: 'Izmeni profil', onClick: () => navigate('/onboarding') },
           { icon: '🔔', label: 'Notifikacije', onClick: () => navigate('/notifications') },
           { icon: '↩', label: 'Odjavi se', onClick: handleSignOut },

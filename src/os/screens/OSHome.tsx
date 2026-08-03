@@ -10,6 +10,7 @@ import { RoadmapRail } from '../OSRoadmaps';
 import { ConvergenceRail, CityCipherCard } from '../OSGamification';
 import { OSExplore } from './OSExplore';
 import { OSQuests } from './OSQuests';
+import { OSMeet } from '../OSMeet';
 import { OSStories } from '../OSStories';
 import { OSEventRow } from '../OSEventRow';
 import { AB, OS, G, hexA, MONO, stripe, genreCol, CONIC } from '../osTheme';
@@ -53,9 +54,9 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
   const [genreF, setGenreF] = useState<string | null>(null);
   // IA v2 §11.1 + Pasoš odluka: jedan ekran, tri prikaza — Lista | Karta | Misije.
   // Misije žive PORED akcije (GRAD), ne u identitetu (PREDLOG-JA-PASOS §5).
-  const [view, setView] = useState<'lista' | 'karta' | 'misije'>('lista');
+  const [view, setView] = useState<'lista' | 'karta' | 'misije' | 'ljudi'>('lista');
   useEffect(() => {
-    const go = (e: any) => { const v = e?.detail; if (v === 'lista' || v === 'karta' || v === 'misije') setView(v); };
+    const go = (e: any) => { const v = e?.detail; if (v === 'lista' || v === 'karta' || v === 'misije' || v === 'ljudi') setView(v); };
     window.addEventListener('ab-grad-view', go);
     return () => window.removeEventListener('ab-grad-view', go);
   }, []);
@@ -180,12 +181,20 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       </div>
 
       {/* Lista | Karta | Misije — jedan grad, tri prikaza */}
-      <div style={{ display: 'flex', gap: 8, padding: '18px 18px 0', justifyContent: 'center' }}>
-        {([['lista', 'Lista'], ['karta', 'Karta'], ['misije', 'Misije']] as const).map(([k, l]) => {
+      <div className="os-scroll" style={{ display: 'flex', gap: 8, padding: '18px 18px 0', overflowX: 'auto', justifyContent: 'flex-start' }}>
+        {([['lista', 'Lista'], ['karta', 'Karta'], ['misije', 'Misije'], ['ljudi', 'Ljudi']] as const).map(([k, l]) => {
           const on = view === k;
-          return <button key={k} onClick={() => setView(k)} className="os-press" style={{ minWidth: 96, padding: '10px 0', borderRadius: 999, fontSize: 14, fontWeight: on ? 700 : 500, cursor: 'pointer', border: `1px solid ${on ? AB.uv : AB.line}`, background: on ? 'oklch(0.62 0.25 300 / 0.16)' : AB.surface, color: on ? AB.ink : AB.ink3 }}>{l}</button>;
+          return <button key={k} onClick={() => setView(k)} className="os-press" style={{ flex: 'none', minWidth: 86, padding: '10px 0', borderRadius: 999, fontSize: 14, fontWeight: on ? 700 : 500, cursor: 'pointer', border: `1px solid ${on ? AB.uv : AB.line}`, background: on ? 'oklch(0.62 0.25 300 / 0.16)' : AB.surface, color: on ? AB.ink : AB.ink3 }}>{l}</button>;
         })}
       </div>
+
+      {/* LJUDI — upoznavanje odvojeno od check-ina (radi cele nedelje) */}
+      {view === 'ljudi' && (
+        <div key="ljudi" style={{ animation: 'os-swap .15s cubic-bezier(.22,1,.36,1) both', paddingTop: 14 }}>
+          <OSMeet />
+          <KrajBlok onSwitch={() => setView('lista')} to="lista" />
+        </div>
+      )}
 
       {/* MISIJE — pun quest hub pored akcije (PREDLOG-JA-PASOS §5, founder navbar odluka) */}
       {view === 'misije' && (
