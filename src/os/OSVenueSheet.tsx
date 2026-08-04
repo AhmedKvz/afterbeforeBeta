@@ -224,9 +224,9 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
 
   // Real numbers only — no invented heritage/rank/influence (honest-numbers rule).
   const stats = [
-    { value: String(here), label: 'OVDE SADA', color: G.festival },
-    { value: String(upcoming.length), label: 'DOLAZI', color: G.techno },
-    { value: String(past.length), label: 'ARHIVA NOĆI', color: G.house },
+    { value: String(here), label: 'OVDE SADA', color: AB.acid },
+    { value: String(upcoming.length), label: 'DOLAZI', color: AB.ink },
+    { value: String(past.length), label: 'ARHIVA NOĆI', color: AB.ink3 },
   ];
 
   const { checkIn, done, busy, award } = useCheckIn(venue, (vid) => setFeedback(vid));

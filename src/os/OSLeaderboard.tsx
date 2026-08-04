@@ -60,8 +60,8 @@ export const OSLeaderboard = () => {
   return (
     <div style={{ padding: '4px 18px 0' }}>
       {/* mesečna nagrada — jasno, pošteno, bez sitnih slova */}
-      <div style={{ padding: '12px 14px', borderRadius: 16, background: hexA(G.house, 0.08), border: `1px solid ${hexA(G.house, 0.4)}`, marginBottom: 14 }}>
-        <div style={{ ...LABEL, color: G.house }}>🎁 SVAKOG MESECA · PRVA TRI</div>
+      <div style={{ padding: '12px 14px', borderRadius: 16, background: AB.acidSoft, border: `1px solid ${AB.acidDim}`, marginBottom: 14 }}>
+        <div style={{ ...LABEL, color: AB.acid }}>🎁 SVAKOG MESECA · PRVA TRI</div>
         <div style={{ fontSize: 13.5, lineHeight: 1.5, color: AB.ink2, marginTop: 5 }}>
           Top 3 meseca nose <b style={{ color: AB.ink }}>nagradu iznenađenja</b> — objava prvog u mesecu.
         </div>
@@ -91,8 +91,8 @@ export const OSLeaderboard = () => {
         {rows.map((r, i) => {
           const top3 = i < 3;
           return (
-            <div key={r.user_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 13px', borderRadius: 16, background: r.me ? hexA(G.techno, 0.08) : AB.surface, border: `1px solid ${r.me ? hexA(G.techno, 0.45) : top3 ? hexA(G.house, 0.4) : AB.line}` }}>
-              <span style={{ flex: 'none', width: 26, textAlign: 'center', fontFamily: MONO, fontSize: top3 ? 16 : 12, fontWeight: 600, color: top3 ? G.house : AB.ink3 }}>{top3 ? MEDAL[i] : i + 1}</span>
+            <div key={r.user_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 13px', borderRadius: 16, background: r.me ? AB.uvSoft : AB.surface, border: `1px solid ${r.me ? AB.uvDim : top3 ? AB.acidDim : AB.line}` }}>
+              <span style={{ flex: 'none', width: 26, textAlign: 'center', fontFamily: MONO, fontSize: top3 ? 16 : 12, fontWeight: 600, color: top3 ? AB.acid : AB.ink3 }}>{top3 ? MEDAL[i] : i + 1}</span>
               <span style={{ flex: 'none', width: 36, height: 36, borderRadius: '50%', background: r.avatar_url ? `center/cover url(${r.avatar_url})` : `linear-gradient(135deg,${G.underground},${G.techno})` }} />
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -100,7 +100,7 @@ export const OSLeaderboard = () => {
                     {r.display_name}{r.me ? ' · ti' : ''}
                   </span>
                   {r.streak_mult > 1 && (
-                    <span style={{ flex: 'none', fontFamily: MONO, fontSize: 9, fontWeight: 600, color: G.afterparty, border: `1px solid ${hexA(G.afterparty, 0.45)}`, borderRadius: 999, padding: '2px 6px' }}>
+                    <span style={{ flex: 'none', fontFamily: MONO, fontSize: 9, fontWeight: 600, color: AB.uv, border: `1px solid ${AB.uvDim}`, borderRadius: 999, padding: '2px 6px' }}>
                       🔥 ×{r.streak_mult}
                     </span>
                   )}
@@ -110,7 +110,7 @@ export const OSLeaderboard = () => {
                 </span>
               </span>
               <span style={{ flex: 'none', textAlign: 'right' }}>
-                <span style={{ display: 'block', fontFamily: MONO, fontSize: 16, fontWeight: 600, color: top3 ? G.house : AB.ink2 }}>{r.score}</span>
+                <span style={{ display: 'block', fontFamily: MONO, fontSize: 16, fontWeight: 600, color: top3 ? AB.acid : AB.ink2 }}>{r.score}</span>
                 <span style={{ display: 'block', fontFamily: MONO, fontSize: 9, letterSpacing: '.1em', color: AB.ink3 }}>BODOVA</span>
               </span>
             </div>

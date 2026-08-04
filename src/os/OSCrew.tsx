@@ -74,7 +74,7 @@ export const OSCrew = ({ eventId, venueId, title, onClose, crewId: fixedCrew }: 
       <div style={{ padding: 'calc(env(safe-area-inset-top) + 14px) 16px 12px', borderBottom: `1px solid ${OS.line}` }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: G.afterparty }}>TVOJA EKIPA VEČERAS</div>
+            <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: OS.ink5 }}>TVOJA EKIPA VEČERAS</div>
             <div style={{ fontSize: 17, fontWeight: 700, color: OS.ink, marginTop: 2 }}>{crew?.crew?.venue || title || 'Nađi ekipu'}</div>
           </div>
           <button onClick={close} className="os-press" style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,.06)', border: 0, cursor: 'pointer', color: OS.ink }}>✕</button>

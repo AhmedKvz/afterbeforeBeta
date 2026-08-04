@@ -96,7 +96,7 @@ const SifraTab = ({ onClose }: { onClose: () => void }) => {
   // matched
   if (st.completed) return card(<>
     <div style={{ fontSize: 40, marginBottom: 10, animation: 'os-stamp .5s cubic-bezier(.16,1,.3,1)' }}>🖤</div>
-    <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: G.festival }}>ŠIFRA SASTAVLJENA</div>
+    <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: 'var(--ab-acid)' }}>ŠIFRA SASTAVLJENA</div>
     <div style={{ fontSize: 21, fontWeight: 800, color: OS.ink, marginTop: 8 }}>{st.other_name || 'Tvoja polovina'}</div>
     <div style={{ fontSize: 13.5, color: OS.ink4, marginTop: 8 }}>Upoznali ste se kako se u ovom gradu upoznaje — uživo. Quest progres upisan.</div>
     <button onClick={onClose} className="os-press" style={{ marginTop: 18, width: '100%', minHeight: 46, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 700, fontSize: 14, background: G.festival, color: '#0B0B0D' }}>Nazad u noć →</button>
@@ -105,10 +105,10 @@ const SifraTab = ({ onClose }: { onClose: () => void }) => {
   return card(<>
     <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.18em', color: OS.ink5 }}>{st.venue?.toUpperCase()} · MISIJA</div>
     <div style={{ fontSize: 14, color: OS.ink3, marginTop: 8, lineHeight: 1.5 }}>{st.mission}</div>
-    <div style={{ margin: '18px 0 6px', fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: G.underground }}>TVOJA POLOVINA ŠIFRE</div>
+    <div style={{ margin: '18px 0 6px', fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: 'var(--ab-uv)' }}>TVOJA POLOVINA ŠIFRE</div>
     <div style={{ fontFamily: MONO, fontSize: 30, fontWeight: 600, letterSpacing: '.06em', color: OS.ink, textShadow: `0 0 30px ${hexA(G.underground, 0.6)}` }}>„{st.my_code}"</div>
     {st.me_confirmed
-      ? <div style={{ fontFamily: MONO, fontSize: 11, color: G.house, marginTop: 18 }}>ČEKA SE POTVRDA DRUGE STRANE…</div>
+      ? <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink5, marginTop: 18 }}>ČEKA SE POTVRDA DRUGE STRANE…</div>
       : <button onClick={confirm} disabled={busy} className="os-press" style={{ marginTop: 18, width: '100%', minHeight: 48, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 800, fontSize: 14.5, background: G.underground, color: '#fff' }}>{busy ? '…' : 'NAŠLI SMO SE — POTVRDI ✓'}</button>}
     <div style={{ fontFamily: MONO, fontSize: 9, color: OS.ink6, marginTop: 12 }}>JAVNA ZONA · IZLAZ KAD GOD HOĆEŠ · 🚩 PRIJAVA U CHATU RADI I OVDE</div>
   </>, G.underground);
@@ -168,7 +168,7 @@ const CrewSifraTab = ({ onClose }: { onClose: () => void }) => {
       <strong style={{ color: OS.ink2 }}>Čin 2:</strong> negde u mestu je ekipa sa drugom polovinom. Nađite ih.
       Imena tek kad obe ekipe potvrde.
     </div>
-    {st.status === 'need_more' && <div style={{ fontFamily: MONO, fontSize: 11, color: G.house, marginTop: 12 }}>U IGRI: {st.opted} — TREBA JOŠ {Math.max(0, 2 - (st.opted || 0))} IZ EKIPE DA UĐE</div>}
+    {st.status === 'need_more' && <div style={{ fontFamily: MONO, fontSize: 11, color: OS.ink5, marginTop: 12 }}>U IGRI: {st.opted} — TREBA JOŠ {Math.max(0, 2 - (st.opted || 0))} IZ EKIPE DA UĐE</div>}
     <button onClick={join} disabled={busy} className="os-press" style={{ marginTop: 18, width: '100%', minHeight: 50, borderRadius: 14, border: 0, cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#0B0B0D', background: `linear-gradient(135deg,${G.community},${G.festival})` }}>{busy ? '…' : st.status === 'need_more' ? 'U IGRI SI — ZOVI OSTALE' : 'ULAZIM SA EKIPOM'}</button>
   </>, G.community);
 
@@ -181,7 +181,7 @@ const CrewSifraTab = ({ onClose }: { onClose: () => void }) => {
 
   if (st.completed) return card(<>
     <div style={{ fontSize: 40, marginBottom: 10, animation: 'os-stamp .5s cubic-bezier(.16,1,.3,1)' }}>🖤🖤</div>
-    <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: G.festival }}>ŠIFRA SASTAVLJENA · EKIPE SPOJENE</div>
+    <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: 'var(--ab-acid)' }}>ŠIFRA SASTAVLJENA · EKIPE SPOJENE</div>
     <div style={{ fontSize: 16, fontWeight: 700, color: OS.ink, marginTop: 10, lineHeight: 1.5 }}>{st.other_members || 'Druga ekipa'}</div>
     <div style={{ fontSize: 13.5, color: OS.ink4, marginTop: 8 }}>Večeras ste jedna scena. Poruka je u oba crew chata.</div>
     <button onClick={onClose} className="os-press" style={{ marginTop: 18, width: '100%', minHeight: 46, borderRadius: 13, border: 0, cursor: 'pointer', fontWeight: 700, fontSize: 14, background: G.festival, color: '#0B0B0D' }}>Nazad u noć →</button>

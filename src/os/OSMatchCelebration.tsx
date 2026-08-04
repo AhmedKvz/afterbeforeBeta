@@ -11,7 +11,7 @@ const Av = ({ name, avatar, size = 84 }: { name?: string | null; avatar?: string
 /** The MATCH moment — a mutual spark deserves a beat, not a silent toast. */
 export const OSMatchCelebration = ({ otherName, otherAvatar, onClose, onOpenChat }: Props) => (
   <div style={{ position: 'fixed', inset: 0, zIndex: 160, background: `radial-gradient(120% 80% at 50% 30%, ${hexA(G.afterparty, 0.22)}, ${OS.bgDeep} 70%)`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-    <div style={{ fontFamily: MONO, fontSize: 12, letterSpacing: '.3em', color: G.afterparty, marginBottom: 20, animation: 'os-pulse 1.6s ease-in-out infinite' }}>✨ ISKRA JE UZAJAMNA ✨</div>
+    <div style={{ fontFamily: MONO, fontSize: 12, letterSpacing: '.3em', color: 'var(--ab-acid)', marginBottom: 20, animation: 'os-pulse 1.6s ease-in-out infinite' }}>✨ ISKRA JE UZAJAMNA ✨</div>
 
     <div style={{ display: 'flex', alignItems: 'center', marginBottom: 22 }}>
       <div style={{ marginRight: -18 }}><Av name="Ti" avatar={null} /></div>

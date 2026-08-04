@@ -61,7 +61,7 @@ export const OSDanceMode = ({ venueId, venueName, onClose }: Props) => {
             <div style={{ position: 'absolute', inset: 30, borderRadius: '50%', border: `2px solid ${hexA(G.afterparty, glow)}`, boxShadow: `0 0 ${20 + dance.intensity * 50}px ${hexA(G.afterparty, glow)}` }} />
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontFamily: MONO, fontWeight: 600, fontSize: 56, color: OS.ink, lineHeight: 1 }}>{dance.score}</div>
-              <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: '.16em', color: G.afterparty, marginTop: 6 }}>DANCE SCORE</div>
+              <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: '.16em', color: 'var(--ab-uv)', marginTop: 6 }}>DANCE SCORE</div>
             </div>
           </div>
           {/* intensity meter */}

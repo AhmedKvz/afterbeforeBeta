@@ -59,7 +59,7 @@ export const OSCampaign = ({ sponsoredId, onClose }: { sponsoredId: string; onCl
           <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
             <span style={{ fontSize: 26 }}>{c?.logo || '⭐'}</span>
             <div>
-              <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: G.house }}>SPONSOR · {(c?.venue || '').toUpperCase()}</div>
+              <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.16em', color: 'var(--ab-uv)' }}>SPONSOR · {(c?.venue || '').toUpperCase()}</div>
               <div style={{ fontSize: 17, fontWeight: 700, color: OS.ink }}>{c?.title || 'Kampanja'}</div>
             </div>
           </div>
@@ -70,7 +70,7 @@ export const OSCampaign = ({ sponsoredId, onClose }: { sponsoredId: string; onCl
       <div style={{ padding: '14px 16px 40px' }}>
         <div style={{ fontSize: 13.5, color: OS.ink3, lineHeight: 1.5 }}>{c?.description}</div>
         <div style={{ display: 'flex', gap: 8, margin: '12px 0 18px', flexWrap: 'wrap' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: MONO, fontSize: 10, color: G.festival, background: hexA(G.festival, 0.12), border: `1px solid ${hexA(G.festival, 0.3)}`, borderRadius: 8, padding: '5px 10px' }}>🏆 {c?.reward}</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: MONO, fontSize: 10, color: 'var(--ab-acid)', background: 'var(--ab-acid-soft)', border: '1px solid var(--ab-acid-dim)', borderRadius: 8, padding: '5px 10px' }}>🏆 {c?.reward}</span>
           <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, background: OS.surface, border: `1px solid ${OS.line}`, borderRadius: 8, padding: '5px 10px' }}>{acceptsVideo ? '🎬 VIDEO' : '📸 FOTO'}</span>
           <span style={{ fontFamily: MONO, fontSize: 10, color: OS.ink5, background: OS.surface, border: `1px solid ${OS.line}`, borderRadius: 8, padding: '5px 10px' }}>🗳 {c?.spots || 'GLASA SCENA'}</span>
         </div>
