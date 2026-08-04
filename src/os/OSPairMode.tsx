@@ -186,7 +186,7 @@ export const OSPairMode = () => {
             </div>
 
             {card.together > 0 && card.together_venue && (
-              <div style={{ marginTop: 12, padding: '9px 11px', borderRadius: 12, border: `1px solid ${AB.acidDim}`, background: 'oklch(0.88 0.19 158 / 0.08)' }}>
+              <div style={{ marginTop: 12, padding: '9px 11px', borderRadius: 12, border: `1px solid ${AB.acidDim}`, background: 'var(--ab-acid-soft)' }}>
                 <div style={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 600, letterSpacing: '.05em', color: AB.acid }}>
                   BILI STE ISTE NOĆI U {card.together_venue.toUpperCase()}
                 </div>

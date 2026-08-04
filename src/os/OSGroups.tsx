@@ -108,7 +108,7 @@ export const OSGroups = () => {
       {/* napravi grupu */}
       {!make ? (
         <button onClick={() => setMake(true)} className="os-press"
-          style={{ width: '100%', padding: 15, borderRadius: 16, cursor: 'pointer', textAlign: 'left', background: 'oklch(0.88 0.19 158 / 0.07)', border: `1px solid ${AB.acidDim}` }}>
+          style={{ width: '100%', padding: 15, borderRadius: 16, cursor: 'pointer', textAlign: 'left', background: 'var(--ab-acid-soft)', border: `1px solid ${AB.acidDim}` }}>
           <div style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-.01em', color: AB.ink }}>Otvori svoju grupu</div>
           <div style={{ fontSize: 13, color: AB.ink2, marginTop: 4 }}>Predžurka, izlazak, par za par, after — do 6 ljudi. Ostali se prijave.</div>
         </button>

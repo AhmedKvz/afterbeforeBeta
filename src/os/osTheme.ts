@@ -13,24 +13,29 @@ export const G = {
   community: '#56d6e6',
 } as const;
 
-/** Surface + ink scale. */
+/** Surface + ink scale.
+ *  MIGRACIJA 2026-08-04: OS.* više NIJE zasebna paleta — preslikan je na iste
+ *  --ab-* varijable kao AB.*. Time je 12 komponenti koje još koriste OS.*
+ *  (Ekipa, Dance, Točak, Stories, Kampanje, Set times, Match proslava…)
+ *  dobilo novu paletu bez izmene ijednog svog reda. Imena su zadržana da
+ *  ništa ne pukne; ink4–ink7 su mapirani na najbliži nivo nove skale. */
 export const OS = {
-  bgDeep: '#070708',
-  bg: '#0B0B0D',
-  surface: '#131417',
-  surface2: '#15161b',
-  surface3: '#0E0E11',
-  line: 'rgba(255,255,255,.06)',
-  line2: 'rgba(255,255,255,.08)',
-  ink: '#F5F5F5',
-  ink2: '#D4D7DE',
-  ink3: '#C9CCD4',
-  ink4: '#B6BAC4',
-  // lifted for contrast (was 8A8E98 / 6E727C / 54565E) — micro-labels must
-  // stay legible on the void in a dark club. Order ink5 > ink6 > ink7 kept.
-  ink5: '#9CA0AA',
-  ink6: '#868A94',
-  ink7: '#70747D',
+  bgDeep: 'var(--ab-void)',
+  bg: 'var(--ab-void)',
+  surface: 'var(--ab-surface)',
+  surface2: 'var(--ab-raised)',
+  surface3: 'var(--ab-surface)',
+  line: 'var(--ab-hairline)',
+  line2: 'var(--ab-hairline-strong)',
+  ink: 'var(--ab-ink)',
+  ink2: 'var(--ab-ink-2)',
+  ink3: 'var(--ab-ink-2)',
+  ink4: 'var(--ab-ink-2)',
+  // ink5–ink7 su bili sve tamniji sivi za mikro-labele → sada ink-3 (WCAG AA
+  // proveren) i disabled za najtamniji. Redosled svetline je očuvan.
+  ink5: 'var(--ab-ink-3)',
+  ink6: 'var(--ab-ink-3)',
+  ink7: 'var(--ab-ink-disabled)',
 } as const;
 
 export const MONO = "'IBM Plex Mono', monospace";
@@ -53,9 +58,9 @@ export const AB = {
 /** Role-based fixed field colors for dense lists (no per-genre rainbow).
  *  genre = blue · name = red · energy = green. Same across the whole app. */
 export const ROLE = {
-  genre: '#7AA0E8',
-  name: '#E8705F',
-  energy: '#34d399',
+  genre: 'var(--ab-ink-3)',   // žanr = tiha metapodatak linija, ne boja
+  name: 'var(--ab-ink)',      // ime događaja = najjače, belo
+  energy: 'var(--ab-acid)',   // energija/prisustvo = jedini acid u listi
 } as const;
 
 /** hex + alpha → rgba() string. */

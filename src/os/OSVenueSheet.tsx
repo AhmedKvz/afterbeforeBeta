@@ -270,7 +270,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px 0' }}>
           <button onClick={() => setFollowing((f) => !f)} className="os-press" style={{ flex: 'none', padding: '10px 18px', borderRadius: 999, cursor: 'pointer', fontWeight: 700, fontSize: 14, border: following ? `1px solid ${AB.line2}` : 0, background: following ? 'transparent' : venue.col, color: following ? AB.ink2 : '#0B0B0D' }}>{following ? '✓ Pratiš' : '+ Prati'}</button>
 
-          <button onClick={checkIn} disabled={busy} className="os-press" style={{ marginLeft: 'auto', flex: 'none', padding: '10px 16px', borderRadius: 999, cursor: busy ? 'default' : 'pointer', fontWeight: 600, fontSize: 13, border: `1px solid ${done ? 'transparent' : AB.acidDim}`, background: done ? 'oklch(0.88 0.19 158 / 0.15)' : 'transparent', color: done ? AB.acid : AB.acidDim, opacity: busy ? 0.6 : 1 }}>{done ? '✓ Tu si' : '📍 Check-in'}</button>
+          <button onClick={checkIn} disabled={busy} className="os-press" style={{ marginLeft: 'auto', flex: 'none', padding: '10px 16px', borderRadius: 999, cursor: busy ? 'default' : 'pointer', fontWeight: 600, fontSize: 13, border: `1px solid ${done ? 'transparent' : AB.acidDim}`, background: done ? 'var(--ab-acid-soft)' : 'transparent', color: done ? AB.acid : AB.acidDim, opacity: busy ? 0.6 : 1 }}>{done ? '✓ Tu si' : '📍 Check-in'}</button>
         </div>
 
         {/* IG + kako stići */}
@@ -296,7 +296,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
               <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.12em', color: AB.ink3 }}>KO JE TU · {here}</span>
               <button onClick={toggleVisible} disabled={setPresence.isPending} style={{ display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer', background: 'transparent', border: 0, padding: 0 }}>
                 <span style={{ fontFamily: MONO, fontSize: 10, color: meVisible ? AB.acid : AB.ink3 }}>{meVisible ? 'VISIBLE' : 'GHOST'}</span>
-                <span style={{ width: 38, height: 22, borderRadius: 999, border: `1px solid ${AB.line2}`, background: meVisible ? 'oklch(0.88 0.19 158 / 0.3)' : 'rgba(255,255,255,.06)', position: 'relative', display: 'inline-block' }}>
+                <span style={{ width: 38, height: 22, borderRadius: 999, border: `1px solid ${AB.line2}`, background: meVisible ? 'var(--ab-acid-soft)' : 'rgba(255,255,255,.06)', position: 'relative', display: 'inline-block' }}>
                   <span style={{ position: 'absolute', top: 2, left: meVisible ? 18 : 2, width: 16, height: 16, borderRadius: '50%', background: AB.ink, transition: 'left .2s' }} />
                 </span>
               </button>
@@ -464,7 +464,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
         </div>
       </div>
       {/* check-in proslava — os-xp float sa stvarnim REP awardom (motion audit 🟢1) */}
-      {award && <div style={{ position: 'fixed', left: '50%', bottom: 170, zIndex: 70, fontFamily: MONO, fontWeight: 600, fontSize: 19, color: AB.acid, textShadow: '0 0 24px oklch(0.88 0.19 158 / 0.6)', animation: 'os-xp 1.4s ease forwards', pointerEvents: 'none' }}>+{award} REP</div>}
+      {award && <div style={{ position: 'fixed', left: '50%', bottom: 170, zIndex: 70, fontFamily: MONO, fontWeight: 600, fontSize: 19, color: AB.acid, textShadow: '0 0 24px var(--ab-acid-glow)', animation: 'os-xp 1.4s ease forwards', pointerEvents: 'none' }}>+{award} REP</div>}
       {feedback && <OSFeedbackSheet venueId={feedback} onDone={() => setFeedback(null)} />}
       {dareOpen && <OSDareWheel onClose={() => setDareOpen(false)} />}
       {danceOpen && <OSDanceMode venueId={venue.venueId} venueName={venue.name} onClose={() => setDanceOpen(false)} />}

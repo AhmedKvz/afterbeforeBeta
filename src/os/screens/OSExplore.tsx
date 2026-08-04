@@ -136,7 +136,7 @@ export const OSExplore = ({ onOpenVenue, embedded }: { onOpenVenue: (v: OSVenue)
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontFamily: MONO, fontSize: 10, color: ghost ? AB.ink3 : AB.acid }}>{ghost ? 'GHOST' : 'VISIBLE'}</span>
-          <button onClick={() => setGhost((g) => !g)} aria-label="Vidljivost" style={{ cursor: 'pointer', width: 42, height: 24, borderRadius: 999, border: `1px solid ${AB.line2}`, background: ghost ? 'rgba(255,255,255,.06)' : 'oklch(0.88 0.19 158 / 0.3)', position: 'relative', padding: 0 }}>
+          <button onClick={() => setGhost((g) => !g)} aria-label="Vidljivost" style={{ cursor: 'pointer', width: 42, height: 24, borderRadius: 999, border: `1px solid ${AB.line2}`, background: ghost ? 'rgba(255,255,255,.06)' : 'var(--ab-acid-soft)', position: 'relative', padding: 0 }}>
             <span style={{ position: 'absolute', top: 2, left: ghost ? 2 : 20, width: 18, height: 18, borderRadius: '50%', background: AB.ink, transition: 'left .2s' }} />
           </button>
         </div>

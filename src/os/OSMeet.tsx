@@ -167,7 +167,7 @@ export const OSMeet = () => {
                 <div style={{ padding: 15 }}>
                   {/* co-presence — signal koji samo mi imamo */}
                   {card.together > 0 && card.together_last && (
-                    <div style={{ padding: '10px 12px', borderRadius: 12, background: 'oklch(0.88 0.19 158 / 0.08)', border: `1px solid ${AB.acidDim}`, marginBottom: 12 }}>
+                    <div style={{ padding: '10px 12px', borderRadius: 12, background: 'var(--ab-acid-soft)', border: `1px solid ${AB.acidDim}`, marginBottom: 12 }}>
                       <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, letterSpacing: '.06em', color: AB.acid }}>
                         BILI STE ISTE NOĆI U {card.together_last.venue.toUpperCase()}
                       </div>

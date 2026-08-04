@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { OS } from './osTheme';
+import { OS, AB } from './osTheme';
 import { OSOrbNav, OSScreen } from './OSOrbNav';
 import { OSHome } from './screens/OSHome';
 import { OSProfile } from './screens/OSProfile';
@@ -80,7 +80,7 @@ export const OSApp = () => {
 
   if (loading || !profile) {
     return (
-      <div style={{ minHeight: '100vh', background: OS.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ minHeight: '100vh', background: AB.void, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <span style={{ width: 54, height: 54, borderRadius: '50%', background: 'conic-gradient(from 200deg,#a64dff,#3b6fe6,#56d6e6,#34d399,#a64dff)', animation: 'os-pulse 1.6s ease-in-out infinite' }} />
       </div>
     );
@@ -89,7 +89,7 @@ export const OSApp = () => {
   return (
     <div
       className="os-scroll os-phone-frame"
-      style={{ minHeight: '100vh', background: OS.bg, color: OS.ink, fontFamily: "'Inter',system-ui,sans-serif", position: 'relative', overflowX: 'hidden' }}
+      style={{ minHeight: '100vh', background: AB.void, color: AB.ink, fontFamily: "'Inter',system-ui,sans-serif", position: 'relative', overflowX: 'hidden' }}
     >
       {/* key={screen} → os-screen enter na svaku promenu ekrana (motion audit 🔴1) */}
       <div key={screen} style={{ animation: 'os-screen .18s cubic-bezier(.22,1,.36,1) both' }}>

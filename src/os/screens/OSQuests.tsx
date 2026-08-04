@@ -418,7 +418,7 @@ export const OSQuests = ({ embedded }: { embedded?: boolean } = {}) => {
               const claimed = claimedDates.has(d);
               return (
                 <div key={d} style={{ flex: 1, textAlign: 'center' }}>
-                  <div style={{ height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: claimed ? 'oklch(0.88 0.19 158 / 0.14)' : AB.surface, border: `1px solid ${claimed ? AB.acidDim : AB.line}`, fontSize: 15 }}>{claimed ? '🔥' : <span style={{ color: AB.ink3 }}>·</span>}</div>
+                  <div style={{ height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: claimed ? 'var(--ab-acid-soft)' : AB.surface, border: `1px solid ${claimed ? AB.acidDim : AB.line}`, fontSize: 15 }}>{claimed ? '🔥' : <span style={{ color: AB.ink3 }}>·</span>}</div>
                   <div style={{ ...MTAG, fontSize: 9, color: AB.ink3, marginTop: 4 }}>{DAYS[i]}</div>
                 </div>
               );
@@ -439,7 +439,7 @@ export const OSQuests = ({ embedded }: { embedded?: boolean } = {}) => {
         </div>
       )}
 
-      {xp.show && <div style={{ position: 'fixed', left: '50%', bottom: 150, zIndex: 200, ...MTAG, fontSize: 19, color: AB.acid, textShadow: '0 0 24px oklch(0.88 0.19 158 / 0.6)', animation: 'os-xp 1.4s ease forwards', pointerEvents: 'none' }}>+{xp.val} XP</div>}
+      {xp.show && <div style={{ position: 'fixed', left: '50%', bottom: 150, zIndex: 200, ...MTAG, fontSize: 19, color: AB.acid, textShadow: '0 0 24px var(--ab-acid-glow)', animation: 'os-xp 1.4s ease forwards', pointerEvents: 'none' }}>+{xp.val} XP</div>}
       {dare && <OSDareWheel onClose={() => setDare(false)} />}
       {campaign && <OSCampaign sponsoredId={campaign} onClose={() => setCampaign(null)} />}
     </Shell>

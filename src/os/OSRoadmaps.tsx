@@ -60,7 +60,7 @@ export const RoadmapMaker = ({ passport }: { passport?: boolean } = {}) => {
   const inp = { width: '100%', background: AB.void, border: `1px solid ${AB.line2}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, color: AB.ink, outline: 'none' } as const;
 
   if (!open) return passport ? (
-    <button onClick={() => setOpen(true)} className="os-press" style={{ width: '100%', padding: 16, borderRadius: 16, border: `1px solid ${AB.acidDim}`, cursor: 'pointer', background: 'oklch(0.88 0.19 158 / 0.06)', textAlign: 'left' }}>
+    <button onClick={() => setOpen(true)} className="os-press" style={{ width: '100%', padding: 16, borderRadius: 16, border: `1px solid ${AB.acidDim}`, cursor: 'pointer', background: 'var(--ab-acid-soft)', textAlign: 'left' }}>
       <span style={{ display: 'block', fontWeight: 800, fontSize: 18, letterSpacing: '-.01em', color: AB.ink }}>Petak je blizu.</span>
       <span style={{ display: 'block', fontSize: 13.5, color: AB.ink2, marginTop: 4 }}>Sastavi svoju rutu — grad ide za onim ko zna gde se izlazi.</span>
       <span style={{ display: 'inline-block', marginTop: 12, fontWeight: 700, fontSize: 14, color: AB.acidInk, background: AB.acid, borderRadius: 999, padding: '10px 18px' }}>Sastavi rutu →</span>
@@ -142,7 +142,7 @@ export const RoadmapRail = () => {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 11 }}>
               {m.status === 'approved' && (
-                <button onClick={() => save.mutate(m.id)} disabled={save.isPending} className="os-press" style={{ flex: 1, minHeight: 36, borderRadius: 999, cursor: 'pointer', fontSize: 12.5, fontWeight: 700, border: m.my_saved ? '1px solid transparent' : `1px solid ${AB.line2}`, background: m.my_saved ? 'oklch(0.88 0.19 158 / 0.15)' : 'transparent', color: m.my_saved ? AB.acid : AB.ink2 }}>
+                <button onClick={() => save.mutate(m.id)} disabled={save.isPending} className="os-press" style={{ flex: 1, minHeight: 36, borderRadius: 999, cursor: 'pointer', fontSize: 12.5, fontWeight: 700, border: m.my_saved ? '1px solid transparent' : `1px solid ${AB.line2}`, background: m.my_saved ? 'var(--ab-acid-soft)' : 'transparent', color: m.my_saved ? AB.acid : AB.ink2 }}>
                   {m.my_saved ? '✓ Sačuvana' : 'Sačuvaj rutu'}
                 </button>
               )}

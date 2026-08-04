@@ -64,7 +64,7 @@ export const OSNightHub = ({ night, onClose }: { night: MyNight; onClose: () => 
           <div style={{ fontSize: 14.5, fontWeight: 700, letterSpacing: '-.01em', color: AB.ink }}>{here} {here === 1 ? 'osoba' : 'ljudi'} ovde</div>
           <div style={{ ...MTAG, fontSize: 10, color: AB.ink3, marginTop: 3 }}>{meVisible ? 'VIDE TE · ISTIČE SAM' : 'GHOST · BROJE TE, NE VIDE'}</div>
         </div>
-        <button onClick={toggleVisible} disabled={setPresence.isPending} aria-label="Vidljivost" style={{ flex: 'none', cursor: 'pointer', width: 46, height: 27, borderRadius: 999, border: `1px solid ${AB.line2}`, background: meVisible ? 'oklch(0.88 0.19 158 / 0.3)' : 'rgba(255,255,255,.06)', position: 'relative', padding: 0 }}>
+        <button onClick={toggleVisible} disabled={setPresence.isPending} aria-label="Vidljivost" style={{ flex: 'none', cursor: 'pointer', width: 46, height: 27, borderRadius: 999, border: `1px solid ${AB.line2}`, background: meVisible ? 'var(--ab-acid-soft)' : 'rgba(255,255,255,.06)', position: 'relative', padding: 0 }}>
           <span style={{ position: 'absolute', top: 2, left: meVisible ? 21 : 2, width: 21, height: 21, borderRadius: '50%', background: meVisible ? AB.acid : AB.ink2, transition: 'left .2s' }} />
         </button>
       </div>
