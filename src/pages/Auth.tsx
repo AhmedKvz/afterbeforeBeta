@@ -80,15 +80,19 @@ const Auth = () => {
 
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password, accountType || 'party_goer');
+        const { error, needsConfirmation } = await signUp(email, password, accountType || 'party_goer');
         if (error) {
-          if (error.message.includes('already registered')) {
+          if (error.message.includes('already registered') || error.message.includes('already been registered')) {
             toast.error('Ovaj email je već registrovan — prijavi se.');
           } else {
             toast.error(error.message);
           }
-        } else {
+        } else if (needsConfirmation) {
+          // samo ako projekat traži potvrdu mejla (trenutno ne traži)
           toast.success('Proveri email da potvrdiš nalog!');
+        } else {
+          toast.success('Nalog je napravljen ✓');
+          navigate('/');
         }
       } else {
         const { error } = await signIn(email, password);

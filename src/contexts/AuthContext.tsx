@@ -42,7 +42,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, accountType?: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, accountType?: string) => Promise<{ error: Error | null; needsConfirmation?: boolean }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -106,8 +106,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (email: string, password: string, accountType?: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
+
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -117,7 +117,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     if (!error) track('signup', { account_type: accountType || 'party_goer' });
-    return { error: error as Error | null };
+    // BUG FIX 2026-08-04: potvrda mejla je na projektu ISKLJUČENA — signUp
+    // odmah vraća sesiju. Ekran je i dalje govorio „proveri email" i nije
+    // vodio nikuda, pa je korisnik čekao mejl koji nikad ne stiže i mislio
+    // da registracija ne radi. Sada ekran zna istinu: sesija = uđi odmah.
+    return { error: error as Error | null, needsConfirmation: !error && !data.session };
   };
 
   const signIn = async (email: string, password: string) => {
