@@ -301,7 +301,7 @@ export const OSQuests = ({ embedded }: { embedded?: boolean } = {}) => {
                           ? <button onClick={() => setCampaign(s.id)} className="os-press" style={{ flex: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700, minHeight: 40, padding: '10px 16px', borderRadius: 999, border: 0, background: G.house, color: '#0B0B0D' }}>Uđi · glasaj</button>
                           : s.accepted
                           ? <span style={{ ...MTAG, fontSize: 10, color: doneS ? ROLE.energy : AB.ink3 }}>{doneS ? '✓ ZAVRŠENO' : `${s.progress}/${s.target_count} · U TOKU`}</span>
-                          : <button onClick={() => accept(s.id)} disabled={isAccepting} className="os-press" style={{ flex: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700, minHeight: 40, padding: '10px 16px', borderRadius: 999, border: 0, background: G.house, color: '#0B0B0D' }}>Prihvati</button>}
+                          : <button onClick={() => { track('mission_accepted', { quest_id: s.id, kind: 'sponsored' }); accept(s.id); }} disabled={isAccepting} className="os-press" style={{ flex: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700, minHeight: 40, padding: '10px 16px', borderRadius: 999, border: 0, background: G.house, color: '#0B0B0D' }}>Prihvati</button>}
                       </div>
                     </div>
                   );

@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useVenueDirectory, useHeatVenues } from '@/hooks/useHeatVenues';
 import { useQuests } from '@/hooks/useQuests';
+import { track } from '@/lib/analytics';
 import { OSExplore } from './OSExplore';
 import { OSQuests } from './OSQuests';
 import { OSMeet } from '../OSMeet';
@@ -52,6 +53,11 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
   // IA v2 §11.1 + Pasoš odluka: jedan ekran, tri prikaza — Lista | Karta | Misije.
   // Misije žive PORED akcije (GRAD), ne u identitetu (PREDLOG-JA-PASOS §5).
   const [view, setView] = useState<'lista' | 'karta' | 'misije' | 'ljudi'>('lista');
+  // Analitika prikaza: jednom po prelasku, da se vidi koji deo GRAD-a ljudi zaista otvore.
+  useEffect(() => {
+    if (view === 'misije') track('mission_viewed', { source: 'grad' });
+    if (view === 'ljudi') track('crew_viewed', { source: 'grad' });
+  }, [view]);
   useEffect(() => {
     const go = (e: any) => { const v = e?.detail; if (v === 'lista' || v === 'karta' || v === 'misije' || v === 'ljudi') setView(v); };
     window.addEventListener('ab-grad-view', go);

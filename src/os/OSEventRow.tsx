@@ -1,4 +1,5 @@
 import { AB, OS, MONO, ROLE } from './osTheme';
+import { track } from '@/lib/analytics';
 
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAJ', 'JUN', 'JUL', 'AVG', 'SEP', 'OKT', 'NOV', 'DEC'];
 const DOW3 = ['NED', 'PON', 'UTO', 'SRE', 'ČET', 'PET', 'SUB'];
@@ -15,9 +16,12 @@ export const OSEventRow = ({ e, past, onClick, state }: { e: any; past?: boolean
   const d = e.date ? new Date(e.date) : null;
   const genre = (e.music_genres || []).slice(0, 2).join(' · ') || 'TBA';
   const Tag = onClick ? 'button' : 'div';
+  // Jedan red = jedan događaj; klik na njega je jedini pouzdan signal da je
+  // događaj stvarno pogledan (scroll kroz listu nije).
+  const open = onClick ? () => { track('event_viewed', { event_id: e.id ?? null, venue: e.venue_name ?? e.venue ?? null, past: !!past }); onClick(); } : undefined;
   return (
     <Tag
-      onClick={onClick}
+      onClick={open}
       style={{
         display: 'flex', alignItems: 'stretch', gap: 14, width: '100%', textAlign: 'left',
         padding: '13px 0', opacity: past ? 0.62 : 1, background: 'transparent',

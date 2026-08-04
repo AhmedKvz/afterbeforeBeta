@@ -204,6 +204,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
   };
   const idem = () => {
     if (!venue.venueId) return;
+    track('going_clicked', { venue: venue.name, venue_id: venue.venueId });
     signalIntent.mutate({ venue: venue.venueId });
     if (user) incrementQuestProgress(user.id, 'signal').catch(() => {});
   };

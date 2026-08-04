@@ -243,3 +243,69 @@ verzija koja ide na pravnu proveru pre javnog lansiranja.
 3. **Dva glasa** i dalje postoje: landing govori „earning layer / Phase 2",
    aplikacija „koliko ljudi je večeras napolju". Preraspored je ublažio,
    ali odluka o punom `/scena` splitu je tvoja.
+
+---
+
+## Dodatak E — Landing IA v3 + analitika petlje (2026-08-04)
+
+**Zatečeno stanje.** Landing (`afterbefore-landing/index.html`, statički HTML na
+grani `landing`) objašnjavao je viziju pre nego proizvod: `kako-radi` je bio
+jedna sekcija sa četiri apstraktna koraka, a Phase 2 / zarada zauzimali su više
+prostora od same bete. Posetilac nije mogao da odgovori na „šta ovo radi večeras".
+
+**Nova arhitektura (11 sekcija, redosled je poruka).**
+
+| # | Sekcija | Zadatak |
+|---|---------|---------|
+| 1 | Hero | jedna rečenica: nađi → vidi energiju → ekipa → pasoš |
+| 2 | `#vecera-s` Večeras u Beogradu | proizvod odmah — kartice sa „planira" vs „je tu" |
+| 3 | `#kako-radi` | 6 koraka + eksplicitna razlika **Idem** ↔ **Tu sam** |
+| 4 | `#pasos` Pasoš noći | „Svaka noć ostavlja trag." + Podeli noć |
+| 5 | `#ekipe` | max 6, slot krugovi, „Lokacija dostupna nakon odobrenja." |
+| 6 | `#misija` | jedna misija kroz ceo životni ciklus (6 faza) |
+| 7 | `#venue` | „Od online interesovanja do stvarnih dolazaka." + dashboard + pilot |
+| 8 | `#status` | validacija sa oznakama, bez nepotkrepljenih brojeva |
+| 9 | `#bezbednost` | privatnost kao 6 tvrdnji koje kod stvarno ispunjava |
+| 10 | `#kasnije` | roadmap — spojene stare `scena`/`zarada`/`phase2` |
+| 11 | `#prijava` | opšta prijava + **pilot forma za prostore** |
+
+**Ključne odluke.**
+- Svaki izmišljen broj nosi `DEMO PRIKAZ` oznaku. Nigde nema tvrdnje o broju
+  korisnika, klubova ni preuzimanja.
+- Monetizacija je izbačena iz glavnog toka i svedena na roadmap sa disklejmerom
+  („Prihod nije garantovan"). Beta priča je sada duža od Phase 2 priče.
+- Vizuelni sistem je netaknut — iste `--acid/--line/--muted` promenljive, isti
+  `.card/.eyebrow/.section-head` primitivi. Dodato je ~40 linija CSS-a za nove
+  komponente, ništa nije prepisano.
+
+**Forme.** Obe idu na postojeći `landing_signup` RPC (`SECURITY DEFINER`,
+tabela deny-all). Pilot forma šalje `role='venue'`, uz klijentsku validaciju
+(naziv, grad, kontakt osoba, email) sa inline greškama na srpskom.
+⚠️ Naziv prostora / grad / kontakt osoba **se trenutno ne upisuju** — RPC prima
+samo `(email, role)`. Lead nije izgubljen (email + uloga stižu u War Room), ali
+za pun zapis treba migracija koja doda kolone i proširi RPC.
+
+**Analitika.** Landing sada šalje na isti `track` RPC koji koristi aplikacija
+(anon je dozvoljen — provereno, 204), pa se landing i app događaji vide u jednom
+toku pod `surface:'landing'`:
+`landing_view`, `section_viewed` po sekciji (IntersectionObserver, jednom po
+učitavanju), `cta_*`, `going_clicked`, `passport_shared`,
+`registration_started/completed/failed`, `pilot_form_started/submitted/failed`.
+
+U aplikaciji dodato 6 događaja koji su nedostajali (postojalo ih je 26):
+`event_viewed` (klik na red događaja), `going_clicked` (Idem u venue sheetu),
+`mission_viewed` / `crew_viewed` (prelazak na MISIJE / LJUDI u GRAD-u),
+`mission_accepted` (Prihvati na sponzorisanoj misiji), `passport_opened` /
+`passport_created` / `passport_shared` (JA).
+
+**Provereno.** `tsc --noEmit` čist · `vite build` prolazi · landing bez konzolnih
+grešaka, bez horizontalnog scroll-a na 375px · validacija pilot forme testirana
+(prazna polja → inline greške; ispravna → poziv ka `landing_signup` pa `track`) ·
+u aplikaciji potvrđeno da `mission_viewed`, `crew_viewed`, `passport_opened` i
+`event_viewed` stvarno lete.
+
+**Nije urađeno / ostaje.**
+1. Migracija za pilot polja (naziv/grad/kontakt) — traži svež `SBP_TOKEN`.
+2. Tri QA naloga iz istrage registracije (`qa.reg.*`, `qa.reg5.*`, `qa.ui.*`)
+   su još u produkciji — brisanje traži isti token.
+3. Landing **nije deplojovan** — čeka tvoju potvrdu.

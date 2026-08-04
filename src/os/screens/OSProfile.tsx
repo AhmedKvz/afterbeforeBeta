@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -58,6 +58,17 @@ export const OSProfile = () => {
   const navigate = useNavigate();
   const { data: referral } = useMyReferral();
   const { data: pass } = usePassport();
+  // Pasoš analitika: otvaranje se meri jednom po ulasku u JA; `passport_created`
+  // se javi kad se prva noć upiše (prelaz 0 → 1), ne na svakom renderu.
+  const passSeen = useRef(false);
+  const hadNights = useRef<number | null>(null);
+  useEffect(() => {
+    if (!pass) return;
+    const n = pass.nights?.length || 0;
+    if (!passSeen.current) { passSeen.current = true; track('passport_opened', { nights: n, stamps: pass.stamps?.length || 0 }); }
+    if (hadNights.current === 0 && n > 0) track('passport_created', { nights: n });
+    hadNights.current = n;
+  }, [pass]);
   // Redesign §15: acid pasoš kartica traži stvarne brojeve — nikad hardkod.
   const { data: counts } = useQuery({
     queryKey: ['ja-passport-counts', user?.id],
@@ -110,6 +121,7 @@ export const OSProfile = () => {
     const url = `${APP_URL}#/?ref=${code}`;
     const text = `Uđi u AfterBefore — Nightlife OS za Beograd. Kod: ${code}`;
     track('referral_share', { code });
+    track('passport_shared', { nights: pass?.nights?.length || 0 });
     try {
       if ((navigator as any).share) { await (navigator as any).share({ title: 'AfterBefore', text, url }); }
       else { await navigator.clipboard.writeText(`${text} ${url}`); toast.success('Link kopiran ✓'); }
