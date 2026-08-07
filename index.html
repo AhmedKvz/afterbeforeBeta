@@ -37,6 +37,7 @@
       line-height:1.5;
       overflow-x:hidden;
     }
+    html{overflow-x:hidden}
     a{color:inherit;text-decoration:none}
     button,input,select{font:inherit}
     .container{width:min(var(--max),calc(100% - 32px));margin:auto}
@@ -111,6 +112,13 @@
     .grid{display:grid;gap:16px}
     .grid-3{grid-template-columns:repeat(3,1fr)}
     .grid-4{grid-template-columns:repeat(4,1fr)}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .label{display:inline-flex;padding:6px 10px;border-radius:999px;font:800 10px ui-monospace,monospace;letter-spacing:.1em;margin-bottom:18px}
+    .label-now{background:rgba(182,255,74,.14);color:var(--acid)}
+    .label-phase{background:rgba(139,92,246,.15);color:#c8b3ff}
+    ul.clean{list-style:none;padding:0;margin:0}
+    ul.clean li{padding:13px 0;border-bottom:1px solid var(--line);color:#d4d4d0}
+    ul.clean li:before{content:"↗";color:var(--acid);margin-right:10px}
     .card{
       position:relative;padding:26px;border:1px solid var(--line);border-radius:var(--radius);
       background:linear-gradient(150deg,rgba(255,255,255,.045),rgba(255,255,255,.015));
@@ -122,40 +130,12 @@
     }
     .index{font:800 11px ui-monospace,monospace;letter-spacing:.15em;color:var(--acid);margin-bottom:54px}
     .card p{color:var(--muted);font-size:15px}
-    .role{min-height:310px}
-    .role .tag{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:11px;margin-top:20px}
     .steps{counter-reset:step}
     .step{min-height:320px}
     .step:before{counter-increment:step;content:"0" counter(step);font:900 58px/1 ui-monospace,monospace;color:rgba(182,255,74,.3)}
-    .game-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
     .xp-panel{padding:30px;border-radius:var(--radius);border:1px solid rgba(182,255,74,.33);background:linear-gradient(145deg,rgba(182,255,74,.11),rgba(255,255,255,.02))}
     .bar{height:9px;background:#262a2f;border-radius:999px;overflow:hidden;margin:16px 0}
     .bar span{display:block;width:72%;height:100%;background:linear-gradient(90deg,var(--acid),#f8ffb0)}
-    .leader{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line)}
-    .leader:last-child{border-bottom:0}
-    .money{
-      background:
-        linear-gradient(140deg,rgba(182,255,74,.08),transparent 48%),
-        linear-gradient(300deg,rgba(139,92,246,.12),transparent 50%),
-        #101216;
-    }
-    .split{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-    .label{display:inline-flex;padding:6px 10px;border-radius:999px;font:800 10px ui-monospace,monospace;letter-spacing:.1em;margin-bottom:18px}
-    .label-now{background:rgba(182,255,74,.14);color:var(--acid)}
-    .label-phase{background:rgba(139,92,246,.15);color:#c8b3ff}
-    ul.clean{list-style:none;padding:0;margin:0}
-    ul.clean li{padding:13px 0;border-bottom:1px solid var(--line);color:#d4d4d0}
-    ul.clean li:before{content:"↗";color:var(--acid);margin-right:10px}
-    .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:30px}
-    .flow div{padding:19px;border:1px solid var(--line);border-radius:15px;font-weight:750}
-    .flow div:not(:last-child):after{content:"→";float:right;color:var(--acid)}
-    .roadmap{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:45px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
-    .roadmap div{padding:24px;border-right:1px solid var(--line);min-height:170px}
-    .roadmap div:last-child{border-right:0}
-    .roadmap strong{display:block;margin-bottom:35px;color:var(--acid)}
-    .trust{display:grid;grid-template-columns:1.1fr .9fr;gap:50px;align-items:start}
-    .trust-list{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .trust-item{padding:20px;border:1px solid var(--line);border-radius:16px}
     .final{padding-bottom:130px}
     .form{
       margin-top:45px;padding:28px;border:1px solid var(--line);border-radius:var(--radius);
@@ -167,16 +147,17 @@
     .footer-row{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}
     .ticker{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:13px 0;overflow:hidden;white-space:nowrap;color:var(--acid);font:800 12px ui-monospace,monospace;letter-spacing:.1em}
     .ticker span{display:inline-block;animation:tick 28s linear infinite}
+    .manifest{padding:52px 0 10px;text-align:center}
+    .manifest p{font-size:clamp(17px,2.6vw,23px);font-weight:850;letter-spacing:-.015em;margin:14px auto;max-width:820px}
+    .manifest p span{color:var(--acid)}
     @keyframes tick{to{transform:translateX(-50%)}}
     .mobile-toggle{display:none;background:none;border:0;color:white;font-size:25px}
     @media(max-width:900px){
-      .hero-grid,.section-head,.trust,.split,.game-grid{grid-template-columns:1fr}
+      .hero-grid,.section-head{grid-template-columns:1fr}
       .hero-grid{gap:20px}
       .phone-wrap{min-height:650px}
       .grid-3,.grid-4{grid-template-columns:1fr 1fr}
-      .flow,.roadmap{grid-template-columns:1fr 1fr}
-      .roadmap div:nth-child(2){border-right:0}
-      .roadmap div{border-bottom:1px solid var(--line)}
+      
       .nav-links{display:none;position:absolute;top:70px;left:0;right:0;padding:20px 16px;background:#0b0c0f;border-bottom:1px solid var(--line);flex-direction:column;align-items:flex-start}
       .nav-links.open{display:flex}
       .mobile-toggle{display:block}
@@ -185,72 +166,13 @@
     @media(max-width:620px){
       .container{width:min(100% - 22px,var(--max))}
       section{padding:82px 0}
-      .grid-3,.grid-4,.flow,.roadmap,.trust-list{grid-template-columns:1fr}
-      .roadmap div{border-right:0}
+      .split,.grid-3,.grid-4{grid-template-columns:1fr}
       h1{font-size:55px}
       .lead{font-size:18px}
       .hero{padding-top:50px}
       .phone-wrap{min-height:620px}
-      .card,.role,.step{min-height:auto}
+      .card,.step{min-height:auto}
       .section-head{margin-bottom:34px}
-    }
-
-    /* ── Redizajn IA 2026-08-04 ─────────────────────────────── */
-    .demo{display:inline-flex;align-items:center;gap:6px;font:700 10px ui-monospace,monospace;letter-spacing:.12em;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
-    .ev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
-    .ev{border:1px solid var(--line);border-radius:18px;padding:18px;background:rgba(255,255,255,.03);display:flex;flex-direction:column;gap:10px}
-    .ev-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-    .ev-venue{font-weight:850;font-size:20px;letter-spacing:-.02em}
-    .ev-time{font:700 12px ui-monospace,monospace;color:var(--muted)}
-    .ev-tags{display:flex;gap:6px;flex-wrap:wrap}
-    .ev-tag{border:1px solid var(--line);border-radius:5px;padding:4px 7px;font:700 10px ui-monospace,monospace;letter-spacing:.06em;color:#c8c8c4}
-    .ev-nums{display:flex;gap:14px;flex-wrap:wrap;font:700 12px ui-monospace,monospace;padding-top:4px;border-top:1px solid var(--line)}
-    .ev-going{color:var(--muted)}
-    .ev-here{color:var(--acid)}
-    .ev-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
-    .trend{display:inline-flex;align-items:center;gap:5px;color:var(--acid);font:700 11px ui-monospace,monospace}
-    .loop{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px;counter-reset:lp}
-    .lp{position:relative;border:1px solid var(--line);border-radius:18px;padding:20px;background:rgba(255,255,255,.025)}
-    .lp:before{counter-increment:lp;content:"0" counter(lp);font:800 11px ui-monospace,monospace;letter-spacing:.14em;color:var(--acid)}
-    .lp h3{margin:12px 0 6px;font-size:19px}
-    .lp p{font-size:14px;color:var(--muted);margin:0}
-    .lp .ui{margin-top:14px;border:1px dashed var(--line);border-radius:11px;padding:11px;font:700 11px ui-monospace,monospace;color:#c8c8c4;background:#0b0d10}
-    .vs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
-    .vs>div{border-radius:16px;padding:20px;border:1px solid var(--line)}
-    .vs .a{border-color:rgba(255,255,255,.18)}
-    .vs .b{border-color:rgba(182,255,74,.45);background:rgba(182,255,74,.05)}
-    .vs h4{margin:0 0 4px;font-size:17px}
-    .vs ul{margin:10px 0 0;padding-left:17px;font-size:13.5px;color:var(--muted)}
-    .vs li{margin:5px 0}
-    .pass{border:1px solid rgba(182,255,74,.4);border-radius:20px;padding:24px;background:linear-gradient(150deg,rgba(182,255,74,.09),rgba(255,255,255,.02))}
-    .pass-route{font-weight:850;font-size:clamp(20px,3vw,30px);letter-spacing:-.03em;line-height:1.15;margin:10px 0 6px}
-    .stamps{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
-    .stamp{border:1.5px solid rgba(182,255,74,.55);border-radius:9px;padding:6px 11px;font:700 11px ui-monospace,monospace;letter-spacing:.06em;color:var(--acid)}
-    .pass-row{display:flex;gap:22px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font:700 12px ui-monospace,monospace;color:var(--muted)}
-    .crew-row{display:flex;align-items:center;gap:14px;padding:15px 0;border-top:1px solid var(--line)}
-    .slots{display:flex;gap:6px}
-    .slot{width:30px;height:30px;border-radius:50%;border:1.5px dashed var(--line)}
-    .slot.on{border:0;background:linear-gradient(140deg,var(--blue),var(--acid))}
-    .ms{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:22px}
-    .ms div{border:1px solid var(--line);border-radius:12px;padding:14px 12px;font:700 11px ui-monospace,monospace;letter-spacing:.08em;color:var(--muted);text-align:center}
-    .ms div.on{border-color:rgba(182,255,74,.5);color:var(--acid)}
-    .dash{border:1px solid var(--line);border-radius:18px;padding:22px;background:#0d0f13;margin-top:22px}
-    .dash-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:16px}
-    .dash-grid div{border:1px solid var(--line);border-radius:13px;padding:15px}
-    .dash-n{font-weight:850;font-size:26px;letter-spacing:-.03em}
-    .dash-l{font:700 10px ui-monospace,monospace;letter-spacing:.1em;color:var(--muted);margin-top:5px}
-    .status li{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);list-style:none}
-    .form-2{grid-template-columns:1fr 1fr}
-    .status li:before{content:none}
-    .badge{font:700 10px ui-monospace,monospace;letter-spacing:.1em;padding:5px 9px;border-radius:6px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
-    .badge.wip{border-color:rgba(182,255,74,.4);color:var(--acid)}
-    .err{color:var(--danger);font-size:12.5px;margin-top:6px;display:none}
-    @media(max-width:900px){
-      .ev-grid,.loop,.ms,.dash-grid{grid-template-columns:1fr 1fr}
-      .vs{grid-template-columns:1fr}
-    }
-    @media(max-width:620px){
-      .ev-grid,.loop,.ms,.dash-grid,.form-2{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -260,11 +182,11 @@
       <a class="brand" href="#top">After<span>Before</span></a>
       <button class="mobile-toggle" aria-label="Otvori meni">☰</button>
       <div class="nav-links">
-        <a href="#vecera-s">Večeras</a>
         <a href="#kako-radi">Kako radi</a>
         <a href="#pasos">Pasoš noći</a>
-        <a href="#venue">Za prostore</a>
-        <a href="#kasnije">Šta dolazi</a>
+        <a href="#prostori">Za prostore</a>
+        <a href="#vizija">Vizija</a>
+        <a href="#prijava">Prijava</a>
         <a class="btn btn-primary" href="https://ahmedkvz.github.io/afterbeforeBeta/app/">Uđi u aplikaciju</a>
       </div>
     </div>
@@ -274,12 +196,12 @@
     <section class="hero" style="border-top:0">
       <div class="container hero-grid">
         <div>
-          <div class="eyebrow">Rođeno u Beogradu · građeno za svaki grad</div>
+          <div class="eyebrow">Od ravera, za ravere · rođeno u Beogradu</div>
           <h1>Grad izlazi. Ti vidiš gde je energija.</h1>
-          <p class="lead">Pronađi događaj, vidi gde raste energija, poveži se sa ekipom i sačuvaj noć u svom digitalnom pasošu.</p>
+          <p class="lead">AfterBefore povezuje događaje, ljude i domaću scenu u jedan živi sistem — pre, tokom i posle izlaska.</p>
           <div class="actions">
-            <a class="btn btn-primary" href="#vecera-s" data-ev="cta_tonight">Istraži večeras</a>
-            <a class="btn btn-secondary" href="#kako-radi" data-ev="cta_how">Pogledaj kako radi</a>
+            <a class="btn btn-primary" href="https://ahmedkvz.github.io/afterbeforeBeta/app/">Uđi u aplikaciju →</a>
+            <a class="btn btn-secondary" href="#prostori">Za prostore</a>
           </div>
           <div class="hero-note">OD SCENE, ZA SCENU · MVP BEOGRAD</div>
         </div>
@@ -311,337 +233,108 @@
     <div class="ticker"><span>DOMAĆI LJUDI NISU SADRŽAJ PLATFORME — ONI SU NJENI OPERATERI · REPUTACIJA OTKLJUČAVA PRILIKE · NE PRETVARAMO POENE U NOVAC — PRETVARAMO DOPRINOS U PRISTUP, NAGRADE I PRILIKE · &nbsp;&nbsp;&nbsp; DOMAĆI LJUDI NISU SADRŽAJ PLATFORME — ONI SU NJENI OPERATERI · REPUTACIJA OTKLJUČAVA PRILIKE · </span></div>
 
     
-    <!-- ══ 2 · VEČERAS U BEOGRADU — proizvod, ne objašnjenje ══ -->
-    <section id="vecera-s">
+<div class="manifest">
       <div class="container">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">Proizvod uživo</div>
-            <h2>Večeras u Beogradu</h2>
-          </div>
-          <div>
-            <p class="muted" style="margin-bottom:10px">Ovako izgleda grad u aplikaciji: ko je najavio dolazak, ko je stvarno stigao i gde energija raste.</p>
-            <span class="demo">◍ DEMO PRIKAZ · PRAVI PODACI SU U APLIKACIJI</span>
-          </div>
-        </div>
-        <div class="ev-grid" id="evGrid"></div>
-        <p style="margin-top:26px"><a class="btn btn-primary" href="https://ahmedkvz.github.io/afterbeforeBeta/app/" data-ev="cta_app_tonight">Otvori večeras u aplikaciji →</a></p>
+        <p>Domaći ljudi nisu sadržaj platforme — <span>oni su njeni operateri.</span></p>
+        <p>Reputacija otključava prilike.</p>
+        <p>Ne pretvaramo poene u novac — <span>pretvaramo doprinos u pristup, nagrade i prilike.</span></p>
       </div>
-    </section>
+    </div>
 
-    <!-- ══ 3 · KAKO RADI — šest koraka, ispod 20 sekundi ══ -->
     <section id="kako-radi">
       <div class="container">
         <div class="section-head">
           <div><div class="eyebrow">MVP / Beta</div><h2>Jedna noć. Jedan jasan loop.</h2></div>
-          <p class="muted">Šest koraka. Od „gde se ide večeras" do kartice noći koja se sama napiše.</p>
+          <p class="muted">Beta radi jednu stvar: pokazuje gde je energija večeras i pamti gde si stvarno bio.</p>
         </div>
-
-        <div class="loop">
-          <article class="lp">
-            <h3>Otkrij</h3>
-            <p>Lista i karta pokazuju šta se dešava večeras i gde se skuplja energija.</p>
-            <div class="ui">DRUGSTORE · 23:00 · TECHNO</div>
-          </article>
-          <article class="lp">
-            <h3>Idem</h3>
-            <p>Označiš da planiraš — grad vidi gde se skuplja, ti dobijaš najave i pristup ekipama.</p>
-            <div class="ui">✓ IDEM · 42 PLANIRA</div>
-          </article>
-          <article class="lp">
-            <h3>Tu sam</h3>
-            <p>Kad stigneš, potvrdiš dolazak na licu mesta. To odvaja stvaran signal od praznog hajpa.</p>
-            <div class="ui" style="border-color:rgba(182,255,74,.5);color:var(--acid)">● TU SAM · POTVRĐENO</div>
-          </article>
-          <article class="lp">
-            <h3>Ekipa</h3>
-            <p>Otvorena grupa do 6 ljudi — predžurka, izlazak, after. Ulazak je jedan tap.</p>
-            <div class="ui">EKIPA 4/6 · DRUGSTORE</div>
-          </article>
-          <article class="lp">
-            <h3>Vibe</h3>
-            <p>Kratki tagovi i ocena — samo od ljudi koji su potvrdili da su bili tamo.</p>
-            <div class="ui">DOBAR ZVUK · GUŽVA OK</div>
-          </article>
-          <article class="lp">
-            <h3>Pasoš</h3>
-            <p>Noć se sama upiše: ruta, vreme, ekipa i pečat koji si zaradio.</p>
-            <div class="ui" style="border-color:rgba(182,255,74,.5);color:var(--acid)">🌅 ZORA · UPISANO</div>
-          </article>
+        <div class="grid grid-4 steps">
+          <article class="card step"><h3>Vidi šta se dešava večeras.</h3><p>Lista i karta pokazuju događaje i pošten signal interesovanja.</p></article>
+          <article class="card step"><h3>„Idem" → „Tu sam".</h3><p>Najava je signal gradu; dolazak potvrdiš na licu mesta. Samo potvrđeni dolazak se računa.</p></article>
+          <article class="card step"><h3>Nađi ekipu.</h3><p>Otvorena grupa do 6 ljudi — predžurka, izlazak, after. Ulazak je jedan tap.</p></article>
+          <article class="card step"><h3>Noć se upiše u pasoš.</h3><p>Ruta, vreme, ekipa i pečati — kartica se piše sama iz check-inova.</p></article>
         </div>
-
-        <!-- Idem vs Tu sam — dve različite stvari -->
-        <h3 style="margin:52px 0 0">„Idem" i „Tu sam" nisu isto.</h3>
-        <div class="vs">
-          <div class="a">
-            <h4>Idem</h4>
-            <p class="small" style="margin:0">Namera. Pre izlaska.</p>
-            <ul>
-              <li>Signal gradu da se nešto skuplja</li>
-              <li>Najave i izmene za taj događaj</li>
-              <li>Vidiš otvorene ekipe</li>
-              <li>Podsetnik pre početka</li>
-            </ul>
-          </div>
-          <div class="b">
-            <h4>Tu sam</h4>
-            <p class="small" style="margin:0">Potvrđen dolazak. Na licu mesta.</p>
-            <ul>
-              <li>Potvrda prisustva na mestu</li>
-              <li>Tek tada možeš da oceniš događaj</li>
-              <li>Noć ulazi u tvoj pasoš</li>
-              <li>Pečati i misije se računaju</li>
-            </ul>
-          </div>
-        </div>
-        <p class="small" style="margin-top:14px">Lokacija se koristi samo za potvrdu dolaska. Ne pratimo tvoje kretanje tokom noći.</p>
+        <p class="small" style="margin-top:18px;opacity:.7">Lokacija se koristi samo za potvrdu dolaska. Ne pratimo tvoje kretanje tokom noći. · <a href="privatnost/" style="color:var(--acid)">Privatnost</a></p>
       </div>
     </section>
 
-    <!-- ══ 4 · PASOŠ NOĆI — glavna funkcija ══ -->
     <section id="pasos">
-      <div class="container">
-        <div class="section-head">
+      <div class="container" style="max-width:640px">
+        <div class="section-head" style="grid-template-columns:1fr">
           <div><div class="eyebrow">Pasoš noći</div><h2>Svaka noć ostavlja trag.</h2></div>
-          <p class="muted">AfterBefore pretvara tvoje potvrđene dolaske, ekipu, mesta i momente u karticu noći — bez ručnog unošenja bilo čega.</p>
         </div>
+        <div class="xp-panel">
+          <div class="small">PASOŠ NOĆI · DEMO</div>
+          <div style="font-size:26px;font-weight:900;letter-spacing:-.03em;margin:14px 0 4px">Drugstore → 20/44 → KC&nbsp;Grad</div>
+          <div class="small">PET 12. SEP · 23:40 → 06:12 · sa M. i N.</div>
+          <div class="vibes" style="margin-top:16px">
+            <span class="chip" style="border-color:rgba(182,255,74,.5);color:var(--acid)">🌅 ZORA</span>
+            <span class="chip" style="border-color:rgba(182,255,74,.5);color:var(--acid)">🎞 TRIPTIH</span>
+            <span class="chip" style="border-color:rgba(182,255,74,.5);color:var(--acid)">🌊 OBE OBALE</span>
+          </div>
+          <p class="small" style="margin-top:18px">U pasoš ulaze samo potvrđeni dolasci — zato kartica nešto i znači. Pečati se zarađuju, ne dele.</p>
+        </div>
+      </div>
+    </section>
 
+    <section id="prostori">
+      <div class="container">
+        <div class="section-head">
+          <div><div class="eyebrow">Za klubove, kafiće, galerije i organizatore</div><h2>Od interesovanja do stvarnih dolazaka.</h2></div>
+          <a class="btn btn-primary" href="#prijava" data-ev="cta_prostori">Prijavi prostor</a>
+        </div>
+        <div class="grid grid-3">
+          <div class="card"><h3>Signal publike</h3><p>Koliko ljudi planira dolazak — i koliko se stvarno pojavilo.</p></div>
+          <div class="card"><h3>Feedback od prisutnih</h3><p>Ocene i tagovi dolaze samo od GPS-potvrđenih posetilaca.</p></div>
+          <div class="card"><h3>Bez ličnih podataka</h3><p>Dobijate zbirne brojeve — nikad imena, kontakte ni kretanje gostiju.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="vizija">
+      <div class="container">
+        <div class="section-head">
+          <div><div class="eyebrow">Vizija</div><h2>Od aplikacije za noć do ekonomije domaće scene.</h2></div>
+        </div>
         <div class="split">
-          <div class="pass">
-            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
-              <span class="small" style="font-family:ui-monospace,monospace;letter-spacing:.1em;color:var(--acid)">PET 12. SEP · BEOGRAD</span>
-              <span class="demo">DEMO</span>
-            </div>
-            <div class="pass-route">Drugstore → 20/44 → KC&nbsp;Grad</div>
-            <div class="small">23:40 → 06:12 · sa M. i N. · 3 potvrđena dolaska</div>
-            <div class="stamps">
-              <span class="stamp">🌅 ZORA</span>
-              <span class="stamp">🎞 TRIPTIH</span>
-              <span class="stamp">🌊 OBE OBALE</span>
-            </div>
-            <div class="pass-row">
-              <span>VIBE · DOBAR ZVUK</span>
-              <span>MISIJA · ZAVRŠENA</span>
-            </div>
-            <button class="btn btn-primary" style="margin-top:18px;width:100%" id="shareNight" data-ev="passport_shared">Podeli noć</button>
-            <div class="success" id="shareOk">Kartica je spremna za deljenje ✓ U aplikaciji se izvozi kao slika.</div>
-          </div>
-
-          <div>
-            <div class="card" style="min-height:auto"><h3>Piše se sama</h3><p>Check-in je jedini unos. Ruta, vremena i ekipa se slažu sami — telefon ostaje u džepu.</p></div>
-            <div class="card" style="min-height:auto;margin-top:14px"><h3>Ne može da se izmisli</h3><p>U pasoš ulaze samo potvrđeni dolasci. Zato kartica nešto i znači.</p></div>
-            <div class="card" style="min-height:auto;margin-top:14px"><h3>Razlog da se vratiš</h3><p>Sledeći pečat je sledeći izlazak. Arhiva noći ostaje tvoja i ne briše se.</p></div>
-          </div>
+          <article class="card" style="min-height:auto">
+            <span class="label label-now">SADA / BETA UŽIVO</span>
+            <h3>Radi danas</h3>
+            <p>Sve iznad — grad, dolazak, ekipe, pasoš — već radi i otvoreno je za korišćenje.</p>
+          </article>
+          <article class="card" style="min-height:auto">
+            <span class="label label-phase">KASNIJE / POSLE VALIDACIJE</span>
+            <h3>Reputacija otključava prilike</h3>
+            <ul class="clean">
+              <li>Private events — pristup kroz reputaciju, ne kroz vezu.</li>
+              <li>Booking — DJ-evi i izvođači primaju direktne zahteve.</li>
+              <li>Vodiči — kurirane noći i lokalna iskustva, naplaćeno.</li>
+              <li>Helpers — podrška noći uz jasne safety granice.</li>
+            </ul>
+          </article>
         </div>
+        <p class="small" style="margin-top:16px;opacity:.7">Uvodi se posle validacije MVP-a i pravne provere. Prihod nije garantovan.</p>
       </div>
     </section>
 
-    <!-- ══ 5 · EKIPE ══ -->
-    <section id="ekipe">
-      <div class="container">
-        <div class="section-head">
-          <div><div class="eyebrow">Ekipe</div><h2>Male grupe, ne javne sobe.</h2></div>
-          <p class="muted">Najviše šest ljudi po grupi. Ulazak je jedan tap, grupni chat je bezbedniji od poruka jedan na jedan.</p>
-        </div>
-
-        <div class="card" style="min-height:auto">
-          <span class="demo">◍ DEMO PRIKAZ</span>
-          <div class="crew-row">
-            <div class="slots"><span class="slot on"></span><span class="slot on"></span><span class="slot on"></span><span class="slot"></span><span class="slot"></span><span class="slot"></span></div>
-            <div style="flex:1;min-width:0"><strong>Idemo zajedno</strong><div class="small">Drugstore · petak · 3/6</div></div>
-            <span class="ev-tag">OTVORENO</span>
-          </div>
-          <div class="crew-row">
-            <div class="slots"><span class="slot on"></span><span class="slot on"></span><span class="slot on"></span><span class="slot on"></span><span class="slot"></span><span class="slot"></span></div>
-            <div style="flex:1;min-width:0"><strong>Pre-party</strong><div class="small">Dorćol · petak · 4/6</div></div>
-            <span class="ev-tag">OTVORENO</span>
-          </div>
-          <div class="crew-row">
-            <div class="slots"><span class="slot on"></span><span class="slot on"></span><span class="slot"></span><span class="slot"></span><span class="slot"></span><span class="slot"></span></div>
-            <div style="flex:1;min-width:0"><strong>Nova ekipa</strong><div class="small">Savamala · subota · 2/6</div></div>
-            <span class="ev-tag">OTVORENO</span>
-          </div>
-          <div class="crew-row">
-            <div class="slots"><span class="slot on"></span><span class="slot on"></span><span class="slot on"></span><span class="slot on"></span><span class="slot on"></span><span class="slot"></span></div>
-            <div style="flex:1;min-width:0"><strong>Posle događaja</strong><div class="small">Lokacija dostupna nakon odobrenja · 5/6</div></div>
-            <span class="ev-tag">ZATVORENO</span>
-          </div>
-        </div>
-
-        <div class="grid grid-3" style="margin-top:16px">
-          <div class="card" style="min-height:auto"><h3>Ko pravi grupu</h3><p>Svaka grupa ima domaćina koji je otvorio i odobrava ulazak kad je grupa zatvorena.</p></div>
-          <div class="card" style="min-height:auto"><h3>Potvrđena istorija</h3><p>Vidiš da li je neko već bio na događajima koje si i ti potvrdio.</p></div>
-          <div class="card" style="min-height:auto"><h3>Blokiraj i prijavi</h3><p>Dostupno u svakom razgovoru, bez traženja po podešavanjima.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══ 6 · JEDNA MISIJA, ceo životni ciklus ══ -->
-    <section id="misija">
-      <div class="container">
-        <div class="section-head">
-          <div><div class="eyebrow">Misije</div><h2>Jedna misija, od početka do nagrade.</h2></div>
-          <p class="muted">Ne deset nejasnih zadataka. Jedan primer koji pokazuje kako ceo mehanizam radi.</p>
-        </div>
-
-        <div class="card" style="min-height:auto">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap">
-            <h3 style="font-size:26px">Pronađi umetnički kutak</h3>
-            <span class="demo">◍ PRIMER</span>
-          </div>
-          <p class="lead" style="font-size:17px;margin-top:10px">Poseti art corner na događaju, skeniraj QR kod i izaberi delo koje najbolje opisuje tvoj trenutni vajb.</p>
-
-          <div class="ms">
-            <div class="on">OTKRIJ</div>
-            <div class="on">PRIHVATI</div>
-            <div class="on">URADI</div>
-            <div>POTVRDI</div>
-            <div>NAGRADA</div>
-            <div>PODELI</div>
-          </div>
-
-          <div class="grid grid-4" style="margin-top:22px">
-            <div class="card" style="min-height:auto"><div class="index">CILJ</div><p>Skeniraj QR na art corneru i izaberi jedno delo.</p></div>
-            <div class="card" style="min-height:auto"><div class="index">ROK</div><p>Do kraja događaja, dok traje ta noć.</p></div>
-            <div class="card" style="min-height:auto"><div class="index">POTVRDA</div><p>QR na mestu + potvrđen dolazak.</p></div>
-            <div class="card" style="min-height:auto"><div class="index">NAGRADA</div><p>Pečat u pasošu, XP i partnerski vaučer kad ga prostor obezbedi.</p></div>
-          </div>
-          <div class="small" style="margin-top:16px">Napredak: 1/2 koraka · misija je aktivna dok traje događaj.</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══ 7 · VREDNOST ZA PROSTORE ══ -->
-    <section id="venue">
-      <div class="container">
-        <div class="section-head">
-          <div><div class="eyebrow">Za klubove, kafiće, galerije i organizatore</div><h2>Od online interesovanja do stvarnih dolazaka.</h2></div>
-          <p class="muted">Prostor vidi koliko ljudi je pokazalo interesovanje, koliko ih je stvarno došlo i šta su potvrđeni posetioci rekli posle događaja.</p>
-        </div>
-
-        <div class="dash">
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-            <strong>Pregled događaja · Drugstore, petak</strong>
-            <span class="demo">◍ DEMO PRIKAZ</span>
-          </div>
-          <div class="dash-grid">
-            <div><div class="dash-n">42</div><div class="dash-l">OZNAČILO IDEM</div></div>
-            <div><div class="dash-n" style="color:var(--acid)">18</div><div class="dash-l">POTVRĐENO STIGLO</div></div>
-            <div><div class="dash-n">43%</div><div class="dash-l">NAMERA → DOLAZAK</div></div>
-            <div><div class="dash-n">4.4</div><div class="dash-l">OCENA POSETILACA</div></div>
-            <div><div class="dash-n">7</div><div class="dash-l">PONOVLJENI GOSTI</div></div>
-          </div>
-        </div>
-
-        <div class="grid grid-3" style="margin-top:16px">
-          <div class="card" style="min-height:auto"><h3>Vidiš stvaran dolazak</h3><p>Ne broj klikova — broj ljudi koji su potvrdili da su na mestu.</p></div>
-          <div class="card" style="min-height:auto"><h3>Feedback od prisutnih</h3><p>Ocene i tagovi dolaze samo od onih koji su bili tu te noći.</p></div>
-          <div class="card" style="min-height:auto"><h3>Bez ličnih podataka</h3><p>Dobijaš zbirne brojeve. Nikad imena, kretanje ni kontakte gostiju.</p></div>
-        </div>
-
-        <p style="margin-top:26px"><a class="btn btn-primary" href="#pilot" data-ev="cta_pilot">Prijavi prostor za pilot</a></p>
-      </div>
-    </section>
-
-    <!-- ══ 8 · STATUS VALIDACIJE ══ -->
-    <section id="status">
-      <div class="container">
-        <div class="section-head">
-          <div><div class="eyebrow">Gde smo sada</div><h2>Pošteno stanje projekta.</h2></div>
-          <p class="muted">Bez brojeva koje ne možemo da potkrepimo. Ovo je lista koja se ažurira posle svakog pilota.</p>
-        </div>
-        <ul class="clean status">
-          <li><span>Beta aplikacija — radi, otvorena za korišćenje</span><span class="badge wip">ZAVRŠENO</span></li>
-          <li><span>Pilot događaji</span><span class="badge">U PRIPREMI</span></li>
-          <li><span>Partneri među prostorima</span><span class="badge">RAZGOVORI U TOKU</span></li>
-          <li><span>Umetnici i DJ-evi iz zajednice</span><span class="badge">MREŽA SE FORMIRA</span></li>
-          <li><span>Testiranje sa korisnicima</span><span class="badge">U PRIPREMI</span></li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- ══ 9 · PRIVATNOST I BEZBEDNOST ══ -->
-    <section id="bezbednost">
-      <div class="container trust">
-        <div>
-          <div class="eyebrow">Privatnost i bezbednost</div>
-          <h2>Jasne granice, bez sitnih slova.</h2>
-          <p class="lead">Sve što piše ovde odgovara onome što aplikacija stvarno radi. Detaljno je razloženo u <a href="privatnost/" style="color:var(--acid)">politici privatnosti</a>.</p>
-        </div>
-        <div class="trust-list">
-          <div class="trust-item"><strong>Lokacija samo pri dolasku</strong><p class="small">Čita se u sekundi kad sam pritisneš potvrdu. Bez praćenja u pozadini.</p></div>
-          <div class="trust-item"><strong>Ocene samo od prisutnih</strong><p class="small">Recenziju može da ostavi samo onaj ko je potvrdio dolazak.</p></div>
-          <div class="trust-item"><strong>Grupe su privatne</strong><p class="small">Sadržaj grupe vide samo članovi. After lokacija se ne objavljuje javno.</p></div>
-          <div class="trust-item"><strong>Blokiraj i prijavi</strong><p class="small">Uvek dostupno u razgovoru, bez traženja.</p></div>
-          <div class="trust-item"><strong>Ne prodajemo podatke</strong><p class="small">Ni pojedinačne ni zbirne. Kretanje korisnika se ne prodaje nikome.</p></div>
-          <div class="trust-item"><strong>Prostori dobijaju zbir</strong><p class="small">Brojevi i ocene — nikad imena, kontakti ni pojedinačno kretanje.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══ 10 · ŠTA DOLAZI KASNIJE (roadmap, ne funkcije) ══ -->
-    <section id="kasnije">
-      <div class="container">
-        <div class="section-head">
-          <div><div class="eyebrow">Roadmap</div><h2>Šta dolazi kasnije.</h2></div>
-          <p class="muted">Ovo <strong>nije</strong> deo bete. Pravac u koji projekat ide posle validacije, pravne provere i bezbednosnih standarda.</p>
-        </div>
-        <div class="roadmap">
-          <div><strong>SADA</strong><h3>Beta Beograd</h3><p class="small">Grad uživo, dolazak, ekipe, vibe signali i pasoš noći.</p></div>
-          <div><strong>ZATIM</strong><h3>Pilot sa prostorima</h3><p class="small">Partnerske misije i nagrade koje prostor obezbeđuje.</p></div>
-          <div><strong>KASNIJE</strong><h3>Prilike za scenu</h3><p class="small">Vodiči, izvođači i kreativci pretvaraju reputaciju u angažmane.</p></div>
-          <div><strong>DALEKO</strong><h3>Drugi gradovi</h3><p class="small">Isti model kroz lokalne operatere i partnere.</p></div>
-        </div>
-        <p class="small" style="margin-top:20px">Buduće funkcije i načini zarade uvode se tek nakon validacije MVP-a. Prihod nije garantovan.</p>
-      </div>
-    </section>
-
-    <!-- ══ 11 · PRIJAVA ══ -->
     <section id="prijava" class="final">
       <div class="container">
         <div class="eyebrow">Pridruži se</div>
         <h2>Beograd je prvi dokaz. Scena je partner, ne proizvod.</h2>
         <p class="lead">Beta je otvorena — ako izlaziš, ulaziš odmah, bez prijave. Forma je za prostore, izvođače i partnere.</p>
         <p style="margin:14px 0 22px"><a class="btn btn-primary" href="https://ahmedkvz.github.io/afterbeforeBeta/app/" data-ev="cta_app_final">Uđi u aplikaciju →</a></p>
-
-        <form class="form" id="joinForm" novalidate>
-          <div>
-            <input type="email" required placeholder="Tvoj email" aria-label="Email" id="joinEmail" />
-            <div class="err" id="errEmail">Upiši ispravnu email adresu.</div>
-          </div>
+        <form class="form" id="joinForm">
+          <input type="email" required placeholder="Tvoj email" aria-label="Email" id="joinEmail" />
           <select aria-label="Uloga" id="joinRole">
-            <option value="raver">Korisnik / raver</option>
+            <option value="venue">Venue / promoter</option>
             <option value="izvodjac">Izvođač / kreator</option>
             <option value="vodic">Vodič / host</option>
             <option value="helper">Helper / operativac</option>
-            <option value="venue">Venue / promoter</option>
             <option value="brend">Brend / partner</option>
+            <option value="raver">Korisnik / raver</option>
           </select>
           <button class="btn btn-primary" type="submit">Pošalji prijavu</button>
         </form>
         <div class="success" id="success"></div>
-
-        <!-- pilot forma za prostore -->
-        <div id="pilot" class="card" style="min-height:auto;margin-top:38px">
-          <div class="eyebrow">Pilot</div>
-          <h3 style="font-size:26px;margin:10px 0 6px">Prijavi prostor za pilot</h3>
-          <p class="muted" style="font-size:15px">Dva pilot događaja, bez naknade. Javljamo se sa detaljima.</p>
-          <div class="form form-2" style="margin-top:20px">
-            <div><input id="pvName" placeholder="Naziv prostora" aria-label="Naziv prostora" /><div class="err" id="errName">Upiši naziv prostora.</div></div>
-            <div><input id="pvCity" placeholder="Grad" aria-label="Grad" value="Beograd" /><div class="err" id="errCity">Upiši grad.</div></div>
-            <div><input id="pvPerson" placeholder="Kontakt osoba" aria-label="Kontakt osoba" /><div class="err" id="errPerson">Upiši ime kontakt osobe.</div></div>
-            <div><input id="pvEmail" type="email" placeholder="Email ili telefon" aria-label="Email" /><div class="err" id="errPEmail">Upiši ispravnu email adresu.</div></div>
-            <select id="pvType" aria-label="Tip prostora">
-              <option value="klub">Klub</option>
-              <option value="bar">Bar / kafić</option>
-              <option value="galerija">Galerija / prostor</option>
-              <option value="splav">Splav</option>
-              <option value="promoter">Promoter / kolektiv</option>
-            </select>
-            <button class="btn btn-primary" type="button" id="pilotBtn">Prijavi prostor</button>
-          </div>
-          <div class="success" id="pilotOk"></div>
-        </div>
       </div>
     </section>
   </main>
@@ -663,141 +356,49 @@
     // sav pristup je kroz SECURITY DEFINER RPC, tabela je deny-all.
     const SB_URL='https://aptahdctlvrhmrhpaccs.supabase.co';
     const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwdGFoZGN0bHZyaG1yaHBhY2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMDY5NzUsImV4cCI6MjA5NjY4Mjk3NX0.ZlPBWOKxzdiaFyH9v8qNqrAp1Igwb3Buq2LinX4XEec';
-    const ERRS={BAD_EMAIL:'Proveri email adresu.',BAD_ROLE:'Izaberi ulogu.',TOO_MANY:'Već si se prijavio/la više puta danas.'};
-
-    /* ── Analitika ─────────────────────────────────────────────
-       Isti `track` RPC koji koristi aplikacija (anon je dozvoljen),
-       pa se landing i app događaji vide u jednom toku. Nikad ne baca
-       grešku ka korisniku i ne blokira navigaciju. */
+    /* Analitika — isti track RPC kao aplikacija; nikad ne blokira stranicu. */
     let SID=null;
     try{SID=localStorage.getItem('ab_sid');if(!SID){SID='l-'+Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('ab_sid',SID);}}catch(e){SID='l-anon';}
-    const fired=new Set();
-    function ab(event,props){
-      try{
-        fetch(SB_URL+'/rest/v1/rpc/track',{method:'POST',keepalive:true,
-          headers:{'Content-Type':'application/json',apikey:SB_ANON,Authorization:'Bearer '+SB_ANON},
-          body:JSON.stringify({p_event:event,p_props:Object.assign({surface:'landing'},props||{}),p_session:SID})
-        }).catch(()=>{});
-      }catch(e){}
-    }
-    function abOnce(event,props){ if(fired.has(event))return; fired.add(event); ab(event,props); }
+    function ab(ev,props){try{fetch(SB_URL+'/rest/v1/rpc/track',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json',apikey:SB_ANON,Authorization:'Bearer '+SB_ANON},body:JSON.stringify({p_event:ev,p_props:Object.assign({surface:'landing'},props||{}),p_session:SID})}).catch(()=>{});}catch(e){}}
     ab('landing_view',{path:location.pathname,ref:document.referrer||null});
     document.querySelectorAll('[data-ev]').forEach(el=>el.addEventListener('click',()=>ab(el.dataset.ev,{href:el.getAttribute('href')||null})));
-
-    /* Sekcije koje su stvarno viđene — jednom po sesiji učitavanja. */
-    const SEC_EV={'vecera-s':'event_viewed','kako-radi':'core_loop_viewed','pasos':'passport_opened',
-      'ekipe':'crew_viewed','misija':'mission_viewed','venue':'venue_value_viewed',
-      'status':'validation_viewed','bezbednost':'privacy_viewed','kasnije':'roadmap_viewed','prijava':'signup_viewed'};
     if('IntersectionObserver' in window){
-      const io=new IntersectionObserver(es=>es.forEach(en=>{
-        if(!en.isIntersecting)return;
-        const ev=SEC_EV[en.target.id]; if(ev)abOnce(ev,{section:en.target.id});
-        io.unobserve(en.target);
-      }),{threshold:.35});
-      Object.keys(SEC_EV).forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el);});
+      const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){ab('section_viewed',{section:en.target.id});io.unobserve(en.target);}}),{threshold:.35});
+      ['kako-radi','pasos','prostori','vizija','prijava'].forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el);});
     }
-
-    /* ── Večeras u Beogradu: demo podaci, jedan render ──────────
-       Namerno je prikaz obeležen kao DEMO — pravi podaci žive u aplikaciji. */
-    const TONIGHT=[
-      {venue:'Drugstore',time:'23:00',tags:['TECHNO','KLUB'],going:42,here:18,trend:'raste',ico:'↗',hood:'Savski venac'},
-      {venue:'20/44',time:'22:30',tags:['HOUSE','SPLAV'],going:27,here:11,trend:'stabilno',ico:'→',hood:'Novi Beograd'},
-      {venue:'KC Grad',time:'21:00',tags:['ALT','GALERIJA'],going:19,here:6,trend:'raste',ico:'↗',hood:'Savamala'}
-    ];
-    const grid=document.getElementById('evGrid');
-    if(grid){
-      grid.innerHTML=TONIGHT.map(e=>`
-        <article class="ev">
-          <div class="ev-top"><span class="ev-venue">${e.venue}</span><span class="ev-time">${e.time}</span></div>
-          <div class="ev-tags">${e.tags.map(t=>`<span class="ev-tag">${t}</span>`).join('')}</div>
-          <div class="ev-nums"><span class="ev-going">${e.going} planira</span><span class="ev-here">● ${e.here} je tu</span></div>
-          <div class="ev-foot"><span>${e.hood}</span><span class="trend">${e.ico} ${e.trend}</span></div>
-        </article>`).join('');
-      grid.querySelectorAll('.ev').forEach((el,i)=>el.addEventListener('click',()=>ab('going_clicked',{venue:TONIGHT[i].venue,demo:true})));
-    }
-
-    /* ── Podeli noć (pasoš) ─────────────────────────────────── */
-    const shareBtn=document.getElementById('shareNight'), shareOk=document.getElementById('shareOk');
-    shareBtn?.addEventListener('click',()=>{
-      ab('passport_shared',{demo:true});
-      if(navigator.share){navigator.share({title:'AfterBefore — moja noć',text:'Drugstore → 20/44 → KC Grad · 23:40–06:12',url:location.origin+location.pathname}).catch(()=>{});}
-      shareOk.textContent='Kartica je spremna za deljenje ✓ U aplikaciji se izvozi kao slika.';
-      shareOk.style.display='block';
-    });
-
-    /* ── Validacija ─────────────────────────────────────────── */
-    const isEmail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
-    function mark(inputId,errId,ok){
-      const err=document.getElementById(errId);
-      if(err)err.style.display=ok?'none':'block';
-      const el=document.getElementById(inputId);
-      if(el)el.style.borderColor=ok?'':'var(--danger)';
-      return ok;
-    }
-    async function callSignup(email,role){
-      const r=await fetch(SB_URL+'/rest/v1/rpc/landing_signup',{
-        method:'POST',
-        headers:{'Content-Type':'application/json',apikey:SB_ANON,Authorization:'Bearer '+SB_ANON},
-        body:JSON.stringify({p_email:email,p_role:role})
-      });
-      const data=await r.json().catch(()=>null);
-      if(!r.ok){
-        const msg=String(data&&data.message||'');
-        const key=Object.keys(ERRS).find(k=>msg.includes(k));
-        throw new Error(key?ERRS[key]:'Nije prošlo — pokušaj ponovo.');
-      }
-      return data;
-    }
-
-    /* ── Opšta prijava ──────────────────────────────────────── */
+    const ERRS={BAD_EMAIL:'Proveri email adresu.',BAD_ROLE:'Izaberi ulogu.',TOO_MANY:'Već si se prijavio/la više puta danas.'};
     const form=document.getElementById('joinForm');
     const box=document.getElementById('success');
     const btn=form.querySelector('button[type=submit]');
-    document.getElementById('joinEmail')?.addEventListener('focus',()=>abOnce('registration_started',{form:'join'}),{once:true});
     form.addEventListener('submit',async e=>{
       e.preventDefault();
       const email=document.getElementById('joinEmail').value.trim();
       const role=document.getElementById('joinRole').value;
-      if(!mark('joinEmail','errEmail',isEmail(email)))return;
       btn.disabled=true; const label=btn.textContent; btn.textContent='Šaljem…';
+      ab('registration_started',{form:'join',role:role});
       try{
-        const data=await callSignup(email,role);
-        box.textContent=data&&data.already?'Već si na listi ✓ Javljamo se uskoro.':'Prijava zabeležena ✓ Javljamo se uskoro.';
-        ab('registration_completed',{form:'join',role:role,already:!!(data&&data.already)});
-        form.reset();
+        const r=await fetch(SB_URL+'/rest/v1/rpc/landing_signup',{
+          method:'POST',
+          headers:{'Content-Type':'application/json',apikey:SB_ANON,Authorization:'Bearer '+SB_ANON},
+          body:JSON.stringify({p_email:email,p_role:role})
+        });
+        const data=await r.json().catch(()=>null);
+        if(!r.ok){
+          const msg=String(data&&data.message||'');
+          const key=Object.keys(ERRS).find(k=>msg.includes(k));
+          box.textContent=key?ERRS[key]:'Nije prošlo — pokušaj ponovo.';
+          ab('registration_failed',{form:'join',reason:key||'unknown'});
+        }else{
+          box.textContent=data&&data.already
+            ? 'Već si na listi ✓ Javljamo se uskoro.'
+            : 'Prijava zabeležena ✓ Javljamo se uskoro.';
+          form.reset();
+          ab('registration_completed',{form:'join',role:role,already:!!(data&&data.already)});
+        }
       }catch(err){
-        box.textContent=err.message||'Nema veze sa mrežom — pokušaj ponovo.';
-        ab('registration_failed',{form:'join',reason:String(err.message||'network').slice(0,60)});
+        box.textContent='Nema veze sa mrežom — pokušaj ponovo.';
       }finally{
         box.style.display='block'; btn.disabled=false; btn.textContent=label;
-      }
-    });
-
-    /* ── Pilot prijava prostora ─────────────────────────────── */
-    const pilotBtn=document.getElementById('pilotBtn'), pilotOk=document.getElementById('pilotOk');
-    document.getElementById('pvName')?.addEventListener('focus',()=>abOnce('pilot_form_started',{}),{once:true});
-    pilotBtn?.addEventListener('click',async()=>{
-      const name=document.getElementById('pvName').value.trim();
-      const city=document.getElementById('pvCity').value.trim();
-      const person=document.getElementById('pvPerson').value.trim();
-      const email=document.getElementById('pvEmail').value.trim();
-      const type=document.getElementById('pvType').value;
-      const ok=[mark('pvName','errName',name.length>1),mark('pvCity','errCity',city.length>1),
-                mark('pvPerson','errPerson',person.length>1),mark('pvEmail','errPEmail',isEmail(email))].every(Boolean);
-      if(!ok)return;
-      pilotBtn.disabled=true; const l=pilotBtn.textContent; pilotBtn.textContent='Šaljem…';
-      try{
-        const data=await callSignup(email,'venue');
-        pilotOk.textContent=data&&data.already
-          ? 'Već imamo tvoju prijavu ✓ Javljamo se sa detaljima pilota.'
-          : 'Prijava primljena ✓ Javljamo se sa detaljima pilota.';
-        ab('pilot_form_submitted',{venue_type:type,city:city,already:!!(data&&data.already)});
-        ['pvName','pvPerson','pvEmail'].forEach(id=>document.getElementById(id).value='');
-      }catch(err){
-        pilotOk.textContent=err.message||'Nema veze sa mrežom — pokušaj ponovo.';
-        ab('pilot_form_failed',{reason:String(err.message||'network').slice(0,60)});
-      }finally{
-        pilotOk.style.display='block'; pilotBtn.disabled=false; pilotBtn.textContent=l;
       }
     });
   </script>
