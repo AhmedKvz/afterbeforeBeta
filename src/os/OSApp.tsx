@@ -9,6 +9,7 @@ import { OSNightHub } from './OSNightHub';
 import { OSMessagesOverlay } from './OSMessagesOverlay';
 import { OSVenuePicker } from './OSVenuePicker';
 import { useMyNight } from '@/hooks/useMyNight';
+import { useAutoCheckIn } from '@/hooks/useAutoCheckIn';
 import { OSVenueSheet, OSVenue } from './OSVenueSheet';
 import { genreCol } from './osTheme';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,6 +30,8 @@ export const OSApp = () => {
   const [msgs, setMsgs] = useState(false);
   const [picker, setPicker] = useState(false);
   const { data: night } = useMyNight();
+  // „Idem" → auto potvrda dolaska kad se stvarno nađeš na lokaciji (poeni bez ručnog check-ina)
+  useAutoCheckIn();
   const [venue, setVenue] = useState<OSVenue | null>(null);
 
   // Deep link /venue/:venueName → otvori OS venue sheet (zamena za legacy
