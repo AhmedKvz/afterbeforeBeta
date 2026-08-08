@@ -185,6 +185,7 @@
         <a href="#kako-radi">Kako radi</a>
         <a href="#pasos">Pasoš noći</a>
         <a href="#prostori">Za prostore</a>
+        <a href="#ambasadori">Umetnici</a>
         <a href="#vizija">Vizija</a>
         <a href="#prijava">Prijava</a>
         <a class="btn btn-primary" href="https://ahmedkvz.github.io/afterbeforeBeta/app/">Uđi u aplikaciju</a>
@@ -290,6 +291,21 @@
       </div>
     </section>
 
+    <section id="ambasadori">
+      <div class="container">
+        <div class="section-head">
+          <div><div class="eyebrow">Za DJ-eve, tattoo majstore i umetnike scene</div><h2>Scena ima svoje ambasadore.</h2></div>
+          <a class="btn btn-primary" href="#prijava" data-ev="cta_ambasador" data-role="izvodjac">Prijavi se kao umetnik</a>
+        </div>
+        <div class="grid grid-3">
+          <div class="card"><h3>★ Ambasador profil</h3><p>Bedž koji dodeljuje scena, ne algoritam. Tvoja stranica u aplikaciji: ko si, šta radiš i galerija radova kao izlog.</p></div>
+          <div class="card"><h3>Timetable</h3><p>Tvoji termini se upisuju sami — nastupi, gostovanja, pop-up sesije. Publika te zaprati i zna gde si sledeće.</p></div>
+          <div class="card"><h3>Publika te prati</h3><p>Deliš svoju stranicu, tvoja publika ulazi pravo na tvoje evente. Marketing koji radi dok ti spavaš.</p></div>
+        </div>
+        <p class="small" style="margin-top:16px"><span class="label label-phase" style="margin:0 8px 0 0">KASNIJE</span>Booking zahtevi kroz aplikaciju · svoj affiliate link — nagrada za svakog korisnika koji se registruje preko tebe. Uvodi se posle validacije MVP-a.</p>
+      </div>
+    </section>
+
     <section id="vizija">
       <div class="container">
         <div class="section-head">
@@ -361,10 +377,13 @@
     try{SID=localStorage.getItem('ab_sid');if(!SID){SID='l-'+Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('ab_sid',SID);}}catch(e){SID='l-anon';}
     function ab(ev,props){try{fetch(SB_URL+'/rest/v1/rpc/track',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json',apikey:SB_ANON,Authorization:'Bearer '+SB_ANON},body:JSON.stringify({p_event:ev,p_props:Object.assign({surface:'landing'},props||{}),p_session:SID})}).catch(()=>{});}catch(e){}}
     ab('landing_view',{path:location.pathname,ref:document.referrer||null});
-    document.querySelectorAll('[data-ev]').forEach(el=>el.addEventListener('click',()=>ab(el.dataset.ev,{href:el.getAttribute('href')||null})));
+    document.querySelectorAll('[data-ev]').forEach(el=>el.addEventListener('click',()=>{
+      ab(el.dataset.ev,{href:el.getAttribute('href')||null});
+      if(el.dataset.role){const sel=document.getElementById('joinRole');if(sel)sel.value=el.dataset.role;}
+    }));
     if('IntersectionObserver' in window){
       const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){ab('section_viewed',{section:en.target.id});io.unobserve(en.target);}}),{threshold:.35});
-      ['kako-radi','pasos','prostori','vizija','prijava'].forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el);});
+      ['kako-radi','pasos','prostori','ambasadori','vizija','prijava'].forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el);});
     }
     const ERRS={BAD_EMAIL:'Proveri email adresu.',BAD_ROLE:'Izaberi ulogu.',TOO_MANY:'Već si se prijavio/la više puta danas.'};
     const form=document.getElementById('joinForm');
