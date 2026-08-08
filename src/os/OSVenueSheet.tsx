@@ -247,8 +247,8 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
 
   return (
     <>
-      <div onClick={close} style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(5,5,7,.66)', animation: closing ? 'os-scrim-out .15s ease forwards' : 'os-scrim .25s ease' }} />
-      <div className="os-scroll" style={{ position: 'fixed', left: 0, right: 0, bottom: 0, top: 24, zIndex: 61, borderRadius: '22px 22px 0 0', overflowY: 'auto', background: AB.surface, border: `1px solid ${AB.line}`, animation: closing ? 'os-sheet-out .15s ease forwards' : 'os-sheet .4s cubic-bezier(.16,1,.3,1)', paddingBottom: 24, maxWidth: 520, margin: '0 auto' }}>
+      <div onClick={close} style={{ position: 'fixed', inset: 0, zIndex: 74, background: 'rgba(5,5,7,.66)', animation: closing ? 'os-scrim-out .15s ease forwards' : 'os-scrim .25s ease' }} />
+      <div className="os-scroll" style={{ position: 'fixed', left: 0, right: 0, bottom: 0, top: 24, zIndex: 75, borderRadius: '22px 22px 0 0', overflowY: 'auto', background: AB.surface, border: `1px solid ${AB.line}`, animation: closing ? 'os-sheet-out .15s ease forwards' : 'os-sheet .4s cubic-bezier(.16,1,.3,1)', paddingBottom: 24, maxWidth: 520, margin: '0 auto' }}>
         {/* hero — image-forward, void-scrim, editorial naslov (kanon §6.2) */}
         <div style={{ position: 'relative', height: 248, background: vmeta?.cover_url ? `linear-gradient(180deg,rgba(7,7,8,.1),rgba(7,7,8,.5)), center/cover url(${vmeta.cover_url})` : `linear-gradient(160deg,${hexA(venue.col, 0.4)},#0e0f12 78%)` }}>
           {!vmeta?.cover_url && <div style={{ position: 'absolute', inset: 0, background: HATCH }} />}
@@ -465,7 +465,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
         </div>
       </div>
       {/* check-in proslava — os-xp float sa stvarnim REP awardom (motion audit 🟢1) */}
-      {award && <div style={{ position: 'fixed', left: '50%', bottom: 170, zIndex: 70, fontFamily: MONO, fontWeight: 600, fontSize: 19, color: AB.acid, textShadow: '0 0 24px var(--ab-acid-glow)', animation: 'os-xp 1.4s ease forwards', pointerEvents: 'none' }}>+{award} REP</div>}
+      {award && <div style={{ position: 'fixed', left: '50%', bottom: 170, zIndex: 76, fontFamily: MONO, fontWeight: 600, fontSize: 19, color: AB.acid, textShadow: '0 0 24px var(--ab-acid-glow)', animation: 'os-xp 1.4s ease forwards', pointerEvents: 'none' }}>+{award} REP</div>}
       {feedback && <OSFeedbackSheet venueId={feedback} onDone={() => setFeedback(null)} />}
       {dareOpen && <OSDareWheel onClose={() => setDareOpen(false)} />}
       {danceOpen && <OSDanceMode venueId={venue.venueId} venueName={venue.name} onClose={() => setDanceOpen(false)} />}

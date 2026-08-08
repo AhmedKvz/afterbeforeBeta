@@ -53,8 +53,8 @@ export const OSArtistSheet = ({ artist, onClose }: { artist: Artist; onClose: ()
 
   return (
     <>
-      <div onClick={close} style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(5,5,7,.66)', animation: closing ? 'os-scrim-out .15s ease forwards' : 'os-scrim .25s ease' }} />
-      <div className="os-scroll" style={{ position: 'fixed', left: 0, right: 0, bottom: 0, top: 24, zIndex: 61, borderRadius: '22px 22px 0 0', overflowY: 'auto', background: AB.surface, border: `1px solid ${AB.line}`, animation: closing ? 'os-sheet-out .15s ease forwards' : 'os-sheet .4s cubic-bezier(.16,1,.3,1)', paddingBottom: 34, maxWidth: 520, margin: '0 auto' }}>
+      <div onClick={close} style={{ position: 'fixed', inset: 0, zIndex: 74, background: 'rgba(5,5,7,.66)', animation: closing ? 'os-scrim-out .15s ease forwards' : 'os-scrim .25s ease' }} />
+      <div className="os-scroll" style={{ position: 'fixed', left: 0, right: 0, bottom: 0, top: 24, zIndex: 75, borderRadius: '22px 22px 0 0', overflowY: 'auto', background: AB.surface, border: `1px solid ${AB.line}`, animation: closing ? 'os-sheet-out .15s ease forwards' : 'os-sheet .4s cubic-bezier(.16,1,.3,1)', paddingBottom: 34, maxWidth: 520, margin: '0 auto' }}>
 
         {/* cover */}
         <div style={{ position: 'relative', height: 168, borderRadius: '22px 22px 0 0', overflow: 'hidden', background: cover ? undefined : `linear-gradient(135deg, ${avatarGradient(hue)}, ${AB.raised})` }}>
@@ -147,7 +147,7 @@ export const OSArtistSheet = ({ artist, onClose }: { artist: Artist; onClose: ()
       </div>
 
       {zoom && (
-        <div onClick={() => setZoom(null)} style={{ position: 'fixed', inset: 0, zIndex: 70, background: 'rgba(5,5,7,.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 18, cursor: 'zoom-out', animation: 'os-scrim .2s ease' }}>
+        <div onClick={() => setZoom(null)} style={{ position: 'fixed', inset: 0, zIndex: 78, background: 'rgba(5,5,7,.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 18, cursor: 'zoom-out', animation: 'os-scrim .2s ease' }}>
           <img src={zoom} style={{ maxWidth: '100%', maxHeight: '86vh', borderRadius: 14 }} />
         </div>
       )}
