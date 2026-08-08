@@ -51,3 +51,10 @@ END;$$;
 -- stari 2-arg potpis nestaje (CREATE OR REPLACE sa novim default-ima ga menja);
 -- grant ide na novi potpis, anon mora da može (javna forma)
 GRANT EXECUTE ON FUNCTION public.landing_signup(text, text, text, text, text, text) TO anon, authenticated;
+
+-- ⚠️ Naučeno pri primeni (2026-08-08): CREATE OR REPLACE sa novim potpisom NE
+-- menja stari — pravi PREOPTEREĆENJE, a PostgREST tada odbija 2-arg poziv
+-- (PGRST203 dvosmislenost) → živa forma pukne. Stari potpis mora eksplicitno
+-- da se obriše + reload šeme:
+DROP FUNCTION IF EXISTS public.landing_signup(text, text);
+NOTIFY pgrst, 'reload schema';

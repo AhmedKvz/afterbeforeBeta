@@ -1,3 +1,8 @@
+# Pending DB radovi — ✅ IZVRŠENO 2026-08-08 (svež token)
+
+Koraci 1–4 primenjeni i verifikovani; korak 5 (prvi umetnici) čeka founderov
+izbor imena. Ispod je originalni plan radi zapisa.
+
 # Pending DB radovi — čekaju svež SBP_TOKEN (2026-08-08)
 
 Management token je istekao (401). Kad se osveži

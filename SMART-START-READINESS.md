@@ -130,9 +130,9 @@ pošten test tražnje.
 
 | Metrika | Vrednost | Napomena |
 |---|---|---|
-| Profili ukupno | 34 | ~12 venue/seed naloga (06/10), founder, evaluator |
-| Pravi ljudi | ~9 imenovanih + 9 od 04.08. | od kojih su 3 naša QA naloga; 6 „New User" bez onboardinga |
-| Check-inovi ukupno | 2 (oba 29.07.) | hero noć se NIJE desila (plan je bio ≤18.07.) |
+| Profili ukupno | 28 (posle QA čišćenja 08.08.) | ~12 venue/seed naloga (06/10), founder, evaluator |
+| Pravi ljudi | ~9 imenovanih + 6 „New User" od 04.08. | QA nalozi obrisani 08.08. |
+| Check-inovi ukupno | 18 — **korekcija:** 17 founder (testiranje) + 1 pravi (Nikola, 06.07.) | ranije prijavljeno „2" bilo je RLS-ograničeno čitanje; hero noć se NIJE desila |
 | „Idem" signali | 9 | intent postoji, dolazak ne |
 | Recenzije | 1 | — |
 | W1→W2 retencija | nema kohorte | north-star i dalje prazan |
