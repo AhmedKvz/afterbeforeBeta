@@ -10,6 +10,9 @@ import { track } from '@/lib/analytics';
 import { OSExplore } from './OSExplore';
 import { OSQuests } from './OSQuests';
 import { OSMeet } from '../OSMeet';
+import { OSScena } from '../OSScena';
+import { OSArtistSheet } from '../OSArtistSheet';
+import type { Artist } from '@/hooks/useArtists';
 import { OSEventRow } from '../OSEventRow';
 import { AB, OS, G, hexA, MONO, stripe, genreCol, CONIC } from '../osTheme';
 import { lifecycleKey } from '@/lib/nightState';
@@ -52,14 +55,16 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
   const [genreF, setGenreF] = useState<string | null>(null);
   // IA v2 §11.1 + Pasoš odluka: jedan ekran, tri prikaza — Lista | Karta | Misije.
   // Misije žive PORED akcije (GRAD), ne u identitetu (PREDLOG-JA-PASOS §5).
-  const [view, setView] = useState<'lista' | 'karta' | 'misije' | 'ljudi'>('lista');
+  const [view, setView] = useState<'lista' | 'karta' | 'misije' | 'ljudi' | 'scena'>('lista');
+  const [artist, setArtist] = useState<Artist | null>(null);
   // Analitika prikaza: jednom po prelasku, da se vidi koji deo GRAD-a ljudi zaista otvore.
   useEffect(() => {
     if (view === 'misije') track('mission_viewed', { source: 'grad' });
     if (view === 'ljudi') track('crew_viewed', { source: 'grad' });
+    if (view === 'scena') track('scene_viewed', { source: 'grad' });
   }, [view]);
   useEffect(() => {
-    const go = (e: any) => { const v = e?.detail; if (v === 'lista' || v === 'karta' || v === 'misije' || v === 'ljudi') setView(v); };
+    const go = (e: any) => { const v = e?.detail; if (v === 'lista' || v === 'karta' || v === 'misije' || v === 'ljudi' || v === 'scena') setView(v); };
     window.addEventListener('ab-grad-view', go);
     return () => window.removeEventListener('ab-grad-view', go);
   }, []);
@@ -216,7 +221,7 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
 
       {/* Underline navigacija (redesign §8) — bez pilula, bez žanr boja */}
       <div style={{ display: 'flex', borderBottom: `1px solid ${AB.line}`, margin: '20px 0 0', padding: '0 6px' }}>
-        {([['lista', 'LISTA'], ['karta', 'KARTA'], ['misije', 'MISIJE'], ['ljudi', 'LJUDI']] as const).map(([k, l]) => {
+        {([['lista', 'LISTA'], ['karta', 'KARTA'], ['misije', 'MISIJE'], ['ljudi', 'LJUDI'], ['scena', 'SCENA']] as const).map(([k, l]) => {
           const on = view === k;
           return (
             <button key={k} onClick={() => setView(k)} className="os-press" aria-current={on ? 'page' : undefined}
@@ -227,6 +232,15 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
           );
         })}
       </div>
+
+      {/* SCENA — umetnici (DJ/tattoo/vizuelni): prati, timetable, radovi.
+          Distribucija i sadržaj, NE booking (odluka 2026-08-08). */}
+      {view === 'scena' && (
+        <div key="scena" style={{ animation: 'os-swap .15s cubic-bezier(.22,1,.36,1) both', paddingTop: 14 }}>
+          <OSScena onOpenArtist={setArtist} />
+          <KrajBlok onSwitch={() => setView('lista')} to="lista" />
+        </div>
+      )}
 
       {/* LJUDI — upoznavanje odvojeno od check-ina (radi cele nedelje) */}
       {view === 'ljudi' && (
@@ -371,6 +385,8 @@ export const OSHome = ({ onOpenVenue, goProfile }: { onOpenVenue: (v: OSVenue) =
       {/* GRAD trim 2026-07-21: OTKRIJ MESTA duplira Kartu (44 mesta su prikaz),
           OCENILA živi na venue stranama. */}
       <KrajBlok onSwitch={() => setView('karta')} to="karta" />
+
+      {artist && <OSArtistSheet artist={artist} onClose={() => setArtist(null)} />}
       </div>)}
     </div>
   );
