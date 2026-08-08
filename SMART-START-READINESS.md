@@ -100,3 +100,68 @@ Priča: „beta dokazuje petlju na jednoj noći; grant skalira na native + 3–5
 **SR:** AfterBefore ne naplaćuje funkcije — gradi ekonomiju doprinosa. Korisnici verifikovanim prisustvom i sadržajem stvaraju vrednost (živa mapa, recenzije, satnice); klubovi umesto oglasa kupuju aktivaciju zajednice (raniji dolasci, recenzije, nove posete); brendovi finansiraju autentične kampanje sa merljivim dometom; platforma uzima mali deo svake uspešno stvorene vrednosti. Isplate nikad ne prelaze prihod fonda — model ne može da „štampa" nagrade. Kada motor postane održiv, deo platformskog prihoda se kroz **Fond scene** vraća zajednici: oprema, edukacija i kreativni grantovi o kojima glasa sama scena. Ne izvlačimo vrednost iz noćnog života — kružimo je unutar njega.
 
 **EN:** AfterBefore doesn't charge for features — it builds a contribution economy. Users create value through verified presence and content (live map, reviews, set times); venues buy community activation instead of ads (earlier arrivals, reviews, new visits); brands fund authentic campaigns with measurable reach; the platform takes a small share of every successfully created value. Payouts never exceed fund revenue — the model cannot "print" rewards. Once the engine is sustainable, part of platform revenue returns to the community through the **Scene Fund**: gear, education and creative grants voted on by the scene itself. We don't extract value from nightlife — we circulate it inside nightlife.
+
+---
+
+## 7. Snapshot 2026-08-08 — druga iskrena provera
+
+**Poziv:** i dalje **zatvoren** (2025 istekao 14.11.2025, poziv za 2026 nije
+objavljen na sajtu Fonda). Po obrascu prošlih godina novi poziv se očekuje
+**u jesen 2026** — to je naša pista, ne prepreka.
+
+### Šta se promenilo od 27.06. (prve procene)
+
+**PROIZVOD — skok.** Od tada shipovano: IA v2 (GRAD + orb TU SAM + hub večeri),
+**Pasoš noći** (10 pečata, noć se piše sama), unifikovane **grupe do 6**
+(predžurka/izlazak/par/after), **LJUDI radi celu nedelju** (1-na-1 + chat
+starteri po danu + in-club igrice), **leaderboard = retention engine** (sva
+aktivnost, streak multiplikator, anti-farm plafon), skrivena scena (level-gate),
+pop-up eventi, GRAD redizajn + konsolidacija dizajna, landing v4 + analitički
+levak (35+ događaja, landing i app u istom toku), **auto check-in preko „Idem"**.
+Beta-lock je funkcionalno ZATVOREN — u kodu više nema blockera za grant priču.
+
+**KRITIČAN NALAZ:** registracija je bila **POKVARENA do 04.08.** (signup je
+prolazio na serveru, ali je UI slao korisnika da „potvrdi email" koji nikad ne
+stiže → svi novi korisnici otpadali na pragu). Popravljeno `7d5a76a`. Ovo
+objašnjava deo mrtve julske akvizicije — i znači da dosadašnji brojevi NISU
+pošten test tražnje.
+
+### Tržište — brojke iz baze na današnji dan
+
+| Metrika | Vrednost | Napomena |
+|---|---|---|
+| Profili ukupno | 34 | ~12 venue/seed naloga (06/10), founder, evaluator |
+| Pravi ljudi | ~9 imenovanih + 9 od 04.08. | od kojih su 3 naša QA naloga; 6 „New User" bez onboardinga |
+| Check-inovi ukupno | 2 (oba 29.07.) | hero noć se NIJE desila (plan je bio ≤18.07.) |
+| „Idem" signali | 9 | intent postoji, dolazak ne |
+| Recenzije | 1 | — |
+| W1→W2 retencija | nema kohorte | north-star i dalje prazan |
+
+**Tržište ostaje C** — ali sa dve olakšavajuće činjenice za narativ: (1) pola
+jula/avgusta registracija je bila slomljena, (2) avgust je mrtva sezona
+(klubovi po splavovima, scena se vraća sredinom septembra).
+
+### Ocena danas (nepromenjen zaključak, jača pozicija)
+
+- **TIM (40): A** — nepromenjeno najjača karta; beta sada još ubedljivije de-riskuje.
+- **KORIST+PREDNOST (30): A−** (ranije B+) — pasoš + auto check-in + grupe +
+  leaderboard su diferencijacija koju Radiate/mape nemaju; safety-as-gate ostaje adut.
+- **TRŽIŠTE (30): C** — jedina rupa, ista kao u junu. Bez hero noći ne ide iznad C.
+
+### Plan do poziva (jesen 2026) — redosled je bitan
+
+1. **AVGUST (sada):** eligibility pre-check članova tima ← **određuje ko sme u
+   EN video, zato ide PRVO** · zaključaj DJ-a + 10–15 OG ravera za septembar ·
+   pilot prostor kroz novu landing formu (Kult je sigurna karta) · očisti QA
+   naloge + 2 test check-ina (čeka svež SBP_TOKEN) · obezbedi 10% keš
+   sufinansiranja (~540k RSD ≈ €4.6k po tranši-dinamici).
+2. **SEPTEMBAR (povratak scene):** **hero noć #1** (Kult + DJ + OG) → auto
+   check-in sada spušta trenje dolaska na nulu · odmah zakaži noć #2 za
+   sledeći vikend → **W1→W2 kohorta je JEDINI grafik koji menja ocenu**.
+3. **OKTOBAR:** War Room grafik retencije → deck (safety + tim/partneri +
+   realne brojke) · 3-min EN video sa svim članovima · EN prijava po šablonu.
+4. **POZIV:** prijava u prvoj nedelji otvaranja (ne na rok).
+
+**Bottom line 08.08.:** kod je prestao da bude izgovor — čak i trenje ručnog
+check-ina je uklonjeno. Između tebe i 75+ poena stoje tačno **dve noći u
+septembru** i papirologija koja se rešava za nedelju dana.
