@@ -7,7 +7,7 @@ import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { OSApp } from "./os/OSApp";
+import { FreshApp } from "./fresh/FreshApp";
 import { BetaFeedback } from "@/components/BetaFeedback";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import { PasswordRecovery } from "@/components/PasswordRecovery";
@@ -63,13 +63,13 @@ const App = () => (
         <AuthProvider>
           <Suspense fallback={<RouteFallback />}>
           <Routes>
-            {/* Nightlife OS — primary app (orb nav drives the 5 core screens). */}
-            <Route path="/" element={<OSApp />} />
+            {/* Primary nightlife loop — planning, city, people and passport. */}
+            <Route path="/" element={<FreshApp />} />
             {/* Legacy Acid/UV screens kept as deep-link targets (not the primary flow). */}
             <Route path="/auth" element={<Auth />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/event/:id" element={<EventDetail />} />
-            <Route path="/venue/:venueName" element={<OSApp />} />
+            <Route path="/venue/:venueName" element={<FreshApp />} />
             <Route path="/matches" element={<Navigate to="/" replace />} />
             <Route path="/profile" element={<Navigate to="/" replace />} />
             <Route path="/venue-dashboard" element={<VenueDashboard />} />
