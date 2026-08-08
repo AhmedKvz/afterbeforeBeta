@@ -9,6 +9,8 @@ import { OSNightHub } from './OSNightHub';
 import { OSMessagesOverlay } from './OSMessagesOverlay';
 import { OSVenuePicker } from './OSVenuePicker';
 import { useMyNight } from '@/hooks/useMyNight';
+import { useNightCard } from '@/hooks/useNightCard';
+import { OSNightCard } from './OSNightCard';
 import { useAutoCheckIn } from '@/hooks/useAutoCheckIn';
 import { OSVenueSheet, OSVenue } from './OSVenueSheet';
 import { genreCol } from './osTheme';
@@ -32,6 +34,8 @@ export const OSApp = () => {
   const { data: night } = useMyNight();
   // „Idem" → auto potvrda dolaska kad se stvarno nađeš na lokaciji (poeni bez ručnog check-ina)
   useAutoCheckIn();
+  // Plesna kartica — prvi ulazak posle završene noći (jednom po noći)
+  const nightCard = useNightCard();
   const [venue, setVenue] = useState<OSVenue | null>(null);
 
   // Deep link /venue/:venueName → otvori OS venue sheet (zamena za legacy
@@ -111,6 +115,7 @@ export const OSApp = () => {
       {picker && <OSVenuePicker onPick={(v) => { setPicker(false); setVenue(v); }} onClose={() => setPicker(false)} />}
       {hub && night && <OSNightHub night={night} onClose={() => setHub(false)} />}
       {msgs && <OSMessagesOverlay onClose={() => setMsgs(false)} />}
+      {nightCard.fresh && nightCard.card && <OSNightCard card={nightCard.card} onClose={nightCard.dismiss} />}
     </div>
   );
 };
