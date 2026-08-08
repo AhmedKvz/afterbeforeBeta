@@ -2,10 +2,8 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useMeetDeck, useMeetSwipe, useMeetOptIn, MeetMode, MeetCard } from '@/hooks/useMeet';
 import { useMyReferral } from '@/hooks/useReferral';
-import { useMyNight } from '@/hooks/useMyNight';
 import { track } from '@/lib/analytics';
 import { OSMatchCelebration } from './OSMatchCelebration';
-import { OSCrew } from './OSCrew';
 import { OSGroups } from './OSGroups';
 import { AB, G, hexA, MONO, genreCol, CONIC } from './osTheme';
 
@@ -36,16 +34,14 @@ const nightLabel = (iso: string) => {
  * Sve besplatno — nema boost/premium/„ko te lajkovao".
  */
 export const OSMeet = () => {
-  const [mode, setMode] = useState<MeetMode | 'grupe'>('grupe');
+  const [mode, setMode] = useState<'dates' | 'grupe'>('grupe');
   const [i, setI] = useState(0);
   const [match, setMatch] = useState<{ name?: string; avatar?: string } | null>(null);
-  const [crewOpen, setCrewOpen] = useState(false);
   const opt = useMeetOptIn();
-  const optedIn = mode === 'dates' ? opt.dates : mode === 'crew' ? opt.crew : true;
+  const optedIn = mode === 'dates' ? opt.dates : true;
   const { data: deck = [], isLoading, error } = useMeetDeck(mode === 'grupe' ? 'dates' : mode, optedIn && mode !== 'grupe');
   const swipe = useMeetSwipe();
   const { data: referral } = useMyReferral();
-  const { data: night } = useMyNight();
 
   useEffect(() => { setI(0); }, [mode]);
 
@@ -74,7 +70,7 @@ export const OSMeet = () => {
     } catch { /* otkazano */ }
   };
 
-  const modePill = (m: MeetMode | 'grupe', label: string) => {
+  const modePill = (m: 'dates' | 'grupe', label: string) => {
     const on = mode === m;
     return (
       <button key={m} onClick={() => setMode(m)} className="os-press" style={{ flex: '1 0 auto', minWidth: 96, padding: '0 14px', minHeight: 42, borderRadius: 999, cursor: 'pointer', fontSize: 14, fontWeight: on ? 700 : 500, border: `1px solid ${on ? AB.uv : AB.line}`, background: on ? 'oklch(0.62 0.25 300 / 0.16)' : AB.surface, color: on ? AB.ink : AB.ink3 }}>{label}</button>
@@ -104,12 +100,10 @@ export const OSMeet = () => {
         <div style={{ padding: '0 18px' }}>
           <div style={{ padding: 16, borderRadius: 16, background: AB.surface, border: `1px solid ${AB.line}` }}>
             <div style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-.01em', color: AB.ink }}>
-              {mode === 'dates' ? 'Upoznaj nekoga sa scene' : 'Nađi s kim se izlazi'}
+              Upoznaj nekoga sa scene
             </div>
             <div style={{ fontSize: 13.5, lineHeight: 1.55, color: AB.ink2, marginTop: 6 }}>
-              {mode === 'dates'
-                ? 'Ne piše ko si po selfiju — piše po tome gde si bio/la. Vidiš ljude sa iste scene, i ko je bio na istim noćima kao ti.'
-                : 'Ekipa se pravi pre izlaska. Nađi ljude koji izlaze kad i ti, pa se dogovorite za petak.'}
+              Ne piše ko si po selfiju — piše po tome gde si bio/la. Vidiš ljude sa iste scene, i ko je bio na istim noćima kao ti.
             </div>
             <div style={{ ...LABEL, marginTop: 12, lineHeight: 1.6 }}>
               VIDLJIV/A SI SAMO ONIMA KOJI SU SE ISTO UKLJUČILI.<br />ISKLJUČI KAD HOĆEŠ.
@@ -126,16 +120,6 @@ export const OSMeet = () => {
         </div>
       ) : (
         <>
-          {/* ekipa: tihi ulaz u postojeći „Nađi ekipu" kad si napolju */}
-          {mode === 'crew' && night && (
-            <div style={{ padding: '0 18px 12px' }}>
-              <button onClick={() => setCrewOpen(true)} className="os-press" style={{ width: '100%', textAlign: 'left', padding: '11px 14px', borderRadius: 14, cursor: 'pointer', background: hexA(G.community, 0.09), border: `1px solid ${hexA(G.community, 0.4)}`, display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 18 }}>🧑‍🤝‍🧑</span>
-                <span style={{ flex: 1, fontSize: 13.5, fontWeight: 600, color: AB.ink }}>Večeras si u {night.venueName} — nađi ekipu odmah</span>
-                <span style={{ color: G.community }}>›</span>
-              </button>
-            </div>
-          )}
 
           {isLoading && <div style={{ ...LABEL, textAlign: 'center', padding: '40px 0' }}>UČITAVA…</div>}
 
@@ -220,7 +204,7 @@ export const OSMeet = () => {
       {optedIn && mode !== 'grupe' && (
         <div style={{ padding: '22px 18px 0', textAlign: 'center' }}>
           <button onClick={() => opt.set({ mode: mode as MeetMode, on: false })} className="os-press" style={{ background: 'transparent', border: 0, cursor: 'pointer', ...LABEL, padding: '8px 0' }}>
-            ISKLJUČI ME IZ {mode === 'dates' ? '1 NA 1' : 'EKIPE'}
+            ISKLJUČI ME IZ 1 NA 1
           </button>
         </div>
       )}
@@ -232,9 +216,6 @@ export const OSMeet = () => {
           onClose={() => setMatch(null)}
           onOpenChat={() => { setMatch(null); window.dispatchEvent(new CustomEvent('os-go', { detail: 'matches' })); }}
         />
-      )}
-      {crewOpen && night && (
-        <OSCrew eventId={null} venueId={night.venueId} title={night.venueName} onClose={() => setCrewOpen(false)} />
       )}
     </div>
   );
