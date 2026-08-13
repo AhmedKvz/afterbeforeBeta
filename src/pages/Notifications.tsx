@@ -1,120 +1,78 @@
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import {
-  ArrowLeft, Heart, Hand, Calendar, Target,
-  Clover, Shield, Zap, Trophy, CheckCheck,
-} from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
-import { GlassCard } from '@/components/GlassCard';
-import { BottomNav } from '@/components/BottomNav';
 import { formatDistanceToNow } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { srLatn } from 'date-fns/locale';
+import { AB, MONO, hexA } from '@/os/osTheme';
 
-const ICON_MAP: Record<string, { icon: any; color: string }> = {
-  match: { icon: Heart, color: 'text-primary' },
-  wave: { icon: Hand, color: 'text-blue-400' },
-  event_reminder: { icon: Calendar, color: 'text-orange-400' },
-  quest_complete: { icon: Target, color: 'text-green-400' },
-  lucky100_win: { icon: Clover, color: 'text-green-400' },
-  safety_alert: { icon: Shield, color: 'text-destructive' },
-  xp_milestone: { icon: Zap, color: 'text-yellow-400' },
-  leaderboard_change: { icon: Trophy, color: 'text-accent' },
+/**
+ * Notifikacije — OS dizajn (fix 2026-08-14: stranica je nosila legacy
+ * BottomNav i stari glass stil; „jedan dizajn svuda" kao venue deep-link).
+ * Ruta ostaje /notifications (zvonce u GRAD-u + JA podešavanja); nazad = -1.
+ */
+const ICON: Record<string, string> = {
+  match: '💜', wave: '👋', event_reminder: '📅', quest_complete: '🎯',
+  lucky100_win: '🍀', safety_alert: '🛡️', xp_milestone: '⚡', leaderboard_change: '🏆',
 };
+
+const LABEL: React.CSSProperties = { fontFamily: MONO, fontSize: 10.5, letterSpacing: '.14em', color: AB.ink3, fontWeight: 600 };
 
 const Notifications = () => {
   const navigate = useNavigate();
   const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } = useNotifications();
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate(-1)}
-              className="w-10 h-10 rounded-full bg-muted flex items-center justify-center"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <h1 className="font-bold text-xl">Notifikacije</h1>
+    <div className="os-scroll" style={{ minHeight: '100vh', background: AB.void, color: AB.ink, fontFamily: "'Inter',system-ui,sans-serif" }}>
+      <div style={{ maxWidth: 520, margin: '0 auto', paddingBottom: 40 }}>
+
+        <div style={{ position: 'sticky', top: 0, zIndex: 5, background: 'rgba(5,5,6,.92)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${AB.line}`, padding: 'calc(env(safe-area-inset-top) + 14px) 18px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button onClick={() => navigate(-1)} aria-label="Nazad" className="os-press" style={{ width: 36, height: 36, borderRadius: '50%', border: `1px solid ${AB.line2}`, cursor: 'pointer', background: AB.surface, color: AB.ink2, fontSize: 15 }}>←</button>
+            <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-.01em' }}>Notifikacije</span>
           </div>
           {unreadCount > 0 && (
-            <button
-              onClick={() => markAllAsRead()}
-              className="flex items-center gap-1 text-sm text-primary"
-            >
-              <CheckCheck className="w-4 h-4" />
-              Označi sve
+            <button onClick={() => markAllAsRead()} className="os-press" style={{ cursor: 'pointer', ...LABEL, color: AB.acid, background: 'transparent', border: 0, padding: 6 }}>
+              OZNAČI SVE ✓
             </button>
           )}
         </div>
-      </header>
 
-      <div className="px-4 py-4 space-y-3">
-        {isLoading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="glass-card p-4 animate-pulse">
-                <div className="h-12 bg-muted rounded-lg" />
-              </div>
-            ))}
-          </div>
-        ) : notifications.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-16"
-          >
-            <div className="text-5xl mb-4">🔔</div>
-            <h3 className="text-lg font-bold mb-2">Još nema notifikacija</h3>
-            <p className="text-muted-foreground text-sm">
-              Ovde stižu veze, REP koraci i pozivi — čim krene noć.
-            </p>
-          </motion.div>
-        ) : (
-          notifications.map((n: any, index: number) => {
-            const mapping = ICON_MAP[n.type] || { icon: Zap, color: 'text-muted-foreground' };
-            const Icon = mapping.icon;
-
-            return (
-              <motion.div
+        <div style={{ padding: '14px 18px 0' }}>
+          {isLoading ? (
+            <div style={{ ...LABEL, textAlign: 'center', padding: '40px 0' }}>UČITAVA…</div>
+          ) : notifications.length === 0 ? (
+            <div style={{ marginTop: 20, padding: 18, borderRadius: 16, border: `1px dashed ${AB.line2}`, textAlign: 'center' }}>
+              <div style={{ fontSize: 34 }}>🔔</div>
+              <div style={{ fontWeight: 800, fontSize: 17, marginTop: 8 }}>Još nema notifikacija</div>
+              <p style={{ fontSize: 13.5, color: AB.ink2, lineHeight: 1.55, margin: '6px 0 0' }}>
+                Ovde stižu veze, REP koraci i pozivi — čim krene noć.
+              </p>
+            </div>
+          ) : (
+            notifications.map((n: any) => (
+              <button
                 key={n.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.03 }}
+                onClick={() => { if (!n.is_read) markAsRead(n.id); }}
+                className="os-press"
+                style={{ display: 'flex', alignItems: 'flex-start', gap: 12, width: '100%', textAlign: 'left', padding: '13px 0', background: 'transparent', border: 0, borderBottom: `1px solid ${AB.line}`, cursor: 'pointer' }}
               >
-                <GlassCard
-                  className={cn('p-4', !n.is_read && 'border-primary/30')}
-                  hoverable
-                  onClick={() => {
-                    if (!n.is_read) markAsRead(n.id);
-                  }}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={cn('w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0', mapping.color)}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-sm truncate">{n.title}</h4>
-                        {!n.is_read && (
-                          <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">{n.body}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
-                      </p>
-                    </div>
-                  </div>
-                </GlassCard>
-              </motion.div>
-            );
-          })
-        )}
+                <span style={{ width: 40, height: 40, borderRadius: 12, flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, background: n.is_read ? AB.raised : hexA(AB.acid, 0.1), border: `1px solid ${n.is_read ? AB.line : AB.acidDim}` }}>
+                  {ICON[n.type] || '⚡'}
+                </span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <span style={{ fontWeight: 700, fontSize: 14.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: n.is_read ? AB.ink2 : AB.ink }}>{n.title}</span>
+                    {!n.is_read && <span style={{ width: 7, height: 7, borderRadius: '50%', background: AB.acid, flex: 'none' }} />}
+                  </span>
+                  {n.body && <span style={{ display: 'block', fontSize: 13, color: AB.ink3, lineHeight: 1.45, marginTop: 2 }}>{n.body}</span>}
+                  <span style={{ display: 'block', ...LABEL, marginTop: 5 }}>
+                    {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: srLatn }).toUpperCase()}
+                  </span>
+                </span>
+              </button>
+            ))
+          )}
+        </div>
       </div>
-
-      <BottomNav />
     </div>
   );
 };
