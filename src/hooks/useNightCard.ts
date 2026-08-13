@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -35,8 +36,15 @@ export const useNightCard = () => {
     },
   });
   const card = q.data ?? null;
+  // ultra-review bug_006: dismiss MORA da obori state — localStorage sam ne
+  // re-renderuje OSApp, pa bi nevidljivi scrim (fixed inset-0) ostao montiran
+  // i gutao svaki tap. localStorage ostaje samo kao „jednom po noći" pamćenje.
+  const [dismissed, setDismissed] = useState<string | null>(null);
   let fresh = false;
-  try { fresh = !!card && !localStorage.getItem(seenKey(card.night)); } catch { /* private mode */ }
-  const dismiss = () => { try { if (card) localStorage.setItem(seenKey(card.night), '1'); } catch { /* noop */ } };
+  try { fresh = !!card && card.night !== dismissed && !localStorage.getItem(seenKey(card.night)); } catch { /* private mode */ }
+  const dismiss = () => {
+    if (card) setDismissed(card.night);
+    try { if (card) localStorage.setItem(seenKey(card.night), '1'); } catch { /* noop */ }
+  };
   return { card, fresh, dismiss };
 };

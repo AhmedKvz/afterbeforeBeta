@@ -39,6 +39,7 @@ export const useSignalIntent = () => {
     onSuccess: (_d, vars) => {
       track('intent_signaled', { venue: vars.venue });
       queryClient.invalidateQueries({ queryKey: ['venue-intent'] });
+      queryClient.invalidateQueries({ queryKey: ['my-intent'] });
       toast('Najavljeno ✓', { description: 'Vidiš se na lokaciji — poeni stižu kad se čekiraš.' });
     },
     onError: (e: any) => toast('Ne može', { description: e?.message ?? 'Pokušaj ponovo.' }),

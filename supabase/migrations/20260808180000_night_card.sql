@@ -23,9 +23,11 @@ CREATE TABLE IF NOT EXISTS public.night_stats (
 );
 CREATE INDEX IF NOT EXISTS idx_night_stats_night ON public.night_stats(night);
 ALTER TABLE public.night_stats ENABLE ROW LEVEL SECURITY;
--- zbir noći je socijalan (compare/leaderboard) — kao venue_intent; bez lokacija.
+-- ultra-review bug_010: `venues` je LOKACIONI podatak (ruta noći) — čitanje
+-- SAMO svojih redova. compare_night je SECURITY DEFINER i projektuje samo
+-- brojeve (nikad rutu), pa mu javno čitanje ne treba.
 DROP POLICY IF EXISTS ns_read ON public.night_stats;
-CREATE POLICY ns_read ON public.night_stats FOR SELECT USING (true);
+CREATE POLICY ns_read ON public.night_stats FOR SELECT USING (user_id = auth.uid());
 -- upis samo kroz RPC (definer) — bez direktnog INSERT/UPDATE.
 
 -- ── get_night_card(): kartica za POSLEDNJU ZAVRŠENU noć korisnika ──────────
@@ -118,7 +120,11 @@ BEGIN
                  WHERE user_id = v_user AND nightlife_date(created_at) = p_night) THEN
     RAISE EXCEPTION 'NO_NIGHT';
   END IF;
-  UPDATE public.night_stats SET steps = p_steps WHERE user_id = v_user AND night = p_night;
+  -- ultra-review bug_001: PRAVI upsert — native sme da stigne pre nego što
+  -- get_night_card materijalizuje red (inače bi koraci tiho propali uz ok:true).
+  INSERT INTO public.night_stats (user_id, night, steps)
+  VALUES (v_user, p_night, p_steps)
+  ON CONFLICT (user_id, night) DO UPDATE SET steps = EXCLUDED.steps;
   RETURN json_build_object('ok', true);
 END;$$;
 GRANT EXECUTE ON FUNCTION public.upsert_night_steps(date, int) TO authenticated;

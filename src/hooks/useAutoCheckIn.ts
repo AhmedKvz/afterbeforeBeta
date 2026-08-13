@@ -24,11 +24,12 @@ const db = supabase as any;
  */
 const CHECK_EVERY_MS = 4 * 60_000;
 
-// noć po serverskom pravilu (nightlife_date = Beograd − 6h), lokalno vreme
-export const tonight = () => {
-  const d = new Date(Date.now() - 6 * 3600_000);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
+// noć TAČNO po serverskom pravilu: nightlife_date = (Beograd vreme) − 6h.
+// ultra-review bug_004: formatiranje mora u Europe/Belgrade zoni — lokalna
+// zona uređaja (putnik, pogrešan locale) promašuje noć i auto nikad ne okine.
+export const tonight = () =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Belgrade' })
+    .format(new Date(Date.now() - 6 * 3600_000));
 
 export const useAutoCheckIn = () => {
   const { user } = useAuth();
@@ -57,11 +58,13 @@ export const useAutoCheckIn = () => {
         );
         if (!alive || pending.length === 0) return;
 
-        // 2 · GPS samo uz već datu dozvolu — bez iznenadnih promptova
-        try {
-          const perm = await navigator.permissions?.query({ name: 'geolocation' as PermissionName });
-          if (perm && perm.state !== 'granted') return;
-        } catch { /* Safari bez permissions API — pusti, prompt je već viđen kroz ručni check-in */ }
+        // 2 · GPS samo uz POUZDANO 'granted' — bez iznenadnih promptova.
+        // ultra-review bug_011: bez Permissions API-ja (IG/FB webview, stari
+        // Safari) ne možemo da znamo → NE pitamo; prvi prompt ostaje na ručnom.
+        const perm = await navigator.permissions
+          ?.query({ name: 'geolocation' as PermissionName })
+          .catch(() => null);
+        if (perm?.state !== 'granted') return;
         let pos: GeolocationPosition;
         try { pos = await getCurrentPosition(); } catch { return; }
         if (!alive) return;
@@ -93,6 +96,7 @@ export const useAutoCheckIn = () => {
         track('check_in', { venue: i.venues.name, venue_id: i.venue_id, secure: true, auto: true, awarded_xp: data?.awarded_xp });
         qc.invalidateQueries({ queryKey: ['my-night'] });
         qc.invalidateQueries({ queryKey: ['venue-presence'] });
+        qc.invalidateQueries({ queryKey: ['my-intent'] });
         toast.success(
           data?.awarded_xp
             ? `Stigao si u ${i.venues.name} ✓ auto check-in · +${data.awarded_xp} REP · +${data.awarded_afc} AFC`

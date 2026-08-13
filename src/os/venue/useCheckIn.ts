@@ -69,6 +69,7 @@ export const useCheckIn = (venue: OSVenue, onFeedback: (venueId: string) => void
       // IA v2: orb mora da se upali ODMAH (bez čekanja na 120s refetch).
       qc.invalidateQueries({ queryKey: ['my-night'] });
       qc.invalidateQueries({ queryKey: ['venue-presence'] });
+      qc.invalidateQueries({ queryKey: ['my-intent'] });
       if (data?.awarded_xp) setAward(Number(data.awarded_xp));
       toast.success(data ? `Prijavljen ✓ · +${data.awarded_xp} REP · +${data.awarded_afc} AFC` : 'Prijavljen ✓');
       if (venue.venueId && shouldShowFeedback()) setTimeout(() => onFeedback(venue.venueId!), 1400);
