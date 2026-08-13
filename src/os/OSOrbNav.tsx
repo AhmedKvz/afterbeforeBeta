@@ -20,6 +20,7 @@ export const OSOrbNav = ({ current, onGo, onOrb, live }: {
     return (
       <button
         onClick={() => onGo(screen)}
+        data-tour={screen}
         aria-label={label}
         aria-current={on ? 'page' : undefined}
         className="os-press"
@@ -52,6 +53,7 @@ export const OSOrbNav = ({ current, onGo, onOrb, live }: {
         <div style={{ flex: 'none', width: 96, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
           <button
             onClick={onOrb}
+            data-tour="orb"
             aria-label={live ? 'Noć je aktivna — otvori hub' : 'Tu sam — aktiviraj noć'}
             className="os-press"
             style={{

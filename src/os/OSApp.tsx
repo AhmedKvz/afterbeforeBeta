@@ -11,6 +11,7 @@ import { OSVenuePicker } from './OSVenuePicker';
 import { useMyNight } from '@/hooks/useMyNight';
 import { useNightCard } from '@/hooks/useNightCard';
 import { OSNightCard } from './OSNightCard';
+import { OSTour, shouldShowTour } from './OSTour';
 import { useAutoCheckIn } from '@/hooks/useAutoCheckIn';
 import { OSVenueSheet, OSVenue } from './OSVenueSheet';
 import { genreCol } from './osTheme';
@@ -36,6 +37,11 @@ export const OSApp = () => {
   useAutoCheckIn();
   // Plesna kartica — prvi ulazak posle završene noći (jednom po noći)
   const nightCard = useNightCard();
+  // Vodič za prvi ulazak — GRAD → orb → JA, jednom po korisniku
+  const [tour, setTour] = useState(false);
+  useEffect(() => {
+    if (profile?.onboarding_completed && shouldShowTour()) setTour(true);
+  }, [profile?.onboarding_completed]);
   const [venue, setVenue] = useState<OSVenue | null>(null);
 
   // Deep link /venue/:venueName → otvori OS venue sheet (zamena za legacy
@@ -115,7 +121,8 @@ export const OSApp = () => {
       {picker && <OSVenuePicker onPick={(v) => { setPicker(false); setVenue(v); }} onClose={() => setPicker(false)} />}
       {hub && night && <OSNightHub night={night} onClose={() => setHub(false)} />}
       {msgs && <OSMessagesOverlay onClose={() => setMsgs(false)} />}
-      {nightCard.fresh && nightCard.card && <OSNightCard card={nightCard.card} onClose={nightCard.dismiss} />}
+      {nightCard.fresh && nightCard.card && !tour && <OSNightCard card={nightCard.card} onClose={nightCard.dismiss} />}
+      {tour && <OSTour onDone={() => setTour(false)} />}
     </div>
   );
 };
