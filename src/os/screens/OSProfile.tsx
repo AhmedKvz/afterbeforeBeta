@@ -149,7 +149,7 @@ export const OSProfile = () => {
       </div>
 
       {/* identitet: ime + grad + žanrovi — ono što je korisnik IZABRAO */}
-      <div style={{ padding: '0 18px', display: 'flex', alignItems: 'flex-end', gap: 15, marginTop: -37 }}>
+      <div style={{ padding: '0 18px', display: 'flex', alignItems: 'flex-end', gap: 15, marginTop: -37, position: 'relative', zIndex: 1 }}>
         <button onClick={() => avatarRef.current?.click()} disabled={uploading === 'avatar'} className="os-press" aria-label="Promeni sliku" style={{ width: 84, height: 84, borderRadius: 24, flex: 'none', background: CONIC, padding: 2, border: 0, cursor: 'pointer' }}>
           <div style={{ width: '100%', height: '100%', borderRadius: 22, background: profile.avatar_url ? `center/cover url(${profile.avatar_url})` : AB.raised, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>{!profile.avatar_url && (uploading === 'avatar' ? '…' : '📷')}</div>
         </button>
