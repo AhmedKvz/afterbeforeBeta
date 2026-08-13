@@ -30,12 +30,15 @@ stvarno da postoji i govori. Ko je Tech Lead, da li je posvećen, da li sme
 
 ## 🔴 TRŽIŠTE (30) — gde prijava danas krvari
 
-**T1 · „Beta je živa od juna — i ima 9 korisnika."** Ovo je NAJOPASNIJI
-napad: živ proizvod bez korisnika evaluator ne čita kao „rano", nego kao
-**tržište je već reklo ne**. Gore je imati betu bez trakcije nego nemati betu.
-→ Odbrana postoji samo jedna: hero noć kohorta PRE prijave. Ublažavanje u
-narativu: registracija slomljena do 04.08. + nula marketinga (namerno,
-density-first) + mrtva sezona — ali to su izgovori dok grafik ne stigne.
+**T1 · „Proizvod postoji mesecima — gde su korisnici?"** — VAŽNA KOREKCIJA
+(founder, 08.08.): beta NIKAD NIJE JAVNO OBJAVLJENA — URL postoji, ali nije
+bilo nijedne najave; 9 korisnika su insajderi iz privatnog kruga. To napad
+čini mnogo slabijim, ALI SAMO ako prijava to eksplicitno kaže: framing mora
+biti „privatna beta / zatvoreno testiranje — javni launch je planiran uz
+septembarsku hero noć". Ako prijava ćuti o statusu launcha, evaluator sam
+zaključi „živa od juna, 9 korisnika = tržište reklo ne" — i to je onda naša
+greška u naraciji, ne u proizvodu. Dakle: reč „nelansirana" ide u prvi
+paragraf tržišne sekcije, a hero-noć kohorta ostaje jedini pravi dokaz.
 
 **T2 · „Nula dokaza da će prostor platiti."** Landing forma: 0 prijava.
 Monetizacija = venue aktivacija, a nijedan venue nije ni besplatno probao.
