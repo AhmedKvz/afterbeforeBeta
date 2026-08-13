@@ -25,7 +25,7 @@ const db = supabase as any;
 const CHECK_EVERY_MS = 4 * 60_000;
 
 // noć po serverskom pravilu (nightlife_date = Beograd − 6h), lokalno vreme
-const tonight = () => {
+export const tonight = () => {
   const d = new Date(Date.now() - 6 * 3600_000);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };

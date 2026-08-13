@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useVenuePresence, useSetVenuePresence } from '@/hooks/useHeatVenues';
 import { useSparkActions } from '@/hooks/useSparks';
 import { useSignalIntent } from '@/hooks/useRedemptions';
+import { tonight } from '@/hooks/useAutoCheckIn';
 import { incrementQuestProgress } from '@/services/questProgress';
 import { getCurrentPosition, calculateDistance, formatDistance } from '@/services/geolocation';
 import { track } from '@/lib/analytics';
@@ -209,6 +210,19 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
     if (user) incrementQuestProgress(user.id, 'signal').catch(() => {});
   };
 
+  // „Idem" za večeras → dugme menja glas: „Stigao/la si? Potvrdi" (odluka 2026-08-08)
+  const { data: hasIntent = false } = useQuery({
+    queryKey: ['my-intent', venue.venueId, user?.id],
+    enabled: !!user && !!venue.venueId,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data } = await db.from('venue_intent').select('id')
+        .eq('user_id', user!.id).eq('venue_id', venue.venueId).eq('night', tonight())
+        .eq('fulfilled', false).maybeSingle();
+      return !!data;
+    },
+  });
+
   // RA-style: this venue's events (upcoming + past)
   const { data: venueEvents = [] } = useQuery({
     queryKey: ['os-venue-events', venue.name],
@@ -271,7 +285,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px 0' }}>
           <button onClick={() => setFollowing((f) => !f)} className="os-press" style={{ flex: 'none', padding: '10px 18px', borderRadius: 999, cursor: 'pointer', fontWeight: 700, fontSize: 14, border: following ? `1px solid ${AB.line2}` : 0, background: following ? 'transparent' : venue.col, color: following ? AB.ink2 : '#0B0B0D' }}>{following ? '✓ Pratiš' : '+ Prati'}</button>
 
-          <button onClick={checkIn} disabled={busy} className="os-press" style={{ marginLeft: 'auto', flex: 'none', padding: '10px 16px', borderRadius: 999, cursor: busy ? 'default' : 'pointer', fontWeight: 600, fontSize: 13, border: `1px solid ${done ? 'transparent' : AB.acidDim}`, background: done ? 'var(--ab-acid-soft)' : 'transparent', color: done ? AB.acid : AB.acidDim, opacity: busy ? 0.6 : 1 }}>{done ? '✓ Tu si' : '📍 Check-in'}</button>
+          <button onClick={checkIn} disabled={busy} className="os-press" style={{ marginLeft: 'auto', flex: 'none', padding: '10px 16px', borderRadius: 999, cursor: busy ? 'default' : 'pointer', fontWeight: 600, fontSize: 13, border: `1px solid ${done ? 'transparent' : AB.acidDim}`, background: done ? 'var(--ab-acid-soft)' : 'transparent', color: done ? AB.acid : AB.acidDim, opacity: busy ? 0.6 : 1 }}>{done ? '✓ Tu si' : hasIntent ? '📍 Potvrdi dolazak' : '📍 Check-in'}</button>
         </div>
 
         {/* IG + kako stići */}
@@ -460,7 +474,7 @@ export const OSVenueSheet = ({ venue, onClose }: { venue: OSVenue; onClose: () =
             <button onClick={idem} disabled={signalIntent.isPending} className="os-press" style={{ flex: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: AB.uv, background: 'oklch(0.62 0.25 300 / 0.12)', border: `1px solid ${AB.uv}`, borderRadius: 999, padding: '16px 18px' }}>✋ Idem</button>
           )}
           <button onClick={checkIn} disabled={busy} className="os-press" style={{ flex: 1, cursor: busy ? 'default' : 'pointer', fontSize: 16, fontWeight: 700, color: lockedHidden ? AB.ink3 : AB.acidInk, background: lockedHidden ? AB.raised : done ? AB.acidDim : AB.acid, border: 0, borderRadius: 999, padding: 16, opacity: busy ? 0.7 : 1, boxShadow: done || lockedHidden ? 'none' : 'var(--ab-glow-acid)' }}>
-            {lockedHidden ? `🔒 RANK ${['0','I','II','III','IV','V','VI','VII','VIII','IX','X'][venue.minLevel || 0] || venue.minLevel}` : done ? 'Prijavljen ✓' : busy ? '…' : 'Check-in'}
+            {lockedHidden ? `🔒 RANK ${['0','I','II','III','IV','V','VI','VII','VIII','IX','X'][venue.minLevel || 0] || venue.minLevel}` : done ? 'Prijavljen ✓' : busy ? '…' : hasIntent ? 'Stigao/la si? Potvrdi ✓' : 'Check-in'}
           </button>
         </div>
       </div>
