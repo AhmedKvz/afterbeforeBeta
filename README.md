@@ -1,73 +1,72 @@
-# Welcome to your Lovable project
+# AfterBefore — Nightlife OS
 
-## Project info
+**Born in Belgrade. Built for every city.**
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+AfterBefore connects events, people and the local scene into one living system —
+before, during and after the night out. Presence is the core primitive: every
+review, reward and connection is anchored to a **GPS-verified arrival**, not a click.
 
-## How can I edit this code?
+- **Landing:** https://ahmedkvz.github.io/afterbeforeBeta/
+- **Beta app (web/PWA):** https://ahmedkvz.github.io/afterbeforeBeta/app/
 
-There are several ways of editing your application.
+> Status: **private beta** — the product is live and fully functional, public
+> launch is planned together with the first partner event.
 
-**Use Lovable**
+## What the app does
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+| Loop step | Feature |
+|---|---|
+| Discover | Live city view — events list, real-time map, "who's going" signals |
+| Announce | **"Idem"** (I'm going) — intent signal that feeds the city's energy map |
+| Arrive | **"Tu sam"** (I'm here) — geofenced GPS check-in; auto check-in fulfils a prior "Idem" |
+| Connect | Open crews of up to 6 (pre-party / night out / after) + 1-on-1 meeting scoped to the same scene |
+| Contribute | Reviews and vibe tags **only from verified visitors**; weekly missions with partner rewards |
+| Remember | **Night Passport** — every night writes itself: route, times, crew, earned stamps |
+| Share | Post-night card ("I danced this much") exported as an image |
 
-Changes made via Lovable will be committed automatically to this repo.
+For venues, cafés and galleries: aggregate demand signals (planned vs. actually
+arrived), feedback from verified visitors only, and mission/promotion tools —
+never personal data, names or movement of guests.
 
-**Use your preferred IDE**
+An artist layer (**SCENA**) gives DJs, tattoo artists and photographers a
+profile with an auto-generated timetable, portfolio gallery and follower graph.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Principles
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- **Honest numbers** — nothing is displayed that wasn't measured; demo data is always labeled.
+- **Location = arrival confirmation only.** Read once, on check-in. No background tracking, ever.
+- **Data minimization** — venues get aggregates; individual movement is never sold or shared.
+- **Consent-first visibility** with block/report available in every conversation.
 
-Follow these steps:
+## Tech stack
+
+- **Frontend:** React 18 + TypeScript + Vite · Tailwind/shadcn base with a custom
+  design-token system (`src/index.css`) · TanStack Query with persisted cache · PWA (offline shell)
+- **Backend:** Supabase (Postgres + Auth + Realtime + Storage). All writes go through
+  `SECURITY DEFINER` RPCs with row-level security in deny-all default posture;
+  errors are machine-parsable tokens (`TOO_FAR`, `LEVEL_REQUIRED`, …)
+- **Analytics:** first-party event funnel (40+ events) into Postgres — no third-party trackers
+- **Hosting:** GitHub Pages; CI builds the app on every push to `main`
+  (`.github/workflows/deploy-beta.yml`)
+
+## Development
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+npm install
+npm run dev        # local dev server
+npm run build      # production build (enforces the GPS geofence)
+npx tsc --noEmit -p tsconfig.app.json   # typecheck
 ```
 
-**Edit a file directly in GitHub**
+Database schema lives in [`supabase/migrations/`](supabase/migrations/) —
+every table, policy and RPC is versioned there.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Roadmap (post-validation)
 
-**Use GitHub Codespaces**
+Native apps (Capacitor) with pedometer-verified "dance steps", ML-driven
+recommendations and crowd prediction, venue pilot program, and a scene
+marketplace (curated nights, bookings, helpers) gated by earned reputation.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+© AfterBefore · Beograd — od ravera, za ravere.

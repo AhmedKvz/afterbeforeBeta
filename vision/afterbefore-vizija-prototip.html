@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<!-- saved from url=(0086)file:///Users/macbook/Desktop/AfterBeforer/AfterBefore-Vizija-Prototip-2026-08-14.html -->
+<html lang="sr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AfterBefore — VIZIJA prototip v2 (sve klikabilno)</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{background:#09090b;color:#f4f3ee;font-family:'Inter',system-ui,sans-serif;display:flex;align-items:center;justify-content:center}
+  .frame{width:100%;height:100%;background:#050506;position:relative;overflow:hidden;display:flex;flex-direction:column}
+  @media (min-width:520px){.frame{width:390px;height:min(820px,94vh);border-radius:42px;border:1px solid #1f2126;box-shadow:0 40px 100px -20px rgba(0,0,0,.95)}}
+  .screen{position:absolute;inset:0;display:none;flex-direction:column;overflow-y:auto;padding:14px 12px 110px;scrollbar-width:none}
+  .screen::-webkit-scrollbar{display:none}
+  .screen.on{display:flex;animation:swap .16s cubic-bezier(.22,1,.36,1)}
+  @keyframes swap{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+  .g{display:grid;gap:9px}
+  .t{border-radius:16px;background:#101114;border:1px solid #1f2126;padding:12px 13px;overflow:hidden;position:relative;text-align:left;color:#f4f3ee;font-family:inherit}
+  button.t{cursor:pointer}
+  button.t:active{transform:scale(.985)}
+  .lb{font:700 8.5px ui-monospace,monospace;letter-spacing:.16em;color:#8e9298}
+  .acid{color:#c7ff21}.uvc{color:#c9a8ff}.hot{color:#ff8a5c}
+  .t.hi{background:linear-gradient(160deg,rgba(199,255,33,.14),#101114 70%);border-color:rgba(199,255,33,.35)}
+  .t.uv{background:linear-gradient(160deg,rgba(161,92,255,.16),#101114 70%);border-color:rgba(161,92,255,.3)}
+  .t.ho{background:linear-gradient(160deg,rgba(255,90,40,.13),#101114 70%);border-color:rgba(255,120,60,.3)}
+  .hd{display:flex;justify-content:space-between;align-items:center;padding:6px 4px 12px;gap:10px}
+  .wm{font-weight:900;font-size:14px;letter-spacing:.12em}
+  .sub{font:600 9px ui-monospace,monospace;letter-spacing:.14em;color:#8e9298}
+  .back{width:34px;height:34px;border-radius:50%;border:1px solid #2a2d33;background:#101114;color:#c5c6c8;font-size:14px;cursor:pointer;flex:none}
+  .ico{width:34px;height:34px;border-radius:10px;border:1px solid #2a2d33;background:#101114;color:#c5c6c8;font-size:14px;cursor:pointer;flex:none;position:relative}
+  .dot{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:#c7ff21}
+  .num{font-weight:900;letter-spacing:-.03em;line-height:1}
+  .chip{font:700 8.5px ui-monospace,monospace;letter-spacing:.1em;border:1px solid #2a2d33;border-radius:99px;padding:5px 9px;color:#c5c6c8;display:inline-block;margin:2px 3px 0 0}
+  .chip.a{border-color:rgba(199,255,33,.4);color:#c7ff21}
+  .chip.u{border-color:rgba(161,92,255,.45);color:#c9a8ff}
+  .av{border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .btn{border-radius:14px;padding:13px;text-align:center;font-weight:800;font-size:13.5px;border:0;cursor:pointer;font-family:inherit;width:100%}
+  .btn.a{background:#c7ff21;color:#090b04}
+  .btn.u{background:linear-gradient(90deg,#a15cff,#c9a8ff);color:#120a1c}
+  .btn.o{background:transparent;border:1px solid #2a2d33;color:#c5c6c8}
+  .btn:active{transform:scale(.98)}
+  .nav{position:absolute;left:10px;right:10px;bottom:12px;display:flex;align-items:center;justify-content:space-around;padding:8px 18px 10px;background:rgba(5,5,6,.94);backdrop-filter:blur(16px);border:1px solid #2a2d33;border-radius:24px;z-index:40}
+  .nv{font:700 10px ui-monospace,monospace;letter-spacing:.14em;color:#8e9298;background:transparent;border:0;cursor:pointer;padding:10px}
+  .nv.on{color:#f4f3ee}
+  .orb{width:62px;height:62px;border-radius:20px;margin-top:-30px;display:flex;align-items:center;justify-content:center;font:800 10px ui-monospace,monospace;color:#c7ff21;border:2px solid #c7ff21;background:#050506;box-shadow:0 0 24px rgba(199,255,33,.3);cursor:pointer;text-align:center;transition:.25s}
+  .orb.live{background:#c7ff21;color:#090b04;box-shadow:0 0 34px rgba(199,255,33,.6)}
+  .toast{position:absolute;left:16px;right:16px;bottom:96px;background:#16181c;border:1px solid rgba(199,255,33,.4);border-radius:14px;padding:13px 15px;font-size:13px;font-weight:700;z-index:60;display:none;animation:swap .2s}
+  .cele{position:absolute;inset:0;background:rgba(5,5,7,.92);z-index:70;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;text-align:center;padding:30px}
+  .cele.on{display:flex;animation:swap .25s}
+  .cele .big{font-size:46px;font-weight:900;color:#c7ff21;letter-spacing:-.03em}
+  .hint{position:fixed;top:10px;left:0;right:0;text-align:center;font:600 10px ui-monospace,monospace;letter-spacing:.14em;color:#565a61;z-index:5}
+  @media (max-width:519px){.hint{display:none}}
+  /* mapa */
+  .map{position:relative;height:340px;border-radius:18px;border:1px solid #1f2126;background:radial-gradient(circle at 62% 30%,rgba(161,92,255,.12),transparent 45%),#0a0b0d;overflow:hidden}
+  .river{position:absolute;left:-20px;top:40%;width:140%;height:52px;background:rgba(86,140,200,.12);transform:rotate(-14deg);border-radius:99px}
+  .blob{position:absolute;border:0;background:transparent;cursor:pointer;text-align:center;font-family:inherit;color:#f4f3ee}
+  .blob i{display:block;margin:0 auto 4px;border-radius:50%;animation:pulse 2.2s infinite}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+  .blob span{font:700 8px ui-monospace,monospace;letter-spacing:.1em;color:#c5c6c8}
+  /* chat */
+  .msgs{display:flex;flex-direction:column;gap:8px;flex:1}
+  .m{max-width:76%;padding:10px 13px;border-radius:16px;font-size:13.5px;line-height:1.45}
+  .m.me{align-self:flex-end;background:rgba(199,255,33,.16);border:1px solid rgba(199,255,33,.3);border-bottom-right-radius:5px}
+  .m.them{align-self:flex-start;background:#14161a;border:1px solid #22252b;border-bottom-left-radius:5px}
+  .inrow{position:sticky;bottom:0;display:flex;gap:8px;padding-top:10px;background:linear-gradient(transparent,#050506 30%)}
+  .in{flex:1;background:#101114;border:1px solid #2a2d33;border-radius:99px;padding:12px 15px;color:#f4f3ee;font-size:13.5px;font-family:inherit;outline:none}
+  .send{width:44px;height:44px;border-radius:50%;border:0;background:#c7ff21;color:#090b04;font-weight:900;cursor:pointer;flex:none}
+  .strip{display:flex;gap:7px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}
+  .strip::-webkit-scrollbar{display:none}
+  .starter{flex:none;font:700 10px ui-monospace,monospace;letter-spacing:.06em;border:1px solid #2a2d33;border-radius:99px;padding:8px 12px;background:#101114;color:#c5c6c8;cursor:pointer}
+  /* deck */
+  .deck{border-radius:22px;border:1px solid #2a2d33;overflow:hidden;background:#101114}
+  .deck .ph{height:280px;display:flex;align-items:flex-end;padding:14px}
+</style>
+</head>
+<body>
+<div class="hint">VIZIJA PROTOTIP v2 · SVE JE KLIKABILNO · PODACI SU DEMO</div>
+<div class="frame">
+
+<!-- ══ GRAD ══ -->
+<div class="screen on" id="s-grad">
+  <div class="hd">
+    <span class="wm">AFTERBEFORE</span>
+    <span style="display:flex;gap:8px;align-items:center">
+      <span class="sub"><span class="acid">● <span id="outCount">214</span></span></span>
+      <button class="ico" onclick="go(&#39;notif&#39;)">🔔<span class="dot" id="notifDot"></span></button>
+    </span>
+  </div>
+  <div class="g" style="grid-template-columns:1fr 1fr">
+    <button class="t hi" style="grid-column:1/3" onclick="go(&#39;venue&#39;)">
+      <div class="lb">VEČERAS · NAJJAČI SIGNAL</div>
+      <b style="font-size:19px;display:block;margin-top:4px">MAGLA w/ DJ Roxa</b>
+      <div class="sub">DRUGSTORE · TECHNO · 23:00</div>
+      <div class="g" style="grid-template-columns:1fr 1fr 1fr;margin-top:9px">
+        <div style="border:1px solid rgba(199,255,33,.3);border-radius:10px;padding:7px 9px"><span class="num acid" style="font-size:18px" id="ideCount">42</span><div class="lb">IDE</div></div>
+        <div style="border:1px solid #2a2d33;border-radius:10px;padding:7px 9px"><span class="num" style="font-size:18px" id="tuCount">18</span><div class="lb">TU</div></div>
+        <div style="border:1px solid #2a2d33;border-radius:10px;padding:7px 9px"><span class="num" style="font-size:18px">3</span><div class="lb">EKIPE</div></div>
+      </div>
+    </button>
+    <button class="t" style="grid-column:1/3;display:flex;align-items:center;gap:8px" onclick="go(&#39;map&#39;)">
+      <span style="display:flex">
+        <span class="av" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#4a5f2a,#1a230e);border:2px solid #050506">M</span>
+        <span class="av" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#5a3a7a,#241533);border:2px solid #050506;margin-left:-9px">A</span>
+        <span class="av" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#2a4a6f,#101c2b);border:2px solid #050506;margin-left:-9px">D</span>
+        <span class="av" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#6f4a2a,#2b1c10);border:2px solid #050506;margin-left:-9px">L</span>
+        <span class="av" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#6f2a4a,#2b101c);border:2px solid #050506;margin-left:-9px">V</span>
+      </span>
+      <span style="flex:1;min-width:0"><b style="font-size:12.5px;display:block">Miloš, Ana, Dača i još <span class="acid" id="outMore">209</span> su napolju</b><span class="lb">ŽIVA KARTA ›</span></span>
+    </button>
+    <button class="t" onclick="go(&#39;map&#39;)"><div class="lb">KARTA UŽIVO</div><div style="height:54px;margin-top:7px;border-radius:9px;background:radial-gradient(circle at 30% 40%,rgba(199,255,33,.4),transparent 40%),radial-gradient(circle at 68% 55%,rgba(161,92,255,.35),transparent 45%),radial-gradient(circle at 50% 80%,rgba(255,120,60,.25),transparent 35%),#0a0b0d"></div></button>
+    <button class="t" onclick="go(&#39;missions&#39;)"><div class="lb">MISIJE</div><b style="font-size:13px;display:block;margin-top:3px">🎯 Art kutak</b><div style="height:4px;border-radius:99px;background:#1f2126;margin-top:8px"><div id="misBarMini" style="height:100%;width:0%;border-radius:99px;background:#c7ff21;transition:.4s"></div></div><div class="lb" style="margin-top:5px" id="misMini">NIJE PRIHVAĆENA</div></button>
+    <button class="t uv" onclick="go(&#39;guide&#39;)"><div class="lb uvc">KURIRANA NOĆ</div><b style="font-size:13px;display:block;margin-top:3px">Underground BG</b><div class="lb" style="margin-top:2px">MILOŠ · 2 MESTA</div></button>
+    <button class="t ho" onclick="go(&#39;private&#39;)"><div class="lb hot">PRIVATE · AFTER</div><b style="font-size:13px;display:block;margin-top:3px" id="privMini">🔒 Krovna sesija</b><div class="lb" style="margin-top:2px" id="privMiniLb">OTKLJUČAVA REP IV</div></button>
+    <button class="t" onclick="go(&#39;groups&#39;)"><div class="lb">EKIPE</div><b style="font-size:13px;display:block;margin-top:3px">Join in 6</b><div class="lb" style="margin-top:2px" id="grpMini">3 OTVORENE VEČERAS</div></button>
+    <button class="t" onclick="go(&#39;meet&#39;)"><div class="lb">LJUDI · 1 NA 1</div><b style="font-size:13px;display:block;margin-top:3px" id="meetMini">2 sa iste scene</b><div class="lb" style="margin-top:2px">CELE NEDELJE</div></button>
+    <button class="t" style="grid-column:1/3;display:flex;align-items:center;gap:11px" onclick="go(&#39;scena&#39;)">
+      <span style="font-size:18px">🎧</span>
+      <span style="flex:1;min-width:0"><b style="font-size:13.5px;display:block">SCENA — DJ Roxa ★ i još 29</b><span class="lb">UMETNICI · VODIČI · HELPERS</span></span>
+      <span class="sub acid">›</span>
+    </button>
+    <button class="t" style="grid-column:1/3;display:flex;align-items:center;gap:11px" onclick="go(&#39;tourist&#39;)">
+      <span style="font-size:18px">🧭</span>
+      <span style="flex:1;min-width:0"><b style="font-size:13.5px;display:block">3 gosta grada traže insajdera</b><span class="lb">TURISTA MOD · PRVA RUKA · +AFC</span></span>
+      <span class="sub acid">›</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══ KARTA ══ -->
+<div class="screen" id="s-map">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">KARTA · UŽIVO</span><span class="sub acid">● <span id="outCount2">214</span></span></div>
+  <div class="map">
+    <div class="river"></div>
+    <button class="blob" style="left:18%;top:22%" onclick="go(&#39;venue&#39;)"><i style="width:44px;height:44px;background:radial-gradient(circle,rgba(199,255,33,.8),rgba(199,255,33,.12) 70%)"></i><span>DRUGSTORE · <b class="acid" id="tuCount3">18</b></span></button>
+    <button class="blob" style="left:58%;top:48%" onclick="toast(&#39;20/44 — splav, house. 11 je tu.&#39;)"><i style="width:34px;height:34px;background:radial-gradient(circle,rgba(161,92,255,.8),rgba(161,92,255,.12) 70%)"></i><span>20/44 · 11</span></button>
+    <button class="blob" style="left:36%;top:66%" onclick="toast(&#39;KC Grad — galerija, alt. 6 je tu.&#39;)"><i style="width:28px;height:28px;background:radial-gradient(circle,rgba(255,138,92,.8),rgba(255,138,92,.12) 70%)"></i><span>KC GRAD · 6</span></button>
+    <button class="blob" style="left:72%;top:16%" onclick="toast(&#39;🔒 Skriveno mesto — otključava se na REP IV.&#39;)"><i style="width:24px;height:24px;background:radial-gradient(circle,rgba(142,146,152,.7),rgba(142,146,152,.1) 70%)"></i><span>🔒 ???</span></button>
+  </div>
+  <div class="g" style="grid-template-columns:1fr 1fr;margin-top:10px">
+    <div class="t"><div class="lb">NAJVRUĆE</div><b style="font-size:13px;display:block;margin-top:3px">Drugstore ↗</b><div class="lb" style="margin-top:2px">RASTE 40 MIN</div></div>
+    <div class="t"><div class="lb">PREDIKCIJA · ML</div><b style="font-size:13px;display:block;margin-top:3px">25–40 do 00h</b><div class="lb" style="margin-top:2px">IZ IDEM SIGNALA</div></div>
+  </div>
+</div>
+
+<!-- ══ VENUE ══ -->
+<div class="screen" id="s-venue">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">DRUGSTORE</span><span class="sub acid">● <span id="tuCount2">18</span> JE TU</span></div>
+  <div class="g" style="grid-template-columns:1fr 1fr">
+    <div class="t hi" style="grid-column:1/3;height:104px;display:flex;flex-direction:column;justify-content:flex-end">
+      <div class="lb">TECHNO · SAVSKI VENAC · 23:00</div>
+      <b style="font-size:17px;margin-top:3px">MAGLA w/ DJ Roxa</b>
+      <div style="margin-top:5px"><span class="chip">DOBAR ZVUK</span><span class="chip">★ 4.4</span><span class="chip">GUŽVA OK</span></div>
+    </div>
+    <button class="t" id="idemBtn" onclick="idem()" style="border-color:rgba(161,92,255,.4)"><b style="font-size:14px" id="idemLbl">✋ Idem</b><div class="lb" style="margin-top:3px">NAJAVA GRADU</div></button>
+    <button class="t" style="background:#c7ff21;border-color:#c7ff21;color:#090b04" onclick="checkin()"><b style="font-size:14px" id="ciLabel">Check-in</b><div style="font:700 8.5px ui-monospace,monospace;letter-spacing:.14em;margin-top:3px;color:#3a4a10">GPS POTVRDA</div></button>
+    <button class="t" id="danceTile" style="grid-column:1/3;display:none;align-items:center;gap:11px" onclick="go(&#39;dance&#39;)"><span style="font-size:18px">🕺</span><span style="flex:1"><b style="font-size:13.5px;display:block">Dance mode</b><span class="lb">TELEFON U DŽEP · MERI SE PLES</span></span><span class="sub acid">›</span></button>
+    <div class="t" style="grid-column:1/3"><div class="lb">KO JE VEČERAS · TAP NA OSOBU</div>
+      <div class="g" style="grid-template-columns:repeat(4,1fr);margin-top:9px">
+        <button class="t" style="padding:8px 4px;text-align:center;background:transparent" onclick="toast(&#39;Miloš · REP V · 40 noći · vodič Underground BG&#39;)"><span class="av" style="width:38px;height:38px;margin:0 auto;background:linear-gradient(135deg,#4a5f2a,#1a230e)">M</span><div class="lb" style="margin-top:4px;text-align:center">MILOŠ</div></button>
+        <button class="t" style="padding:8px 4px;text-align:center;background:transparent" onclick="toast(&#39;Ana · 14 noći · TECHNO · 2× zajedno s tobom ✦&#39;)"><span class="av" style="width:38px;height:38px;margin:0 auto;background:linear-gradient(135deg,#5a3a7a,#241533)">A</span><div class="lb" style="margin-top:4px;text-align:center">ANA</div></button>
+        <button class="t" style="padding:8px 4px;text-align:center;background:transparent" onclick="toast(&#39;Dača · 9 noći · HOUSE · u ekipi „Idemo zajedno" ')"=""><span class="av" style="width:38px;height:38px;margin:0 auto;background:linear-gradient(135deg,#2a4a6f,#101c2b)">D</span><div class="lb" style="margin-top:4px;text-align:center">DAČA</div></button>
+        <button class="t" style="padding:8px 4px;text-align:center;background:transparent" onclick="toast(&#39;Luka · 11 noći · HOUSE · helper host ★4.9&#39;)"><span class="av" style="width:38px;height:38px;margin:0 auto;background:linear-gradient(135deg,#6f4a2a,#2b1c10)">L</span><div class="lb" style="margin-top:4px;text-align:center">LUKA</div></button>
+        <button class="t" style="padding:8px 4px;text-align:center;background:transparent" onclick="toast(&#39;Mina · 4 noći ovog meseca · traži ekipu za petak&#39;)"><span class="av" style="width:38px;height:38px;margin:0 auto;background:linear-gradient(135deg,#6f2a4a,#2b101c)">V</span><div class="lb" style="margin-top:4px;text-align:center">MINA</div></button>
+        <button class="t" style="padding:8px 4px;text-align:center;background:transparent" onclick="toast(&#39;Stefan · 3× zajedno · zna svaki after u gradu&#39;)"><span class="av" style="width:38px;height:38px;margin:0 auto;background:linear-gradient(135deg,#2a5f5a,#0e2320)">S</span><div class="lb" style="margin-top:4px;text-align:center">STEFAN</div></button>
+        <button class="t" style="padding:8px 4px;text-align:center;background:transparent" onclick="toast(&#39;Kaća · #4 na tabeli · founding raver 🏴&#39;)"><span class="av" style="width:38px;height:38px;margin:0 auto;background:linear-gradient(135deg,#5f5a2a,#23200e)">K</span><div class="lb" style="margin-top:4px;text-align:center">KAĆA</div></button>
+        <button class="t" style="padding:8px 4px;text-align:center;background:transparent" onclick="go(&#39;meet&#39;)"><span class="av" style="width:38px;height:38px;margin:0 auto;border:1px dashed #2a2d33;color:#8e9298">+12</span><div class="lb" style="margin-top:4px;text-align:center">SVI ›</div></button>
+      </div>
+    </div>
+    <button class="t" style="grid-column:1/3" onclick="go(&#39;groups&#39;)"><div class="lb">EKIPE VEČERAS</div><div style="display:flex;align-items:center;gap:9px;margin-top:7px"><b style="font-size:13px;flex:1">„Idemo zajedno" · <span id="grpCount">4</span>/6</b><span class="chip a" id="grpChip">UĐI</span></div></button>
+    <div class="t" style="grid-column:1/3"><div class="lb">RECENZIJE · SAMO OD PRISUTNIH</div>
+      <div style="font-size:13px;line-height:1.5;margin-top:5px;color:#c5c6c8">„Zvuk ubija, gužva taman." <span class="lb">✓ BIO</span></div>
+      <div style="display:flex;gap:5px;margin-top:9px" id="stars">
+        <button class="starter" onclick="rate(1)">★</button><button class="starter" onclick="rate(2)">★</button><button class="starter" onclick="rate(3)">★</button><button class="starter" onclick="rate(4)">★</button><button class="starter" onclick="rate(5)">★</button>
+        <span class="lb" style="align-self:center" id="rateLb">OCENI (POSLE CHECK-INA)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DANCE ══ -->
+<div class="screen" id="s-dance">
+  <div class="hd"><button class="back" onclick="stopDance();back()">←</button><span class="wm">🕺 DANCE MODE</span><span class="sub">DRUGSTORE</span></div>
+  <div class="g" style="grid-template-columns:1fr">
+    <div class="t hi" style="text-align:center;padding:28px 12px">
+      <span class="num acid" style="font-size:56px" id="danceNum">0</span>
+      <div class="lb" style="margin-top:6px">POKRETA · SENZOR SIMULACIJA</div>
+    </div>
+    <button class="btn a" id="danceBtn" onclick="danceToggle()">Kreni ▶</button>
+    <div class="t"><div class="lb">VEČERAŠNJA TABELA PODIJUMA</div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px;font-weight:700"><span>🥇 Ana</span><span class="sub">1.240</span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:13px;font-weight:700"><span>🥈 Miloš</span><span class="sub">980</span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:13px;font-weight:700"><span>🥉 Mina</span><span class="sub">720</span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:13px;font-weight:700"><span>4 · Stefan</span><span class="sub">610</span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:13px;font-weight:700" id="danceMe"><span>— TI</span><span class="sub">0</span></div>
+    </div>
+    <div class="lb" style="text-align:center">NATIVE: MERI SE SAMO DOK SI U KLUBU · SPONZOR NAGRAĐUJE TOP 3</div>
+  </div>
+</div>
+
+<!-- ══ MISIJE ══ -->
+<div class="screen" id="s-missions">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">MISIJE</span><span class="sub">NEDELJNI RITAM</span></div>
+  <div class="g" style="grid-template-columns:1fr">
+    <div class="t hi">
+      <div class="lb">NEDELJNA · PARTNER KC GRAD</div>
+      <b style="font-size:16px;display:block;margin-top:4px">🎯 Pronađi art kutak</b>
+      <div style="font-size:12.5px;color:#c5c6c8;line-height:1.5;margin-top:5px">Skeniraj QR na art corneru i izaberi delo koje opisuje tvoj vajb.</div>
+      <div style="height:5px;border-radius:99px;background:#1f2126;margin-top:10px"><div id="misBar" style="height:100%;width:0%;border-radius:99px;background:#c7ff21;transition:.4s"></div></div>
+      <div class="lb" style="margin-top:6px" id="misStatus">CILJ: QR + POTVRĐEN DOLAZAK · NAGRADA: PEČAT + 150 XP + 80 AFC</div>
+      <button class="btn a" style="margin-top:11px" id="misBtn" onclick="missionStep()">Prihvati</button>
+    </div>
+    <button class="t" onclick="toast(&#39;Kult misija prihvaćena ✦ Welcome shot te čeka na podijumu.&#39;)"><div class="lb hot">SPONZORISANO · KULT</div><b style="font-size:14px;display:block;margin-top:3px">Otvori podijum</b><div class="lb" style="margin-top:2px">→ WELCOME SHOT · 50 MESTA</div></button>
+    <button class="t" onclick="toast(&#39;MEGA QUEST: snimi najbolji after momenat — glasanje u nedelju, nagrada vikend za dvoje.&#39;)"><div class="lb uvc">MEGA QUEST · MESEČNI</div><b style="font-size:14px;display:block;margin-top:3px">🎬 After video takmičenje</b><div class="lb" style="margin-top:2px">GLASA SCENA · NAGRADU DAJE PARTNER</div></button>
+    <button class="t" onclick="toast(&#39;Tvoja misija poslata na odobrenje ✓ (kreator alat)&#39;)"><div class="lb">TVOJA MISIJA</div><b style="font-size:14px;display:block;margin-top:3px">+ Napravi misiju za grad</b><div class="lb" style="margin-top:2px">KREATOR NIVO 2+</div></button>
+  </div>
+</div>
+
+<!-- ══ EKIPE ══ -->
+<div class="screen" id="s-groups">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">EKIPE</span><span class="sub">JOIN IN 6</span></div>
+  <div class="g" style="grid-template-columns:1fr">
+    <button class="t hi" onclick="joinGroup()"><div style="display:flex;align-items:center;gap:10px"><span style="flex:1"><b style="font-size:14.5px;display:block">Idemo zajedno</b><span class="lb">DRUGSTORE · PETAK · <span id="grpCount2">4</span>/6</span></span><span class="chip a" id="joinChip">UĐI</span></div></button>
+    <button class="t" onclick="toast(&#39;Pre-party 5/6 — zahtev poslat domaćinu.&#39;)"><div style="display:flex;align-items:center;gap:10px"><span style="flex:1"><b style="font-size:14.5px;display:block">Pre-party kod Dorćola</b><span class="lb">PREDŽURKA · 5/6</span></span><span class="chip">ZAHTEV</span></div></button>
+    <button class="t" onclick="toast(&#39;After ekipa — lokacija vidljiva nakon odobrenja domaćina.&#39;)"><div style="display:flex;align-items:center;gap:10px"><span style="flex:1"><b style="font-size:14.5px;display:block">Posle događaja</b><span class="lb">AFTER · 5/6 · 🔒 LOKACIJA PO ODOBRENJU</span></span><span class="chip">ZAHTEV</span></div></button>
+    <button class="btn o" onclick="toast(&#39;Nova grupa otvorena ✦ (predžurka · izlazak · par · after · putovanje)&#39;)">+ Otvori svoju grupu</button>
+    <div class="lb" style="text-align:center">MAX 6 · GRUPNI CHAT · BLOKIRAJ I PRIJAVI UVEK DOSTUPNO</div>
+  </div>
+</div>
+
+<!-- ══ GRUPNI CHAT ══ -->
+<div class="screen" id="s-gchat">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">IDEMO ZAJEDNO</span><span class="sub">MILOŠ·ANA·DAČA·VUK·TI</span></div>
+  <div class="msgs" id="gmsgs">
+    <div class="m them"><b class="lb" style="display:block;margin-bottom:2px">MILOŠ</b>Ko je za predzagrevanje kod mene od 21h?</div>
+    <div class="m them"><b class="lb" style="display:block;margin-bottom:2px">ANA</b>Ja stižem u 21:30 🙌</div>
+    <div class="m them"><b class="lb" style="display:block;margin-bottom:2px">VUK</b>Ja donosim zvučnik za predzagrevanje 🔊</div>
+    <div class="m me">Tu sam od 22h — nosim ploče ✦</div>
+    <div class="m them"><b class="lb" style="display:block;margin-bottom:2px">MILOŠ</b>Onda u 00:30 svi zajedno na MAGLA-u. Dača vodi 🙌</div>
+  </div>
+  <div class="inrow"><input class="in" id="gin" placeholder="Poruka ekipi…" onkeydown="if(event.key===&#39;Enter&#39;)gsend()"><button class="send" onclick="gsend()">→</button></div>
+</div>
+
+<!-- ══ LJUDI 1na1 ══ -->
+<div class="screen" id="s-meet">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">LJUDI · 1 NA 1</span><span class="sub">ISTA SCENA</span></div>
+  <div class="g" style="grid-template-columns:1fr" id="deckWrap">
+    <div class="deck" id="deckCard"><div class="ph" style="background:linear-gradient(180deg,rgba(161,92,255,.35),#101114 90%),linear-gradient(135deg,#5a3a7a,#241533)"><div><b style="font-size:21px">Ana, 26</b><div class="lb" style="margin-top:3px">BEOGRAD · 14 NOĆI</div></div></div><div style="padding:13px 14px"><div><span class="chip a">TECHNO</span><span class="chip">HARD TECHNO</span><span class="chip u">2× ZAJEDNO · DRUGSTORE</span></div><div style="font-size:12.5px;color:#c5c6c8;margin-top:8px;line-height:1.5">Bila na 3 iste noći kao ti — uključujući onu sa 🌅 Zorom.</div></div></div>
+    <div class="g" style="grid-template-columns:1fr 1fr">
+      <button class="btn o" onclick="skipCard()">✕ Preskoči</button>
+      <button class="btn a" onclick="iskra()">✦ Iskra</button>
+    </div>
+    <div class="lb" style="text-align:center">VIDLJIV SI SAMO ONIMA KOJI SU SE UKLJUČILI · ISKLJUČI KAD HOĆEŠ</div>
+  </div>
+</div>
+
+<!-- ══ CHAT (ANA) ══ -->
+<div class="screen" id="s-chat">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm" id="chatName">ANA ✦</span><span class="sub acid" id="chatSub">MATCH · VEČERAS</span></div>
+  <div class="strip" id="starters">
+    <button class="starter" onclick="chatSend(&#39;Koja ti je bila najjača tačka večeras?&#39;)">Najjača tačka večeras?</button>
+    <button class="starter" onclick="chatSend(&#39;🍸 Nalazimo se kod šanka za 10 min?&#39;)">🍸 Kod šanka za 10</button>
+    <button class="starter" onclick="chatSend(&#39;Nosim crnu majicu — nađi me kod bine&#39;)">🕵 Nađi me</button>
+  </div>
+  <div class="msgs" id="cmsgs"></div>
+  <div class="inrow"><input class="in" id="cin" placeholder="Poruka…" onkeydown="if(event.key===&#39;Enter&#39;)chatSend()"><button class="send" onclick="chatSend()">→</button></div>
+</div>
+
+<!-- ══ PORUKE INBOX ══ -->
+<div class="screen" id="s-inbox">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">PORUKE</span><span class="sub">3 RAZGOVORA</span></div>
+  <div class="g" style="grid-template-columns:1fr">
+    <button class="t hi" onclick="go(&#39;chat&#39;)"><div style="display:flex;gap:11px;align-items:center"><span class="av" style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#5a3a7a,#241533)">A</span><span style="flex:1;min-width:0"><b style="font-size:13.5px;display:block">Ana ✦</b><span class="lb">MATCH VEČERAS · „VIDIMO SE KOD ŠANKA"</span></span><span class="dot" style="position:static"></span></div></button>
+    <button class="t" onclick="go(&#39;gchat&#39;)"><div style="display:flex;gap:11px;align-items:center"><span class="av" style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#2a4a6f,#101c2b)">👥</span><span style="flex:1;min-width:0"><b style="font-size:13.5px;display:block">Idemo zajedno · 5/6</b><span class="lb">MILOŠ: „U 00:30 SVI NA MAGLA-U"</span></span></div></button>
+    <button class="t" onclick="toast(&#39;Miloš (vodič): „Vidimo se u 23h ispred Zaokreta — nosi gotovinu za after." ')"=""><div style="display:flex;gap:11px;align-items:center"><span class="av" style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#4a5f2a,#1a230e)">M</span><span style="flex:1;min-width:0"><b style="font-size:13.5px;display:block">Miloš · vodič</b><span class="lb">TURA POTVRĐENA · DETALJI</span></span></div></button>
+  </div>
+</div>
+
+<!-- ══ NOTIFIKACIJE ══ -->
+<div class="screen" id="s-notif">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">NOTIFIKACIJE</span><button class="ico" onclick="toast(&#39;Sve označeno ✓&#39;)">✓</button></div>
+  <div class="g" style="grid-template-columns:1fr">
+    <button class="t" onclick="go(&#39;venue&#39;)"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:16px">📅</span><span style="flex:1"><b style="font-size:13px;display:block">Večeras si rekao „Idem" — Drugstore</b><span class="lb">PODSETNIK · PRE 1H</span></span></div></button>
+    <button class="t" onclick="go(&#39;chat&#39;)"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:16px">✦</span><span style="flex:1"><b style="font-size:13px;display:block">Ana ti je odgovorila</b><span class="lb">PORUKA · PRE 2H</span></span></div></button>
+    <button class="t" onclick="go(&#39;lead&#39;)"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:16px">🏆</span><span style="flex:1"><b style="font-size:13px;display:block">Popeo si se na #3 — tabela BG</b><span class="lb">SEZONA · JUČE</span></span></div></button>
+  </div>
+</div>
+
+<!-- ══ SCENA ══ -->
+<div class="screen" id="s-scena">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">SCENA</span><span class="sub">30 UMETNIKA</span></div>
+  <div class="g" style="grid-template-columns:1fr 1fr">
+    <button class="t hi" style="grid-column:1/3;display:flex;gap:12px;align-items:center" onclick="go(&#39;artist&#39;)">
+      <span class="av" style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#4a5f2a,#1a230e);font-size:19px">R</span>
+      <span style="flex:1;min-width:0"><b style="font-size:16px;display:block">DJ Roxa <span class="acid">★</span></b><span class="lb">AMBASADOR · 214 PRATILACA</span></span>
+      <span class="sub acid">›</span>
+    </button>
+    <button class="t" onclick="go(&#39;tattoo&#39;)"><div class="lb">TATTOO</div><b style="font-size:13px;display:block;margin-top:3px">Inka ✦</b><div class="lb" style="margin-top:2px">GOSTOVANJE · SUB</div></button>
+    <button class="t" onclick="go(&#39;photo&#39;)"><div class="lb">FOTOGRAF</div><b style="font-size:13px;display:block;margin-top:3px">N. Vision</b><div class="lb" style="margin-top:2px">OD 40€</div></button>
+    <div class="t uv" style="grid-column:1/3"><div class="lb uvc">VODIČI · KURIRANE NOĆI</div>
+      <div class="g" style="grid-template-columns:1fr 1fr;margin-top:9px">
+        <button class="t" style="border-color:rgba(161,92,255,.3);background:transparent" onclick="go(&#39;guide&#39;)"><b style="font-size:12.5px">Underground BG</b><div class="lb" style="margin-top:2px">MILOŠ · 25€ · ★4.9</div></button>
+        <button class="t" style="border-color:rgba(161,92,255,.3);background:transparent" onclick="go(&#39;guide2&#39;)"><b style="font-size:12.5px">Splavovi 101</b><div class="lb" style="margin-top:2px">ANA V. · 20€ · ★4.7</div></button>
+      </div>
+    </div>
+    <button class="t" style="grid-column:1/3;display:flex;gap:11px;align-items:center" onclick="go(&#39;helpers&#39;)"><span style="font-size:17px">🤝</span><span style="flex:1;min-width:0"><b style="font-size:13px;display:block">Helpers — podrška noći</b><span class="lb">SAFE-WALK · HOST · PO SATU</span></span><span class="chip u">REP III+</span></button>
+  </div>
+</div>
+
+<!-- ══ ARTIST: ROXA ══ -->
+<div class="screen" id="s-artist">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">DJ ROXA <span class="acid">★</span></span><span class="sub">AMBASADOR</span></div>
+  <div class="g" style="grid-template-columns:1fr 1fr">
+    <div class="t hi" style="grid-column:1/3;height:110px;display:flex;flex-direction:column;justify-content:flex-end">
+      <div class="lb">DJ · BEOGRAD · <span id="roxaFol">214</span> PRATILACA</div>
+      <b style="font-size:17px;margin-top:3px">Techno koji ne pušta do zore.</b>
+    </div>
+    <button class="t" onclick="follow(&#39;roxa&#39;)" style="border-color:rgba(199,255,33,.4)"><b style="font-size:13.5px" id="fol-roxa">+ Prati</b><div class="lb" style="margin-top:3px">TERMINI TI STIŽU U GRAD</div></button>
+    <button class="t" onclick="toast(&#39;Booking zahtev poslat ✓ Roxa odgovara direktno. (Faza 2)&#39;)"><b style="font-size:13.5px" class="uvc">Booking zahtev</b><div class="lb" style="margin-top:3px">FAZA 2 · DIREKTNO</div></button>
+    <div class="t" style="grid-column:1/3"><div class="lb">TIMETABLE</div>
+      <button class="t" style="background:transparent;border-color:#2a2d33;margin-top:8px;width:100%" onclick="go(&#39;venue&#39;)"><div style="display:flex;gap:10px;align-items:center"><b style="font-size:13px;flex:1">PET · MAGLA · Drugstore</b><span class="sub">23:00 ›</span></div></button>
+      <div style="display:flex;gap:10px;margin-top:8px;align-items:center;opacity:.6;padding:0 13px"><b style="font-size:13px;flex:1">SUB · 25 Bar sesija</b><span class="sub">22:00</span></div>
+    </div>
+    <div class="t" style="grid-column:1/3"><div class="lb">GALERIJA</div>
+      <div class="g" style="grid-template-columns:1fr 1fr 1fr;margin-top:8px">
+        <button class="t" style="aspect-ratio:1;padding:0;background:linear-gradient(135deg,rgba(199,255,33,.3),#14160a)" onclick="toast(&#39;Atmosfera · MAGLA #3&#39;)"></button>
+        <button class="t" style="aspect-ratio:1;padding:0;background:linear-gradient(135deg,rgba(161,92,255,.3),#120a1c)" onclick="toast(&#39;Set · Krov, jun&#39;)"></button>
+        <button class="t" style="aspect-ratio:1;padding:0;background:linear-gradient(135deg,rgba(255,120,60,.3),#1c0e06)" onclick="toast(&#39;Backstage · Kult&#39;)"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ARTIST: INKA (TATTOO) ══ -->
+<div class="screen" id="s-tattoo">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">INKA ✦</span><span class="sub">TATTOO</span></div>
+  <div class="g" style="grid-template-columns:1fr 1fr">
+    <div class="t uv" style="grid-column:1/3;height:100px;display:flex;flex-direction:column;justify-content:flex-end">
+      <div class="lb uvc">TATTOO · 32 RADA · ★4.8</div>
+      <b style="font-size:16px;margin-top:3px">Fine-line &amp; blackwork, klupska duša.</b>
+    </div>
+    <button class="t" onclick="follow(&#39;inka&#39;)" style="border-color:rgba(199,255,33,.4)"><b style="font-size:13.5px" id="fol-inka">+ Prati</b><div class="lb" style="margin-top:3px">NOVI RADOVI + TERMINI</div></button>
+    <button class="t" onclick="toast(&#39;Termin zatražen ✓ Inka potvrđuje DM-om. (Faza 2)&#39;)"><b style="font-size:13.5px" class="uvc">Zakaži termin</b><div class="lb" style="margin-top:3px">SUB · POP-UP U KLUBU</div></button>
+    <div class="t" style="grid-column:1/3"><div class="lb">RADOVI</div>
+      <div class="g" style="grid-template-columns:1fr 1fr 1fr;margin-top:8px">
+        <button class="t" style="aspect-ratio:1;padding:0;background:linear-gradient(135deg,#2a2d33,#0e0f12)" onclick="toast(&#39;Rad #12 · fine-line zmija&#39;)"></button>
+        <button class="t" style="aspect-ratio:1;padding:0;background:linear-gradient(135deg,#3a2d43,#120e18)" onclick="toast(&#39;Rad #8 · blackwork orb&#39;)"></button>
+        <button class="t" style="aspect-ratio:1;padding:0;background:linear-gradient(135deg,#2d3a43,#0e1418)" onclick="toast(&#39;Rad #21 · linija noći&#39;)"></button>
+        <button class="t" style="aspect-ratio:1;padding:0;background:linear-gradient(135deg,#43392d,#181209)" onclick="toast(&#39;Rad #4 · pečat ZORA (za ravere)&#39;)"></button>
+        <button class="t" style="aspect-ratio:1;padding:0;background:linear-gradient(135deg,#2d4339,#091812)" onclick="toast(&#39;Rad #17&#39;)"></button>
+        <button class="t" style="aspect-ratio:1;padding:0;border:1px dashed #2a2d33;background:transparent;color:#8e9298;display:flex;align-items:center;justify-content:center" onclick="toast(&#39;+26 radova u punom portfoliju&#39;)">+26</button>
+      </div>
+    </div>
+    <div class="t" style="grid-column:1/3;display:flex;gap:10px;align-items:center"><span style="font-size:16px">📍</span><span style="flex:1"><b style="font-size:13px;display:block">Subota · pop-up u 25 Bar</b><span class="lb">FLASH KOMADI · PRVI DOŠAO PRVI TETOVIRAN</span></span></div>
+  </div>
+</div>
+
+<!-- ══ ARTIST: N.VISION (FOTO) ══ -->
+<div class="screen" id="s-photo">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">N. VISION</span><span class="sub">FOTOGRAF</span></div>
+  <div class="g" style="grid-template-columns:1fr 1fr">
+    <div class="t" style="grid-column:1/3;height:100px;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(160deg,rgba(86,140,200,.2),#101114 70%)">
+      <div class="lb">FOTO · VIDEO · 4 GODINE SCENE</div>
+      <b style="font-size:16px;margin-top:3px">Noć kroz objektiv, bez blica u lice.</b>
+    </div>
+    <button class="t" onclick="follow(&#39;nv&#39;)" style="border-color:rgba(199,255,33,.4)"><b style="font-size:13.5px" id="fol-nv">+ Prati</b><div class="lb" style="margin-top:3px">NOVI SETOVI</div></button>
+    <button class="t" onclick="toast(&#39;Upit poslat ✓ Paket „Cela noć" 40€="" +="" objave.="" (faza="" 2)')"=""><b style="font-size:13.5px" class="uvc">Angažuj</b><div class="lb" style="margin-top:3px">OD 40€ · KLUB/PRIVATNO</div></button>
+    <div class="t" style="grid-column:1/3"><div class="lb">POSLEDNJI SETOVI</div>
+      <div class="g" style="grid-template-columns:1fr 1fr;margin-top:8px">
+        <button class="t" style="height:70px;background:linear-gradient(135deg,rgba(199,255,33,.2),#0e120a)" onclick="toast(&#39;Set · MAGLA jul, 84 fotke&#39;)"><span class="lb">MAGLA · JUL</span></button>
+        <button class="t" style="height:70px;background:linear-gradient(135deg,rgba(255,120,60,.2),#120c08)" onclick="toast(&#39;Set · Krovna sesija, 41 fotka&#39;)"><span class="lb">KROV · JUN</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GUIDE 1 ══ -->
+<div class="screen" id="s-guide">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm uvc">UNDERGROUND BG</span><span class="sub">KURIRANA NOĆ</span></div>
+  <div class="g" style="grid-template-columns:1fr 1fr">
+    <div class="t uv" style="grid-column:1/3;display:flex;gap:12px;align-items:center">
+      <span class="av" style="width:50px;height:50px;border-radius:16px;background:linear-gradient(135deg,#5a3a7a,#241533);font-size:18px">M</span>
+      <span style="flex:1"><b style="font-size:15px;display:block">Miloš — vodič</b><span class="lb">REP V · 40 NOĆI · ★4.9 (23 TURE)</span></span>
+    </div>
+    <div class="t" style="grid-column:1/3"><div class="lb">RUTA VEČERAS · 3 MESTA</div>
+      <div style="margin-top:8px;font-size:13.5px;font-weight:700;line-height:1.9">23:00 · Zaokret — zagrevanje<br>00:30 · Drugstore — MAGLA<br>03:00 · 🔒 tajni after (otkriva se uživo)</div>
+    </div>
+    <div class="t"><div class="lb">CENA</div><span class="num uvc" style="font-size:22px">25€</span><div class="lb" style="margin-top:2px">PO OSOBI</div></div>
+    <div class="t"><div class="lb">MESTA</div><span class="num" style="font-size:22px" id="guideSeats">2/6</span><div class="lb" style="margin-top:2px">SLOBODNO</div></div>
+    <button class="btn a" style="grid-column:1/3" id="guideBtn" onclick="bookGuide()">Rezerviši mesto →</button>
+    <div class="lb" style="grid-column:1/3;text-align:center">PLAĆANJE TEK KAD VODIČ POTVRDI · FAZA 2</div>
+  </div>
+</div>
+
+<!-- ══ GUIDE 2 ══ -->
+<div class="screen" id="s-guide2">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm uvc">SPLAVOVI 101</span><span class="sub">KURIRANA NOĆ</span></div>
+  <div class="g" style="grid-template-columns:1fr 1fr">
+    <div class="t uv" style="grid-column:1/3;display:flex;gap:12px;align-items:center">
+      <span class="av" style="width:50px;height:50px;border-radius:16px;background:linear-gradient(135deg,#2a4a6f,#101c2b);font-size:18px">A</span>
+      <span style="flex:1"><b style="font-size:15px;display:block">Ana V. — vodič</b><span class="lb">REP IV · ★4.7 (11 TURA)</span></span>
+    </div>
+    <div class="t" style="grid-column:1/3"><div class="lb">RUTA · SUBOTA</div>
+      <div style="margin-top:8px;font-size:13.5px;font-weight:700;line-height:1.9">21:00 · 20/44 — zalazak na reci<br>23:30 · Splav po izboru grupe<br>02:00 · Rečno krštenje 🌊 (pečat!)</div>
+    </div>
+    <div class="t"><div class="lb">CENA</div><span class="num uvc" style="font-size:22px">20€</span></div>
+    <div class="t"><div class="lb">MESTA</div><span class="num" style="font-size:22px">4/6</span></div>
+    <button class="btn a" style="grid-column:1/3" onclick="toast(&#39;Zahtev poslat ✓ Ana potvrđuje do sutra. (Faza 2)&#39;)">Rezerviši mesto →</button>
+  </div>
+</div>
+
+<!-- ══ HELPERS ══ -->
+<div class="screen" id="s-helpers">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">🤝 HELPERS</span><span class="sub">FAZA 2</span></div>
+  <div class="g" style="grid-template-columns:1fr">
+    <div class="t uv"><div class="lb uvc">ŠTA JE OVO</div><div style="font-size:12.5px;color:#c5c6c8;line-height:1.55;margin-top:5px">Provereni ljudi scene nude jasno definisanu podršku noći — uz REP prag, safety pravila i NVO standarde. Nikad sivo, uvek definisano.</div></div>
+    <button class="t" onclick="toast(&#39;Zahtev za safe-walk poslat ✓ Maja stiže za ~10 min do ulaza.&#39;)"><div style="display:flex;gap:11px;align-items:center"><span class="av" style="width:44px;height:44px;background:linear-gradient(135deg,#4a5f2a,#1a230e)">M</span><span style="flex:1"><b style="font-size:13.5px;display:block">Maja · Safe-walk</b><span class="lb">REP IV · DO TAKSIJA/KUĆE · ★5.0</span></span><span class="chip u">POZOVI</span></div></button>
+    <button class="t" onclick="toast(&#39;Luka rezervisan kao host za vašu ekipu ✓ (Faza 2)&#39;)"><div style="display:flex;gap:11px;align-items:center"><span class="av" style="width:44px;height:44px;background:linear-gradient(135deg,#6f4a2a,#2b1c10)">L</span><span style="flex:1"><b style="font-size:13.5px;display:block">Luka · Host za ekipe</b><span class="lb">REP V · REZERVACIJE, RED, DOGOVORI · ★4.9</span></span><span class="chip u">PO SATU</span></div></button>
+    <button class="t" onclick="toast(&#39;Prijava za helpers program poslata — treba ti REP III+ i obuka.&#39;)"><b style="font-size:13px">+ Postani helper</b><div class="lb" style="margin-top:3px">REP III+ · OBUKA · ZARADA PO SATU</div></button>
+  </div>
+</div>
+
+<!-- ══ PRIVATE ══ -->
+<div class="screen" id="s-private">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm hot">🔒 KROVNA SESIJA</span><span class="sub hot">PRIVATE</span></div>
+  <div class="g" style="grid-template-columns:1fr 1fr">
+    <div class="t ho" style="grid-column:1/3;height:104px;display:flex;flex-direction:column;justify-content:flex-end">
+      <div class="lb hot">AFTER · NEDELJA 06:00</div>
+      <b style="font-size:16px;margin-top:3px">Sunrise na krovu — 20 ljudi max</b>
+      <div class="lb" style="margin-top:3px" id="privLoc">LOKACIJA VIDLJIVA NAKON ODOBRENJA</div>
+    </div>
+    <div class="t"><div class="lb">DOMAĆIN</div><b style="font-size:13px;display:block;margin-top:3px">KVZ 🏴</b><div class="lb" style="margin-top:2px">REP V · 40 NOĆI</div></div>
+    <div class="t"><div class="lb">ULAZ</div><b style="font-size:13px;display:block;margin-top:3px">REP IV+</b><div class="lb" style="margin-top:2px">ILI POZIVNICA</div></div>
+    <div class="t" style="grid-column:1/3"><div class="lb">KO JE UNUTRA · 14/20</div>
+      <div style="display:flex;margin-top:8px">
+        <span class="av" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4a5f2a,#1a230e);border:2px solid #101114">M</span>
+        <span class="av" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#5a3a7a,#241533);border:2px solid #101114;margin-left:-8px">A</span>
+        <span class="av" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#5f5a2a,#23200e);border:2px solid #101114;margin-left:-8px">K</span>
+        <span class="av" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2a5f5a,#0e2320);border:2px solid #101114;margin-left:-8px">S</span>
+        <span class="av" style="width:32px;height:32px;border-radius:50%;border:1px dashed #2a2d33;color:#8e9298;margin-left:-8px;font-size:10px">+10</span>
+        <span class="lb" style="align-self:center;margin-left:10px">MILOŠ, ANA, KAĆA, STEFAN…</span>
+      </div>
+    </div>
+    <div class="t" style="grid-column:1/3"><div class="lb">TVOJ STATUS</div>
+      <div style="display:flex;align-items:center;gap:9px;margin-top:7px"><div style="flex:1;height:6px;border-radius:99px;background:#1f2126"><div id="repBar" style="height:100%;width:78%;border-radius:99px;background:linear-gradient(90deg,#ff8a5c,#c7ff21);transition:.6s"></div></div><span class="sub" id="repLbl">REP III.8 / IV</span></div>
+      <div class="lb" style="margin-top:6px" id="repHint">CHECK-IN + MISIJA VEČERAS = PRAG. SVE SE RAČUNA.</div>
+    </div>
+    <button class="btn o" style="grid-column:1/3" onclick="requestPrivate()" id="privBtn">Zatraži ulaz →</button>
+  </div>
+</div>
+
+<!-- ══ TOURIST ══ -->
+<div class="screen" id="s-tourist">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">BELGRADE<span class="acid">/</span>FIRSTHAND</span><span class="sub">EN · TURISTA</span></div>
+  <div class="g" style="grid-template-columns:1fr 1fr">
+    <div class="t hi" style="grid-column:1/3"><div class="lb">TONIGHT, FROM PEOPLE WHO LIVE IT</div><b style="font-size:15px;display:block;margin-top:5px">"Skip the main room — basement opens at 1am."</b><div class="lb" style="margin-top:5px">LOCAL INSIDER · VERIFIED · 2H AGO</div></div>
+    <button class="t" onclick="go(&#39;venue&#39;)"><div class="lb">TONIGHT'S PICK</div><b style="font-size:13px;display:block;margin-top:3px">MAGLA · Techno</b><div class="lb" style="margin-top:2px">42 LOCALS GOING ›</div></button>
+    <button class="t" onclick="toast(&#39;All ratings come from GPS-verified visits only.&#39;)"><div class="lb">REAL RATING</div><span class="num acid" style="font-size:21px">4.4★</span><div class="lb" style="margin-top:2px">VERIFIED ONLY</div></button>
+    <button class="t uv" style="grid-column:1/3;display:flex;gap:12px;align-items:center" onclick="go(&#39;guide&#39;)">
+      <span class="av" style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#5a3a7a,#241533)">M</span>
+      <span style="flex:1;min-width:0"><b style="font-size:13.5px;display:block">Miloš — your guide tonight</b><span class="lb">UNDERGROUND BG · ★4.9</span></span>
+      <span class="chip u">BOOK 25€</span>
+    </button>
+    <div class="t" style="grid-column:1/3"><div class="lb">PITANJA GOSTIJU · TI SI INSAJDER — ODGOVOR = AFC</div>
+      <button class="t" style="width:100%;margin-top:8px;background:transparent;display:flex;gap:10px;align-items:center" onclick="answerQ(this,&#39;emma&#39;)"><span style="font-size:15px">🇩🇪</span><span style="flex:1;min-width:0"><b style="font-size:12.5px;display:block">Emma: "Is Drugstore card or cash?"</b><span class="lb">PRE 8 MIN</span></span><span class="chip a" id="q-emma">+20 AFC</span></button>
+      <button class="t" style="width:100%;margin-top:8px;background:transparent;display:flex;gap:10px;align-items:center" onclick="answerQ(this,&#39;jack&#39;)"><span style="font-size:15px">🇬🇧</span><span style="flex:1;min-width:0"><b style="font-size:12.5px;display:block">Jack: "Best techno tonight, no tourists?"</b><span class="lb">PRE 14 MIN</span></span><span class="chip a" id="q-jack">+20 AFC</span></button>
+      <button class="t" style="width:100%;margin-top:8px;background:transparent;display:flex;gap:10px;align-items:center" onclick="answerQ(this,&#39;chloe&#39;)"><span style="font-size:15px">🇫🇷</span><span style="flex:1;min-width:0"><b style="font-size:12.5px;display:block">Chloe: "Is it safe to go alone as a girl?"</b><span class="lb">PRE 20 MIN · SAFETY</span></span><span class="chip a" id="q-chloe">+20 AFC</span></button>
+    </div>
+    <div class="t" style="grid-column:1/3"><div class="lb">WHY TRUST THIS?</div><div style="margin-top:7px"><span class="chip a">GPS-VERIFIED LOCALS</span><span class="chip">NO PAID PLACEMENTS</span><span class="chip">LIVE, NOT LAST YEAR</span></div></div>
+  </div>
+</div>
+
+<!-- ══ JA ══ -->
+<div class="screen" id="s-ja">
+  <div class="hd"><span class="wm">KVZ</span><span style="display:flex;gap:8px;align-items:center"><span class="sub">🏴 BG #1 · <span id="repTop">REP III.8</span></span><button class="ico" onclick="toast(&#39;Izmeni profil — cover, bio, žanrovi. (postoji u pravoj aplikaciji)&#39;)">✎</button></span></div>
+  <div class="g" style="grid-template-columns:1fr 1fr 1fr">
+    <button class="t hi" style="grid-column:1/3" onclick="go(&#39;stamps&#39;)"><div class="lb">PASOŠ</div><span class="num acid" style="font-size:32px" id="nightsNum">17</span><div class="lb" style="margin-top:2px">NOĆI · <span id="stampNum">3</span> PEČATA ›</div></button>
+    <button class="t" onclick="go(&#39;kartica&#39;)"><div class="lb">SINOĆ</div><span class="num" style="font-size:20px">9.4k</span><div class="lb" style="margin-top:2px">KORAKA ›</div></button>
+    <button class="t uv" style="grid-column:1/3" onclick="go(&#39;wallet&#39;)"><div class="lb uvc">AFC NOVČANIK</div><span class="num uvc" style="font-size:25px" id="afcNum">1.240</span><div class="lb" style="margin-top:3px">MISIJE + SADRŽAJ + TURE ›</div></button>
+    <button class="t" onclick="go(&#39;lead&#39;)"><div class="lb">SEZONA</div><span class="num acid" style="font-size:20px">#3</span><div class="lb" style="margin-top:2px">TABELA ›</div></button>
+    <button class="t" style="grid-column:1/4;display:flex;gap:10px;align-items:center" onclick="go(&#39;vote&#39;)"><span style="font-size:16px">🗳</span><span style="flex:1;min-width:0"><b style="font-size:13px;display:block">Fond scene — tvoj glas</b><span class="lb">OPREMA ZA MLADE DJ-EVE · DO NED</span></span><span class="sub acid" id="voteChip">GLASAJ</span></button>
+    <button class="t" style="grid-column:1/4" onclick="go(&#39;nights&#39;)"><div class="lb">MOJE NOĆI ›</div><b style="font-size:13px;display:block;margin-top:4px">Drugstore → 20/44 → Krov</b><div class="lb" style="margin-top:2px">PET · 23:40 → 06:12 · SA M. I N.</div></button>
+    <button class="t" style="grid-column:1/2" onclick="go(&#39;inbox&#39;)"><div class="lb">PORUKE</div><b style="font-size:12.5px;display:block;margin-top:3px">3 razgovora</b></button>
+    <button class="t" style="grid-column:2/4" onclick="toast(&#39;Podeli svoj profil — deep link + QR za ekipu.&#39;)"><div class="lb">POZOVI EKIPU</div><b style="font-size:12.5px;display:block;margin-top:3px">74DC70 · Podeli →</b></button>
+  </div>
+</div>
+
+<!-- ══ PEČATI ══ -->
+<div class="screen" id="s-stamps">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">PEČATI</span><span class="sub"><span id="stampNum2">3</span>/10</span></div>
+  <div class="g" style="grid-template-columns:1fr 1fr">
+    <div class="t hi"><b style="font-size:15px">🌅 Zora</b><div class="lb" style="margin-top:3px">DOČEKAO IZLAZAK SUNCA · 12. JUL</div></div>
+    <div class="t hi"><b style="font-size:15px">🎞 Triptih</b><div class="lb" style="margin-top:3px">3 MESTA U JEDNOJ NOĆI · 12. JUL</div></div>
+    <div class="t hi"><b style="font-size:15px">🌊 Obe obale</b><div class="lb" style="margin-top:3px">SAVA I DUNAV ISTE NOĆI · 26. JUL</div></div>
+    <div class="t" id="artStamp" style="opacity:.5"><b style="font-size:15px">🎨 Art kutak</b><div class="lb" style="margin-top:3px">ZAVRŠI MISIJU NEDELJE</div></div>
+    <div class="t" style="opacity:.5"><b style="font-size:15px">⚓ Rečno krštenje</b><div class="lb" style="margin-top:3px">PRVI SPLAV — ČEKA TE</div></div>
+    <div class="t" style="opacity:.5"><b style="font-size:15px">🗺 Kartograf</b><div class="lb" style="margin-top:3px">10 RAZLIČITIH MESTA (7/10)</div></div>
+    <div class="t" style="opacity:.5"><b style="font-size:15px">👻 ???</b><div class="lb" style="margin-top:3px">TAJNI PEČAT — NIKO NE ZNA USLOV</div></div>
+    <div class="t" style="opacity:.5"><b style="font-size:15px">🌇 Nedeljna služba</b><div class="lb" style="margin-top:3px">NEDELJA UJUTRU NA AFTERU</div></div>
+  </div>
+</div>
+
+<!-- ══ WALLET ══ -->
+<div class="screen" id="s-wallet">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm uvc">AFC NOVČANIK</span><span class="sub">NIJE NOVAC · JE PRISTUP</span></div>
+  <div class="g" style="grid-template-columns:1fr">
+    <div class="t uv" style="text-align:center;padding:20px"><span class="num uvc" style="font-size:42px" id="afcBig">1.240</span><div class="lb" style="margin-top:5px">AFC · ZARAĐENO PRISUSTVOM I DOPRINOSOM</div></div>
+    <div class="t"><div class="lb">ZAMENI ZA</div>
+      <button class="t" style="width:100%;margin-top:8px;background:transparent;display:flex;align-items:center;gap:10px" onclick="redeem(&#39;lineskip&#39;,400)"><span style="flex:1"><b style="font-size:13px;display:block">⏭ Line-skip · Drugstore</b><span class="lb">ULAZ BEZ REDA</span></span><span class="chip u">400</span></button>
+      <button class="t" style="width:100%;margin-top:8px;background:transparent;display:flex;align-items:center;gap:10px" onclick="redeem(&#39;pice&#39;,250)"><span style="flex:1"><b style="font-size:13px;display:block">🍸 Piće na račun kuće · 25 Bar</b><span class="lb">PARTNER</span></span><span class="chip u">250</span></button>
+      <button class="t" style="width:100%;margin-top:8px;background:transparent;display:flex;align-items:center;gap:10px" onclick="redeem(&#39;fest&#39;,2000)"><span style="flex:1"><b style="font-size:13px;display:block">🎟 Karta za festival</b><span class="lb">SEZONSKA NAGRADA</span></span><span class="chip u">2000</span></button>
+    </div>
+    <div class="t"><div class="lb">ISTORIJA</div><div id="txList" style="font-size:12.5px;line-height:2;margin-top:6px;color:#c5c6c8">+200 · Tura vodiča (gost ocenio ★5)<br>+80 · Misija „Zvuk nedelje"<br>+60 · After video u top 10</div></div>
+    <div class="lb" style="text-align:center">ISPLATE ≤ PRIHOD FONDA · NIKAD SE NE ŠTAMPA VREDNOST</div>
+  </div>
+</div>
+
+<!-- ══ TABELA ══ -->
+<div class="screen" id="s-lead">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">TABELA</span><span class="sub">BEOGRAD</span></div>
+  <div class="g" style="grid-template-columns:1fr">
+    <div style="display:flex;gap:7px"><button class="chip a" onclick="toast(&#39;Sezona — godišnja tabela.&#39;)">SEZONA</button><button class="chip" onclick="toast(&#39;Mesec — prva 3 nose nagradu iznenađenja.&#39;)">MESEC</button><button class="chip" onclick="toast(&#39;Po klubu — svaki venue ima svoju tabelu.&#39;)">PO KLUBU</button></div>
+    <div class="t"><div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:700"><span>🥇 MiraFlux</span><span class="sub">2.410</span></div></div>
+    <div class="t"><div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:700"><span>🥈 NoćniVuk</span><span class="sub">2.180</span></div></div>
+    <div class="t hi"><div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:800"><span>🥉 TI · KVZ</span><span class="sub acid" id="leadPts">1.950</span></div><div class="lb" style="margin-top:4px">DOLASCI ×10 · MISIJE ×8 · STREAK ×1.3</div></div>
+    <div class="t"><div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:700"><span>4 · Katarina</span><span class="sub">1.700</span></div></div>
+    <div class="t"><div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:700"><span>5 · Djomla</span><span class="sub">1.420</span></div></div>
+    <div class="t"><div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:700"><span>6 · Vuk</span><span class="sub">1.310</span></div></div>
+    <div class="t"><div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:700"><span>7 · Mina</span><span class="sub">1.240</span></div></div>
+    <div class="t"><div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:700"><span>8 · Nikola</span><span class="sub">990</span></div></div>
+    <div class="lb" style="text-align:center">RANGIRA SE DOPRINOS, NIKAD POTROŠNJA · TOP 3 MESEČNO = NAGRADA IZNENAĐENJA</div>
+  </div>
+</div>
+
+<!-- ══ FOND GLASANJE ══ -->
+<div class="screen" id="s-vote">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">🗳 FOND SCENE</span><span class="sub">DO NEDELJE</span></div>
+  <div class="g" style="grid-template-columns:1fr">
+    <div class="t"><div class="lb">OVAJ MESEC FOND DELI</div><span class="num acid" style="font-size:26px">1.200€</span><div class="lb" style="margin-top:3px">DEO PLATFORMSKOG PRIHODA → NAZAD SCENI</div></div>
+    <button class="t" onclick="vote(0)"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13.5px">🎛 Oprema za mlade DJ-eve</b><span class="sub" id="v0">44%</span></div><div style="height:5px;border-radius:99px;background:#1f2126;margin-top:8px"><div id="vb0" style="height:100%;width:44%;border-radius:99px;background:#c7ff21;transition:.5s"></div></div></button>
+    <button class="t" onclick="vote(1)"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13.5px">🎓 Radionica produkcije</b><span class="sub" id="v1">31%</span></div><div style="height:5px;border-radius:99px;background:#1f2126;margin-top:8px"><div id="vb1" style="height:100%;width:31%;border-radius:99px;background:#8e9298;transition:.5s"></div></div></button>
+    <button class="t" onclick="vote(2)"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13.5px">🛡 Harm-reduction punkt</b><span class="sub" id="v2">25%</span></div><div style="height:5px;border-radius:99px;background:#1f2126;margin-top:8px"><div id="vb2" style="height:100%;width:25%;border-radius:99px;background:#8e9298;transition:.5s"></div></div></button>
+    <div class="lb" style="text-align:center">GLASAJU SAMO NALOZI SA POTVRĐENIM NOĆIMA · Z11: MOĆ KORISNIKA JE PROIZVOD</div>
+  </div>
+</div>
+
+<!-- ══ MOJE NOĆI ══ -->
+<div class="screen" id="s-nights">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="wm">MOJE NOĆI</span><span class="sub" id="nightsNum2">17</span></div>
+  <div class="g" style="grid-template-columns:1fr">
+    <button class="t hi" onclick="go(&#39;kartica&#39;)"><div class="lb">PET 22. AVG</div><b style="font-size:14px;display:block;margin-top:3px">Drugstore → 20/44</b><div class="lb" style="margin-top:2px">9.400 KORAKA · 🌅 ZORA ›</div></button>
+    <button class="t" onclick="toast(&#39;SUB 16. AVG · 25 Bar → Kult · 6.100 koraka&#39;)"><div class="lb">SUB 16. AVG</div><b style="font-size:14px;display:block;margin-top:3px">25 Bar → Kult</b><div class="lb" style="margin-top:2px">6.100 KORAKA</div></button>
+    <button class="t" onclick="toast(&#39;PET 26. JUL · splav noć · 🌊 Obe obale&#39;)"><div class="lb">PET 26. JUL</div><b style="font-size:14px;display:block;margin-top:3px">20/44 → Zappa barka</b><div class="lb" style="margin-top:2px">🌊 OBE OBALE</div></button>
+    <div class="lb" style="text-align:center">ARHIVA JE TVOJA · NE BRIŠE SE · IZVOZ U SLIKU BILO KAD</div>
+  </div>
+</div>
+
+<!-- ══ PLESNA KARTICA ══ -->
+<div class="screen" id="s-kartica">
+  <div class="hd"><button class="back" onclick="back()">←</button><span class="sub">PET · TVOJA NOĆ</span><span></span></div>
+  <div class="g" style="grid-template-columns:1fr 1fr">
+    <div class="t hi" style="grid-column:1/3"><span class="num acid" style="font-size:46px">9.400</span><div class="lb" style="margin-top:5px">KORAKA NA PODIJUMU</div></div>
+    <div class="t"><div class="lb">RUTA</div><b style="font-size:12.5px;display:block;margin-top:4px">Drugstore<br>→ 20/44</b></div>
+    <div class="t"><div class="lb">TRAJANJE</div><span class="num" style="font-size:20px">5h 10m</span><div class="lb" style="margin-top:3px">12 MIN PLESA</div></div>
+    <div class="t" style="grid-column:1/3"><div class="lb">TI vs MILOŠ</div>
+      <div class="g" style="grid-template-columns:1fr 1fr;margin-top:8px">
+        <div><span class="num acid" style="font-size:23px">9.400</span><div class="lb">TI</div></div>
+        <div><span class="num" style="font-size:23px">7.200</span><div class="lb">MILOŠ</div></div>
+      </div>
+    </div>
+    <button class="btn a" style="grid-column:1/3" onclick="toast(&#39;Kartica spremna za story ✓ „I danced this much." ')"="">Podeli noć ↗</button>
+  </div>
+</div>
+
+<!-- nav -->
+<div class="nav">
+  <button class="nv on" id="nvGrad" onclick="go(&#39;grad&#39;)">GRAD</button>
+  <button class="orb" id="orb" onclick="orbTap()">TU<br>SAM</button>
+  <button class="nv" id="nvJa" onclick="go(&#39;ja&#39;)">JA</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="cele" id="cele" onclick="this.classList.remove(&#39;on&#39;)">
+  <div class="big" id="celeBig">+120 REP</div>
+  <b style="font-size:19px" id="celeTitle">Prijavljen u Drugstore ✓</b>
+  <span class="sub" id="celeSub">NOĆ JE AKTIVNA · PASOŠ SE PIŠE</span>
+  <span class="lb" style="margin-top:8px">TAP ZA NASTAVAK</span>
+</div>
+
+</div>
+<script>
+// ═══ VIZIJA PROTOTIP v2 — jedno stanje, sve klikabilno, sve demo ═══
+const S = { night:false, idem:false, rep:3.8, afc:1240, mission:'idle', group:false,
+            match:false, voted:false, redeemed:new Set(), rated:false, follows:new Set(),
+            danceOn:false, danceN:0, stamps:3, nights:17 };
+const $ = id => document.getElementById(id);
+const SCREENS = ['grad','map','venue','dance','missions','groups','gchat','meet','chat','inbox','notif',
+                 'scena','artist','tattoo','photo','guide','guide2','helpers','private','tourist',
+                 'ja','stamps','wallet','lead','vote','nights','kartica'];
+let stack = ['grad'];
+
+function show(s){
+  SCREENS.forEach(x => $('s-'+x).classList.remove('on'));
+  $('s-'+s).classList.add('on');
+  const jaSide = ['ja','stamps','wallet','lead','vote','nights','kartica'].includes(s);
+  $('nvGrad').classList.toggle('on', !jaSide);
+  $('nvJa').classList.toggle('on', jaSide);
+  $('s-'+s).scrollTop = 0;
+}
+function go(s){ if (stack[stack.length-1] !== s) stack.push(s); show(s); }
+function back(){ stack.pop(); show(stack[stack.length-1] || 'grad'); }
+
+let tt;
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.style.display = 'block';
+  clearTimeout(tt); tt = setTimeout(() => t.style.display = 'none', 2600);
+}
+function cele(big, title, sub){
+  $('celeBig').textContent = big; $('celeTitle').textContent = title; $('celeSub').textContent = sub;
+  $('cele').classList.add('on');
+}
+function repify(){
+  const pct = Math.min(100, Math.round((S.rep - 3) / 1 * 100));
+  $('repBar').style.width = pct + '%';
+  const lbl = S.rep >= 4 ? 'REP IV ✓' : 'REP III.' + Math.round((S.rep % 1) * 10) + ' / IV';
+  $('repLbl').textContent = lbl; $('repTop').textContent = S.rep >= 4 ? 'REP IV' : 'REP III.' + Math.round((S.rep % 1) * 10);
+  if (S.rep >= 4){
+    $('repHint').textContent = 'PRAG DOSTIGNUT — ULAZ OTVOREN 🔓';
+    $('privBtn').textContent = 'Uđi ✓'; $('privBtn').className = 'btn a'; $('privBtn').style.gridColumn = '1/3';
+    $('privMini').textContent = '🔓 Krovna sesija'; $('privMiniLb').textContent = 'ULAZ OTVOREN · REP IV';
+  }
+}
+// ── venue ──
+function idem(){
+  if (S.idem){ toast('Već si najavio/la ✋ Vidimo se tamo.'); return; }
+  S.idem = true; $('ideCount').textContent = '43';
+  $('idemLbl').textContent = '✋ Ideš ✓'; $('ciLabel').textContent = 'Stigao si? Potvrdi ✓';
+  toast('Najava poslata ✋ Kad stigneš — prijaviće te sam.');
+}
+function checkin(){
+  if (S.night){ toast('Već si prijavljen ovde večeras ✓'); return; }
+  S.night = true; S.rep += 0.1; S.nights += 1;
+  ['tuCount','tuCount2','tuCount3'].forEach(i => $(i).textContent = '19');
+  ['outCount','outCount2'].forEach(i => $(i).textContent = '215');
+  $('orb').classList.add('live'); $('orb').innerHTML = 'NOĆ<br>GORI';
+  $('danceTile').style.display = 'flex';
+  $('rateLb').textContent = 'OCENI VEČE';
+  $('nightsNum').textContent = S.nights; $('nightsNum2').textContent = S.nights;
+  repify();
+  cele('+120 REP', 'Prijavljen u Drugstore ✓', 'NOĆ JE AKTIVNA · JOŠ MISIJA DO REP IV');
+}
+function rate(n){
+  if (!S.night){ toast('Recenzija tek posle potvrđenog dolaska — iskren-broj.'); return; }
+  S.rated = true; $('rateLb').textContent = '★'.repeat(n) + ' HVALA ✓';
+  toast('Ocena zabeležena ✓ Vidljiva kao „✓ BIO".');
+}
+// ── dance ──
+let danceT;
+function danceToggle(){
+  S.danceOn = !S.danceOn;
+  $('danceBtn').textContent = S.danceOn ? 'Stani ⏸' : 'Kreni ▶';
+  if (S.danceOn){
+    danceT = setInterval(() => {
+      S.danceN += Math.floor(6 + Math.random() * 14);
+      $('danceNum').textContent = S.danceN;
+      $('danceMe').innerHTML = '<span>— TI</span><span class="sub">' + S.danceN + '</span>';
+    }, 300);
+  } else { stopDance(); toast('Sesija sačuvana 🕺 ' + S.danceN + ' pokreta ide u plesnu karticu.'); }
+}
+function stopDance(){ clearInterval(danceT); if (S.danceOn){ S.danceOn = false; $('danceBtn').textContent = 'Kreni ▶'; } }
+// ── misija ──
+function missionStep(){
+  if (S.mission === 'idle'){
+    S.mission = 'accepted';
+    $('misBtn').textContent = '📷 Skeniraj QR (simulacija)';
+    $('misStatus').textContent = 'PRIHVAĆENA · NAĐI ART KUTAK NA LICU MESTA';
+    $('misMini').textContent = 'AKTIVNA · 0/1';
+    toast('Misija prihvaćena 🎯');
+  } else if (S.mission === 'accepted'){
+    if (!S.night){ toast('QR važi samo uz potvrđen dolazak — prvo check-in.'); return; }
+    S.mission = 'done'; S.rep += 0.1; S.afc += 80; S.stamps = 4;
+    $('misBar').style.width = '100%'; $('misBarMini').style.width = '100%';
+    $('misBtn').textContent = 'Završena ✓'; $('misStatus').textContent = 'NAGRADA: 🎨 PEČAT + 150 XP + 80 AFC';
+    $('misMini').textContent = 'ZAVRŠENA ✓';
+    $('afcNum').textContent = $('afcBig').textContent = S.afc.toLocaleString('sr-Latn');
+    $('stampNum').textContent = $('stampNum2').textContent = S.stamps;
+    const a = $('artStamp'); a.style.opacity = '1'; a.classList.add('hi');
+    a.querySelector('.lb').textContent = 'MISIJA NEDELJE · VEČERAS';
+    repify();
+    if (S.rep >= 4) cele('REP IV 🔓', 'Prag dostignut!', 'PRIVATE EVENTI SU TI SAD OTVORENI');
+    else cele('+150 XP', 'Misija završena 🎨', '+80 AFC · PEČAT U PASOŠU');
+  } else toast('Već završena ✓ Nova misija u četvrtak.');
+}
+// ── ekipe ──
+function joinGroup(){
+  if (S.group){ go('gchat'); return; }
+  S.group = true;
+  $('grpCount').textContent = $('grpCount2').textContent = '5';
+  $('joinChip').textContent = 'CHAT ›'; $('grpChip').textContent = 'CHAT ›';
+  $('grpMini').textContent = 'U EKIPI SI · 5/6';
+  toast('Ušao/la si ✦ 5/6 — grupni chat otvoren.');
+  setTimeout(() => go('gchat'), 700);
+}
+function gsend(){
+  const i = $('gin'); if (!i.value.trim()) return;
+  $('gmsgs').insertAdjacentHTML('beforeend', '<div class="m me">' + i.value.replace(/</g,'&lt;') + '</div>');
+  i.value = ''; $('s-gchat').scrollTop = 1e5;
+  setTimeout(() => { $('gmsgs').insertAdjacentHTML('beforeend', '<div class="m them"><b class="lb" style="display:block;margin-bottom:2px">ANA</b>🙌🙌</div>'); $('s-gchat').scrollTop = 1e5; }, 900);
+}
+// ── 1na1: pravi deck sa 4 osobe ──
+const PEOPLE = [
+  {n:'Ana', a:26, noci:14, g:['TECHNO','HARD TECHNO'], t:'2× ZAJEDNO · DRUGSTORE', bio:'Bila na 3 iste noći kao ti — uključujući onu sa 🌅 Zorom.', c:'#5a3a7a,#241533'},
+  {n:'Luka', a:28, noci:11, g:['HOUSE','DISCO'], t:'IDE VEČERAS · MAGLA', bio:'Prvi na podijumu, poslednji na afteru. Helper host ★4.9.', c:'#2a4a6f,#101c2b'},
+  {n:'Mina', a:24, noci:4, g:['TECHNO','INDUSTRIAL'], t:'NOVA NA SCENI', bio:'4 noći ovog meseca — traži ekipu za petak.', c:'#6f2a4a,#2b101c'},
+  {n:'Stefan', a:27, noci:22, g:['ALT','ELECTRO'], t:'3× ZAJEDNO · KC GRAD', bio:'Zna svaki after u gradu. Kartograf pečat 9/10.', c:'#6f4a2a,#2b1c10'},
+];
+let deckI = 0;
+function renderDeck(){
+  const p = PEOPLE[deckI % PEOPLE.length];
+  $('deckCard').innerHTML =
+    '<div class="ph" style="background:linear-gradient(180deg,rgba(161,92,255,.35),#101114 90%),linear-gradient(135deg,' + p.c + ')"><div><b style="font-size:21px">' + p.n + ', ' + p.a + '</b><div class="lb" style="margin-top:3px">BEOGRAD · ' + p.noci + ' NOĆI</div></div></div>' +
+    '<div style="padding:13px 14px"><div><span class="chip a">' + p.g[0] + '</span><span class="chip">' + p.g[1] + '</span><span class="chip u">' + p.t + '</span></div>' +
+    '<div style="font-size:12.5px;color:#c5c6c8;margin-top:8px;line-height:1.5">' + p.bio + '</div></div>';
+}
+function skipCard(){
+  deckI++;
+  $('deckCard').style.opacity = .25;
+  setTimeout(() => { renderDeck(); $('deckCard').style.opacity = 1; }, 180);
+}
+function iskra(){
+  if (S.match){ go('chat'); return; }
+  const p = PEOPLE[deckI % PEOPLE.length];
+  S.match = p.n;
+  $('meetMini').textContent = 'MATCH: ' + p.n.toUpperCase() + ' ✦';
+  $('chatName').textContent = p.n.toUpperCase() + ' ✦';
+  cele('✦ MATCH', p.n + ' ti je već poslala iskru', 'PROZOR JE VEČERAS — NE SUTRA NA IG-U');
+  setTimeout(() => { $('cele').classList.remove('on'); go('chat'); }, 1600);
+}
+renderDeck();
+// ── turista pitanja: lokalac odgovara → AFC ──
+function answerQ(btn, id){
+  const chip = $('q-' + id);
+  if (chip.textContent.includes('✓')){ toast('Već odgovoreno ✓'); return; }
+  S.afc += 20;
+  $('afcNum').textContent = $('afcBig').textContent = S.afc.toLocaleString('sr-Latn');
+  chip.textContent = '✓ +20';
+  toast('Odgovor poslat ✓ +20 AFC — prva ruka vredi.');
+}
+function chatSend(txt){
+  const i = $('cin'); const msg = txt || i.value.trim(); if (!msg) return;
+  $('cmsgs').insertAdjacentHTML('beforeend', '<div class="m me">' + msg.replace(/</g,'&lt;') + '</div>');
+  if (!txt) i.value = '';
+  $('s-chat').scrollTop = 1e5;
+  setTimeout(() => {
+    const rep = msg.includes('šank') ? 'Može! Vidimo se tamo 🍸' : msg.includes('crnu') ? 'Hahaha našla sam te već 👀' : 'To pitanje zaslužuje odgovor uz muziku 🙌';
+    $('cmsgs').insertAdjacentHTML('beforeend', '<div class="m them">' + rep + '</div>');
+    $('s-chat').scrollTop = 1e5;
+  }, 900);
+}
+// ── scena ──
+function follow(who){
+  const b = $('fol-' + who);
+  if (S.follows.has(who)){ S.follows.delete(who); b.textContent = '+ Prati'; toast('Više ne pratiš.'); }
+  else {
+    S.follows.add(who); b.textContent = 'Pratiš ✓';
+    if (who === 'roxa') $('roxaFol').textContent = '215';
+    toast('Pratiš ✓ Termini stižu u tvoj GRAD.');
+  }
+}
+function bookGuide(){
+  $('guideSeats').textContent = '1/6'; $('guideBtn').textContent = 'Zahtev poslat ✓';
+  toast('Miloš potvrđuje do 20h — plaćanje tek posle potvrde. (Faza 2)');
+}
+// ── private ──
+function requestPrivate(){
+  if (S.rep >= 4){
+    $('privLoc').textContent = '📍 BETON HALA · KROV C — TAČNA ADRESA U 05:30';
+    cele('🔓 UNUTRA', 'Krovna sesija — vidimo se u zoru', 'LOKACIJA OTKRIVENA · 15/20 MESTA');
+  } else {
+    toast('Zahtev poslat — domaćin vidi REP ' + $('repLbl').textContent.split(' ')[1] + '. Check-in + misija večeras = prag.');
+  }
+}
+// ── fond ──
+function vote(n){
+  if (S.voted){ toast('Već si glasao/la ✓ Rezultati u nedelju.'); return; }
+  S.voted = true;
+  const vals = n === 0 ? [52,28,20] : n === 1 ? [40,38,22] : [40,26,34];
+  vals.forEach((v,i) => { $('v'+i).textContent = v + '%'; $('vb'+i).style.width = v + '%'; $('vb'+i).style.background = i === n ? '#c7ff21' : '#8e9298'; });
+  $('voteChip').textContent = 'GLASANO ✓';
+  toast('Glas zabeležen 🗳 Fond deli u nedelju.');
+}
+// ── wallet ──
+function redeem(what, cost){
+  if (S.redeemed.has(what)){ toast('Već iskorišćeno ✓ Kupon je u pasošu.'); return; }
+  if (S.afc < cost){ toast('Fali ti ' + (cost - S.afc) + ' AFC — misije i ture pune novčanik.'); return; }
+  S.afc -= cost; S.redeemed.add(what);
+  $('afcNum').textContent = $('afcBig').textContent = S.afc.toLocaleString('sr-Latn');
+  $('txList').insertAdjacentHTML('afterbegin', '−' + cost + ' · ' + (what === 'lineskip' ? '⏭ Line-skip kupon' : what === 'pice' ? '🍸 Piće kupon' : '🎟 Karta') + ' ✓<br>');
+  toast('Zamenjeno ✓ Kupon te čeka na ulazu — pokažeš iz pasoša.');
+}
+// ── orb ──
+function orbTap(){
+  if (!S.night){ go('venue'); toast('Biraš gde si — Check-in kad stigneš.'); }
+  else if (S.danceOn){ go('dance'); }
+  else { go('kartica'); toast('Noć je aktivna — hub večeri.'); }
+}
+</script>
+
+
+</body></html>

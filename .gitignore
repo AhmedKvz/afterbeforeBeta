@@ -30,3 +30,11 @@ dist-ssr
 .supabase-new-anon.txt
 BACKEND-MIGRATION.md
 .supabase-sr.txt
+
+# interni alati/dokumenti — žive u ../interno/ (repo je javan)
+.agents/
+.claude/skills/
+skills-lock.json
+.lovable/
+motion-audits/
+scripts/
