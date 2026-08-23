@@ -13,7 +13,7 @@ import { OSVenueSheet, type OSVenue } from '@/os/OSVenueSheet';
 import { OSNightHub } from '@/os/OSNightHub';
 import { OSMessagesOverlay } from '@/os/OSMessagesOverlay';
 import { OSNightCard } from '@/os/OSNightCard';
-import { OSQuests } from '@/os/screens/OSQuests';
+import { QuestEngine3 } from '@/quest-engine/QuestEngine3';
 import { useNightGuide } from './useNightGuide';
 import { DiscoverScreen, PassportScreen, PeopleScreen, TonightScreen, type NightGuideView } from './FreshScreens';
 import type { FreshActions, FreshTab } from './types';
@@ -162,8 +162,11 @@ export const FreshApp = () => {
       {messages && <OSMessagesOverlay onClose={() => setMessages(false)} />}
       {missions && (
         <div className="fresh-full-layer">
-          <header><div><span>Misije, nagrade i doprinos</span><strong>Tvoj napredak</strong></div><button onClick={() => setMissions(false)} aria-label="Zatvori"><X size={20} /></button></header>
-          <OSQuests embedded />
+          <header><div><span>Quest Engine 3.0</span><strong>Night Director</strong></div><button onClick={() => setMissions(false)} aria-label="Zatvori"><X size={20} /></button></header>
+          <QuestEngine3
+            night={night}
+            onRequestCheckIn={() => { setMissions(false); setPicker(true); }}
+          />
         </div>
       )}
       {nightCard.fresh && nightCard.card && <OSNightCard card={nightCard.card} onClose={nightCard.dismiss} />}
