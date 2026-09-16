@@ -65,6 +65,8 @@ const App = () => (
           <Routes>
             {/* Nightlife OS — primary app (orb nav drives the 5 core screens). */}
             <Route path="/" element={<OSApp />} />
+            {/* Public/replayable in-app guide. Reuses the same OS + OSTour UI. */}
+            <Route path="/how-to" element={<OSApp forceTour />} />
             {/* Legacy Acid/UV screens kept as deep-link targets (not the primary flow). */}
             <Route path="/auth" element={<Auth />} />
             <Route path="/onboarding" element={<Onboarding />} />
