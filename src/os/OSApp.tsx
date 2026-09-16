@@ -17,12 +17,16 @@ import { OSVenueSheet, OSVenue } from './OSVenueSheet';
 import { genreCol } from './osTheme';
 import { supabase } from '@/integrations/supabase/client';
 
+type OSAppProps = {
+  forceTour?: boolean;
+};
+
 /**
  * Nightlife OS — the full app shell. Orb-driven screen switching (no bottom
  * tab bar), a venue bottom-sheet, and the 5 core screens, each wired to the
  * same Supabase hooks the legacy screens use.
  */
-export const OSApp = () => {
+export const OSApp = ({ forceTour = false }: OSAppProps) => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const [screen, setScreen] = useState<OSScreen>('grad');
@@ -37,11 +41,16 @@ export const OSApp = () => {
   useAutoCheckIn();
   // Plesna kartica — prvi ulazak posle završene noći (jednom po noći)
   const nightCard = useNightCard();
-  // Vodič za prvi ulazak — GRAD → orb → JA, jednom po korisniku
-  const [tour, setTour] = useState(false);
+  // Vodič za prvi ulazak — GRAD → orb → JA, jednom po korisniku.
+  // /how-to može eksplicitno da ga ponovi bez obzira na localStorage flag.
+  const [tour, setTour] = useState(forceTour);
   useEffect(() => {
+    if (forceTour) {
+      if (profile?.onboarding_completed) setTour(true);
+      return;
+    }
     if (profile?.onboarding_completed && shouldShowTour()) setTour(true);
-  }, [profile?.onboarding_completed]);
+  }, [profile?.onboarding_completed, forceTour]);
   const [venue, setVenue] = useState<OSVenue | null>(null);
 
   // Deep link /venue/:venueName → otvori OS venue sheet (zamena za legacy
@@ -122,7 +131,7 @@ export const OSApp = () => {
       {hub && night && <OSNightHub night={night} onClose={() => setHub(false)} />}
       {msgs && <OSMessagesOverlay onClose={() => setMsgs(false)} />}
       {nightCard.fresh && nightCard.card && !tour && <OSNightCard card={nightCard.card} onClose={nightCard.dismiss} />}
-      {tour && <OSTour onDone={() => setTour(false)} />}
+      {tour && <OSTour onDone={() => { setTour(false); if (forceTour) navigate('/', { replace: true }); }} />}
     </div>
   );
 };
