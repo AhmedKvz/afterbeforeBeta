@@ -1,37 +1,57 @@
-<!DOCTYPE html>
-<html lang="sr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kako radi — AfterBefore</title>
-  <meta name="description" content="Kratak vodič kroz AfterBefore Nightlife OS: GRAD, TU SAM i JA." />
-  <meta name="theme-color" content="#090a0c" />
-  <style>
-    :root{--bg:#090a0c;--panel:#111317;--text:#f4f3ef;--muted:#a2a5aa;--line:rgba(255,255,255,.12);--acid:#b6ff4a;--max:900px}
-    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 85% 8%,rgba(139,92,246,.14),transparent 28rem),var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.55}
-    a{color:inherit;text-decoration:none}.wrap{width:min(var(--max),calc(100% - 28px));margin:auto}.nav{position:sticky;top:0;background:rgba(9,10,12,.86);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);z-index:10}.navin{height:68px;display:flex;align-items:center;justify-content:space-between}.brand{font-weight:900;font-size:21px;letter-spacing:-.04em}.brand span{color:var(--acid)}
-    .hero{padding:78px 0 36px}.eyebrow{font:700 11px ui-monospace,monospace;letter-spacing:.15em;color:var(--acid);text-transform:uppercase}.hero h1{font-size:clamp(46px,9vw,84px);line-height:.92;letter-spacing:-.055em;margin:16px 0 20px}.lead{font-size:clamp(18px,2.4vw,24px);color:#d6d6d2;max-width:720px}.grid{display:grid;gap:16px;padding:28px 0 70px}.card{border:1px solid var(--line);border-radius:22px;background:linear-gradient(150deg,rgba(255,255,255,.045),rgba(255,255,255,.015));padding:24px}.n{font:900 42px/1 ui-monospace,monospace;color:rgba(182,255,74,.35);margin-bottom:18px}.card h2{font-size:28px;margin:0 0 10px}.card p{color:var(--muted);margin:0}.cta{display:flex;gap:12px;flex-wrap:wrap;padding:0 0 90px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border-radius:999px;border:1px solid var(--line);font-weight:800}.primary{background:var(--acid);color:#0b1007;border-color:var(--acid)}.secondary{background:rgba(255,255,255,.04)}.note{margin-top:14px;color:var(--muted);font-size:13px}footer{border-top:1px solid var(--line);padding:28px 0 36px;color:var(--muted);font-size:13px}
-  </style>
-</head>
-<body>
-  <nav class="nav"><div class="wrap navin"><a class="brand" href="../">After<span>Before</span></a><a class="btn secondary" href="../app/">Otvori aplikaciju</a></div></nav>
-  <main class="wrap">
-    <section class="hero">
-      <div class="eyebrow">Kako radi</div>
-      <h1>Tri stvari. Jedna noć.</h1>
-      <p class="lead">AfterBefore je napravljen da ne traži objašnjenje od 20 ekrana. Glavni flow je GRAD → TU SAM → JA.</p>
-    </section>
-    <section class="grid">
-      <article class="card"><div class="n">01</div><h2>GRAD</h2><p>Ovde biraš gde se izlazi: događaji, mesta, scena, ljudi i misije. To je tvoj live pregled grada.</p></article>
-      <article class="card"><div class="n">02</div><h2>TU SAM</h2><p>Kad stigneš, pritisneš centralni orb. Time potvrđuješ dolazak i aktiviraš noć: check-in, XP, ekipu i ostale live funkcije.</p></article>
-      <article class="card"><div class="n">03</div><h2>JA</h2><p>Tvoj Night Passport. AfterBefore pamti noći, rute, pečate i progres tako da ne moraš ručno da vodiš evidenciju.</p></article>
-    </section>
-    <section class="cta">
-      <a class="btn primary" href="../app/">Uđi u aplikaciju →</a>
-      <a class="btn secondary" href="../app/#/how-to">Pokreni interaktivni vodič</a>
-      <div class="note">Interaktivni vodič zahteva prijavljen nalog. Ova stranica je javna i radi bez logina.</div>
-    </section>
-  </main>
-  <footer><div class="wrap">© AfterBefore · Beograd — od ravera, za ravere.</div></footer>
-</body>
-</html>
+<!doctype html><html lang="sr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kako radi AfterBefore — jedna noć kroz Nightlife OS</title>
+<meta name="description" content="Pogledaj kako AfterBefore povezuje discovery, potvrđeni dolazak, ekipe, misije i Night Passport u jedan nightlife loop.">
+<meta property="og:title" content="Kako radi AfterBefore — jedna noć kroz Nightlife OS"><meta property="og:description" content="GRAD → IDEM → TU SAM → EKIPA → PASOŠ. Pogledaj celu noć kroz AfterBefore."><meta name="theme-color" content="#0a0a0b">
+<link rel="alternate" hreflang="sr" href="https://ahmedkvz.github.io/afterbeforeBeta/how-to/"><link rel="alternate" hreflang="en" href="https://ahmedkvz.github.io/afterbeforeBeta/en/how-to/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0b;--surface:#141417;--surface2:#1a1a1e;--line:rgba(255,255,255,.09);--line2:rgba(255,255,255,.16);--ink:#f4f4f6;--ink2:#d8d8dc;--muted:#9999a2;--hot:#ff4d8d;--acid:#b6ff4a;--uv:#a64dff;--cyan:#56d6e6;--green:#34d399;--amber:#f5a623}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}.wrap{max-width:1080px;margin:auto;padding:0 22px}.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-spacing:.14em}.nav{position:sticky;top:0;z-index:50;background:rgba(10,10,11,.84);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}.navin{height:68px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{font-weight:900;font-size:20px;letter-spacing:-.04em}.brand span{color:var(--hot)}.navlinks{display:flex;align-items:center;gap:16px;font-size:12px;color:var(--muted)}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;border-radius:999px;border:1px solid var(--line2);font-weight:800}.btn.primary{background:var(--hot);color:#2c0917;border-color:var(--hot)}.hero{padding:88px 0 78px;position:relative;overflow:hidden}.glow{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none}.hero h1{font-size:clamp(56px,10vw,112px);line-height:.91;letter-spacing:-.055em;max-width:980px}.hero h1 span{background:linear-gradient(90deg,var(--hot),var(--uv));-webkit-background-clip:text;background-clip:text;color:transparent}.kicker{font:600 11px "IBM Plex Mono",monospace;letter-spacing:.2em;color:var(--hot);margin-bottom:18px}.lead{font-size:clamp(18px,2.5vw,24px);color:var(--ink2);max-width:760px;margin-top:24px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}.proof{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.pill{border:1px solid var(--line);border-radius:999px;padding:7px 11px;font:600 10px "IBM Plex Mono",monospace;letter-spacing:.08em;color:var(--muted)}section{padding:76px 0;border-top:1px solid var(--line)}h2{font-size:clamp(34px,5vw,58px);line-height:1;letter-spacing:-.04em}h3{font-size:20px;letter-spacing:-.02em}.sub{color:var(--muted);font-size:16px;max-width:720px;margin-top:14px}.timeline{margin-top:30px}.slot{display:grid;grid-template-columns:90px 1fr;gap:22px;padding:20px 0;border-bottom:1px solid var(--line)}.slot:last-child{border-bottom:0}.time{font:700 14px "IBM Plex Mono",monospace;letter-spacing:.08em}.slot p{color:var(--muted);margin-top:5px;max-width:700px}.grid{display:grid;gap:14px;margin-top:28px}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}.card{border:1px solid var(--line);background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012));border-radius:18px;padding:22px;min-height:210px}.card .num{font:800 11px "IBM Plex Mono",monospace;letter-spacing:.16em;color:var(--hot);margin-bottom:34px}.card p{color:var(--muted);font-size:14px;margin-top:8px}.phone{margin:34px auto 0;max-width:390px;border:1px solid var(--line2);border-radius:38px;padding:12px;background:#050506;box-shadow:0 40px 90px rgba(0,0,0,.55)}.screen{border-radius:28px;background:linear-gradient(180deg,#18181c,#0f1012);padding:20px;min-height:560px}.screenTop{display:flex;justify-content:space-between;font-size:12px}.live{color:var(--green);font:700 10px "IBM Plex Mono",monospace;letter-spacing:.12em}.event{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.03)}.orb{width:74px;height:74px;border-radius:50%;border:2px solid var(--acid);display:grid;place-items:center;margin:26px auto 10px;font:800 11px "IBM Plex Mono",monospace;letter-spacing:.08em;color:var(--acid);text-align:center}.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:28px}.statement{border:1px solid rgba(182,255,74,.25);background:rgba(182,255,74,.06);border-radius:18px;padding:28px}.statement strong{font-size:22px}.statement p{color:var(--muted);margin-top:8px}.privacy{border-color:rgba(86,214,230,.25);background:rgba(86,214,230,.05)}.cta{padding:88px 0;text-align:center}.cta h2{max-width:800px;margin:auto}.cta p{color:var(--muted);margin:18px auto 0;max-width:650px}.footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);font-size:12px}.footerin{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+@media(max-width:800px){.g3,.g2,.compare{grid-template-columns:1fr}.slot{grid-template-columns:72px 1fr}.navlinks a.hide-sm{display:none}.hero{padding-top:64px}.card{min-height:auto}}
+@media(max-width:520px){.wrap{padding:0 16px}.hero h1{font-size:52px}.slot{grid-template-columns:1fr;gap:5px}.navlinks{gap:9px}.navlinks .btn{padding:0 12px}.lead{font-size:18px}}</style></head><body>
+<nav class="nav"><div class="wrap navin"><a class="brand" href="../">After<span>Before</span></a><div class="navlinks"><a class="hide-sm" href="#loop">KAKO RADI</a><a href="../en/how-to/">EN</a><a class="btn" href="../app/">OTVORI APP</a></div></div></nav>
+<header class="hero"><div class="glow" style="width:540px;height:540px;right:-160px;top:-180px;background:rgba(255,77,141,.16)"></div><div class="glow" style="width:420px;height:420px;left:-160px;bottom:-160px;background:rgba(166,77,255,.13)"></div><div class="wrap">
+<div class="kicker">AFTERBEFORE · NIGHTLIFE OS</div><h1>JEDNA NOĆ.<br><span>CEO SISTEM.</span></h1>
+<p class="lead">AfterBefore povezuje ono što je danas razbacano po Instagramu, grupnim chatovima, mapama i sećanju — <strong>šta se dešava, ko ide, ko je stvarno stigao, koga si upoznao i šta je noć ostavila iza sebe.</strong></p>
+<div class="actions"><a class="btn primary" href="../app/">UĐI U BETA APP →</a><a class="btn" href="#loop">PROĐI JEDNU NOĆ</a></div>
+<div class="proof"><span class="pill">LIVE DISCOVERY</span><span class="pill">VERIFIED ARRIVAL</span><span class="pill">CREWS & MEET</span><span class="pill">QUESTS</span><span class="pill">NIGHT PASSPORT</span></div>
+</div></header>
+<section id="loop"><div class="wrap"><div class="kicker">JEDNA NOĆ KROZ APLIKACIJU</div><h2>Pre. Tokom. Posle.</h2><p class="sub">AfterBefore nije još jedan feed koji koristiš dok sediš kod kuće. Vrednost nastaje kada izađeš.</p>
+<div class="timeline">
+<div class="slot"><div class="time" style="color:var(--cyan)">20:45</div><div><h3>GRAD — vidiš gde je energija</h3><p>Događaji, mesta, scena i signali interesovanja na jednom mestu. Ne pitaš pet grupa „gde se ide večeras?“</p></div></div>
+<div class="slot"><div class="time" style="color:var(--uv)">22:10</div><div><h3>IDEM — šalješ nameru, ne lažni check-in</h3><p>Kažeš gde planiraš da ideš. To hrani gradski signal, ali se dolazak još ne računa.</p></div></div>
+<div class="slot"><div class="time" style="color:var(--hot)">23:52</div><div><h3>TU SAM — potvrđen dolazak</h3><p>Na mestu potvrđuješ prisustvo. Tu počinje noć u sistemu: reputacija, misije, ekipa i pouzdaniji nightlife podaci.</p></div></div>
+<div class="slot"><div class="time" style="color:var(--amber)">00:35</div><div><h3>EKIPA — ljudi koji su stvarno tu</h3><p>Otvorene ekipe i upoznavanje rade oko stvarne scene, ne oko beskonačnog swipe-a. Kontekst je noć koju već deliš.</p></div></div>
+<div class="slot"><div class="time" style="color:var(--green)">02:20</div><div><h3>MISIJE — doprinos postaje vrednost</h3><p>Quest može da te odvede na novo mesto, podstakne review ili aktivira nagradu partnera. Gamification prati realno ponašanje, ne virtuelne zadatke.</p></div></div>
+<div class="slot"><div class="time" style="color:var(--muted)">SUTRA</div><div><h3>JA — noć ostaje u pasošu</h3><p>Potvrđeni dolasci, ruta, pečati i progres pretvaraju izlazak u ličnu nightlife istoriju. Sledeći vikend ne krećeš od nule.</p></div></div>
+</div></div></section>
+<section><div class="wrap"><div class="kicker">CORE INTERFACE</div><h2>Tri tačke koje nose ceo proizvod.</h2><div class="grid g3">
+<article class="card"><div class="num">01 · GRAD</div><h3>Šta se dešava?</h3><p>Discovery sloj: događaji, mesta, ljudi, scena i misije. Grad je početna tačka, ne meni sa deset tabova.</p></article>
+<article class="card"><div class="num">02 · TU SAM</div><h3>Prisustvo je signal.</h3><p>Centralni orb potvrđuje dolazak i aktivira noć. Presence je primitive na kome se grade reputacija, nagrade i kvalitet podataka.</p></article>
+<article class="card"><div class="num">03 · JA</div><h3>Tvoj Night Passport.</h3><p>Identitet se gradi iz stvarnih noći: mesta, ruta, pečata, ekipe i doprinosa sceni.</p></article>
+</div></div></section>
+<section><div class="wrap"><div class="kicker">KAKO IZGLEDA U PRAKSI</div><h2>Telefon treba da nestane kada krene noć.</h2><p class="sub">Aplikacija radi posao pre i posle ključnog trenutka, a ne pokušava da postane glavna atrakcija kluba.</p>
+<div class="phone"><div class="screen"><div class="screenTop"><strong>AfterBefore</strong><span class="live">GRAD · LIVE</span></div>
+<div style="font-size:64px;font-weight:900;letter-spacing:-.07em;margin-top:28px">127</div><div class="mono" style="font-size:9px;color:var(--muted)">NAPOLJU · DEMO SIGNAL</div>
+<div class="event"><strong>Drugstore · večeras</strong><p style="color:var(--muted);font-size:13px;margin-top:4px">37 ide · techno · underground</p></div>
+<div class="event"><strong>Misija nedelje</strong><p style="color:var(--muted);font-size:13px;margin-top:4px">Otkrij novo mesto · pečat + partner nagrada</p></div>
+<div class="orb">TU<br>SAM</div><div class="mono" style="font-size:9px;text-align:center;color:var(--muted)">POTVRDI DOLAZAK</div>
+</div></div></div></section>
+<section><div class="wrap"><div class="kicker">ZAŠTO JE DRUGAČIJE</div><h2>Ne gradimo još jednu listu događaja.</h2><div class="compare">
+<div class="statement"><strong>Presence graph</strong><p>Razlika između „možda idem“ i „stvarno sam stigao“ daje AfterBefore-u signal koji klasični event listing nema.</p></div>
+<div class="statement"><strong>Nightlife identity</strong><p>Passport, reputacija i istorija doprinosa daju razlog da se korisnik vrati i kad trenutno ne kupuje kartu.</p></div>
+<div class="statement"><strong>Verified community data</strong><p>Reviews i signali imaju više smisla kada dolaze od ljudi za koje sistem ima potvrdu da su bili tamo.</p></div>
+<div class="statement"><strong>Venue intelligence</strong><p>Prostori mogu da vide razliku između planiranog i stvarnog dolaska i da aktiviraju misije bez kupovine običnog bannera.</p></div>
+</div></div></section>
+<section><div class="wrap"><div class="kicker">ZA SCENU, NE PREKO SCENE</div><h2>Ljudi, prostori i umetnici ulaze u isti sistem.</h2><div class="grid g3">
+<div class="card"><div class="num">RAVERS</div><h3>Otkrij. Pojavi se. Zapamti.</h3><p>Manje traženja, bolji kontekst, lakše povezivanje i nightlife istorija koja pripada tebi.</p></div>
+<div class="card"><div class="num">VENUES</div><h3>Od interesa do dolaska.</h3><p>Verified feedback, demand signal, quest aktivacije i agregatni podaci bez prodaje individualnog kretanja gostiju.</p></div>
+<div class="card"><div class="num">ARTISTS</div><h3>Scena dobija svoje profile.</h3><p>DJ-evi, tattoo umetnici i fotografi mogu imati prisustvo, timetable i portfolio koji žive uz stvarne događaje.</p></div>
+</div></div></section>
+<section><div class="wrap"><div class="kicker">PRIVACY & SAFETY</div><h2>Noć je intimna. Podaci moraju biti tretirani tako.</h2><div class="compare">
+<div class="statement privacy"><strong>Lokacija = potvrda dolaska</strong><p>Princip proizvoda je da lokacija služi za potvrdu prisustva, ne za prodaju individualne putanje kretanja.</p></div>
+<div class="statement privacy"><strong>Vidljivost je pod kontrolom korisnika</strong><p>Social funkcije treba da ostanu opt-in, sa block/report kontrolama i minimalnim izlaganjem ličnih podataka.</p></div>
+</div></div></section>
+<section class="cta"><div class="wrap"><div class="kicker">BETA · BEOGRAD</div><h2>Ne moraš da razumeš sve. Dovoljno je da izađeš jednu noć.</h2><p>Otvori beta aplikaciju i prođi core loop: GRAD → IDEM → TU SAM → JA.</p><div class="actions" style="justify-content:center"><a class="btn primary" href="../app/">OTVORI AFTERBEFORE →</a><a class="btn" href="../">NAZAD NA SAJT</a></div></div></section>
+<footer class="footer"><div class="wrap footerin"><span>© AfterBefore · Beograd</span><span><a href="../privatnost/">Privatnost</a> · <a href="../en/how-to/">English</a></span></div></footer>
+</body></html>
